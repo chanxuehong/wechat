@@ -59,10 +59,15 @@ type RequestMsg struct {
 	// err(21000), //涉嫌其他
 	Status     string `xml:"Status"     json:"Status,omitempty"`
 	TotalCount int    `xml:"TotalCount" json:"TotalCount,omitempty"` // group_id 下粉丝数, 或者 openid_list 中的粉丝数
-
 	// 过滤(过滤是指特定地区, 性别的过滤, 用户设置拒收的过滤; 用户接收已超4条的过滤）后,
 	// 准备发送的粉丝数, 原则上, FilterCount = SentCount + ErrorCount
 	FilterCount int `xml:"FilterCount" json:"FilterCount,omitempty"`
 	SentCount   int `xml:"SentCount"   json:"SentCount,omitempty"`  // 发送成功的粉丝数
 	ErrorCount  int `xml:"ErrorCount"  json:"ErrorCount,omitempty"` // 发送失败的粉丝数
+}
+
+// 因为 RequestMsg 结构体比较大, 每次都申请比较不划算, 并且这个结构体一般都是过度,
+// 不会常驻内存, 所以建议用对象池技术; 用对象池最好都要每次都 清零, 以防旧数据干扰.
+func (msg *RequestMsg) Zero() {
+	*msg = _zeroRequestMsg
 }
