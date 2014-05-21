@@ -200,6 +200,8 @@ func NewNewsResponseMsg(to, from string, articles []*Article) *NewsResponseMsg {
 	}
 }
 
+// 如果当前的图文数量已经达到了上限, 则返回错误, NewsResponseMsg 不做修改.
+// 其他情况下都返回 nil.
 func (msg *NewsResponseMsg) AppendArticle(article *Article) error {
 	if article == nil {
 		return nil
