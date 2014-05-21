@@ -66,6 +66,8 @@ type RequestMsg struct {
 	ErrorCount  int `xml:"ErrorCount"  json:"ErrorCount,omitempty"` // 发送失败的粉丝数
 }
 
+var _zeroRequestMsg RequestMsg
+
 // 因为 RequestMsg 结构体比较大, 每次都申请比较不划算, 并且这个结构体一般都是过度,
 // 不会常驻内存, 所以建议用对象池技术; 用对象池最好都要每次都 清零, 以防旧数据干扰.
 func (msg *RequestMsg) Zero() {
