@@ -180,6 +180,10 @@ type NewsResponseMsg struct {
 
 // NOTE: 如果图文消息数量大于微信的限制, 则把多余的清除.
 func NewNewsResponseMsg(to, from string, articles []*Article) *NewsResponseMsg {
+	if len(articles) > newsResponseMsgArticleCountLimit {
+		articles = articles[:newsResponseMsgArticleCountLimit]
+	}
+
 	return &NewsResponseMsg{
 		responseCommon: responseCommon{
 			ToUserName:   to,
