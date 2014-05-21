@@ -7,7 +7,7 @@ import (
 
 // 测试 RequestMsg 的 xml.Unmarshal() 和 RequestMsg.Zero()
 
-var unmarshalTests = []struct {
+var requestUnmarshalTests = []struct {
 	XML              []byte
 	ExpectRequestMsg RequestMsg
 }{
@@ -336,7 +336,7 @@ var unmarshalTests = []struct {
 func TestRequestMsgUnmarshalAndZero(t *testing.T) {
 	var msg RequestMsg
 
-	for _, test := range unmarshalTests {
+	for _, test := range requestUnmarshalTests {
 		msg.Zero() // 去掉这个肯定失败
 
 		if err := xml.Unmarshal(test.XML, &msg); err != nil {

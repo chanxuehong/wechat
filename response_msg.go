@@ -182,6 +182,8 @@ type NewsResponseMsg struct {
 func NewNewsResponseMsg(to, from string, articles []*Article) *NewsResponseMsg {
 	if len(articles) > newsResponseMsgArticleCountLimit {
 		articles = articles[:newsResponseMsgArticleCountLimit]
+	} else if articles == nil {
+		articles = make([]*Article, 0, newsResponseMsgArticleCountLimit)
 	}
 
 	return &NewsResponseMsg{
