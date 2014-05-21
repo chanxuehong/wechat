@@ -313,7 +313,7 @@ var responseMarshalTests = []struct {
 			}
 		}`),
 	},
-	{ // 回复图文消息
+	{ // 回复图文消息, 文章数量 == 1
 		NewsResponseMsg{
 			responseCommon: responseCommon{
 				ToUserName:   "toUser",
