@@ -1,4 +1,4 @@
-package wechat
+package message
 
 const (
 	// 请求消息类型

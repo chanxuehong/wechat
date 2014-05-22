@@ -1,4 +1,4 @@
-package wechat
+package message
 
 import (
 	"crypto/sha1"

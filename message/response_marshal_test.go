@@ -1,10 +1,10 @@
-package wechat
+package message
 
 import (
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
-	"regexp"
+	"github.com/chanxuehong/util"
 	"testing"
 )
 
@@ -17,13 +17,13 @@ var responseMarshalTests = []struct {
 }{
 	{ // 回复文本消息
 		TextResponseMsg{
-			responseCommon: responseCommon{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
-				MsgType:      "text",
+				MsgType:      RESP_MSG_TYPE_TEXT,
 			},
-			responseText: responseText{
+			textResponseBody: textResponseBody{
 				Content: "你好",
 			},
 		},
@@ -45,13 +45,13 @@ var responseMarshalTests = []struct {
 	},
 	{ // 回复图片消息
 		ImageResponseMsg{
-			responseCommon: responseCommon{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
-				MsgType:      "image",
+				MsgType:      RESP_MSG_TYPE_IMAGE,
 			},
-			responseImage: responseImage{
+			imageResponseBody: imageResponseBody{
 				MediaId: "media_id",
 			},
 		},
@@ -75,13 +75,13 @@ var responseMarshalTests = []struct {
 	},
 	{ // 回复语音消息
 		VoiceResponseMsg{
-			responseCommon: responseCommon{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
-				MsgType:      "voice",
+				MsgType:      RESP_MSG_TYPE_VOICE,
 			},
-			responseVoice: responseVoice{
+			voiceResponseBody: voiceResponseBody{
 				MediaId: "media_id",
 			},
 		},
@@ -105,13 +105,13 @@ var responseMarshalTests = []struct {
 	},
 	{ // 回复视频消息
 		VideoResponseMsg{
-			responseCommon: responseCommon{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
-				MsgType:      "video",
+				MsgType:      RESP_MSG_TYPE_VIDEO,
 			},
-			responseVideo: responseVideo{
+			videoResponseBody: videoResponseBody{
 				MediaId:     "media_id",
 				Title:       "title",
 				Description: "description",
@@ -141,13 +141,13 @@ var responseMarshalTests = []struct {
 	},
 	{ // 回复视频消息, 没有 title
 		VideoResponseMsg{
-			responseCommon: responseCommon{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
-				MsgType:      "video",
+				MsgType:      RESP_MSG_TYPE_VIDEO,
 			},
-			responseVideo: responseVideo{
+			videoResponseBody: videoResponseBody{
 				MediaId:     "media_id",
 				Description: "description",
 			},
@@ -174,13 +174,13 @@ var responseMarshalTests = []struct {
 	},
 	{ // 回复视频消息, 没有 description
 		VideoResponseMsg{
-			responseCommon: responseCommon{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
-				MsgType:      "video",
+				MsgType:      RESP_MSG_TYPE_VIDEO,
 			},
-			responseVideo: responseVideo{
+			videoResponseBody: videoResponseBody{
 				MediaId: "media_id",
 				Title:   "title",
 			},
@@ -207,13 +207,13 @@ var responseMarshalTests = []struct {
 	},
 	{ // 发送音乐消息
 		MusicResponseMsg{
-			responseCommon: responseCommon{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
-				MsgType:      "music",
+				MsgType:      RESP_MSG_TYPE_MUSIC,
 			},
-			responseMusic: responseMusic{
+			musicResponseBody: musicResponseBody{
 				Title:        "TITLE",
 				Description:  "DESCRIPTION",
 				MusicUrl:     "MUSIC_Url",
@@ -249,13 +249,13 @@ var responseMarshalTests = []struct {
 	},
 	{ // 发送音乐消息, 没有 title 和 DESCRIPTION
 		MusicResponseMsg{
-			responseCommon: responseCommon{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
-				MsgType:      "music",
+				MsgType:      RESP_MSG_TYPE_MUSIC,
 			},
-			responseMusic: responseMusic{
+			musicResponseBody: musicResponseBody{
 				MusicUrl:     "MUSIC_Url",
 				HQMusicUrl:   "HQ_MUSIC_Url",
 				ThumbMediaId: "media_id",
@@ -285,13 +285,13 @@ var responseMarshalTests = []struct {
 	},
 	{ // 回复图文消息, 文章数量 == 0
 		NewsResponseMsg{
-			responseCommon: responseCommon{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
-				MsgType:      "news",
+				MsgType:      RESP_MSG_TYPE_NEWS,
 			},
-			responseNews: responseNews{
+			newsResponseBody: newsResponseBody{
 				ArticleCount: 0,
 				Articles:     make([]*Article, 0),
 			},
@@ -315,13 +315,13 @@ var responseMarshalTests = []struct {
 	},
 	{ // 回复图文消息, 文章数量 == 1
 		NewsResponseMsg{
-			responseCommon: responseCommon{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
-				MsgType:      "news",
+				MsgType:      RESP_MSG_TYPE_NEWS,
 			},
-			responseNews: responseNews{
+			newsResponseBody: newsResponseBody{
 				ArticleCount: 1,
 				Articles: []*Article{
 					&Article{
@@ -365,13 +365,13 @@ var responseMarshalTests = []struct {
 	},
 	{ // 回复图文消息
 		NewsResponseMsg{
-			responseCommon: responseCommon{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
-				MsgType:      "news",
+				MsgType:      RESP_MSG_TYPE_NEWS,
 			},
-			responseNews: responseNews{
+			newsResponseBody: newsResponseBody{
 				ArticleCount: 2,
 				Articles: []*Article{
 					&Article{
@@ -434,9 +434,6 @@ var responseMarshalTests = []struct {
 }
 
 func TestResponseXMLandJSONMarshal(t *testing.T) {
-	// 匹配一个文本文件每行开头和结尾的空白(包括换行符)
-	var trim_rnt = regexp.MustCompile(`(?m)(^[\x20\t]*)|([\x20\t]*(\n|\r\n|\r))`)
-
 	for _, test := range responseMarshalTests {
 		// xml
 		b, err := xml.Marshal(test.Value)
@@ -444,7 +441,8 @@ func TestResponseXMLandJSONMarshal(t *testing.T) {
 			t.Errorf("xml.Marshal(%#v):\nError: %s\n", test.Value, err)
 			continue
 		}
-		want := trim_rnt.ReplaceAllLiteral(test.ExpectXML, []byte(""))
+
+		want := util.TrimSpace(test.ExpectXML)
 		if !bytes.Equal(b, want) {
 			t.Errorf("xml.Marshal(%#v):\nhave %#s\nwant %#s\n", test.Value, b, want)
 			continue
@@ -456,7 +454,7 @@ func TestResponseXMLandJSONMarshal(t *testing.T) {
 			t.Errorf("json.Marshal(%#v):\nError: %s\n", test.Value, err)
 			continue
 		}
-		want = trim_rnt.ReplaceAllLiteral(test.ExpectJSON, []byte(""))
+		want = util.TrimSpace(test.ExpectJSON)
 		if !bytes.Equal(b, want) {
 			t.Errorf("json.Marshal(%#v):\nhave %#s\nwant %#s\n", test.Value, b, want)
 			continue
