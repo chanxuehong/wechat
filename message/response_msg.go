@@ -157,15 +157,15 @@ func NewMusicResponseMsg(to, from, thumbMediaId, musicUrl, HQMusicUrl, title, de
 // news ========================================================================
 
 // 图文消息里的 item
-type Article struct {
+type NewsResponseArticle struct {
 	Title       string `xml:"Title,omitempty"       json:"title,omitempty"`       // 图文消息标题
 	Description string `xml:"Description,omitempty" json:"description,omitempty"` // 图文消息描述
 	PicUrl      string `xml:"PicUrl,omitempty"      json:"picurl,omitempty"`      // 图片链接, 支持JPG, PNG格式, 较好的效果为大图360*200, 小图200*200
 	Url         string `xml:"Url,omitempty"         json:"url,omitempty"`         // 点击图文消息跳转链接
 }
 type newsResponseBody struct {
-	ArticleCount int        `xml:"ArticleCount"  json:"-"`        // 图文消息个数, 限制为10条以内
-	Articles     []*Article `xml:"Articles>item" json:"articles"` // 多条图文消息信息, 默认第一个item为大图,注意, 如果图文数超过10, 则将会无响应
+	ArticleCount int                    `xml:"ArticleCount"  json:"-"`        // 图文消息个数, 限制为10条以内
+	Articles     []*NewsResponseArticle `xml:"Articles>item" json:"articles"` // 多条图文消息信息, 默认第一个item为大图,注意, 如果图文数超过10, 则将会无响应
 }
 
 // 图文消息
@@ -177,11 +177,11 @@ type NewsResponseMsg struct {
 }
 
 // NOTE: 如果图文消息数量大于微信的限制, 则把多余的截除.
-func NewNewsResponseMsg(to, from string, articles []*Article) *NewsResponseMsg {
+func NewNewsResponseMsg(to, from string, articles []*NewsResponseArticle) *NewsResponseMsg {
 	if len(articles) > newsResponseMsgArticleCountLimit {
 		articles = articles[:newsResponseMsgArticleCountLimit]
 	} else if articles == nil {
-		articles = make([]*Article, 0, newsResponseMsgArticleCountLimit)
+		articles = make([]*NewsResponseArticle, 0, newsResponseMsgArticleCountLimit)
 	}
 
 	return &NewsResponseMsg{
@@ -200,7 +200,7 @@ func NewNewsResponseMsg(to, from string, articles []*Article) *NewsResponseMsg {
 
 // 如果当前的图文数量已经达到了上限, 则返回错误, msg *NewsResponseMsg 不做修改;
 // 否则返回 nil.
-func (msg *NewsResponseMsg) AppendArticle(article *Article) error {
+func (msg *NewsResponseMsg) AppendArticle(article *NewsResponseArticle) error {
 	if article == nil {
 		return nil
 	}

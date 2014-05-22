@@ -293,7 +293,7 @@ var responseMarshalTests = []struct {
 			},
 			newsResponseBody: newsResponseBody{
 				ArticleCount: 0,
-				Articles:     make([]*Article, 0),
+				Articles:     make([]*NewsResponseArticle, 0),
 			},
 		},
 		[]byte(`<xml>
@@ -323,8 +323,8 @@ var responseMarshalTests = []struct {
 			},
 			newsResponseBody: newsResponseBody{
 				ArticleCount: 1,
-				Articles: []*Article{
-					&Article{
+				Articles: []*NewsResponseArticle{
+					&NewsResponseArticle{
 						Title:       "title1",
 						Description: "description1",
 						PicUrl:      "picurl",
@@ -373,14 +373,14 @@ var responseMarshalTests = []struct {
 			},
 			newsResponseBody: newsResponseBody{
 				ArticleCount: 2,
-				Articles: []*Article{
-					&Article{
+				Articles: []*NewsResponseArticle{
+					&NewsResponseArticle{
 						Title:       "title1",
 						Description: "description1",
 						PicUrl:      "picurl",
 						Url:         "url",
 					},
-					&Article{
+					&NewsResponseArticle{
 						Title:       "title",
 						Description: "description",
 						PicUrl:      "picurl",
