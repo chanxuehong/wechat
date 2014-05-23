@@ -1,5 +1,3 @@
-// 回复消息, 包括被动回复和主动回复
-
 package message
 
 import (
@@ -8,7 +6,9 @@ import (
 	"time"
 )
 
-type responseMsgCommonHead struct {
+const newsResponseArticleCountLimit = 10
+
+type responseCommonHead struct {
 	ToUserName   string `xml:"ToUserName"   json:"touser"`  // 接收方帐号(收到的OpenID)
 	FromUserName string `xml:"FromUserName" json:"-"`       // 开发者微信号
 	CreateTime   int64  `xml:"CreateTime"   json:"-"`       // 消息创建时间(整型), unixtime
@@ -17,24 +17,24 @@ type responseMsgCommonHead struct {
 
 // text ========================================================================
 
-type textResponseMsgBody struct {
+type textResponseBody struct {
 	Content string `xml:"Content" json:"content"` // 回复的消息内容(换行：在content中能够换行, 微信客户端就支持换行显示)
 }
-type TextResponseMsg struct {
+type TextResponse struct {
 	XMLName xml.Name `xml:"xml" json:"-"`
-	responseMsgCommonHead
-	textResponseMsgBody `json:"text"`
+	responseCommonHead
+	textResponseBody `json:"text"`
 }
 
-func NewTextResponseMsg(to, from, content string) *TextResponseMsg {
-	return &TextResponseMsg{
-		responseMsgCommonHead: responseMsgCommonHead{
+func NewTextResponse(to, from, content string) *TextResponse {
+	return &TextResponse{
+		responseCommonHead: responseCommonHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
 			MsgType:      RESP_MSG_TYPE_TEXT,
 		},
-		textResponseMsgBody: textResponseMsgBody{
+		textResponseBody: textResponseBody{
 			Content: content,
 		},
 	}
@@ -42,24 +42,24 @@ func NewTextResponseMsg(to, from, content string) *TextResponseMsg {
 
 // image =======================================================================
 
-type imageResponseMsgBody struct {
+type imageResponseBody struct {
 	MediaId string `xml:"Image>MediaId" json:"media_id"` // 通过上传多媒体文件, 得到的id
 }
-type ImageResponseMsg struct {
+type ImageResponse struct {
 	XMLName xml.Name `xml:"xml" json:"-"`
-	responseMsgCommonHead
-	imageResponseMsgBody `json:"image"`
+	responseCommonHead
+	imageResponseBody `json:"image"`
 }
 
-func NewImageResponseMsg(to, from, mediaId string) *ImageResponseMsg {
-	return &ImageResponseMsg{
-		responseMsgCommonHead: responseMsgCommonHead{
+func NewImageResponse(to, from, mediaId string) *ImageResponse {
+	return &ImageResponse{
+		responseCommonHead: responseCommonHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
 			MsgType:      RESP_MSG_TYPE_IMAGE,
 		},
-		imageResponseMsgBody: imageResponseMsgBody{
+		imageResponseBody: imageResponseBody{
 			MediaId: mediaId,
 		},
 	}
@@ -67,24 +67,24 @@ func NewImageResponseMsg(to, from, mediaId string) *ImageResponseMsg {
 
 // voice =======================================================================
 
-type voiceResponseMsgBody struct {
+type voiceResponseBody struct {
 	MediaId string `xml:"Voice>MediaId" json:"media_id"` // 通过上传多媒体文件, 得到的id
 }
-type VoiceResponseMsg struct {
+type VoiceResponse struct {
 	XMLName xml.Name `xml:"xml" json:"-"`
-	responseMsgCommonHead
-	voiceResponseMsgBody `json:"voice"`
+	responseCommonHead
+	voiceResponseBody `json:"voice"`
 }
 
-func NewVoiceResponseMsg(to, from, mediaId string) *VoiceResponseMsg {
-	return &VoiceResponseMsg{
-		responseMsgCommonHead: responseMsgCommonHead{
+func NewVoiceResponse(to, from, mediaId string) *VoiceResponse {
+	return &VoiceResponse{
+		responseCommonHead: responseCommonHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
 			MsgType:      RESP_MSG_TYPE_VOICE,
 		},
-		voiceResponseMsgBody: voiceResponseMsgBody{
+		voiceResponseBody: voiceResponseBody{
 			MediaId: mediaId,
 		},
 	}
@@ -92,27 +92,27 @@ func NewVoiceResponseMsg(to, from, mediaId string) *VoiceResponseMsg {
 
 // video =======================================================================
 
-type videoResponseMsgBody struct {
+type videoResponseBody struct {
 	MediaId     string `xml:"Video>MediaId"               json:"media_id"`              // 通过上传多媒体文件, 得到的id
 	Title       string `xml:"Video>Title,omitempty"       json:"title,omitempty"`       // 视频消息的标题
 	Description string `xml:"Video>Description,omitempty" json:"description,omitempty"` // 视频消息的描述
 }
-type VideoResponseMsg struct {
+type VideoResponse struct {
 	XMLName xml.Name `xml:"xml" json:"-"`
-	responseMsgCommonHead
-	videoResponseMsgBody `json:"video"`
+	responseCommonHead
+	videoResponseBody `json:"video"`
 }
 
 // title, description 可以为 ""
-func NewVideoResponseMsg(to, from, mediaId, title, description string) *VideoResponseMsg {
-	return &VideoResponseMsg{
-		responseMsgCommonHead: responseMsgCommonHead{
+func NewVideoResponse(to, from, mediaId, title, description string) *VideoResponse {
+	return &VideoResponse{
+		responseCommonHead: responseCommonHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
 			MsgType:      RESP_MSG_TYPE_VIDEO,
 		},
-		videoResponseMsgBody: videoResponseMsgBody{
+		videoResponseBody: videoResponseBody{
 			MediaId:     mediaId,
 			Title:       title,
 			Description: description,
@@ -122,29 +122,29 @@ func NewVideoResponseMsg(to, from, mediaId, title, description string) *VideoRes
 
 // music =======================================================================
 
-type musicResponseMsgBody struct {
+type musicResponseBody struct {
 	Title        string `xml:"Music>Title,omitempty"       json:"title,omitempty"`       // 音乐标题
 	Description  string `xml:"Music>Description,omitempty" json:"description,omitempty"` // 音乐描述
 	MusicUrl     string `xml:"Music>MusicUrl"              json:"musicurl"`              // 音乐链接
 	HQMusicUrl   string `xml:"Music>HQMusicUrl"            json:"hqmusicurl"`            // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
 	ThumbMediaId string `xml:"Music>ThumbMediaId"          json:"thumb_media_id"`        // 缩略图的媒体id, 通过上传多媒体文件, 得到的id
 }
-type MusicResponseMsg struct {
+type MusicResponse struct {
 	XMLName xml.Name `xml:"xml" json:"-"`
-	responseMsgCommonHead
-	musicResponseMsgBody `json:"music"`
+	responseCommonHead
+	musicResponseBody `json:"music"`
 }
 
 // title, description 可以为 ""
-func NewMusicResponseMsg(to, from, thumbMediaId, musicUrl, HQMusicUrl, title, description string) *MusicResponseMsg {
-	return &MusicResponseMsg{
-		responseMsgCommonHead: responseMsgCommonHead{
+func NewMusicResponse(to, from, thumbMediaId, musicUrl, HQMusicUrl, title, description string) *MusicResponse {
+	return &MusicResponse{
+		responseCommonHead: responseCommonHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
 			MsgType:      RESP_MSG_TYPE_MUSIC,
 		},
-		musicResponseMsgBody: musicResponseMsgBody{
+		musicResponseBody: musicResponseBody{
 			Title:        title,
 			Description:  description,
 			MusicUrl:     musicUrl,
@@ -164,49 +164,49 @@ type NewsResponseArticle struct {
 	Url         string `xml:"Url,omitempty"         json:"url,omitempty"`         // 点击图文消息跳转链接
 }
 
-type newsResponseMsgBody struct {
+type newsResponseBody struct {
 	ArticleCount int                    `xml:"ArticleCount"  json:"-"`        // 图文消息个数, 限制为10条以内
 	Articles     []*NewsResponseArticle `xml:"Articles>item" json:"articles"` // 多条图文消息信息, 默认第一个item为大图,注意, 如果图文数超过10, 则将会无响应
 }
 
 // 图文消息
-//  NOTE: 尽量用 NewNewsResponseMsg 创建对象
-type NewsResponseMsg struct {
+//  NOTE: 尽量用 NewNewsResponse 创建对象
+type NewsResponse struct {
 	XMLName xml.Name `xml:"xml" json:"-"`
-	responseMsgCommonHead
-	newsResponseMsgBody `json:"news"`
+	responseCommonHead
+	newsResponseBody `json:"news"`
 }
 
 // NOTE: 如果图文消息数量大于微信的限制, 则把多余的截除.
-func NewNewsResponseMsg(to, from string, articles []*NewsResponseArticle) *NewsResponseMsg {
-	if len(articles) > newsResponseMsgArticleCountLimit {
-		articles = articles[:newsResponseMsgArticleCountLimit]
+func NewNewsResponse(to, from string, articles []*NewsResponseArticle) *NewsResponse {
+	if len(articles) > newsResponseArticleCountLimit {
+		articles = articles[:newsResponseArticleCountLimit]
 	} else if articles == nil {
-		articles = make([]*NewsResponseArticle, 0, newsResponseMsgArticleCountLimit)
+		articles = make([]*NewsResponseArticle, 0, newsResponseArticleCountLimit)
 	}
 
-	return &NewsResponseMsg{
-		responseMsgCommonHead: responseMsgCommonHead{
+	return &NewsResponse{
+		responseCommonHead: responseCommonHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
 			MsgType:      RESP_MSG_TYPE_NEWS,
 		},
-		newsResponseMsgBody: newsResponseMsgBody{
+		newsResponseBody: newsResponseBody{
 			ArticleCount: len(articles),
 			Articles:     articles,
 		},
 	}
 }
 
-// 如果当前的图文数量已经达到了上限, 则返回错误, msg *NewsResponseMsg 不做修改;
+// 如果当前的图文数量已经达到了上限, 则返回错误, msg *NewsResponse 不做修改;
 // 否则返回 nil.
-func (msg *NewsResponseMsg) AppendArticle(article *NewsResponseArticle) error {
+func (msg *NewsResponse) AppendArticle(article *NewsResponseArticle) error {
 	if article == nil {
 		return nil
 	}
-	if msg.ArticleCount >= newsResponseMsgArticleCountLimit {
-		return fmt.Errorf("当前的图文消息已经达到数量上限: %d\n", newsResponseMsgArticleCountLimit)
+	if msg.ArticleCount >= newsResponseArticleCountLimit {
+		return fmt.Errorf("当前的图文消息已经达到数量上限: %d\n", newsResponseArticleCountLimit)
 	}
 
 	msg.Articles = append(msg.Articles, article)

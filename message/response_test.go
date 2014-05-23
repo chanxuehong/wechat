@@ -16,14 +16,14 @@ var responseMarshalTests = []struct {
 	ExpectJSON []byte
 }{
 	{ // 回复文本消息
-		TextResponseMsg{
-			responseMsgCommonHead: responseMsgCommonHead{
+		TextResponse{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
 				MsgType:      RESP_MSG_TYPE_TEXT,
 			},
-			textResponseMsgBody: textResponseMsgBody{
+			textResponseBody: textResponseBody{
 				Content: "你好",
 			},
 		},
@@ -44,14 +44,14 @@ var responseMarshalTests = []struct {
 		}`),
 	},
 	{ // 回复图片消息
-		ImageResponseMsg{
-			responseMsgCommonHead: responseMsgCommonHead{
+		ImageResponse{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
 				MsgType:      RESP_MSG_TYPE_IMAGE,
 			},
-			imageResponseMsgBody: imageResponseMsgBody{
+			imageResponseBody: imageResponseBody{
 				MediaId: "media_id",
 			},
 		},
@@ -74,14 +74,14 @@ var responseMarshalTests = []struct {
 		}`),
 	},
 	{ // 回复语音消息
-		VoiceResponseMsg{
-			responseMsgCommonHead: responseMsgCommonHead{
+		VoiceResponse{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
 				MsgType:      RESP_MSG_TYPE_VOICE,
 			},
-			voiceResponseMsgBody: voiceResponseMsgBody{
+			voiceResponseBody: voiceResponseBody{
 				MediaId: "media_id",
 			},
 		},
@@ -104,14 +104,14 @@ var responseMarshalTests = []struct {
 		}`),
 	},
 	{ // 回复视频消息
-		VideoResponseMsg{
-			responseMsgCommonHead: responseMsgCommonHead{
+		VideoResponse{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
 				MsgType:      RESP_MSG_TYPE_VIDEO,
 			},
-			videoResponseMsgBody: videoResponseMsgBody{
+			videoResponseBody: videoResponseBody{
 				MediaId:     "media_id",
 				Title:       "title",
 				Description: "description",
@@ -140,14 +140,14 @@ var responseMarshalTests = []struct {
 		}`),
 	},
 	{ // 回复视频消息, 没有 title
-		VideoResponseMsg{
-			responseMsgCommonHead: responseMsgCommonHead{
+		VideoResponse{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
 				MsgType:      RESP_MSG_TYPE_VIDEO,
 			},
-			videoResponseMsgBody: videoResponseMsgBody{
+			videoResponseBody: videoResponseBody{
 				MediaId:     "media_id",
 				Description: "description",
 			},
@@ -173,14 +173,14 @@ var responseMarshalTests = []struct {
 		}`),
 	},
 	{ // 回复视频消息, 没有 description
-		VideoResponseMsg{
-			responseMsgCommonHead: responseMsgCommonHead{
+		VideoResponse{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
 				MsgType:      RESP_MSG_TYPE_VIDEO,
 			},
-			videoResponseMsgBody: videoResponseMsgBody{
+			videoResponseBody: videoResponseBody{
 				MediaId: "media_id",
 				Title:   "title",
 			},
@@ -206,14 +206,14 @@ var responseMarshalTests = []struct {
 		}`),
 	},
 	{ // 发送音乐消息
-		MusicResponseMsg{
-			responseMsgCommonHead: responseMsgCommonHead{
+		MusicResponse{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
 				MsgType:      RESP_MSG_TYPE_MUSIC,
 			},
-			musicResponseMsgBody: musicResponseMsgBody{
+			musicResponseBody: musicResponseBody{
 				Title:        "TITLE",
 				Description:  "DESCRIPTION",
 				MusicUrl:     "MUSIC_Url",
@@ -248,14 +248,14 @@ var responseMarshalTests = []struct {
 		}`),
 	},
 	{ // 发送音乐消息, 没有 title 和 DESCRIPTION
-		MusicResponseMsg{
-			responseMsgCommonHead: responseMsgCommonHead{
+		MusicResponse{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
 				MsgType:      RESP_MSG_TYPE_MUSIC,
 			},
-			musicResponseMsgBody: musicResponseMsgBody{
+			musicResponseBody: musicResponseBody{
 				MusicUrl:     "MUSIC_Url",
 				HQMusicUrl:   "HQ_MUSIC_Url",
 				ThumbMediaId: "media_id",
@@ -284,14 +284,14 @@ var responseMarshalTests = []struct {
 		}`),
 	},
 	{ // 回复图文消息, 文章数量 == 0
-		NewsResponseMsg{
-			responseMsgCommonHead: responseMsgCommonHead{
+		NewsResponse{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
 				MsgType:      RESP_MSG_TYPE_NEWS,
 			},
-			newsResponseMsgBody: newsResponseMsgBody{
+			newsResponseBody: newsResponseBody{
 				ArticleCount: 0,
 				Articles:     make([]*NewsResponseArticle, 0),
 			},
@@ -314,14 +314,14 @@ var responseMarshalTests = []struct {
 		}`),
 	},
 	{ // 回复图文消息, 文章数量 == 1
-		NewsResponseMsg{
-			responseMsgCommonHead: responseMsgCommonHead{
+		NewsResponse{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
 				MsgType:      RESP_MSG_TYPE_NEWS,
 			},
-			newsResponseMsgBody: newsResponseMsgBody{
+			newsResponseBody: newsResponseBody{
 				ArticleCount: 1,
 				Articles: []*NewsResponseArticle{
 					&NewsResponseArticle{
@@ -364,14 +364,14 @@ var responseMarshalTests = []struct {
 		}`),
 	},
 	{ // 回复图文消息
-		NewsResponseMsg{
-			responseMsgCommonHead: responseMsgCommonHead{
+		NewsResponse{
+			responseCommonHead: responseCommonHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
 				MsgType:      RESP_MSG_TYPE_NEWS,
 			},
-			newsResponseMsgBody: newsResponseMsgBody{
+			newsResponseBody: newsResponseBody{
 				ArticleCount: 2,
 				Articles: []*NewsResponseArticle{
 					&NewsResponseArticle{

@@ -1,13 +1,11 @@
-// 请求消息
-
 package message
 
 import (
 	"encoding/xml"
 )
 
-// 包括了所有的请求消息类型
-type RequestMsg struct {
+// 包括了所有从微信服务器推送过来的消息类型
+type Request struct {
 	XMLName xml.Name `xml:"xml" json:"-"`
 
 	// head
@@ -66,11 +64,11 @@ type RequestMsg struct {
 	ErrorCount  int `xml:"ErrorCount"  json:"ErrorCount,omitempty"` // 发送失败的粉丝数
 }
 
-var _zeroRequestMsg RequestMsg
+var _zeroRequest Request
 
-// 因为 RequestMsg 结构体比较大, 每次都申请比较不划算, 并且这个结构体一般都是过度,
+// 因为 Request 结构体比较大, 每次都申请比较不划算, 并且这个结构体一般都是过度,
 // 不会常驻内存, 所以建议用对象池技术; 用对象池最好都要每次都 清零, 以防旧数据干扰.
-func (msg *RequestMsg) Zero() *RequestMsg {
-	*msg = _zeroRequestMsg
+func (msg *Request) Zero() *Request {
+	*msg = _zeroRequest
 	return msg
 }

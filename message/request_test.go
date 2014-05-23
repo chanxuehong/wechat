@@ -5,11 +5,11 @@ import (
 	"testing"
 )
 
-// 测试 RequestMsg 的 xml.Unmarshal() 和 RequestMsg.Zero()
+// 测试 Request 的 xml.Unmarshal() 和 Request.Zero()
 
 var requestUnmarshalTests = []struct {
-	XML              []byte
-	ExpectRequestMsg RequestMsg
+	XML           []byte
+	ExpectRequest Request
 }{
 	{ // 文本消息
 		[]byte(`<xml>
@@ -20,7 +20,7 @@ var requestUnmarshalTests = []struct {
 		<Content><![CDATA[this is a test]]></Content>
 		<MsgId>1234567890123456</MsgId>
 		</xml>`),
-		RequestMsg{
+		Request{
 			XMLName:      xml.Name{Space: "", Local: "xml"},
 			ToUserName:   "toUser",
 			FromUserName: "fromUser",
@@ -40,7 +40,7 @@ var requestUnmarshalTests = []struct {
 		<MediaId><![CDATA[media_id]]></MediaId>
 		<MsgId>1234567890123456</MsgId>
 		</xml>`),
-		RequestMsg{
+		Request{
 			XMLName:      xml.Name{Space: "", Local: "xml"},
 			ToUserName:   "toUser",
 			FromUserName: "fromUser",
@@ -61,7 +61,7 @@ var requestUnmarshalTests = []struct {
 		<Format><![CDATA[Format]]></Format>
 		<MsgId>1234567890123456</MsgId>
 		</xml>`),
-		RequestMsg{
+		Request{
 			XMLName:      xml.Name{Space: "", Local: "xml"},
 			ToUserName:   "toUser",
 			FromUserName: "fromUser",
@@ -83,7 +83,7 @@ var requestUnmarshalTests = []struct {
 		<Recognition><![CDATA[腾讯微信团队]]></Recognition>
 		<MsgId>1234567890123456</MsgId>
 		</xml>`),
-		RequestMsg{
+		Request{
 			XMLName:      xml.Name{Space: "", Local: "xml"},
 			ToUserName:   "toUser",
 			FromUserName: "fromUser",
@@ -105,7 +105,7 @@ var requestUnmarshalTests = []struct {
 		<ThumbMediaId><![CDATA[thumb_media_id]]></ThumbMediaId>
 		<MsgId>1234567890123456</MsgId>
 		</xml>`),
-		RequestMsg{
+		Request{
 			XMLName:      xml.Name{Space: "", Local: "xml"},
 			ToUserName:   "toUser",
 			FromUserName: "fromUser",
@@ -128,7 +128,7 @@ var requestUnmarshalTests = []struct {
 		<Label><![CDATA[位置信息]]></Label>
 		<MsgId>1234567890123456</MsgId>
 		</xml>`),
-		RequestMsg{
+		Request{
 			XMLName:      xml.Name{Space: "", Local: "xml"},
 			ToUserName:   "toUser",
 			FromUserName: "fromUser",
@@ -152,7 +152,7 @@ var requestUnmarshalTests = []struct {
 		<Url><![CDATA[url]]></Url>
 		<MsgId>1234567890123456</MsgId>
 		</xml>`),
-		RequestMsg{
+		Request{
 			XMLName:      xml.Name{Space: "", Local: "xml"},
 			ToUserName:   "toUser",
 			FromUserName: "fromUser",
@@ -172,7 +172,7 @@ var requestUnmarshalTests = []struct {
 		<MsgType><![CDATA[event]]></MsgType>
 		<Event><![CDATA[subscribe]]></Event>
 		</xml>`),
-		RequestMsg{
+		Request{
 			XMLName:      xml.Name{Space: "", Local: "xml"},
 			ToUserName:   "toUser",
 			FromUserName: "FromUser",
@@ -189,7 +189,7 @@ var requestUnmarshalTests = []struct {
 		<MsgType><![CDATA[event]]></MsgType>
 		<Event><![CDATA[unsubscribe]]></Event>
 		</xml>`),
-		RequestMsg{
+		Request{
 			XMLName:      xml.Name{Space: "", Local: "xml"},
 			ToUserName:   "toUser",
 			FromUserName: "FromUser",
@@ -207,7 +207,7 @@ var requestUnmarshalTests = []struct {
 		<EventKey><![CDATA[qrscene_123123]]></EventKey>
 		<Ticket><![CDATA[TICKET]]></Ticket>
 		</xml>`),
-		RequestMsg{
+		Request{
 			XMLName:      xml.Name{Space: "", Local: "xml"},
 			ToUserName:   "toUser",
 			FromUserName: "FromUser",
@@ -228,7 +228,7 @@ var requestUnmarshalTests = []struct {
 		<EventKey><![CDATA[SCENE_VALUE]]></EventKey>
 		<Ticket><![CDATA[TICKET]]></Ticket>
 		</xml>`),
-		RequestMsg{
+		Request{
 			XMLName:      xml.Name{Space: "", Local: "xml"},
 			ToUserName:   "toUser",
 			FromUserName: "FromUser",
@@ -250,7 +250,7 @@ var requestUnmarshalTests = []struct {
 		<Longitude>113.555555</Longitude>
 		<Precision>119.555555</Precision>
 		</xml>`),
-		RequestMsg{
+		Request{
 			XMLName:      xml.Name{Space: "", Local: "xml"},
 			ToUserName:   "toUser",
 			FromUserName: "fromUser",
@@ -271,7 +271,7 @@ var requestUnmarshalTests = []struct {
 		<Event><![CDATA[CLICK]]></Event>
 		<EventKey><![CDATA[EVENTKEY]]></EventKey>
 		</xml>`),
-		RequestMsg{
+		Request{
 			XMLName:      xml.Name{Space: "", Local: "xml"},
 			ToUserName:   "toUser",
 			FromUserName: "FromUser",
@@ -290,7 +290,7 @@ var requestUnmarshalTests = []struct {
 		<Event><![CDATA[VIEW]]></Event>
 		<EventKey><![CDATA[www.qq.com]]></EventKey>
 		</xml>`),
-		RequestMsg{
+		Request{
 			XMLName:      xml.Name{Space: "", Local: "xml"},
 			ToUserName:   "toUser",
 			FromUserName: "FromUser",
@@ -314,7 +314,7 @@ var requestUnmarshalTests = []struct {
 		<SentCount>75</SentCount>
 		<ErrorCount>75</ErrorCount>
 		</xml>`),
-		RequestMsg{
+		Request{
 			XMLName:      xml.Name{Space: "", Local: "xml"},
 			ToUserName:   "gh_3e8adccde292",
 			FromUserName: "oR5Gjjl_eiZoUpGozMo7dbBJ362A",
@@ -332,9 +332,9 @@ var requestUnmarshalTests = []struct {
 }
 
 // 只测试 unmarshal 了, marshal 比 unmarshal 简单, 没有层级结构,
-// 同时测试 RequestMsg.Zero 是否能正确工作.
-func TestRequestMsgUnmarshalAndZero(t *testing.T) {
-	var msg RequestMsg
+// 同时测试 Request.Zero 是否能正确工作.
+func TestRequestUnmarshalAndZero(t *testing.T) {
+	var msg Request
 
 	for _, test := range requestUnmarshalTests {
 		msg.Zero() // 去掉这个肯定失败
@@ -343,7 +343,7 @@ func TestRequestMsgUnmarshalAndZero(t *testing.T) {
 			t.Errorf("unmarshal(%#q):\nError: %s\n", test.XML, err)
 			continue
 		}
-		if got, want := msg, test.ExpectRequestMsg; got != want {
+		if got, want := msg, test.ExpectRequest; got != want {
 			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", test.XML, got, want)
 			continue
 		}
