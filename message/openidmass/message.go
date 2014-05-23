@@ -15,8 +15,7 @@ func (msg *commonMsgHead) AppendToUser(touser ...string) {
 		return
 	}
 
-	n := msgToUserCountLimit - len(msg.ToUser)
-	if len(touser) > n {
+	if n := msgToUserCountLimit - len(msg.ToUser); len(touser) > n {
 		touser = touser[:n]
 	}
 

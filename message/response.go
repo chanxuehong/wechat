@@ -202,12 +202,11 @@ func (msg *NewsResponse) AppendArticle(article ...*NewsResponseArticle) {
 	if len(article) <= 0 {
 		return
 	}
-	if msg.ArticleCount >= newsResponseArticleCountLimit {
+	if len(msg.Articles) >= newsResponseArticleCountLimit {
 		return
 	}
 
-	n := newsResponseArticleCountLimit - msg.ArticleCount
-	if len(article) > n {
+	if n := newsResponseArticleCountLimit - len(msg.Articles); len(article) > n {
 		article = article[:n]
 	}
 
