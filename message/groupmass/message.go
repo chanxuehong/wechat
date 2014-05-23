@@ -83,7 +83,7 @@ func NewImageMsg(groupId, mediaId string) *ImageMsg {
 	return &msg
 }
 
-// voice =======================================================================
+// video =======================================================================
 
 type VideoMsg struct {
 	commonMsgHead

@@ -122,7 +122,7 @@ func NewImageMsg(touser []string, mediaId string) *ImageMsg {
 	return &msg
 }
 
-// voice =======================================================================
+// video =======================================================================
 
 type VideoMsg struct {
 	commonMsgHead
