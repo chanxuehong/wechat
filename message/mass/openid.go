@@ -1,19 +1,19 @@
-package openidmass
+package mass
 
-type commonMsgHead struct {
+type commonOpenIdMsgHead struct {
 	ToUser  []string `json:"touser"`
 	MsgType string   `json:"msgtype"`
 }
 
-func (msg *commonMsgHead) AppendToUser(touser ...string) {
+func (msg *commonOpenIdMsgHead) AppendToUser(touser ...string) {
 	if len(touser) <= 0 {
 		return
 	}
-	if len(msg.ToUser) >= MsgToUserCountLimit {
+	if len(msg.ToUser) >= OpenIdMsgToUserCountLimit {
 		return
 	}
 
-	if n := MsgToUserCountLimit - len(msg.ToUser); len(touser) > n {
+	if n := OpenIdMsgToUserCountLimit - len(msg.ToUser); len(touser) > n {
 		touser = touser[:n]
 	}
 
@@ -22,24 +22,24 @@ func (msg *commonMsgHead) AppendToUser(touser ...string) {
 
 // news ========================================================================
 
-type NewsMsg struct {
-	commonMsgHead
+type OpenIdNewsMsg struct {
+	commonOpenIdMsgHead
 
 	News struct {
 		MediaId string `json:"media_id"`
 	} `json:"mpnews"`
 }
 
-func NewNewsMsg(touser []string, mediaId string) *NewsMsg {
-	if len(touser) > MsgToUserCountLimit {
-		touser = touser[:MsgToUserCountLimit]
+func NewOpenIdNewsMsg(touser []string, mediaId string) *OpenIdNewsMsg {
+	if len(touser) > OpenIdMsgToUserCountLimit {
+		touser = touser[:OpenIdMsgToUserCountLimit]
 	} else if touser == nil {
 		touser = make([]string, 0, 16)
 	}
 
-	var msg NewsMsg
+	var msg OpenIdNewsMsg
 	msg.ToUser = touser
-	msg.MsgType = MSG_TYPE_NEWS
+	msg.MsgType = OPENID_MSG_TYPE_NEWS
 	msg.News.MediaId = mediaId
 
 	return &msg
@@ -47,24 +47,24 @@ func NewNewsMsg(touser []string, mediaId string) *NewsMsg {
 
 // text ========================================================================
 
-type TextMsg struct {
-	commonMsgHead
+type OpenIdTextMsg struct {
+	commonOpenIdMsgHead
 
 	Text struct {
 		Content string `json:"content"`
 	} `json:"text"`
 }
 
-func NewTextMsg(touser []string, content string) *TextMsg {
-	if len(touser) > MsgToUserCountLimit {
-		touser = touser[:MsgToUserCountLimit]
+func NewOpenIdTextMsg(touser []string, content string) *OpenIdTextMsg {
+	if len(touser) > OpenIdMsgToUserCountLimit {
+		touser = touser[:OpenIdMsgToUserCountLimit]
 	} else if touser == nil {
 		touser = make([]string, 0, 16)
 	}
 
-	var msg TextMsg
+	var msg OpenIdTextMsg
 	msg.ToUser = touser
-	msg.MsgType = MSG_TYPE_TEXT
+	msg.MsgType = OPENID_MSG_TYPE_TEXT
 	msg.Text.Content = content
 
 	return &msg
@@ -72,24 +72,24 @@ func NewTextMsg(touser []string, content string) *TextMsg {
 
 // voice =======================================================================
 
-type VoiceMsg struct {
-	commonMsgHead
+type OpenIdVoiceMsg struct {
+	commonOpenIdMsgHead
 
 	Voice struct {
 		MediaId string `json:"media_id"`
 	} `json:"voice"`
 }
 
-func NewVoiceMsg(touser []string, mediaId string) *VoiceMsg {
-	if len(touser) > MsgToUserCountLimit {
-		touser = touser[:MsgToUserCountLimit]
+func NewOpenIdVoiceMsg(touser []string, mediaId string) *OpenIdVoiceMsg {
+	if len(touser) > OpenIdMsgToUserCountLimit {
+		touser = touser[:OpenIdMsgToUserCountLimit]
 	} else if touser == nil {
 		touser = make([]string, 0, 16)
 	}
 
-	var msg VoiceMsg
+	var msg OpenIdVoiceMsg
 	msg.ToUser = touser
-	msg.MsgType = MSG_TYPE_VOICE
+	msg.MsgType = OPENID_MSG_TYPE_VOICE
 	msg.Voice.MediaId = mediaId
 
 	return &msg
@@ -97,24 +97,24 @@ func NewVoiceMsg(touser []string, mediaId string) *VoiceMsg {
 
 // image =======================================================================
 
-type ImageMsg struct {
-	commonMsgHead
+type OpenIdImageMsg struct {
+	commonOpenIdMsgHead
 
 	Image struct {
 		MediaId string `json:"media_id"`
 	} `json:"image"`
 }
 
-func NewImageMsg(touser []string, mediaId string) *ImageMsg {
-	if len(touser) > MsgToUserCountLimit {
-		touser = touser[:MsgToUserCountLimit]
+func NewOpenIdImageMsg(touser []string, mediaId string) *OpenIdImageMsg {
+	if len(touser) > OpenIdMsgToUserCountLimit {
+		touser = touser[:OpenIdMsgToUserCountLimit]
 	} else if touser == nil {
 		touser = make([]string, 0, 16)
 	}
 
-	var msg ImageMsg
+	var msg OpenIdImageMsg
 	msg.ToUser = touser
-	msg.MsgType = MSG_TYPE_IMAGE
+	msg.MsgType = OPENID_MSG_TYPE_IMAGE
 	msg.Image.MediaId = mediaId
 
 	return &msg
@@ -122,8 +122,8 @@ func NewImageMsg(touser []string, mediaId string) *ImageMsg {
 
 // video =======================================================================
 
-type VideoMsg struct {
-	commonMsgHead
+type OpenIdVideoMsg struct {
+	commonOpenIdMsgHead
 
 	Video struct {
 		MediaId     string `json:"media_id"`
@@ -132,16 +132,16 @@ type VideoMsg struct {
 	} `json:"video"`
 }
 
-func NewVideoMsg(touser []string, mediaId, title, description string) *VideoMsg {
-	if len(touser) > MsgToUserCountLimit {
-		touser = touser[:MsgToUserCountLimit]
+func NewOpenIdVideoMsg(touser []string, mediaId, title, description string) *OpenIdVideoMsg {
+	if len(touser) > OpenIdMsgToUserCountLimit {
+		touser = touser[:OpenIdMsgToUserCountLimit]
 	} else if touser == nil {
 		touser = make([]string, 0, 16)
 	}
 
-	var msg VideoMsg
+	var msg OpenIdVideoMsg
 	msg.ToUser = touser
-	msg.MsgType = MSG_TYPE_VIDEO
+	msg.MsgType = OPENID_MSG_TYPE_VIDEO
 	msg.Video.MediaId = mediaId
 	msg.Video.Title = title
 	msg.Video.Description = description

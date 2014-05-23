@@ -1,7 +1,14 @@
 package media
 
+// 上传媒体成功时的回复报文
+type UploadResponse struct {
+	MediaType string `json:"type"`
+	MediaId   string `json:"media_id"`
+	CreatedAt string `json:"created_at"`
+}
+
 // 上传图文消息里的 item
-type NewsUploadArticle struct {
+type UploadNewsMsgArticle struct {
 	ThumbMediaId     string `json:"thumb_media_id"`               // 图文消息缩略图的media_id，可以在基础支持-上传多媒体文件接口中获得
 	Author           string `json:"author,omitempty"`             // 图文消息的作者
 	Title            string `json:"title"`                        // 图文消息的标题
@@ -11,6 +18,13 @@ type NewsUploadArticle struct {
 }
 
 // 上传图文消息
-type NewsUploadMsg struct {
-	Articles []*NewsUploadArticle `json:"articles"` // 图文消息，一个图文消息支持1到10条图文
+type UploadNewsMsg struct {
+	Articles []*UploadNewsMsgArticle `json:"articles"` // 图文消息，一个图文消息支持1到10条图文
+}
+
+// 上传视频消息
+type UploadVideoMsg struct {
+	MediaId     string `json:"media_id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }

@@ -1,6 +1,6 @@
-package groupmass
+package mass
 
-type commonMsgHead struct {
+type commonGroupMsgHead struct {
 	Filter struct {
 		GroupId string `json:"group_id"`
 	} `json:"filter"`
@@ -9,18 +9,18 @@ type commonMsgHead struct {
 
 // news ========================================================================
 
-type NewsMsg struct {
-	commonMsgHead
+type GroupNewsMsg struct {
+	commonGroupMsgHead
 
 	News struct {
 		MediaId string `json:"media_id"`
 	} `json:"mpnews"`
 }
 
-func NewNewsMsg(groupId, mediaId string) *NewsMsg {
-	var msg NewsMsg
+func NewGroupNewsMsg(groupId, mediaId string) *GroupNewsMsg {
+	var msg GroupNewsMsg
 	msg.Filter.GroupId = groupId
-	msg.MsgType = MSG_TYPE_NEWS
+	msg.MsgType = GROUP_MSG_TYPE_NEWS
 	msg.News.MediaId = mediaId
 
 	return &msg
@@ -28,18 +28,18 @@ func NewNewsMsg(groupId, mediaId string) *NewsMsg {
 
 // text ========================================================================
 
-type TextMsg struct {
-	commonMsgHead
+type GroupTextMsg struct {
+	commonGroupMsgHead
 
 	Text struct {
 		Content string `json:"content"`
 	} `json:"text"`
 }
 
-func NewTextMsg(groupId, content string) *TextMsg {
-	var msg TextMsg
+func NewGroupTextMsg(groupId, content string) *GroupTextMsg {
+	var msg GroupTextMsg
 	msg.Filter.GroupId = groupId
-	msg.MsgType = MSG_TYPE_TEXT
+	msg.MsgType = GROUP_MSG_TYPE_TEXT
 	msg.Text.Content = content
 
 	return &msg
@@ -47,18 +47,18 @@ func NewTextMsg(groupId, content string) *TextMsg {
 
 // voice =======================================================================
 
-type VoiceMsg struct {
-	commonMsgHead
+type GroupVoiceMsg struct {
+	commonGroupMsgHead
 
 	Voice struct {
 		MediaId string `json:"media_id"`
 	} `json:"voice"`
 }
 
-func NewVoiceMsg(groupId, mediaId string) *VoiceMsg {
-	var msg VoiceMsg
+func NewGroupVoiceMsg(groupId, mediaId string) *GroupVoiceMsg {
+	var msg GroupVoiceMsg
 	msg.Filter.GroupId = groupId
-	msg.MsgType = MSG_TYPE_VOICE
+	msg.MsgType = GROUP_MSG_TYPE_VOICE
 	msg.Voice.MediaId = mediaId
 
 	return &msg
@@ -66,18 +66,18 @@ func NewVoiceMsg(groupId, mediaId string) *VoiceMsg {
 
 // image =======================================================================
 
-type ImageMsg struct {
-	commonMsgHead
+type GroupImageMsg struct {
+	commonGroupMsgHead
 
 	Image struct {
 		MediaId string `json:"media_id"`
 	} `json:"image"`
 }
 
-func NewImageMsg(groupId, mediaId string) *ImageMsg {
-	var msg ImageMsg
+func NewGroupImageMsg(groupId, mediaId string) *GroupImageMsg {
+	var msg GroupImageMsg
 	msg.Filter.GroupId = groupId
-	msg.MsgType = MSG_TYPE_IMAGE
+	msg.MsgType = GROUP_MSG_TYPE_IMAGE
 	msg.Image.MediaId = mediaId
 
 	return &msg
@@ -85,18 +85,18 @@ func NewImageMsg(groupId, mediaId string) *ImageMsg {
 
 // video =======================================================================
 
-type VideoMsg struct {
-	commonMsgHead
+type GroupVideoMsg struct {
+	commonGroupMsgHead
 
 	Video struct {
 		MediaId string `json:"media_id"`
 	} `json:"mpvideo"`
 }
 
-func NewVideoMsg(groupId, mediaId string) *VideoMsg {
-	var msg VideoMsg
+func NewGroupVideoMsg(groupId, mediaId string) *GroupVideoMsg {
+	var msg GroupVideoMsg
 	msg.Filter.GroupId = groupId
-	msg.MsgType = MSG_TYPE_VIDEO
+	msg.MsgType = GROUP_MSG_TYPE_VIDEO
 	msg.Video.MediaId = mediaId
 
 	return &msg
