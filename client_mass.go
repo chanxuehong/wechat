@@ -6,45 +6,45 @@ import (
 
 // 根据分组群发
 
-func (c *Client) MassSendGroupNews(msg *mass.GroupNewsMsg) (*mass.MassResponse, error) {
+func (c *Client) MassSendGroupNews(msg *mass.GroupNews) (*mass.MassResponse, error) {
 	return nil, nil
 }
 
-func (c *Client) MassSendGroupText(msg *mass.GroupTextMsg) (*mass.MassResponse, error) {
+func (c *Client) MassSendGroupText(msg *mass.GroupText) (*mass.MassResponse, error) {
 	return nil, nil
 }
 
-func (c *Client) MassSendGroupVoice(msg *mass.GroupVoiceMsg) (*mass.MassResponse, error) {
+func (c *Client) MassSendGroupVoice(msg *mass.GroupVoice) (*mass.MassResponse, error) {
 	return nil, nil
 }
 
-func (c *Client) MassSendGroupImage(msg *mass.GroupImageMsg) (*mass.MassResponse, error) {
+func (c *Client) MassSendGroupImage(msg *mass.GroupImage) (*mass.MassResponse, error) {
 	return nil, nil
 }
 
-func (c *Client) MassSendGroupVideo(msg *mass.GroupVideoMsg) (*mass.MassResponse, error) {
+func (c *Client) MassSendGroupVideo(msg *mass.GroupVideo) (*mass.MassResponse, error) {
 	return nil, nil
 }
 
 // 根据 OpenId 列表群发
 
-func (c *Client) MassSendOpenIdNews(msg *mass.OpenIdNewsMsg) (*mass.MassResponse, error) {
+func (c *Client) MassSendOpenIdNews(msg *mass.OpenIdNews) (*mass.MassResponse, error) {
 	return nil, nil
 }
 
-func (c *Client) MassSendOpenIdText(msg *mass.OpenIdTextMsg) (*mass.MassResponse, error) {
+func (c *Client) MassSendOpenIdText(msg *mass.OpenIdText) (*mass.MassResponse, error) {
 	return nil, nil
 }
 
-func (c *Client) MassSendOpenIdVoice(msg *mass.OpenIdVoiceMsg) (*mass.MassResponse, error) {
+func (c *Client) MassSendOpenIdVoice(msg *mass.OpenIdVoice) (*mass.MassResponse, error) {
 	return nil, nil
 }
 
-func (c *Client) MassSendOpenIdImage(msg *mass.OpenIdImageMsg) (*mass.MassResponse, error) {
+func (c *Client) MassSendOpenIdImage(msg *mass.OpenIdImage) (*mass.MassResponse, error) {
 	return nil, nil
 }
 
-func (c *Client) MassSendOpenIdVideo(msg *mass.OpenIdVideoMsg) (*mass.MassResponse, error) {
+func (c *Client) MassSendOpenIdVideo(msg *mass.OpenIdVideo) (*mass.MassResponse, error) {
 	return nil, nil
 }
 

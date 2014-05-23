@@ -26,7 +26,7 @@ func CheckSignature(signature, timestamp, nonce, token string) bool {
 
 	if sha1SumStr == signature {
 		return true
-	} else {
-		return false
 	}
+
+	return false
 }
