@@ -22,6 +22,8 @@ func (msg *commonMsgHead) AppendToUser(touser ...string) {
 	msg.ToUser = append(msg.ToUser, touser...)
 }
 
+// news ========================================================================
+
 type NewsMsg struct {
 	commonMsgHead
 
@@ -31,7 +33,9 @@ type NewsMsg struct {
 }
 
 func NewNewsMsg(touser []string, mediaId string) *NewsMsg {
-	if touser == nil {
+	if len(touser) > msgToUserCountLimit {
+		touser = touser[:msgToUserCountLimit]
+	} else if touser == nil {
 		touser = make([]string, 0, 16)
 	}
 
@@ -43,6 +47,8 @@ func NewNewsMsg(touser []string, mediaId string) *NewsMsg {
 	return &msg
 }
 
+// text ========================================================================
+
 type TextMsg struct {
 	commonMsgHead
 
@@ -52,7 +58,9 @@ type TextMsg struct {
 }
 
 func NewTextMsg(touser []string, content string) *TextMsg {
-	if touser == nil {
+	if len(touser) > msgToUserCountLimit {
+		touser = touser[:msgToUserCountLimit]
+	} else if touser == nil {
 		touser = make([]string, 0, 16)
 	}
 
@@ -64,6 +72,8 @@ func NewTextMsg(touser []string, content string) *TextMsg {
 	return &msg
 }
 
+// voice =======================================================================
+
 type VoiceMsg struct {
 	commonMsgHead
 
@@ -73,7 +83,9 @@ type VoiceMsg struct {
 }
 
 func NewVoiceMsg(touser []string, mediaId string) *VoiceMsg {
-	if touser == nil {
+	if len(touser) > msgToUserCountLimit {
+		touser = touser[:msgToUserCountLimit]
+	} else if touser == nil {
 		touser = make([]string, 0, 16)
 	}
 
@@ -85,6 +97,8 @@ func NewVoiceMsg(touser []string, mediaId string) *VoiceMsg {
 	return &msg
 }
 
+// image =======================================================================
+
 type ImageMsg struct {
 	commonMsgHead
 
@@ -94,7 +108,9 @@ type ImageMsg struct {
 }
 
 func NewImageMsg(touser []string, mediaId string) *ImageMsg {
-	if touser == nil {
+	if len(touser) > msgToUserCountLimit {
+		touser = touser[:msgToUserCountLimit]
+	} else if touser == nil {
 		touser = make([]string, 0, 16)
 	}
 
@@ -105,6 +121,8 @@ func NewImageMsg(touser []string, mediaId string) *ImageMsg {
 
 	return &msg
 }
+
+// voice =======================================================================
 
 type VideoMsg struct {
 	commonMsgHead
@@ -117,7 +135,9 @@ type VideoMsg struct {
 }
 
 func NewVideoMsg(touser []string, mediaId, title, description string) *VideoMsg {
-	if touser == nil {
+	if len(touser) > msgToUserCountLimit {
+		touser = touser[:msgToUserCountLimit]
+	} else if touser == nil {
 		touser = make([]string, 0, 16)
 	}
 

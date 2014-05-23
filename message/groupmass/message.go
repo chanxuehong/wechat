@@ -26,6 +26,8 @@ func NewNewsMsg(groupId, mediaId string) *NewsMsg {
 	return &msg
 }
 
+// text ========================================================================
+
 type TextMsg struct {
 	commonMsgHead
 
@@ -42,6 +44,8 @@ func NewTextMsg(groupId, content string) *TextMsg {
 
 	return &msg
 }
+
+// voice =======================================================================
 
 type VoiceMsg struct {
 	commonMsgHead
@@ -60,6 +64,8 @@ func NewVoiceMsg(groupId, mediaId string) *VoiceMsg {
 	return &msg
 }
 
+// image =======================================================================
+
 type ImageMsg struct {
 	commonMsgHead
 
@@ -76,6 +82,8 @@ func NewImageMsg(groupId, mediaId string) *ImageMsg {
 
 	return &msg
 }
+
+// voice =======================================================================
 
 type VideoMsg struct {
 	commonMsgHead
