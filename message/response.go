@@ -2,13 +2,12 @@ package message
 
 import (
 	"encoding/xml"
-	"fmt"
 	"time"
 )
 
 const newsResponseArticleCountLimit = 10
 
-type responseCommonHead struct {
+type commonResponseHead struct {
 	ToUserName   string `xml:"ToUserName"   json:"touser"`  // 接收方帐号(收到的OpenID)
 	FromUserName string `xml:"FromUserName" json:"-"`       // 开发者微信号
 	CreateTime   int64  `xml:"CreateTime"   json:"-"`       // 消息创建时间(整型), unixtime
@@ -22,13 +21,13 @@ type textResponseBody struct {
 }
 type TextResponse struct {
 	XMLName xml.Name `xml:"xml" json:"-"`
-	responseCommonHead
+	commonResponseHead
 	textResponseBody `json:"text"`
 }
 
 func NewTextResponse(to, from, content string) *TextResponse {
 	return &TextResponse{
-		responseCommonHead: responseCommonHead{
+		commonResponseHead: commonResponseHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
@@ -47,13 +46,13 @@ type imageResponseBody struct {
 }
 type ImageResponse struct {
 	XMLName xml.Name `xml:"xml" json:"-"`
-	responseCommonHead
+	commonResponseHead
 	imageResponseBody `json:"image"`
 }
 
 func NewImageResponse(to, from, mediaId string) *ImageResponse {
 	return &ImageResponse{
-		responseCommonHead: responseCommonHead{
+		commonResponseHead: commonResponseHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
@@ -72,13 +71,13 @@ type voiceResponseBody struct {
 }
 type VoiceResponse struct {
 	XMLName xml.Name `xml:"xml" json:"-"`
-	responseCommonHead
+	commonResponseHead
 	voiceResponseBody `json:"voice"`
 }
 
 func NewVoiceResponse(to, from, mediaId string) *VoiceResponse {
 	return &VoiceResponse{
-		responseCommonHead: responseCommonHead{
+		commonResponseHead: commonResponseHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
@@ -99,14 +98,14 @@ type videoResponseBody struct {
 }
 type VideoResponse struct {
 	XMLName xml.Name `xml:"xml" json:"-"`
-	responseCommonHead
+	commonResponseHead
 	videoResponseBody `json:"video"`
 }
 
 // title, description 可以为 ""
 func NewVideoResponse(to, from, mediaId, title, description string) *VideoResponse {
 	return &VideoResponse{
-		responseCommonHead: responseCommonHead{
+		commonResponseHead: commonResponseHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
@@ -131,14 +130,14 @@ type musicResponseBody struct {
 }
 type MusicResponse struct {
 	XMLName xml.Name `xml:"xml" json:"-"`
-	responseCommonHead
+	commonResponseHead
 	musicResponseBody `json:"music"`
 }
 
 // title, description 可以为 ""
 func NewMusicResponse(to, from, thumbMediaId, musicUrl, HQMusicUrl, title, description string) *MusicResponse {
 	return &MusicResponse{
-		responseCommonHead: responseCommonHead{
+		commonResponseHead: commonResponseHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
@@ -173,7 +172,7 @@ type newsResponseBody struct {
 //  NOTE: 尽量用 NewNewsResponse 创建对象
 type NewsResponse struct {
 	XMLName xml.Name `xml:"xml" json:"-"`
-	responseCommonHead
+	commonResponseHead
 	newsResponseBody `json:"news"`
 }
 
@@ -186,7 +185,7 @@ func NewNewsResponse(to, from string, articles []*NewsResponseArticle) *NewsResp
 	}
 
 	return &NewsResponse{
-		responseCommonHead: responseCommonHead{
+		commonResponseHead: commonResponseHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
@@ -199,17 +198,19 @@ func NewNewsResponse(to, from string, articles []*NewsResponseArticle) *NewsResp
 	}
 }
 
-// 如果当前的图文数量已经达到了上限, 则返回错误, msg *NewsResponse 不做修改;
-// 否则返回 nil.
-func (msg *NewsResponse) AppendArticle(article *NewsResponseArticle) error {
-	if article == nil {
-		return nil
+func (msg *NewsResponse) AppendArticle(article ...*NewsResponseArticle) {
+	if len(article) <= 0 {
+		return
 	}
 	if msg.ArticleCount >= newsResponseArticleCountLimit {
-		return fmt.Errorf("当前的图文消息已经达到数量上限: %d\n", newsResponseArticleCountLimit)
+		return
 	}
 
-	msg.Articles = append(msg.Articles, article)
+	n := newsResponseArticleCountLimit - msg.ArticleCount
+	if len(article) > n {
+		article = article[:n]
+	}
+
+	msg.Articles = append(msg.Articles, article...)
 	msg.ArticleCount = len(msg.Articles)
-	return nil
 }

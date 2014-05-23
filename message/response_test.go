@@ -17,7 +17,7 @@ var responseMarshalTests = []struct {
 }{
 	{ // 回复文本消息
 		TextResponse{
-			responseCommonHead: responseCommonHead{
+			commonResponseHead: commonResponseHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
@@ -45,7 +45,7 @@ var responseMarshalTests = []struct {
 	},
 	{ // 回复图片消息
 		ImageResponse{
-			responseCommonHead: responseCommonHead{
+			commonResponseHead: commonResponseHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
@@ -75,7 +75,7 @@ var responseMarshalTests = []struct {
 	},
 	{ // 回复语音消息
 		VoiceResponse{
-			responseCommonHead: responseCommonHead{
+			commonResponseHead: commonResponseHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
@@ -105,7 +105,7 @@ var responseMarshalTests = []struct {
 	},
 	{ // 回复视频消息
 		VideoResponse{
-			responseCommonHead: responseCommonHead{
+			commonResponseHead: commonResponseHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
@@ -141,7 +141,7 @@ var responseMarshalTests = []struct {
 	},
 	{ // 回复视频消息, 没有 title
 		VideoResponse{
-			responseCommonHead: responseCommonHead{
+			commonResponseHead: commonResponseHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
@@ -174,7 +174,7 @@ var responseMarshalTests = []struct {
 	},
 	{ // 回复视频消息, 没有 description
 		VideoResponse{
-			responseCommonHead: responseCommonHead{
+			commonResponseHead: commonResponseHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
@@ -207,7 +207,7 @@ var responseMarshalTests = []struct {
 	},
 	{ // 发送音乐消息
 		MusicResponse{
-			responseCommonHead: responseCommonHead{
+			commonResponseHead: commonResponseHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
@@ -249,7 +249,7 @@ var responseMarshalTests = []struct {
 	},
 	{ // 发送音乐消息, 没有 title 和 DESCRIPTION
 		MusicResponse{
-			responseCommonHead: responseCommonHead{
+			commonResponseHead: commonResponseHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
@@ -285,7 +285,7 @@ var responseMarshalTests = []struct {
 	},
 	{ // 回复图文消息, 文章数量 == 0
 		NewsResponse{
-			responseCommonHead: responseCommonHead{
+			commonResponseHead: commonResponseHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
@@ -315,7 +315,7 @@ var responseMarshalTests = []struct {
 	},
 	{ // 回复图文消息, 文章数量 == 1
 		NewsResponse{
-			responseCommonHead: responseCommonHead{
+			commonResponseHead: commonResponseHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
@@ -365,7 +365,7 @@ var responseMarshalTests = []struct {
 	},
 	{ // 回复图文消息
 		NewsResponse{
-			responseCommonHead: responseCommonHead{
+			commonResponseHead: commonResponseHead{
 				ToUserName:   "toUser",
 				FromUserName: "fromUser",
 				CreateTime:   12345678,
