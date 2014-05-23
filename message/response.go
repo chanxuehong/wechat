@@ -5,8 +5,6 @@ import (
 	"time"
 )
 
-const newsResponseArticleCountLimit = 10
-
 type commonResponseHead struct {
 	ToUserName   string `xml:"ToUserName"   json:"touser"`  // 接收方帐号(收到的OpenID)
 	FromUserName string `xml:"FromUserName" json:"-"`       // 开发者微信号
@@ -178,10 +176,10 @@ type NewsResponse struct {
 
 // NOTE: 如果图文消息数量大于微信的限制, 则把多余的截除.
 func NewNewsResponse(to, from string, articles []*NewsResponseArticle) *NewsResponse {
-	if len(articles) > newsResponseArticleCountLimit {
-		articles = articles[:newsResponseArticleCountLimit]
+	if len(articles) > NewsResponseArticleCountLimit {
+		articles = articles[:NewsResponseArticleCountLimit]
 	} else if articles == nil {
-		articles = make([]*NewsResponseArticle, 0, newsResponseArticleCountLimit)
+		articles = make([]*NewsResponseArticle, 0, NewsResponseArticleCountLimit)
 	}
 
 	return &NewsResponse{
@@ -202,11 +200,11 @@ func (msg *NewsResponse) AppendArticle(article ...*NewsResponseArticle) {
 	if len(article) <= 0 {
 		return
 	}
-	if len(msg.Articles) >= newsResponseArticleCountLimit {
+	if len(msg.Articles) >= NewsResponseArticleCountLimit {
 		return
 	}
 
-	if n := newsResponseArticleCountLimit - len(msg.Articles); len(article) > n {
+	if n := NewsResponseArticleCountLimit - len(msg.Articles); len(article) > n {
 		article = article[:n]
 	}
 

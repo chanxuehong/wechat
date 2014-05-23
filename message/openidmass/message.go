@@ -1,7 +1,5 @@
 package openidmass
 
-const msgToUserCountLimit = 10000
-
 type commonMsgHead struct {
 	ToUser  []string `json:"touser"`
 	MsgType string   `json:"msgtype"`
@@ -11,11 +9,11 @@ func (msg *commonMsgHead) AppendToUser(touser ...string) {
 	if len(touser) <= 0 {
 		return
 	}
-	if len(msg.ToUser) >= msgToUserCountLimit {
+	if len(msg.ToUser) >= MsgToUserCountLimit {
 		return
 	}
 
-	if n := msgToUserCountLimit - len(msg.ToUser); len(touser) > n {
+	if n := MsgToUserCountLimit - len(msg.ToUser); len(touser) > n {
 		touser = touser[:n]
 	}
 
@@ -33,8 +31,8 @@ type NewsMsg struct {
 }
 
 func NewNewsMsg(touser []string, mediaId string) *NewsMsg {
-	if len(touser) > msgToUserCountLimit {
-		touser = touser[:msgToUserCountLimit]
+	if len(touser) > MsgToUserCountLimit {
+		touser = touser[:MsgToUserCountLimit]
 	} else if touser == nil {
 		touser = make([]string, 0, 16)
 	}
@@ -58,8 +56,8 @@ type TextMsg struct {
 }
 
 func NewTextMsg(touser []string, content string) *TextMsg {
-	if len(touser) > msgToUserCountLimit {
-		touser = touser[:msgToUserCountLimit]
+	if len(touser) > MsgToUserCountLimit {
+		touser = touser[:MsgToUserCountLimit]
 	} else if touser == nil {
 		touser = make([]string, 0, 16)
 	}
@@ -83,8 +81,8 @@ type VoiceMsg struct {
 }
 
 func NewVoiceMsg(touser []string, mediaId string) *VoiceMsg {
-	if len(touser) > msgToUserCountLimit {
-		touser = touser[:msgToUserCountLimit]
+	if len(touser) > MsgToUserCountLimit {
+		touser = touser[:MsgToUserCountLimit]
 	} else if touser == nil {
 		touser = make([]string, 0, 16)
 	}
@@ -108,8 +106,8 @@ type ImageMsg struct {
 }
 
 func NewImageMsg(touser []string, mediaId string) *ImageMsg {
-	if len(touser) > msgToUserCountLimit {
-		touser = touser[:msgToUserCountLimit]
+	if len(touser) > MsgToUserCountLimit {
+		touser = touser[:MsgToUserCountLimit]
 	} else if touser == nil {
 		touser = make([]string, 0, 16)
 	}
@@ -135,8 +133,8 @@ type VideoMsg struct {
 }
 
 func NewVideoMsg(touser []string, mediaId, title, description string) *VideoMsg {
-	if len(touser) > msgToUserCountLimit {
-		touser = touser[:msgToUserCountLimit]
+	if len(touser) > MsgToUserCountLimit {
+		touser = touser[:MsgToUserCountLimit]
 	} else if touser == nil {
 		touser = make([]string, 0, 16)
 	}

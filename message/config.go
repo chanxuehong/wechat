@@ -1,6 +1,10 @@
 package message
 
 const (
+	NewsResponseArticleCountLimit = 10
+)
+
+const (
 	// 请求消息类型
 	RQST_MSG_TYPE_TEXT     = "text"     // 文本消息
 	RQST_MSG_TYPE_IMAGE    = "image"    // 图片消息

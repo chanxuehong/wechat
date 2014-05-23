@@ -1,5 +1,7 @@
 package openidmass
 
+const MsgToUserCountLimit = 10000
+
 const (
 	MSG_TYPE_NEWS  = "mpnews"
 	MSG_TYPE_TEXT  = "text"
