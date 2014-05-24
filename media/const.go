@@ -1,5 +1,7 @@
 package media
 
+const NewsArticleCountLimit = 10
+
 const (
 	MEDIA_TYPE_NEWS  = "news"
 	MEDIA_TYPE_IMAGE = "image"

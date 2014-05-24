@@ -2,9 +2,11 @@ package media
 
 // 上传媒体成功时的回复报文
 type UploadResponse struct {
+	// 媒体文件类型，分别有图片（image）、语音（voice）、视频（video）和
+	// 缩略图（thumb，主要用于视频与音乐格式的缩略图），次数为news，即图文消息
 	MediaType string `json:"type"`
-	MediaId   string `json:"media_id"`
-	CreatedAt string `json:"created_at"`
+	MediaId   string `json:"media_id"`   // 媒体文件上传后，获取时的唯一标识
+	CreatedAt string `json:"created_at"` // 媒体文件上传时间戳
 }
 
 // 上传图文消息里的 item
@@ -15,6 +17,7 @@ type NewsArticle struct {
 	ContentSourceUrl string `json:"content_source_url,omitempty"` // 在图文消息页面点击“阅读原文”后的页面
 	Content          string `json:"content"`                      // 图文消息页面的内容，支持HTML标签
 	Digest           string `json:"digest,,omitempty"`            // 图文消息的描述
+	ShowCoverPic     string `json:"show_cover_pic"`               // 是否显示封面，1为显示，0为不显示
 }
 
 // 上传图文消息
@@ -24,7 +27,7 @@ type News struct {
 
 // 上传视频消息
 type Video struct {
-	MediaId     string `json:"media_id"`
+	MediaId     string `json:"media_id"` // 此处media_id需通过基础支持中的上传下载多媒体文件来得到
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }

@@ -21,13 +21,7 @@ func (c *Client) Token() (string, error) {
 	return c.accessToken.TokenValue, nil
 }
 
-// 从服务器获取 acces_token 成功时返回的消息格式
-type accessTokenResponse struct {
-	AccessToken string `json:"access_token"`
-	ExpiresIn   int64  `json:"expires_in"`
-}
-
 // 从微信服务器获取新的 access_token
-func (c *Client) getNewToken() (*accessTokenResponse, error) {
+func (c *Client) getNewToken() (*AccessTokenResponse, error) {
 	return nil, errors.New("没有实现")
 }
