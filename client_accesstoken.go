@@ -22,6 +22,6 @@ func (c *Client) Token() (string, error) {
 }
 
 // 从微信服务器获取新的 access_token
-func (c *Client) getNewToken() (*AccessTokenResponse, error) {
+func (c *Client) getNewToken() (*accessTokenResponse, error) {
 	return nil, errors.New("没有实现")
 }
