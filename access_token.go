@@ -1,14 +1,18 @@
 package wechat
 
-type AccessToken struct {
-	Value     string `json:"access_token"`
-	ExpiresIn int    `json:"expires_in"`
+import (
+	"time"
+)
+
+type accessToken struct {
+	TokenValue string
+	Expires    int64 // unixtime
 }
 
-func GetAccessToken(appid, secret string) (*AccessToken, error) {
-	type response struct {
-		AccessToken
-		Error
+// 获取 access_token, 如果过期返回 ""
+func (at *accessToken) Token() string {
+	if time.Now().Unix() > at.Expires {
+		return ""
 	}
-	return nil, nil
+	return at.TokenValue
 }

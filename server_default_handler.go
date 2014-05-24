@@ -10,12 +10,12 @@ import (
 	"net/http"
 )
 
-func invalidRequestHandler(w http.ResponseWriter, r *http.Request, err error) {
+func defaultInvalidRequestHandler(w http.ResponseWriter, r *http.Request, err error) {
 	io.WriteString(w, "")
 	fmt.Printf("invalid request, %s\n", err.Error())
 }
 
-func unknownRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
+func defaultUnknownRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
 	io.WriteString(w, "")
 	b, err := json.Marshal(rqstMsg)
 	if err != nil {
@@ -27,7 +27,7 @@ func unknownRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *mess
 
 // common request handler ======================================================
 
-func textRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
+func defaultTextRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
 	respMsg := message.NewTextResponse(
 		rqstMsg.FromUserName,
 		rqstMsg.ToUserName,
@@ -43,7 +43,7 @@ func textRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message
 	io.Copy(w, bytes.NewReader(b))
 }
 
-func imageRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
+func defaultImageRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
 	respMsg := message.NewImageResponse(
 		rqstMsg.FromUserName,
 		rqstMsg.ToUserName,
@@ -59,7 +59,7 @@ func imageRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *messag
 	io.Copy(w, bytes.NewReader(b))
 }
 
-func voiceRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
+func defaultVoiceRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
 	respMsg := message.NewVoiceResponse(
 		rqstMsg.FromUserName,
 		rqstMsg.ToUserName,
@@ -75,7 +75,7 @@ func voiceRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *messag
 	io.Copy(w, bytes.NewReader(b))
 }
 
-func voiceRecognitionRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
+func defaultVoiceRecognitionRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
 	respMsg := message.NewTextResponse(
 		rqstMsg.FromUserName,
 		rqstMsg.ToUserName,
@@ -91,7 +91,7 @@ func voiceRecognitionRequestHandler(w http.ResponseWriter, r *http.Request, rqst
 	io.Copy(w, bytes.NewReader(b))
 }
 
-func videoRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
+func defaultVideoRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
 	respMsg := message.NewVideoResponse(
 		rqstMsg.FromUserName,
 		rqstMsg.ToUserName,
@@ -109,7 +109,7 @@ func videoRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *messag
 	io.Copy(w, bytes.NewReader(b))
 }
 
-func locationRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
+func defaultLocationRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
 	respMsg := message.NewTextResponse(
 		rqstMsg.FromUserName,
 		rqstMsg.ToUserName,
@@ -128,7 +128,7 @@ func locationRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *mes
 	io.Copy(w, bytes.NewReader(b))
 }
 
-func linkRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
+func defaultLinkRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
 	respMsg := message.NewTextResponse(
 		rqstMsg.FromUserName,
 		rqstMsg.ToUserName,
@@ -149,7 +149,7 @@ func linkRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message
 
 // event request handler =======================================================
 
-func subscribeEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
+func defaultSubscribeEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
 	respMsg := message.NewTextResponse(
 		rqstMsg.FromUserName,
 		rqstMsg.ToUserName,
@@ -166,7 +166,7 @@ func subscribeEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMs
 }
 
 // 通过扫描二维码订阅
-func subscribeEventByScanRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
+func defaultSubscribeEventByScanRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
 	respMsg := message.NewTextResponse(
 		rqstMsg.FromUserName,
 		rqstMsg.ToUserName,
@@ -183,12 +183,12 @@ func subscribeEventByScanRequestHandler(w http.ResponseWriter, r *http.Request, 
 }
 
 // 取消订阅
-func unsubscribeEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
+func defaultUnsubscribeEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
 	io.WriteString(w, "")
 }
 
 // 已经订阅用户扫描二维码
-func scanEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
+func defaultScanEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
 	respMsg := message.NewTextResponse(
 		rqstMsg.FromUserName,
 		rqstMsg.ToUserName,
@@ -205,7 +205,7 @@ func scanEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *me
 }
 
 // 上报地理位置事件
-func locationEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
+func defaultLocationEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
 	respMsg := message.NewTextResponse(
 		rqstMsg.FromUserName,
 		rqstMsg.ToUserName,
@@ -225,7 +225,7 @@ func locationEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg
 }
 
 // 点击菜单拉取消息时的事件推送
-func clickEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
+func defaultClickEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
 	respMsg := message.NewTextResponse(
 		rqstMsg.FromUserName,
 		rqstMsg.ToUserName,
@@ -242,7 +242,7 @@ func clickEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *m
 }
 
 // 点击菜单跳转链接时的事件推送
-func viewEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
+func defaultViewEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
 	respMsg := message.NewTextResponse(
 		rqstMsg.FromUserName,
 		rqstMsg.ToUserName,
@@ -259,7 +259,7 @@ func viewEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *me
 }
 
 // 群发, 事件推送群发结果
-func masssendjobfinishEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
+func defaultMasssendjobfinishEventRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {
 	respMsg := message.NewTextResponse(
 		rqstMsg.FromUserName,
 		rqstMsg.ToUserName,

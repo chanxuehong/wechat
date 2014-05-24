@@ -48,24 +48,24 @@ func NewServer(token string, requestPoolSize int) *Server {
 
 	// 注册默认的处理函数
 
-	srv.invalidRequestHandler = invalidRequestHandler
-	srv.unknownRequestHandler = unknownRequestHandler
+	srv.invalidRequestHandler = defaultInvalidRequestHandler
+	srv.unknownRequestHandler = defaultUnknownRequestHandler
 
-	srv.textRequestHandler = textRequestHandler
-	srv.imageRequestHandler = imageRequestHandler
-	srv.voiceRequestHandler = voiceRequestHandler
-	srv.voiceRecognitionRequestHandler = voiceRecognitionRequestHandler
-	srv.videoRequestHandler = videoRequestHandler
-	srv.locationRequestHandler = locationRequestHandler
-	srv.linkRequestHandler = linkRequestHandler
-	srv.subscribeEventRequestHandler = subscribeEventRequestHandler
-	srv.subscribeEventByScanRequestHandler = subscribeEventByScanRequestHandler
-	srv.unsubscribeEventRequestHandler = unsubscribeEventRequestHandler
-	srv.scanEventRequestHandler = scanEventRequestHandler
-	srv.locationEventRequestHandler = locationEventRequestHandler
-	srv.clickEventRequestHandler = clickEventRequestHandler
-	srv.viewEventRequestHandler = viewEventRequestHandler
-	srv.masssendjobfinishEventRequestHandler = masssendjobfinishEventRequestHandler
+	srv.textRequestHandler = defaultTextRequestHandler
+	srv.imageRequestHandler = defaultImageRequestHandler
+	srv.voiceRequestHandler = defaultVoiceRequestHandler
+	srv.voiceRecognitionRequestHandler = defaultVoiceRecognitionRequestHandler
+	srv.videoRequestHandler = defaultVideoRequestHandler
+	srv.locationRequestHandler = defaultLocationRequestHandler
+	srv.linkRequestHandler = defaultLinkRequestHandler
+	srv.subscribeEventRequestHandler = defaultSubscribeEventRequestHandler
+	srv.subscribeEventByScanRequestHandler = defaultSubscribeEventByScanRequestHandler
+	srv.unsubscribeEventRequestHandler = defaultUnsubscribeEventRequestHandler
+	srv.scanEventRequestHandler = defaultScanEventRequestHandler
+	srv.locationEventRequestHandler = defaultLocationEventRequestHandler
+	srv.clickEventRequestHandler = defaultClickEventRequestHandler
+	srv.viewEventRequestHandler = defaultViewEventRequestHandler
+	srv.masssendjobfinishEventRequestHandler = defaultMasssendjobfinishEventRequestHandler
 
 	return &srv
 }
