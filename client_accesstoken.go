@@ -2,8 +2,13 @@ package wechat
 
 import (
 	"errors"
-	"time"
 )
+
+// 从服务器获取 acces_token 成功时返回的消息格式
+type accessTokenResponse struct {
+	AccessToken string `json:"access_token"` // 获取到的凭证
+	ExpiresIn   int64  `json:"expires_in"`   // 凭证有效时间，单位：秒
+}
 
 // 获取当前的 access token.
 // 如果过期了自动从服务器拉取新的 access token, 如果拉取失败则返回空串, 并返回错误信息.
@@ -19,9 +24,8 @@ func (c *Client) Token() (string, error) {
 		return "", err
 	}
 
-	c.accessToken.TokenValue = resp.AccessToken
-	c.accessToken.Expires = time.Now().Unix() + resp.ExpiresIn
-	return c.accessToken.TokenValue, nil
+	c.accessToken.Update(resp.AccessToken, resp.ExpiresIn)
+	return resp.AccessToken, nil
 }
 
 // 从微信服务器获取新的 access_token

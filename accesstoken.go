@@ -1,25 +1,33 @@
 package wechat
 
 import (
+	"sync"
 	"time"
 )
 
-// 从服务器获取 acces_token 成功时返回的消息格式
-type accessTokenResponse struct {
-	AccessToken string `json:"access_token"` // 获取到的凭证
-	ExpiresIn   int64  `json:"expires_in"`   // 凭证有效时间，单位：秒
-}
-
 type accessToken struct {
+	RWMutex    sync.RWMutex `json:"-"`
 	TokenValue string
 	Expires    int64 // 过期时间戳, unixtime
 }
 
 // 获取 access_token, 如果过期返回 ""
-func (at *accessToken) Token() string {
-	// 考虑到网络延时, 提前过期
-	if time.Now().Unix()+10 > at.Expires {
-		return ""
+func (at *accessToken) Token() (token string) {
+	at.RWMutex.RLock()
+	if time.Now().Unix()+10 > at.Expires { // 考虑到网络延时, 提前过期
+		token = ""
+	} else {
+		token = at.TokenValue
 	}
-	return at.TokenValue
+	at.RWMutex.RUnlock()
+	return
+}
+
+// 设置新的 access token
+//  NOTE: 不做参数检查, 调用者做检查
+func (at *accessToken) Update(token string, expiresin int64) {
+	at.RWMutex.Lock()
+	at.TokenValue = token
+	at.Expires = time.Now().Unix() + expiresin
+	at.RWMutex.Unlock()
 }
