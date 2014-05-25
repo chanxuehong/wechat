@@ -13,17 +13,19 @@ import (
 type InvalidRequestHandlerFunc func(http.ResponseWriter, *http.Request, error)
 
 // 正常的从微信服务器推送过来的消息处理函数
-//  NOTE: *message.Request 这个对象系统会自动池话的, 所以需要这个对象里的数据要深拷贝
+//  NOTE: *message.Request 这个对象系统会自动池化的, 所以需要这个对象里的数据要深拷贝
 type RequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
 
 // 目前不能识别的从微信服务器推送过来的消息处理函数
-//  NOTE: *message.Request 这个对象系统会自动池话的, 所以需要这个对象里的数据要深拷贝
+//  NOTE: *message.Request 这个对象系统会自动池化的, 所以需要这个对象里的数据要深拷贝
 type UnknownRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
 
 type Server struct {
 	token string
 
-	messageRequestPool *pool.Pool // go1.3有了新的实现(sync.Pool), 目前 GAE 还不支持
+	// TODO: go1.3有了新的实现(sync.Pool), 目前 GAE 还不支持,
+	// 如果你的环境是 go1.3+, 你可以自己更改.
+	messageRequestPool *pool.Pool
 
 	// Invalid or unknown request handler
 	invalidRequestHandler InvalidRequestHandlerFunc
