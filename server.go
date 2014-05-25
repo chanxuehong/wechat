@@ -104,8 +104,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rqstMsg := s.getRequestFromPool() // *message.Request
-	defer s.putRequestToPool(rqstMsg) // important!
+	rqstMsg := s.getRequestEntity()   // *message.Request
+	defer s.putRequestEntity(rqstMsg) // important!
 
 	if err = xml.Unmarshal(b, rqstMsg); err != nil {
 		s.invalidRequestHandler(w, r, err)
