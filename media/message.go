@@ -25,6 +25,24 @@ type News struct {
 	Articles []*NewsArticle `json:"articles"` // 图文消息，一个图文消息支持1到10条图文
 }
 
+// 如果总的按钮数超过限制, 则截除多余的.
+func (news *News) AppendArticle(article ...*NewsArticle) {
+	if len(article) <= 0 {
+		return
+	}
+
+	switch n := NewsArticleCountLimit - len(news.Articles); {
+	case n > 0:
+		if len(article) > n {
+			article = article[:n]
+		}
+		news.Articles = append(news.Articles, article...)
+	case n == 0:
+	default: // n < 0
+		news.Articles = news.Articles[:NewsArticleCountLimit]
+	}
+}
+
 // 上传视频消息
 type Video struct {
 	MediaId     string `json:"media_id"` // 此处media_id需通过基础支持中的上传下载多媒体文件来得到

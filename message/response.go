@@ -196,18 +196,20 @@ func NewNewsResponse(to, from string, articles []*NewsResponseArticle) *NewsResp
 	}
 }
 
+// 如果总的按钮数超过限制, 则截除多余的.
 func (msg *NewsResponse) AppendArticle(article ...*NewsResponseArticle) {
 	if len(article) <= 0 {
 		return
 	}
-	if len(msg.Articles) >= NewsResponseArticleCountLimit {
-		return
-	}
 
-	if n := NewsResponseArticleCountLimit - len(msg.Articles); len(article) > n {
-		article = article[:n]
+	switch n := NewsResponseArticleCountLimit - len(msg.Articles); {
+	case n > 0:
+		if len(article) > n {
+			article = article[:n]
+		}
+		msg.Articles = append(msg.Articles, article...)
+	case n == 0:
+	default: // n < 0
+		msg.Articles = msg.Articles[:NewsResponseArticleCountLimit]
 	}
-
-	msg.Articles = append(msg.Articles, article...)
-	msg.ArticleCount = len(msg.Articles)
 }

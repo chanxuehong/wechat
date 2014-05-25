@@ -5,19 +5,22 @@ type commonOpenIdMsgHead struct {
 	MsgType string   `json:"msgtype"`
 }
 
+// 如果总的按钮数超过限制, 则截除多余的.
 func (msg *commonOpenIdMsgHead) AppendUser(touser ...string) {
 	if len(touser) <= 0 {
 		return
 	}
-	if len(msg.ToUser) >= OpenIdMsgToUserCountLimit {
-		return
-	}
 
-	if n := OpenIdMsgToUserCountLimit - len(msg.ToUser); len(touser) > n {
-		touser = touser[:n]
+	switch n := OpenIdMsgToUserCountLimit - len(msg.ToUser); {
+	case n > 0:
+		if len(touser) > n {
+			touser = touser[:n]
+		}
+		msg.ToUser = append(msg.ToUser, touser...)
+	case n == 0:
+	default: // n < 0
+		msg.ToUser = msg.ToUser[:OpenIdMsgToUserCountLimit]
 	}
-
-	msg.ToUser = append(msg.ToUser, touser...)
 }
 
 // news ========================================================================
