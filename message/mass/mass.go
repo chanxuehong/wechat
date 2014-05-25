@@ -16,13 +16,3 @@ type MassResponse struct {
 type DeleteMassRequest struct {
 	MsgId int `json:"msgid"`
 }
-
-// 删除群发成功时返回的结果
-// {
-//     "errcode":0,
-//     "errmsg":"ok"
-// }
-type DeleteMassResponse struct {
-	ErrCode int    `json:"errcode"`
-	ErrMsg  string `json:"errmsg"`
-}

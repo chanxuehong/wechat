@@ -1,10 +1,9 @@
 package menu
 
 // 菜单的按钮.
-// NOTE: (MenuButton.Type, MenuButton.Key) 不能和 MenuButton.SubButton 不能同时设置,
-// 我们不会自动为你检查这个, 你要自己来检查.
 type MenuButton struct {
 	Name string `json:"name"`
+	// NOTE: (MenuButton.Type, MenuButton.Key) 不能和 MenuButton.SubButton 不能同时设置
 	Type string `json:"type,omitempty"`
 	Key  string `json:"key,omitempty"`
 	// SubButton 的个数不能超过 SubMenuButtonCountLimit
