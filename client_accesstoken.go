@@ -5,12 +5,15 @@ import (
 	"time"
 )
 
+// 获取当前的 access token.
+// 如果过期了自动从服务器拉取新的 access token, 如果拉取失败则返回空串, 并返回错误信息.
 func (c *Client) Token() (string, error) {
 	token := c.accessToken.Token()
 	if token != "" {
 		return token, nil
 	}
 
+	// 当前的 access token 过期了, 则重新拉取
 	resp, err := c.getNewToken()
 	if err != nil {
 		return "", err

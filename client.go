@@ -2,7 +2,7 @@ package wechat
 
 type Client struct {
 	appid, appsecret string
-	accessToken
+	accessToken      accessToken
 
 	//TODO: 以后增加必要的数据
 }
