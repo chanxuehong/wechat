@@ -176,7 +176,7 @@ type NewsResponse struct {
 }
 
 // NOTE: 如果图文消息数量大于微信的限制, 则把多余的截除.
-func NewNewsResponse(to, from string, articles []*NewsResponseArticle) *NewsResponse {
+func NewNewsResponse(to, from string, articles ...*NewsResponseArticle) *NewsResponse {
 	if len(articles) > NewsResponseArticleCountLimit {
 		articles = articles[:NewsResponseArticleCountLimit]
 	} else if articles == nil {
