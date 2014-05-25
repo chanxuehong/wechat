@@ -10,17 +10,6 @@ import (
 	"net/http"
 )
 
-// 非法请求的处理函数
-type InvalidRequestHandlerFunc func(http.ResponseWriter, *http.Request, error)
-
-// 正常的从微信服务器推送过来的消息处理函数
-//  NOTE: *message.Request 这个对象系统会自动池化的, 所以需要这个对象里的数据要深拷贝
-type RequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
-
-// 目前不能识别的从微信服务器推送过来的消息处理函数
-//  NOTE: *message.Request 这个对象系统会自动池化的, 所以需要这个对象里的数据要深拷贝
-type UnknownRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
-
 type Server struct {
 	token string
 
@@ -50,6 +39,22 @@ type Server struct {
 	masssendjobfinishEventRequestHandler RequestHandlerFunc
 }
 
+// 非法请求的处理函数
+type InvalidRequestHandlerFunc func(http.ResponseWriter, *http.Request, error)
+
+// 正常的从微信服务器推送过来的消息处理函数
+//  NOTE: *message.Request 这个对象系统会自动池化的, 所以需要这个对象里的数据要深拷贝
+type RequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
+
+// 目前不能识别的从微信服务器推送过来的消息处理函数
+//  NOTE: *message.Request 这个对象系统会自动池化的, 所以需要这个对象里的数据要深拷贝
+type UnknownRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
+
+// 默认的消息处理函数是什么都不做
+func defaultInvalidRequestHandler(w http.ResponseWriter, r *http.Request, err error)                {}
+func defaultUnknownRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {}
+func defaultRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request)        {}
+
 func NewServer(token string, requestPoolSize int) *Server {
 	var srv Server
 
@@ -57,25 +62,24 @@ func NewServer(token string, requestPoolSize int) *Server {
 	srv.messageRequestPool = pool.New(newMessageRequest, requestPoolSize)
 
 	// 注册默认的处理函数
-
 	srv.invalidRequestHandler = defaultInvalidRequestHandler
 	srv.unknownRequestHandler = defaultUnknownRequestHandler
 
-	srv.textRequestHandler = defaultTextRequestHandler
-	srv.imageRequestHandler = defaultImageRequestHandler
-	srv.voiceRequestHandler = defaultVoiceRequestHandler
-	srv.voiceRecognitionRequestHandler = defaultVoiceRecognitionRequestHandler
-	srv.videoRequestHandler = defaultVideoRequestHandler
-	srv.locationRequestHandler = defaultLocationRequestHandler
-	srv.linkRequestHandler = defaultLinkRequestHandler
-	srv.subscribeEventRequestHandler = defaultSubscribeEventRequestHandler
-	srv.subscribeEventByScanRequestHandler = defaultSubscribeEventByScanRequestHandler
-	srv.unsubscribeEventRequestHandler = defaultUnsubscribeEventRequestHandler
-	srv.scanEventRequestHandler = defaultScanEventRequestHandler
-	srv.locationEventRequestHandler = defaultLocationEventRequestHandler
-	srv.clickEventRequestHandler = defaultClickEventRequestHandler
-	srv.viewEventRequestHandler = defaultViewEventRequestHandler
-	srv.masssendjobfinishEventRequestHandler = defaultMasssendjobfinishEventRequestHandler
+	srv.textRequestHandler = defaultRequestHandler
+	srv.imageRequestHandler = defaultRequestHandler
+	srv.voiceRequestHandler = defaultRequestHandler
+	srv.voiceRecognitionRequestHandler = defaultRequestHandler
+	srv.videoRequestHandler = defaultRequestHandler
+	srv.locationRequestHandler = defaultRequestHandler
+	srv.linkRequestHandler = defaultRequestHandler
+	srv.subscribeEventRequestHandler = defaultRequestHandler
+	srv.subscribeEventByScanRequestHandler = defaultRequestHandler
+	srv.unsubscribeEventRequestHandler = defaultRequestHandler
+	srv.scanEventRequestHandler = defaultRequestHandler
+	srv.locationEventRequestHandler = defaultRequestHandler
+	srv.clickEventRequestHandler = defaultRequestHandler
+	srv.viewEventRequestHandler = defaultRequestHandler
+	srv.masssendjobfinishEventRequestHandler = defaultRequestHandler
 
 	return &srv
 }
