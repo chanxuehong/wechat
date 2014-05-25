@@ -30,6 +30,7 @@ func (mbtn *MenuButton) AppendButton(btn ...*MenuButton) {
 }
 
 type Menu struct {
+	// Button 的个数不能超过 MenuButtonCountLimit
 	Button []*MenuButton `json:"button"`
 }
 

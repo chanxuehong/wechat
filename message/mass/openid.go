@@ -1,6 +1,7 @@
 package mass
 
 type commonOpenIdMsgHead struct {
+	// ToUser 的个数不能超过 OpenIdMsgToUserCountLimit
 	ToUser  []string `json:"touser"`
 	MsgType string   `json:"msgtype"`
 }

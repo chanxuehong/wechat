@@ -162,6 +162,7 @@ type NewsResponseArticle struct {
 }
 
 type newsResponseBody struct {
+	// Article 的个数不能超过 NewsResponseArticleCountLimit
 	ArticleCount int                    `xml:"ArticleCount"  json:"-"`        // 图文消息个数, 限制为10条以内
 	Articles     []*NewsResponseArticle `xml:"Articles>item" json:"articles"` // 多条图文消息信息, 默认第一个item为大图,注意, 如果图文数超过10, 则将会无响应
 }
