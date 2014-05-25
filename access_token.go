@@ -17,7 +17,8 @@ type accessToken struct {
 
 // 获取 access_token, 如果过期返回 ""
 func (at *accessToken) Token() string {
-	if time.Now().Unix() > at.Expires {
+	// 考虑到网络延时, 提前过期
+	if time.Now().Unix()+10 > at.Expires {
 		return ""
 	}
 	return at.TokenValue

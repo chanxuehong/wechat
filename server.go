@@ -9,8 +9,15 @@ import (
 	"net/http"
 )
 
+// 非法请求的处理函数
 type InvalidRequestHandlerFunc func(http.ResponseWriter, *http.Request, error)
+
+// 正常的从微信服务器推送过来的消息处理函数
+//  NOTE: *message.Request 这个对象系统会自动池话的, 所以需要这个对象里的数据要深拷贝
 type RequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
+
+// 目前不能识别的从微信服务器推送过来的消息处理函数
+//  NOTE: *message.Request 这个对象系统会自动池话的, 所以需要这个对象里的数据要深拷贝
 type UnknownRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
 
 type Server struct {
