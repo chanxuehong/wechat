@@ -14,6 +14,6 @@ type Menu struct {
 }
 
 // 获取自定义菜单的回复
-type MenuResponse struct {
+type GetMenuResponse struct {
 	Menu Menu `json:"menu"`
 }
