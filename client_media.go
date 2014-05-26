@@ -33,13 +33,19 @@ func (c *Client) MediaUploadFromFile(mediaType, filePath string) (*media.UploadR
 }
 
 // 上传多媒体文件
+//  NOTE:
+//  1. media_id是可复用的，调用该接口需http协议;
+//  2. 媒体文件在后台保存时间为3天，即3天后media_id失效。
+//  3. 图片（image）: 256K，支持JPG格式
+//  4. 语音（voice）：256K，播放长度不超过60s，支持AMR\MP3格式
+//  5. 视频（video）：1MB，支持MP4格式
+//  6. 缩略图（thumb）：64KB，支持JPG格式
 func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) (*media.UploadResponse, error) {
 	switch mediaType {
 	case media.MEDIA_TYPE_IMAGE,
 		media.MEDIA_TYPE_VOICE,
 		media.MEDIA_TYPE_VIDEO,
 		media.MEDIA_TYPE_THUMB:
-
 	default:
 		return nil, errors.New("错误的 mediaType")
 	}
