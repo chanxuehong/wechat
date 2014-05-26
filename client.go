@@ -33,7 +33,7 @@ type Client struct {
 }
 
 func NewClient(appid, appsecret string) *Client {
-	c := Client{
+	c := &Client{
 		appid:     appid,
 		appsecret: appsecret,
 		accessToken: accessToken{
@@ -45,5 +45,5 @@ func NewClient(appid, appsecret string) *Client {
 		resetTickChan: make(chan time.Duration),
 	}
 	go c.accessTokenService()
-	return &c
+	return c
 }
