@@ -10,6 +10,8 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
 // 上传多媒体文件
@@ -20,7 +22,28 @@ import (
 //  4. 语音（voice）：256K，播放长度不超过60s，支持AMR\MP3格式
 //  5. 视频（video）：1MB，支持MP4格式
 //  6. 缩略图（thumb）：64KB，支持JPG格式
-func (c *Client) MediaUpload(mediaType, filename, mediaContentType string, mediaReader io.Reader) (*media.UploadResponse, error) {
+func (c *Client) MediaUploadFromFile(mediaType, filePath string) (*media.UploadResponse, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	return c.MediaUpload(mediaType, filepath.Base(filePath), file)
+}
+
+// 上传多媒体文件
+func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) (*media.UploadResponse, error) {
+	switch mediaType {
+	case media.MEDIA_TYPE_IMAGE,
+		media.MEDIA_TYPE_VOICE,
+		media.MEDIA_TYPE_VIDEO,
+		media.MEDIA_TYPE_THUMB:
+
+	default:
+		return nil, errors.New("错误的 mediaType")
+	}
+
 	if mediaReader == nil {
 		return nil, errors.New("mediaReader == nil")
 	}
@@ -35,16 +58,16 @@ func (c *Client) MediaUpload(mediaType, filename, mediaContentType string, media
 	defer c.putBuffer(bodyBuf)
 
 	bodyWriter := multipart.NewWriter(bodyBuf)
-	fileWriter, err := bodyWriter.CreateFormFile("filename", filename)
+	fileWriter, err := bodyWriter.CreateFormFile("file", filename)
 	if err != nil {
 		return nil, err
 	}
-
 	if _, err = io.Copy(fileWriter, mediaReader); err != nil {
 		return nil, err
 	}
 
 	bodyContentType := bodyWriter.FormDataContentType()
+
 	if err = bodyWriter.Close(); err != nil {
 		return nil, err
 	}
@@ -71,6 +94,18 @@ func (c *Client) MediaUpload(mediaType, filename, mediaContentType string, media
 		return nil, &result.Error
 	}
 	return &result.UploadResponse, nil
+}
+
+// 下载多媒体文件
+//  NOTE: 视频文件不支持下载，调用该接口需http协议。
+func (c *Client) MediaDownloadToFile(mediaId, filePath string) error {
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return c.MediaDownload(mediaId, file)
 }
 
 // 下载多媒体文件

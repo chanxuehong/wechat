@@ -6,7 +6,7 @@ type UploadResponse struct {
 	// 缩略图（thumb，主要用于视频与音乐格式的缩略图），次数为news，即图文消息
 	MediaType string `json:"type"`
 	MediaId   string `json:"media_id"`   // 媒体文件上传后，获取时的唯一标识
-	CreatedAt string `json:"created_at"` // 媒体文件上传时间戳
+	CreatedAt int64  `json:"created_at"` // 媒体文件上传时间戳
 }
 
 // 上传图文消息里的 item
