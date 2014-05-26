@@ -24,8 +24,8 @@ func (c *Client) RefreshToken() (token string, err error) {
 	case resp.ExpiresIn <= 0: // 正常情况下不会出现
 		err = fmt.Errorf("access token 过期时间是负数: %d", resp.ExpiresIn)
 		c.accessToken.Update("", err)
-	case resp.ExpiresIn <= 10: // 正常情况下不会出现
 
+	case resp.ExpiresIn <= 10: // 正常情况下不会出现
 		c.accessToken.Update(resp.AccessToken, nil)
 		token = resp.AccessToken
 		c.resetTickChan <- time.Duration(resp.ExpiresIn) * time.Second
