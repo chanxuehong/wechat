@@ -8,13 +8,14 @@ import (
 	"time"
 )
 
-// 获取 access token, 出错返回 "", 并返回错误信息; 否则返回 nil 错误.
+// 获取 access token, 出错返回 "", 并返回错误信息;
+// 否则返回 nil 错误.
 func (c *Client) Token() (token string, err error) {
 	return c.accessToken.Token()
 }
 
-// 强制刷新 access token, 正常情况下不要调用.
-// 请使用 Client.Token() 获取 access token
+// 手动刷新 access token, 正常情况下不要调用;
+// 请使用 Client.Token() 获取 access token.
 func (c *Client) RefreshToken() (token string, err error) {
 	resp, err := c.getNewToken()
 	switch {
@@ -40,18 +41,17 @@ func (c *Client) RefreshToken() (token string, err error) {
 }
 
 // 负责更新 access token.
-// 使用这种复杂的实现是减少 time.Now() 的调用.
+// 使用这种复杂的实现是减少 time.Now() 的调用, 不然每次都要比较 time.Now().
 func (c *Client) accessTokenService() {
 	const defaultTickDuration = time.Minute
-	// 获取新的 access token 时间间隔, 设置 44 秒以上就不会超过限制
-	currentTickDuration := defaultTickDuration
+	currentTickDuration := defaultTickDuration // 获取新的 access token 时间间隔, 设置 44 秒以上就不会超过限制
 
 OuterLoop: // 改变 currentTickDuration 重新开始
 	for {
 		tk := time.NewTicker(currentTickDuration)
 		for {
 			select {
-			case currentTickDuration = <-c.resetTickChan:
+			case currentTickDuration = <-c.resetTickChan: // 重新设置定时器
 				tk.Stop()
 				break OuterLoop
 			case <-tk.C:
@@ -75,19 +75,21 @@ OuterLoop: // 改变 currentTickDuration 重新开始
 					}
 				case resp.ExpiresIn <= 10: // 正常情况下不会出现
 					c.accessToken.Update(resp.AccessToken, nil)
+					// 根据返回的过期时间来重新设置定时器
 					nextTickDuration := time.Duration(resp.ExpiresIn) * time.Second
 					if currentTickDuration != nextTickDuration {
-						currentTickDuration = nextTickDuration
 						tk.Stop()
+						currentTickDuration = nextTickDuration
 						break OuterLoop
 					}
 				default: // resp.ExpiresIn > 10
 					c.accessToken.Update(resp.AccessToken, nil)
+					// 根据返回的过期时间来重新设置定时器
 					// 设置新的 currentTickDuration, 考虑到网络延时, 提前 10 秒过期
 					nextTickDuration := time.Duration(resp.ExpiresIn-10) * time.Second
 					if currentTickDuration != nextTickDuration {
-						currentTickDuration = nextTickDuration
 						tk.Stop()
+						currentTickDuration = nextTickDuration
 						break OuterLoop
 					}
 				}
