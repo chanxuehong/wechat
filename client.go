@@ -26,6 +26,7 @@ func (at *accessToken) Update(token string, err error) {
 	at.rwmutex.Unlock()
 }
 
+// 并发安全
 type Client struct {
 	appid, appsecret string
 	accessToken      accessToken
@@ -34,16 +35,11 @@ type Client struct {
 
 func NewClient(appid, appsecret string) *Client {
 	c := &Client{
-		appid:     appid,
-		appsecret: appsecret,
-		accessToken: accessToken{
-			err: &Error{
-				ErrCode: -1,
-				ErrMsg:  "初始化还没有完成",
-			},
-		},
+		appid:         appid,
+		appsecret:     appsecret,
 		resetTickChan: make(chan time.Duration),
 	}
 	go c.accessTokenService()
+	c.RefreshToken()
 	return c
 }

@@ -45,41 +45,21 @@ func (c *Client) accessTokenService() {
 	const defaultTickDuration = time.Minute
 	// 获取新的 access token 时间间隔, 设置 44 秒以上就不会超过限制
 	currentTickDuration := defaultTickDuration
-	nextTickDuration := defaultTickDuration
 
-	// 启动马上就获取 access token
-	resp, err := c.getNewToken()
-	switch {
-	case err != nil:
-		c.accessToken.Update("", err)
-
-	case resp.ExpiresIn <= 0: // 正常情况下不会出现
-		c.accessToken.Update("", fmt.Errorf("access token 过期时间是负数: %d", resp.ExpiresIn))
-
-	case resp.ExpiresIn <= 10: // 正常情况下不会出现
-		c.accessToken.Update(resp.AccessToken, nil)
-		currentTickDuration = time.Duration(resp.ExpiresIn) * time.Second
-
-	default: // resp.ExpiresIn > 10
-		c.accessToken.Update(resp.AccessToken, nil)
-		// 考虑到网络延时, 提前 10 秒过期
-		currentTickDuration = time.Duration(resp.ExpiresIn-10) * time.Second
-	}
-
-	var tk *time.Ticker
 OuterLoop: // 改变 currentTickDuration 重新开始
 	for {
-		tk = time.NewTicker(currentTickDuration)
+		tk := time.NewTicker(currentTickDuration)
 		for {
 			select {
 			case currentTickDuration = <-c.resetTickChan:
 				tk.Stop()
 				break OuterLoop
 			case <-tk.C:
-				resp, err = c.getNewToken()
+				resp, err := c.getNewToken()
 				switch {
 				case err != nil:
 					c.accessToken.Update("", err)
+					// 出错则重置到 defaultTickDuration
 					if currentTickDuration != defaultTickDuration {
 						tk.Stop()
 						currentTickDuration = defaultTickDuration
@@ -87,6 +67,7 @@ OuterLoop: // 改变 currentTickDuration 重新开始
 					}
 				case resp.ExpiresIn <= 0: // 正常情况下不会出现
 					c.accessToken.Update("", fmt.Errorf("access token 过期时间是负数: %d", resp.ExpiresIn))
+					// 出错则重置到 defaultTickDuration
 					if currentTickDuration != defaultTickDuration {
 						tk.Stop()
 						currentTickDuration = defaultTickDuration
@@ -94,7 +75,7 @@ OuterLoop: // 改变 currentTickDuration 重新开始
 					}
 				case resp.ExpiresIn <= 10: // 正常情况下不会出现
 					c.accessToken.Update(resp.AccessToken, nil)
-					nextTickDuration = time.Duration(resp.ExpiresIn) * time.Second
+					nextTickDuration := time.Duration(resp.ExpiresIn) * time.Second
 					if currentTickDuration != nextTickDuration {
 						currentTickDuration = nextTickDuration
 						tk.Stop()
@@ -103,7 +84,7 @@ OuterLoop: // 改变 currentTickDuration 重新开始
 				default: // resp.ExpiresIn > 10
 					c.accessToken.Update(resp.AccessToken, nil)
 					// 设置新的 currentTickDuration, 考虑到网络延时, 提前 10 秒过期
-					nextTickDuration = time.Duration(resp.ExpiresIn-10) * time.Second
+					nextTickDuration := time.Duration(resp.ExpiresIn-10) * time.Second
 					if currentTickDuration != nextTickDuration {
 						currentTickDuration = nextTickDuration
 						tk.Stop()
