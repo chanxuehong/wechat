@@ -5,3 +5,8 @@ const (
 	MenuButtonCountLimit    = 3
 	SubMenuButtonCountLimit = 5
 )
+
+const (
+	MENUBUTTON_TYPE_CLICK = "click"
+	MENUBUTTON_TYPE_VIEW  = "view"
+)
