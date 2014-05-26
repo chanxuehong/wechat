@@ -1,6 +1,7 @@
 package wechat
 
 import (
+	"github.com/chanxuehong/util/pool"
 	"sync"
 	"time"
 )
@@ -38,13 +39,19 @@ type Client struct {
 	// 如果有新的数据, 则重置定时器, 定时时间为 resetTickChan 里的数据.
 	// 主要用于用户手动更新 access token 的情况, Client.RefreshToken()
 	resetTickChan chan time.Duration
+	bufferPool    *pool.Pool
 }
 
-func NewClient(appid, appsecret string) *Client {
+func NewClient(appid, appsecret string, bufferPoolSize int) *Client {
+	if bufferPoolSize < 16 {
+		bufferPoolSize = 16
+	}
+
 	c := &Client{
 		appid:         appid,
 		appsecret:     appsecret,
 		resetTickChan: make(chan time.Duration),
+		bufferPool:    pool.New(newBuffer, bufferPoolSize),
 	}
 	go c.accessTokenService()
 	c.RefreshToken() // 同步获取 access token

@@ -56,6 +56,10 @@ func defaultUnknownRequestHandler(w http.ResponseWriter, r *http.Request, rqstMs
 func defaultRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request)        {}
 
 func NewServer(token string, requestPoolSize int) *Server {
+	if requestPoolSize < 16 {
+		requestPoolSize = 16
+	}
+
 	var srv Server
 
 	srv.token = token

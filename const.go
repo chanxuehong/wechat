@@ -17,4 +17,12 @@ const (
 	menuGetUrlPrefix = `https://api.weixin.qq.com/cgi-bin/menu/get?access_token=`
 	// https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=ACCESS_TOKEN
 	menuDeleteUrlPrefix = `https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=`
+	// http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=ACCESS_TOKEN&type=TYPE
+	mediaUploadUrlFormat = `http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=%s&type=%s`
+	// http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID
+	mediaDownloadUrlFormat = `http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=%s&media_id=%s`
+	// https://api.weixin.qq.com/cgi-bin/media/uploadnews?access_token=ACCESS_TOKEN
+	mediaUploadNewsUrlPrefix = `https://api.weixin.qq.com/cgi-bin/media/uploadnews?access_token=`
+	// https://file.api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token=ACCESS_TOKEN
+	mediaUploadVideoUrlPrefix = `https://file.api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token=`
 )
