@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/chanxuehong/wechat/menu"
 	"io/ioutil"
 	"net/http"
@@ -14,17 +13,16 @@ func (c *Client) MenuCreate(mn *menu.Menu) error {
 	if mn == nil {
 		return errors.New("menu == nil")
 	}
+	token, err := c.Token()
+	if err != nil {
+		return err
+	}
 	jsonData, err := json.Marshal(mn)
 	if err != nil {
 		return err
 	}
 
-	token, err := c.Token()
-	if err != nil {
-		return err
-	}
-
-	url := fmt.Sprintf(menuCreateUrlFormat, token)
+	url := menuCreateUrlPrefix + token
 	resp, err := http.Post(url, "application/json; charset=utf-8", bytes.NewReader(jsonData))
 	if err != nil {
 		return err
@@ -52,7 +50,7 @@ func (c *Client) MenuDelete() error {
 		return err
 	}
 
-	url := fmt.Sprintf(menuDeleteUrlFormat, token)
+	url := menuDeleteUrlPrefix + token
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -80,7 +78,7 @@ func (c *Client) MenuGet() (*menu.GetMenuResponse, error) {
 		return nil, err
 	}
 
-	url := fmt.Sprintf(menuGetUrlFormat, token)
+	url := menuGetUrlPrefix + token
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/chanxuehong/wechat/message/mass"
 	"io/ioutil"
 	"net/http"
@@ -12,13 +11,18 @@ import (
 
 // 根据分组群发 ==================================================================
 
-func (c *Client) massSendGroupMsg(jsonData []byte) (*mass.MassResponse, error) {
+// 根据分组群发消息, 之所以不暴露这个接口是因为怕接收到不合法的参数.
+func (c *Client) massSendGroupMsg(msg interface{}) (*mass.MassResponse, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
 	}
+	jsonData, err := json.Marshal(msg)
+	if err != nil {
+		return nil, err
+	}
 
-	url := fmt.Sprintf(massSendMessageByGroupUrlFormat, token)
+	url := massSendMessageByGroupUrlPrefix + token
 	resp, err := http.Post(url, "application/json; charset=utf-8", bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
@@ -47,71 +51,51 @@ func (c *Client) MassSendGroupNews(msg *mass.GroupNews) (*mass.MassResponse, err
 	if msg == nil {
 		return nil, errors.New("msg == nil")
 	}
-	msgBody, err := json.Marshal(msg)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.massSendGroupMsg(msgBody)
+	return c.massSendGroupMsg(msg)
 }
 
 func (c *Client) MassSendGroupText(msg *mass.GroupText) (*mass.MassResponse, error) {
 	if msg == nil {
 		return nil, errors.New("msg == nil")
 	}
-	msgBody, err := json.Marshal(msg)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.massSendGroupMsg(msgBody)
+	return c.massSendGroupMsg(msg)
 }
 
 func (c *Client) MassSendGroupVoice(msg *mass.GroupVoice) (*mass.MassResponse, error) {
 	if msg == nil {
 		return nil, errors.New("msg == nil")
 	}
-	msgBody, err := json.Marshal(msg)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.massSendGroupMsg(msgBody)
+	return c.massSendGroupMsg(msg)
 }
 
 func (c *Client) MassSendGroupImage(msg *mass.GroupImage) (*mass.MassResponse, error) {
 	if msg == nil {
 		return nil, errors.New("msg == nil")
 	}
-	msgBody, err := json.Marshal(msg)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.massSendGroupMsg(msgBody)
+	return c.massSendGroupMsg(msg)
 }
 
 func (c *Client) MassSendGroupVideo(msg *mass.GroupVideo) (*mass.MassResponse, error) {
 	if msg == nil {
 		return nil, errors.New("msg == nil")
 	}
-	msgBody, err := json.Marshal(msg)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.massSendGroupMsg(msgBody)
+	return c.massSendGroupMsg(msg)
 }
 
 // 根据 OpenId 列表群发 ==========================================================
 
-func (c *Client) massSendOpenIdMsg(jsonData []byte) (*mass.MassResponse, error) {
+// 根据 OpenId列表 群发消息, 之所以不暴露这个接口是因为怕接收到不合法的参数.
+func (c *Client) massSendOpenIdMsg(msg interface{}) (*mass.MassResponse, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
 	}
+	jsonData, err := json.Marshal(msg)
+	if err != nil {
+		return nil, err
+	}
 
-	url := fmt.Sprintf(massSendMessageByOpenIdUrlFormat, token)
+	url := massSendMessageByOpenIdUrlPrefix + token
 	resp, err := http.Post(url, "application/json; charset=utf-8", bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
@@ -140,60 +124,35 @@ func (c *Client) MassSendOpenIdNews(msg *mass.OpenIdNews) (*mass.MassResponse, e
 	if msg == nil {
 		return nil, errors.New("msg == nil")
 	}
-	msgBody, err := json.Marshal(msg)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.massSendOpenIdMsg(msgBody)
+	return c.massSendOpenIdMsg(msg)
 }
 
 func (c *Client) MassSendOpenIdText(msg *mass.OpenIdText) (*mass.MassResponse, error) {
 	if msg == nil {
 		return nil, errors.New("msg == nil")
 	}
-	msgBody, err := json.Marshal(msg)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.massSendOpenIdMsg(msgBody)
+	return c.massSendOpenIdMsg(msg)
 }
 
 func (c *Client) MassSendOpenIdVoice(msg *mass.OpenIdVoice) (*mass.MassResponse, error) {
 	if msg == nil {
 		return nil, errors.New("msg == nil")
 	}
-	msgBody, err := json.Marshal(msg)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.massSendOpenIdMsg(msgBody)
+	return c.massSendOpenIdMsg(msg)
 }
 
 func (c *Client) MassSendOpenIdImage(msg *mass.OpenIdImage) (*mass.MassResponse, error) {
 	if msg == nil {
 		return nil, errors.New("msg == nil")
 	}
-	msgBody, err := json.Marshal(msg)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.massSendOpenIdMsg(msgBody)
+	return c.massSendOpenIdMsg(msg)
 }
 
 func (c *Client) MassSendOpenIdVideo(msg *mass.OpenIdVideo) (*mass.MassResponse, error) {
 	if msg == nil {
 		return nil, errors.New("msg == nil")
 	}
-	msgBody, err := json.Marshal(msg)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.massSendOpenIdMsg(msgBody)
+	return c.massSendOpenIdMsg(msg)
 }
 
 // 删除群发======================================================================
@@ -201,18 +160,17 @@ func (c *Client) MassDelete(msg *mass.DeleteMassRequest) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	msgBody, err := json.Marshal(msg)
-	if err != nil {
-		return err
-	}
-
 	token, err := c.Token()
 	if err != nil {
 		return err
 	}
+	jsonData, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
 
-	url := fmt.Sprintf(massDeleteUrlFormat, token)
-	resp, err := http.Post(url, "application/json; charset=utf-8", bytes.NewReader(msgBody))
+	url := massDeleteUrlPrefix + token
+	resp, err := http.Post(url, "application/json; charset=utf-8", bytes.NewReader(jsonData))
 	if err != nil {
 		return err
 	}
