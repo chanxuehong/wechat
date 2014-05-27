@@ -23,7 +23,7 @@ func (c *Client) massSendGroupMsg(msg interface{}) (msgid int, err error) {
 	}
 
 	url := massSendMessageByGroupUrlPrefix + token
-	resp, err := http.Post(url, "application/json; charset=utf-8", bytes.NewReader(jsonData))
+	resp, err := http.Post(url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return
 	}
@@ -108,7 +108,7 @@ func (c *Client) massSendOpenIdMsg(msg interface{}) (msgid int, err error) {
 	}
 
 	url := massSendMessageByOpenIdUrlPrefix + token
-	resp, err := http.Post(url, "application/json; charset=utf-8", bytes.NewReader(jsonData))
+	resp, err := http.Post(url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return
 	}
@@ -197,7 +197,7 @@ func (c *Client) MassDelete(msg *mass.DeleteMassRequest) error {
 	}
 
 	url := massDeleteUrlPrefix + token
-	resp, err := http.Post(url, "application/json; charset=utf-8", bytes.NewReader(jsonData))
+	resp, err := http.Post(url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return err
 	}

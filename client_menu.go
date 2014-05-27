@@ -26,7 +26,7 @@ func (c *Client) MenuCreate(mn *menu.Menu) error {
 	}
 
 	url := menuCreateUrlPrefix + token
-	resp, err := http.Post(url, "application/json; charset=utf-8", bytes.NewReader(jsonData))
+	resp, err := http.Post(url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func (c *Client) MenuDelete() error {
 }
 
 // 获取自定义菜单
-func (c *Client) MenuGet() (*menu.GetMenuResponse, error) {
+func (c *Client) MenuGet() (*menu.Menu, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
@@ -95,8 +95,11 @@ func (c *Client) MenuGet() (*menu.GetMenuResponse, error) {
 		return nil, err
 	}
 
+	type getMenuResponse struct {
+		Menu menu.Menu `json:"menu"`
+	}
 	var result struct {
-		menu.GetMenuResponse
+		getMenuResponse
 		Error
 	}
 	err = json.Unmarshal(body, &result)
@@ -107,5 +110,5 @@ func (c *Client) MenuGet() (*menu.GetMenuResponse, error) {
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}
-	return &result.GetMenuResponse, nil
+	return &result.Menu, nil
 }

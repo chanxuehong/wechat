@@ -21,7 +21,7 @@ func (c *Client) customSendResponse(msg interface{}) error {
 	}
 
 	url := customSendMessageUrlPrefix + token
-	resp, err := http.Post(url, "application/json; charset=utf-8", bytes.NewReader(jsonData))
+	resp, err := http.Post(url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return err
 	}

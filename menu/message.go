@@ -51,8 +51,3 @@ func (m *Menu) AppendButton(btn ...*MenuButton) {
 		m.Button = m.Button[:MenuButtonCountLimit]
 	}
 }
-
-// 获取自定义菜单的回复
-type GetMenuResponse struct {
-	Menu Menu `json:"menu"`
-}

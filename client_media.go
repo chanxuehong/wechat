@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // 上传多媒体文件.
@@ -131,8 +132,8 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 	}
 	defer resp.Body.Close()
 
-	// 下载成功, 比如 Content-Type: image/jpeg
-	if resp.Header.Get("Content-Type") != "text/plain" {
+	// 如果下载失败返回的是 Content-Type: text/plain, 下载成功是其他的 Content-Type
+	if !strings.HasPrefix(resp.Header.Get("Content-Type"), "text/plain") {
 		_, err = io.Copy(writer, resp.Body)
 		return err
 	}
@@ -166,7 +167,7 @@ func (c *Client) MediaUploadNews(news *media.News) (*media.UploadResponse, error
 	}
 
 	url := mediaUploadNewsUrlPrefix + token
-	resp, err := http.Post(url, "application/json; charset=utf-8", bytes.NewReader(jsonData))
+	resp, err := http.Post(url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +207,7 @@ func (c *Client) MediaUploadVideo(video *media.Video) (*media.UploadResponse, er
 	}
 
 	url := mediaUploadVideoUrlPrefix + token
-	resp, err := http.Post(url, "application/json; charset=utf-8", bytes.NewReader(jsonData))
+	resp, err := http.Post(url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}
