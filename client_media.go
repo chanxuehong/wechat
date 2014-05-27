@@ -14,10 +14,10 @@ import (
 	"path/filepath"
 )
 
-// 上传多媒体文件
+// 上传多媒体文件.
 //  NOTE:
-//  1. media_id是可复用的，调用该接口需http协议;
-//  2. 媒体文件在后台保存时间为3天，即3天后media_id失效。
+//  1. 媒体文件在后台保存时间为3天，即3天后 media_id 失效。
+//  2. 返回的 media_id 是可复用的;
 //  3. 图片（image）: 256K，支持JPG格式
 //  4. 语音（voice）：256K，播放长度不超过60s，支持AMR\MP3格式
 //  5. 视频（video）：1MB，支持MP4格式
@@ -32,10 +32,10 @@ func (c *Client) MediaUploadFromFile(mediaType, filePath string) (*media.UploadR
 	return c.MediaUpload(mediaType, filepath.Base(filePath), file)
 }
 
-// 上传多媒体文件
+// 上传多媒体文件.
 //  NOTE:
-//  1. media_id是可复用的，调用该接口需http协议;
-//  2. 媒体文件在后台保存时间为3天，即3天后media_id失效。
+//  1. 媒体文件在后台保存时间为3天，即3天后 media_id 失效。
+//  2. 返回的 media_id 是可复用的;
 //  3. 图片（image）: 256K，支持JPG格式
 //  4. 语音（voice）：256K，播放长度不超过60s，支持AMR\MP3格式
 //  5. 视频（video）：1MB，支持MP4格式
@@ -49,7 +49,9 @@ func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) 
 	default:
 		return nil, errors.New("错误的 mediaType")
 	}
-
+	if filename == "" {
+		return nil, errors.New(`filename == ""`)
+	}
 	if mediaReader == nil {
 		return nil, errors.New("mediaReader == nil")
 	}
@@ -60,8 +62,8 @@ func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) 
 	}
 	url := fmt.Sprintf(mediaUploadUrlFormat, token, mediaType)
 
-	bodyBuf := c.getBuffer()
-	defer c.putBuffer(bodyBuf)
+	bodyBuf := c.getBuffer()   // io.ReadWriter
+	defer c.putBuffer(bodyBuf) // important!
 
 	bodyWriter := multipart.NewWriter(bodyBuf)
 	fileWriter, err := bodyWriter.CreateFormFile("file", filename)
@@ -102,8 +104,8 @@ func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) 
 	return &result.UploadResponse, nil
 }
 
-// 下载多媒体文件
-//  NOTE: 视频文件不支持下载，调用该接口需http协议。
+// 下载多媒体文件.
+//  NOTE: 视频文件不支持下载.
 func (c *Client) MediaDownloadToFile(mediaId, filePath string) error {
 	file, err := os.Create(filePath)
 	if err != nil {
@@ -114,8 +116,8 @@ func (c *Client) MediaDownloadToFile(mediaId, filePath string) error {
 	return c.MediaDownload(mediaId, file)
 }
 
-// 下载多媒体文件
-//  NOTE: 视频文件不支持下载，调用该接口需http协议。
+// 下载多媒体文件.
+//  NOTE: 视频文件不支持下载.
 func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 	token, err := c.Token()
 	if err != nil {
@@ -129,6 +131,7 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 	}
 	defer resp.Body.Close()
 
+	// 下载成功, 比如 Content-Type: image/jpeg
 	if resp.Header.Get("Content-Type") != "text/plain" {
 		_, err = io.Copy(writer, resp.Body)
 		return err

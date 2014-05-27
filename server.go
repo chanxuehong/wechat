@@ -10,11 +10,15 @@ import (
 	"net/http"
 )
 
+// 对于微信服务器推送过来的消息或者事件, 公众号服务程序就相当于服务器.
+//  被动回复和处理各种事件功能都封装在这个结构里, 并发安全.
+//  NOTE: 必须调用 NewServer() 创建对象!
 type Server struct {
 	token string
 
 	// TODO: go1.3有了新的实现(sync.Pool), 目前 GAE 还不支持,
 	// 如果你的环境是 go1.3+, 你可以自己更改.
+	// 对于微信服务器推送过来的请求, 基本都是中间处理下就丢弃, 所以可以缓存起来.
 	messageRequestPool *pool.Pool
 
 	// Invalid or unknown request handler
@@ -55,10 +59,8 @@ func defaultInvalidRequestHandler(w http.ResponseWriter, r *http.Request, err er
 func defaultUnknownRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {}
 func defaultRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request)        {}
 
-func NewServer(token string, requestPoolSize int) *Server {
-	if requestPoolSize < 16 {
-		requestPoolSize = 16
-	}
+func NewServer(token string) *Server {
+	const requestPoolSize = 1024 // 不暴露这个选项是为了变更到 sync.Pool 不做大的变动
 
 	var srv Server
 

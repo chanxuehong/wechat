@@ -5,8 +5,14 @@ type UploadResponse struct {
 	// 媒体文件类型，分别有图片（image）、语音（voice）、视频（video）和
 	// 缩略图（thumb，主要用于视频与音乐格式的缩略图），次数为news，即图文消息
 	MediaType string `json:"type"`
-	MediaId   string `json:"media_id"`   // 媒体文件上传后，获取时的唯一标识
-	CreatedAt int64  `json:"created_at"` // 媒体文件上传时间戳
+
+	// 媒体文件上传后，获取时的唯一标识.
+	//  NOTE:
+	//  1. 每个多媒体文件（media_id）会在上传、用户发送到微信服务器3天后自动删除，以节省服务器资源。
+	//  2. media_id是可复用的.
+	MediaId string `json:"media_id"`
+	// 媒体文件上传时间戳
+	CreatedAt int64 `json:"created_at"`
 }
 
 // 上传图文消息里的 item

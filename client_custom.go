@@ -42,6 +42,7 @@ func (c *Client) customSendResponse(msg interface{}) error {
 	return nil
 }
 
+// 发送客服消息, 文本.
 func (c *Client) CustomSendTextResponse(msg *message.TextResponse) error {
 	if msg == nil {
 		return errors.New("msg == nil")
@@ -49,6 +50,7 @@ func (c *Client) CustomSendTextResponse(msg *message.TextResponse) error {
 	return c.customSendResponse(msg)
 }
 
+// 发送客服消息, 图片.
 func (c *Client) CustomSendImageResponse(msg *message.ImageResponse) error {
 	if msg == nil {
 		return errors.New("msg == nil")
@@ -56,6 +58,7 @@ func (c *Client) CustomSendImageResponse(msg *message.ImageResponse) error {
 	return c.customSendResponse(msg)
 }
 
+// 发送客服消息, 语音.
 func (c *Client) CustomSendVoiceResponse(msg *message.VoiceResponse) error {
 	if msg == nil {
 		return errors.New("msg == nil")
@@ -63,6 +66,7 @@ func (c *Client) CustomSendVoiceResponse(msg *message.VoiceResponse) error {
 	return c.customSendResponse(msg)
 }
 
+// 发送客服消息, 视频.
 func (c *Client) CustomSendVideoResponse(msg *message.VideoResponse) error {
 	if msg == nil {
 		return errors.New("msg == nil")
@@ -70,6 +74,7 @@ func (c *Client) CustomSendVideoResponse(msg *message.VideoResponse) error {
 	return c.customSendResponse(msg)
 }
 
+// 发送客服消息, 音乐.
 func (c *Client) CustomSendMusicResponse(msg *message.MusicResponse) error {
 	if msg == nil {
 		return errors.New("msg == nil")
@@ -77,6 +82,7 @@ func (c *Client) CustomSendMusicResponse(msg *message.MusicResponse) error {
 	return c.customSendResponse(msg)
 }
 
+// 发送客服消息, 图文.
 func (c *Client) CustomSendNewsResponse(msg *message.NewsResponse) error {
 	if msg == nil {
 		return errors.New("msg == nil")
