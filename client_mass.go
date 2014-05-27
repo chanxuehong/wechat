@@ -12,72 +12,79 @@ import (
 // 根据分组群发 ==================================================================
 
 // 根据分组群发消息, 之所以不暴露这个接口是因为怕接收到不合法的参数.
-func (c *Client) massSendGroupMsg(msg interface{}) (*mass.MassResponse, error) {
+func (c *Client) massSendGroupMsg(msg interface{}) (msgid int, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	jsonData, err := json.Marshal(msg)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	url := massSendMessageByGroupUrlPrefix + token
 	resp, err := http.Post(url, "application/json; charset=utf-8", bytes.NewReader(jsonData))
 	if err != nil {
-		return nil, err
+		return
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	var result mass.MassResponse
+	var result struct {
+		Error
+		MsgId int `json:"msg_id"`
+	}
 	if err = json.Unmarshal(body, &result); err != nil {
-		return nil, err
+		return
 	}
 	if result.ErrCode != 0 {
-		return nil, &Error{
-			ErrCode: result.ErrCode,
-			ErrMsg:  result.ErrMsg,
-		}
+		err = &result.Error
+		return
 	}
-	return &result, nil
+	msgid = result.MsgId
+	return
 }
 
-func (c *Client) MassSendGroupNews(msg *mass.GroupNews) (*mass.MassResponse, error) {
+func (c *Client) MassSendGroupNews(msg *mass.GroupNews) (msgid int, err error) {
 	if msg == nil {
-		return nil, errors.New("msg == nil")
-	}
-	return c.massSendGroupMsg(msg)
-}
-
-func (c *Client) MassSendGroupText(msg *mass.GroupText) (*mass.MassResponse, error) {
-	if msg == nil {
-		return nil, errors.New("msg == nil")
+		err = errors.New("msg == nil")
+		return
 	}
 	return c.massSendGroupMsg(msg)
 }
 
-func (c *Client) MassSendGroupVoice(msg *mass.GroupVoice) (*mass.MassResponse, error) {
+func (c *Client) MassSendGroupText(msg *mass.GroupText) (msgid int, err error) {
 	if msg == nil {
-		return nil, errors.New("msg == nil")
+		err = errors.New("msg == nil")
+		return
 	}
 	return c.massSendGroupMsg(msg)
 }
 
-func (c *Client) MassSendGroupImage(msg *mass.GroupImage) (*mass.MassResponse, error) {
+func (c *Client) MassSendGroupVoice(msg *mass.GroupVoice) (msgid int, err error) {
 	if msg == nil {
-		return nil, errors.New("msg == nil")
+		err = errors.New("msg == nil")
+		return
 	}
 	return c.massSendGroupMsg(msg)
 }
 
-func (c *Client) MassSendGroupVideo(msg *mass.GroupVideo) (*mass.MassResponse, error) {
+func (c *Client) MassSendGroupImage(msg *mass.GroupImage) (msgid int, err error) {
 	if msg == nil {
-		return nil, errors.New("msg == nil")
+		err = errors.New("msg == nil")
+		return
+	}
+	return c.massSendGroupMsg(msg)
+}
+
+func (c *Client) MassSendGroupVideo(msg *mass.GroupVideo) (msgid int, err error) {
+	if msg == nil {
+		err = errors.New("msg == nil")
+		return
 	}
 	return c.massSendGroupMsg(msg)
 }
@@ -85,72 +92,79 @@ func (c *Client) MassSendGroupVideo(msg *mass.GroupVideo) (*mass.MassResponse, e
 // 根据 OpenId 列表群发 ==========================================================
 
 // 根据 OpenId列表 群发消息, 之所以不暴露这个接口是因为怕接收到不合法的参数.
-func (c *Client) massSendOpenIdMsg(msg interface{}) (*mass.MassResponse, error) {
+func (c *Client) massSendOpenIdMsg(msg interface{}) (msgid int, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	jsonData, err := json.Marshal(msg)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	url := massSendMessageByOpenIdUrlPrefix + token
 	resp, err := http.Post(url, "application/json; charset=utf-8", bytes.NewReader(jsonData))
 	if err != nil {
-		return nil, err
+		return
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	var result mass.MassResponse
+	var result struct {
+		Error
+		MsgId int `json:"msg_id"`
+	}
 	if err = json.Unmarshal(body, &result); err != nil {
-		return nil, err
+		return
 	}
 	if result.ErrCode != 0 {
-		return nil, &Error{
-			ErrCode: result.ErrCode,
-			ErrMsg:  result.ErrMsg,
-		}
+		err = &result.Error
+		return
 	}
-	return &result, nil
+	msgid = result.MsgId
+	return
 }
 
-func (c *Client) MassSendOpenIdNews(msg *mass.OpenIdNews) (*mass.MassResponse, error) {
+func (c *Client) MassSendOpenIdNews(msg *mass.OpenIdNews) (msgid int, err error) {
 	if msg == nil {
-		return nil, errors.New("msg == nil")
-	}
-	return c.massSendOpenIdMsg(msg)
-}
-
-func (c *Client) MassSendOpenIdText(msg *mass.OpenIdText) (*mass.MassResponse, error) {
-	if msg == nil {
-		return nil, errors.New("msg == nil")
+		err = errors.New("msg == nil")
+		return
 	}
 	return c.massSendOpenIdMsg(msg)
 }
 
-func (c *Client) MassSendOpenIdVoice(msg *mass.OpenIdVoice) (*mass.MassResponse, error) {
+func (c *Client) MassSendOpenIdText(msg *mass.OpenIdText) (msgid int, err error) {
 	if msg == nil {
-		return nil, errors.New("msg == nil")
+		err = errors.New("msg == nil")
+		return
 	}
 	return c.massSendOpenIdMsg(msg)
 }
 
-func (c *Client) MassSendOpenIdImage(msg *mass.OpenIdImage) (*mass.MassResponse, error) {
+func (c *Client) MassSendOpenIdVoice(msg *mass.OpenIdVoice) (msgid int, err error) {
 	if msg == nil {
-		return nil, errors.New("msg == nil")
+		err = errors.New("msg == nil")
+		return
 	}
 	return c.massSendOpenIdMsg(msg)
 }
 
-func (c *Client) MassSendOpenIdVideo(msg *mass.OpenIdVideo) (*mass.MassResponse, error) {
+func (c *Client) MassSendOpenIdImage(msg *mass.OpenIdImage) (msgid int, err error) {
 	if msg == nil {
-		return nil, errors.New("msg == nil")
+		err = errors.New("msg == nil")
+		return
+	}
+	return c.massSendOpenIdMsg(msg)
+}
+
+func (c *Client) MassSendOpenIdVideo(msg *mass.OpenIdVideo) (msgid int, err error) {
+	if msg == nil {
+		err = errors.New("msg == nil")
+		return
 	}
 	return c.massSendOpenIdMsg(msg)
 }
