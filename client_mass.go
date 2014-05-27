@@ -183,15 +183,18 @@ func (c *Client) MassSendOpenIdVideo(msg *mass.OpenIdVideo) (msgid int, err erro
 //  NOTE: 只有已经发送成功的消息才能删除删除消息只是将消息的图文详情页失效，已经收到的用户，
 //  还是能在其本地看到消息卡片。 另外，删除群发消息只能删除图文消息和视频消息，
 //  其他类型的消息一经发送，无法删除。
-func (c *Client) MassDelete(msg *mass.DeleteMassRequest) error {
-	if msg == nil {
-		return errors.New("msg == nil")
-	}
+func (c *Client) MassDelete(msgid int) error {
 	token, err := c.Token()
 	if err != nil {
 		return err
 	}
-	jsonData, err := json.Marshal(msg)
+
+	var deleteRequest struct {
+		MsgId int `json:"msgid"`
+	}
+	deleteRequest.MsgId = msgid
+
+	jsonData, err := json.Marshal(deleteRequest)
 	if err != nil {
 		return err
 	}

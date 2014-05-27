@@ -29,7 +29,7 @@ http.Handle("/path", ServerEntity)
 
 ## 示例
 
-### Server，处理被动消息
+### Server示例：被动处理文本消息
 
 ```Go
 package main
@@ -96,7 +96,7 @@ type RequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Reques
 */
 ```
 
-### Client，创建一个临时的二维码
+### Client示例：创建一个临时的二维码
 
 ```Go
 package main
