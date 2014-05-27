@@ -27,4 +27,8 @@ const (
 	mediaUploadNewsUrlPrefix = `https://api.weixin.qq.com/cgi-bin/media/uploadnews?access_token=`
 	// https://file.api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token=ACCESS_TOKEN
 	mediaUploadVideoUrlPrefix = `https://file.api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token=`
+	// https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=TOKEN
+	qrcodeCreateUrlPrefix = `https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=`
+	// https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=TICKET
+	qrcodeShowUrlPrefix = `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=`
 )
