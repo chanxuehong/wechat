@@ -2,18 +2,30 @@
 
 ## 简介
 
-目前功能完全实现的部分是被动消息的接收和处理（因为我的公众平台只有这个基本接口，订阅号、没有认证）；
+目前完全实现的功能是被动消息的接收和处理（因为我的公众平台只有这个基本接口，订阅号、没有认证）；
 其他部分的实现都是参考微信官方的 API文档（个人认为不是很规范，也许和实际不能匹配），欢迎大家测试 和 fork。
+
+代码还在继续添加中，欢迎大家 push issues。
+联系方式：chanxuehong@gmail.com
 
 ## 入门
 
-### 安装
+wechat 主要分为 Client 和 Server 两个部分。
+
+Client 实现的是主动发送请求的功能，比如发送客服消息，群发消息，创建自定义菜单......
+
+Server 实现的是处理被动接收的消息的功能，微信服务器推送过来的普通消息 和 事件推送消息都是 Server 处理的。
+
+
+## 安装
 
 通过执行下列语句就可以完成安装
 
 	go get github.com/chanxuehong/wechat
 
-### 示例
+## 示例
+
+### Server，处理被动消息
 
 ```Go
 package main
@@ -32,7 +44,7 @@ func TextRequestHandler(w http.ResponseWriter, r *http.Request, rqst *message.Re
 }
 
 func main() {
-	wechatServer := wechat.NewServer(wechatToken, 10)
+	wechatServer := wechat.NewServer(wechatToken)
 
 	// 自定义 文本消息 处理函数，当然你也可以定义别的函数
 	wechatServer.SetTextRequestHandler(TextRequestHandler)
@@ -43,7 +55,7 @@ func main() {
 }
 ```
 
-### 自定义处理函数
+#### 自定义处理函数
 
 处理函数的定义可以使用下面的形式
 
@@ -52,8 +64,14 @@ func main() {
 type InvalidRequestHandlerFunc func(http.ResponseWriter, *http.Request, error)
 // 目前 SDK 不能识别的请求处理函数
 type UnknownRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
+// 正常的从微信服务器推送过来的请求处理函数，都可以自定义。SDK提供了下面的自定义点：
+type RequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
+
 /*
-正常的从微信服务器推送过来的请求处理函数，都可以自定义。SDK提供了下面的自定义点：
+	默认的处理函数是什么都不做。在下面这些 hook 点可以设置自定义函数。
+	
+	NOTE: 这些函数调用一定要在 http.Handle("/", wechatServer) 之前完成！
+	
     func (s *Server) SetClickEventRequestHandler(handler RequestHandlerFunc)
     func (s *Server) SetImageRequestHandler(handler RequestHandlerFunc)
     func (s *Server) SetInvalidRequestHandler(handler InvalidRequestHandlerFunc)
@@ -72,5 +90,27 @@ type UnknownRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message
     func (s *Server) SetVoiceRecognitionRequestHandler(handler RequestHandlerFunc)
     func (s *Server) SetVoiceRequestHandler(handler RequestHandlerFunc)
 */
-type RequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
+```
+
+### Client，创建一个临时的二维码
+
+```Go
+package main
+
+import (
+	"fmt"
+	"github.com/chanxuehong/wechat"
+)
+
+func main() {
+	c := wechat.NewClient("appid", "appsecret")
+
+	qrcode, err := c.QRCodeCreate(100, 1000)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(qrcode)
+}
 ```
