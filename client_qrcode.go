@@ -76,7 +76,7 @@ func (c *Client) QRCodeCreate(sceneId int, expireSeconds int) (*qrcode.QRCode, e
 }
 
 // 创建永久二维码
-func (c *Client) QRLimitCodeCreate(sceneId int) (*qrcode.QRLimitCode, error) {
+func (c *Client) QRLimitCodeCreate(sceneId int) (*qrcode.QRCode, error) {
 	if sceneId <= 0 || sceneId > qrcode.QRLimitCodeSceneIdLimit {
 		return nil, fmt.Errorf("sceneId 应该在 (0,%d] 之间", qrcode.QRLimitCodeSceneIdLimit)
 	}
@@ -116,7 +116,6 @@ func (c *Client) QRLimitCodeCreate(sceneId int) (*qrcode.QRLimitCode, error) {
 	}
 
 	var result struct {
-		//qrcode.QRLimitCode
 		qrcode.QRCode
 		Error
 	}
@@ -126,8 +125,9 @@ func (c *Client) QRLimitCodeCreate(sceneId int) (*qrcode.QRLimitCode, error) {
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}
-	result.QRLimitCode.SceneId = sceneId
-	return &result.QRLimitCode, nil
+	result.QRCode.SceneId = sceneId
+	result.QRCode.ExpireSeconds = 0
+	return &result.QRCode, nil
 }
 
 // 根据 qrcode ticket 得到 qrcode 图片的 url
