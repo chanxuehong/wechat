@@ -13,9 +13,13 @@
 wechat 主要分为 Client 和 Server 两个部分。
 
 Client 实现的是主动发送请求的功能，比如发送客服消息，群发消息，创建自定义菜单......
+Client 是并发安全的，在你的应用中一般只用常驻一个 Client 对象就可以了。
 
 Server 实现的是处理被动接收的消息的功能，微信服务器推送过来的普通消息 和 事件推送消息都是 Server 处理的。
-
+Server 实现了 http.Handler 接口，所以一般的应用就是实例化一个 Server 的实例，然后注册到特定的 pattern 上：
+```Go
+http.Handle("/path", ServerEntity)
+```
 
 ## 安装
 
