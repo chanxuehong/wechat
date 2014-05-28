@@ -11,5 +11,5 @@ type Error struct {
 }
 
 func (e *Error) Error() string {
-	return fmt.Sprintf("错误编号: %d, 错误信息: %s", e.ErrCode, e.ErrMsg)
+	return fmt.Sprintf("errcode: %d, errmsg: %s", e.ErrCode, e.ErrMsg)
 }

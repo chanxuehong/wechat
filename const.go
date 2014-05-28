@@ -30,5 +30,5 @@ const (
 	// https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=TOKEN
 	qrcodeCreateUrlPrefix = `https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=`
 	// https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=TICKET
-	qrcodeShowUrlPrefix = `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=`
+	qrcodeUrlPrefix = `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=`
 )

@@ -133,7 +133,7 @@ func (c *Client) QRCodeLimitCreate(sceneId int) (*qrcode.QRCode, error) {
 
 // 根据 qrcode ticket 得到 qrcode 图片的 url
 func QRCodeUrl(ticket string) string {
-	return qrcodeShowUrlPrefix + url.QueryEscape(ticket)
+	return qrcodeUrlPrefix + url.QueryEscape(ticket)
 }
 
 // 通过 ticket 换取二维码到 writer

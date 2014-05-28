@@ -74,27 +74,27 @@ type UnknownRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message
 type RequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
 
 /*
-	默认的处理函数是什么都不做。在下面这些 hook 点可以设置自定义函数。
-	
-	NOTE: 这些函数调用一定要在 http.Handle("/", wechatServer) 之前完成！
-	
-    func (s *Server) SetClickEventRequestHandler(handler RequestHandlerFunc)
-    func (s *Server) SetImageRequestHandler(handler RequestHandlerFunc)
-    func (s *Server) SetInvalidRequestHandler(handler InvalidRequestHandlerFunc)
-    func (s *Server) SetLinkRequestHandler(handler RequestHandlerFunc)
-    func (s *Server) SetLocationEventRequestHandler(handler RequestHandlerFunc)
-    func (s *Server) SetLocationRequestHandler(handler RequestHandlerFunc)
-    func (s *Server) SetMasssendjobfinishEventRequestHandler(handler RequestHandlerFunc)
-    func (s *Server) SetScanEventRequestHandler(handler RequestHandlerFunc)
-    func (s *Server) SetSubscribeEventByScanRequestHandler(handler RequestHandlerFunc)
-    func (s *Server) SetSubscribeEventRequestHandler(handler RequestHandlerFunc)
-    func (s *Server) SetTextRequestHandler(handler RequestHandlerFunc)
-    func (s *Server) SetUnknownRequestHandler(handler UnknownRequestHandlerFunc)
-    func (s *Server) SetUnsubscribeEventRequestHandler(handler RequestHandlerFunc)
-    func (s *Server) SetVideoRequestHandler(handler RequestHandlerFunc)
-    func (s *Server) SetViewEventRequestHandler(handler RequestHandlerFunc)
-    func (s *Server) SetVoiceRecognitionRequestHandler(handler RequestHandlerFunc)
-    func (s *Server) SetVoiceRequestHandler(handler RequestHandlerFunc)
+默认的处理函数是什么都不做。在下面这些 hook 点可以设置自定义函数。
+
+NOTE: 这些函数调用一定要在 http.Handle("/", wechatServer) 之前完成！
+
+func (s *Server) SetClickEventRequestHandler(handler RequestHandlerFunc)
+func (s *Server) SetImageRequestHandler(handler RequestHandlerFunc)
+func (s *Server) SetInvalidRequestHandler(handler InvalidRequestHandlerFunc)
+func (s *Server) SetLinkRequestHandler(handler RequestHandlerFunc)
+func (s *Server) SetLocationEventRequestHandler(handler RequestHandlerFunc)
+func (s *Server) SetLocationRequestHandler(handler RequestHandlerFunc)
+func (s *Server) SetMasssendjobfinishEventRequestHandler(handler RequestHandlerFunc)
+func (s *Server) SetScanEventRequestHandler(handler RequestHandlerFunc)
+func (s *Server) SetSubscribeEventByScanRequestHandler(handler RequestHandlerFunc)
+func (s *Server) SetSubscribeEventRequestHandler(handler RequestHandlerFunc)
+func (s *Server) SetTextRequestHandler(handler RequestHandlerFunc)
+func (s *Server) SetUnknownRequestHandler(handler UnknownRequestHandlerFunc)
+func (s *Server) SetUnsubscribeEventRequestHandler(handler RequestHandlerFunc)
+func (s *Server) SetVideoRequestHandler(handler RequestHandlerFunc)
+func (s *Server) SetViewEventRequestHandler(handler RequestHandlerFunc)
+func (s *Server) SetVoiceRecognitionRequestHandler(handler RequestHandlerFunc)
+func (s *Server) SetVoiceRequestHandler(handler RequestHandlerFunc)
 */
 ```
 
