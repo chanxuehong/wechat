@@ -7,7 +7,6 @@ import (
 	"github.com/chanxuehong/wechat/message/mass"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 )
 
 // 根据分组群发 ==================================================================
@@ -23,7 +22,7 @@ func (c *Client) massSendGroupMsg(msg interface{}) (msgid int, err error) {
 		return
 	}
 
-	_url := massSendMessageByGroupUrlPrefix + url.QueryEscape(token)
+	_url := massSendMessageByGroupUrlPrefix + token
 	resp, err := http.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return
@@ -108,7 +107,7 @@ func (c *Client) massSendOpenIdMsg(msg interface{}) (msgid int, err error) {
 		return
 	}
 
-	_url := massSendMessageByOpenIdUrlPrefix + url.QueryEscape(token)
+	_url := massSendMessageByOpenIdUrlPrefix + token
 	resp, err := http.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return
@@ -200,7 +199,7 @@ func (c *Client) MassDelete(msgid int) error {
 		return err
 	}
 
-	_url := massDeleteUrlPrefix + url.QueryEscape(token)
+	_url := massDeleteUrlPrefix + token
 	resp, err := http.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return err
