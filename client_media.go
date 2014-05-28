@@ -61,7 +61,7 @@ func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) 
 	if err != nil {
 		return nil, err
 	}
-	url := fmt.Sprintf(mediaUploadUrlFormat, token, mediaType)
+	_url := fmt.Sprintf(mediaUploadUrlFormat, token, mediaType)
 
 	bodyBuf := c.getBuffer()   // io.ReadWriter
 	defer c.putBuffer(bodyBuf) // important!
@@ -81,7 +81,7 @@ func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) 
 		return nil, err
 	}
 
-	resp, err := http.Post(url, bodyContentType, bodyBuf)
+	resp, err := http.Post(_url, bodyContentType, bodyBuf)
 	if err != nil {
 		return nil, err
 	}
@@ -125,8 +125,8 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 		return err
 	}
 
-	url := fmt.Sprintf(mediaDownloadUrlFormat, token, mediaId)
-	resp, err := http.Get(url)
+	_url := fmt.Sprintf(mediaDownloadUrlFormat, token, mediaId)
+	resp, err := http.Get(_url)
 	if err != nil {
 		return err
 	}
@@ -166,8 +166,8 @@ func (c *Client) MediaUploadNews(news *media.News) (*media.UploadResponse, error
 		return nil, err
 	}
 
-	url := mediaUploadNewsUrlPrefix + token
-	resp, err := http.Post(url, postJSONContentType, bytes.NewReader(jsonData))
+	_url := mediaUploadNewsUrlPrefix + token
+	resp, err := http.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}
@@ -206,8 +206,8 @@ func (c *Client) MediaUploadVideo(video *media.Video) (*media.UploadResponse, er
 		return nil, err
 	}
 
-	url := mediaUploadVideoUrlPrefix + token
-	resp, err := http.Post(url, postJSONContentType, bytes.NewReader(jsonData))
+	_url := mediaUploadVideoUrlPrefix + token
+	resp, err := http.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}

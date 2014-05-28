@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"math"
 	"net/http"
+	"net/url"
 	"os"
 )
 
@@ -49,8 +50,8 @@ func (c *Client) QRCodeCreate(sceneId int, expireSeconds int) (*qrcode.QRCode, e
 		return nil, err
 	}
 
-	url := qrcodeCreateUrlPrefix + token
-	resp, err := http.Post(url, postJSONContentType, bytes.NewReader(jsonData))
+	_url := qrcodeCreateUrlPrefix + token
+	resp, err := http.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}
@@ -76,9 +77,9 @@ func (c *Client) QRCodeCreate(sceneId int, expireSeconds int) (*qrcode.QRCode, e
 }
 
 // 创建永久二维码
-func (c *Client) QRLimitCodeCreate(sceneId int) (*qrcode.QRCode, error) {
-	if sceneId <= 0 || sceneId > qrcode.QRLimitCodeSceneIdLimit {
-		return nil, fmt.Errorf("sceneId 应该在 (0,%d] 之间", qrcode.QRLimitCodeSceneIdLimit)
+func (c *Client) QRCodeLimitCreate(sceneId int) (*qrcode.QRCode, error) {
+	if sceneId <= 0 || sceneId > qrcode.QRCodeLimitSceneIdLimit {
+		return nil, fmt.Errorf("sceneId 应该在 (0,%d] 之间", qrcode.QRCodeLimitSceneIdLimit)
 	}
 
 	token, err := c.Token()
@@ -103,8 +104,8 @@ func (c *Client) QRLimitCodeCreate(sceneId int) (*qrcode.QRCode, error) {
 		return nil, err
 	}
 
-	url := qrcodeCreateUrlPrefix + token
-	resp, err := http.Post(url, postJSONContentType, bytes.NewReader(jsonData))
+	_url := qrcodeCreateUrlPrefix + token
+	resp, err := http.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}
@@ -131,14 +132,14 @@ func (c *Client) QRLimitCodeCreate(sceneId int) (*qrcode.QRCode, error) {
 }
 
 // 根据 qrcode ticket 得到 qrcode 图片的 url
-func QRCodeShowUrl(ticket string) string {
-	return qrcodeShowUrlPrefix + ticket
+func QRCodeUrl(ticket string) string {
+	return qrcodeShowUrlPrefix + url.QueryEscape(ticket)
 }
 
 // 通过 ticket 换取二维码到 writer
 func QRCodeDownload(ticket string, writer io.Writer) error {
-	url := QRCodeShowUrl(ticket)
-	resp, err := http.Get(url)
+	_url := QRCodeUrl(ticket)
+	resp, err := http.Get(_url)
 	if err != nil {
 		return err
 	}
