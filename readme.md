@@ -1,6 +1,6 @@
 # 微信公众平台 golang SDK
 
-Version: 0.5.2
+Version: 0.5.9
 
 ## 简介
 

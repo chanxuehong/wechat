@@ -23,20 +23,20 @@ type UserInfo struct {
 }
 
 /*
-获取关注者列表的遍历器.
+	获取关注者列表的遍历器.
 
-iter,err := Client.UserIterator("beginOpenId")
-if err != nil {
-	...
-}
-
-for iter.HasNext() {
-	openids, err := iter.Next()
+	iter,err := Client.UserIterator("beginOpenId")
 	if err != nil {
 		...
 	}
-	...
-}
+
+	for iter.HasNext() {
+		openids, err := iter.Next()
+		if err != nil {
+			...
+		}
+		...
+	}
 */
 type UserIterator interface {
 	HasNext() bool
