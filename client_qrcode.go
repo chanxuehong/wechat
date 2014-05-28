@@ -50,7 +50,7 @@ func (c *Client) QRCodeCreate(sceneId int, expireSeconds int) (*qrcode.QRCode, e
 		return nil, err
 	}
 
-	_url := qrcodeCreateUrlPrefix + token
+	_url := qrcodeCreateUrlPrefix + url.QueryEscape(token)
 	resp, err := http.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
@@ -104,7 +104,7 @@ func (c *Client) QRCodeLimitCreate(sceneId int) (*qrcode.QRCode, error) {
 		return nil, err
 	}
 
-	_url := qrcodeCreateUrlPrefix + token
+	_url := qrcodeCreateUrlPrefix + url.QueryEscape(token)
 	resp, err := http.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
