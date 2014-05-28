@@ -23,9 +23,9 @@ type UserInfo struct {
 }
 
 /*
-获取关注者列表的遍历器.
+关注者列表的遍历器.
 
-	iter,err := Client.UserIterator("beginOpenId")
+	iter, err := Client.UserIterator("beginOpenId")
 	if err != nil {
 		...
 	}
