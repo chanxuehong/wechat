@@ -10,7 +10,7 @@ import (
 )
 
 // 发送客服消息功能都一样, 之所以不暴露这个接口是因为怕接收到不合法的参数.
-func (c *Client) customSendResponse(msg interface{}) error {
+func (c *Client) sendResponse(msg interface{}) error {
 	token, err := c.Token()
 	if err != nil {
 		return err
@@ -43,49 +43,49 @@ func (c *Client) customSendResponse(msg interface{}) error {
 }
 
 // 发送客服消息, 文本.
-func (c *Client) CustomSendTextResponse(msg *message.TextResponse) error {
+func (c *Client) SendTextResponse(msg *message.TextResponse) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return c.customSendResponse(msg)
+	return c.sendResponse(msg)
 }
 
 // 发送客服消息, 图片.
-func (c *Client) CustomSendImageResponse(msg *message.ImageResponse) error {
+func (c *Client) SendImageResponse(msg *message.ImageResponse) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return c.customSendResponse(msg)
+	return c.sendResponse(msg)
 }
 
 // 发送客服消息, 语音.
-func (c *Client) CustomSendVoiceResponse(msg *message.VoiceResponse) error {
+func (c *Client) SendVoiceResponse(msg *message.VoiceResponse) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return c.customSendResponse(msg)
+	return c.sendResponse(msg)
 }
 
 // 发送客服消息, 视频.
-func (c *Client) CustomSendVideoResponse(msg *message.VideoResponse) error {
+func (c *Client) SendVideoResponse(msg *message.VideoResponse) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return c.customSendResponse(msg)
+	return c.sendResponse(msg)
 }
 
 // 发送客服消息, 音乐.
-func (c *Client) CustomSendMusicResponse(msg *message.MusicResponse) error {
+func (c *Client) SendMusicResponse(msg *message.MusicResponse) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return c.customSendResponse(msg)
+	return c.sendResponse(msg)
 }
 
 // 发送客服消息, 图文.
-func (c *Client) CustomSendNewsResponse(msg *message.NewsResponse) error {
+func (c *Client) SendNewsResponse(msg *message.NewsResponse) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return c.customSendResponse(msg)
+	return c.sendResponse(msg)
 }
