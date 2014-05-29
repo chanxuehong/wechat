@@ -45,4 +45,6 @@ const (
 	userInfoUrlFormat = `https://api.weixin.qq.com/cgi-bin/user/info?access_token=%s&openid=%s&lang=%s`
 	// https://api.weixin.qq.com/cgi-bin/user/get?access_token=ACCESS_TOKEN&next_openid=NEXT_OPENID
 	userGetUrlPrefix = `https://api.weixin.qq.com/cgi-bin/user/get?access_token=`
+	// https://api.weixin.qq.com/cgi-bin/customservice/getrecord?access_token=ACCESS_TOKEN
+	csGetRecordUrlPrefix = `https://api.weixin.qq.com/cgi-bin/customservice/getrecord?access_token=`
 )

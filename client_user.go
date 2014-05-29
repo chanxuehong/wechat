@@ -324,31 +324,32 @@ func (c *Client) userGet(beginOpenId string) (*userGetResponse, error) {
 
 // 该结构实现了 user.UserIterator 接口
 type userGetIterator struct {
-	*userGetResponse
-	wechatClient *Client // 关联的微信 Client
-	nextCalled   bool    // Next() 是否调用过
+	userGetResponse *userGetResponse // NextPage() 返回的数据
+
+	wechatClient   *Client // 关联的微信 Client
+	nextPageCalled bool    // NextPage() 是否调用过
 }
 
 func (iter *userGetIterator) Total() int {
-	return iter.TotalCount
+	return iter.userGetResponse.TotalCount
 }
 func (iter *userGetIterator) HasNext() bool {
-	// 第一批数据不需要通过 Next() 来获取, 因为在创建这个对象的时候就获取了;
-	// 后续的数据都要通过 Next() 来获取, 所以要通过上一次的 NextOpenId 来判断了.
-	if !iter.nextCalled {
-		return iter.GetCount != 0
+	// 第一批数据不需要通过 NextPage() 来获取, 因为在创建这个对象的时候就获取了;
+	// 后续的数据都要通过 NextPage() 来获取, 所以要通过上一次的 NextOpenId 来判断了.
+	if !iter.nextPageCalled {
+		return iter.userGetResponse.GetCount != 0
 	}
-	return iter.NextOpenId != ""
+	return iter.userGetResponse.NextOpenId != ""
 }
-func (iter *userGetIterator) Next() ([]string, error) {
-	// 第一次调用 Next(), 因为在创建这个对象的时候已经获取了数据, 所以直接返回.
-	if !iter.nextCalled {
-		iter.nextCalled = true
-		return iter.Data.OpenId, nil
+func (iter *userGetIterator) NextPage() ([]string, error) {
+	// 第一次调用 NextPage(), 因为在创建这个对象的时候已经获取了数据, 所以直接返回.
+	if !iter.nextPageCalled {
+		iter.nextPageCalled = true
+		return iter.userGetResponse.Data.OpenId, nil
 	}
 
 	// 不是第一次调用的都要从服务器拉取数据
-	resp, err := iter.wechatClient.userGet(iter.NextOpenId)
+	resp, err := iter.wechatClient.userGet(iter.userGetResponse.NextOpenId)
 	if err != nil {
 		return nil, err
 	}

@@ -31,7 +31,7 @@ type UserInfo struct {
 	}
 
 	for iter.HasNext() {
-		openids, err := iter.Next()
+		openids, err := iter.NextPage()
 		if err != nil {
 			...
 		}
@@ -40,6 +40,6 @@ type UserInfo struct {
 */
 type UserIterator interface {
 	HasNext() bool
-	Next() ([]string, error)
+	NextPage() ([]string, error)
 	Total() int
 }
