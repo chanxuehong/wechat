@@ -111,7 +111,7 @@ type accessTokenResponse struct {
 
 // 从微信服务器获取新的 access_token
 func (c *Client) getNewToken() (*accessTokenResponse, error) {
-	_url := fmt.Sprintf(getAccessTokenUrlFormat, c.appid, c.appsecret)
+	_url := fmt.Sprintf(accessTokenGetUrlFormat, c.appid, c.appsecret)
 	resp, err := http.Get(_url)
 	if err != nil {
 		return nil, err
