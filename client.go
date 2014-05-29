@@ -22,7 +22,7 @@ func (at *accessToken) Token() (token string, err error) {
 	return
 }
 
-// see Client.RefreshToken() and Client.accessTokenService()
+// see Client.TokenRefresh() and Client.accessTokenService()
 func (at *accessToken) Update(token string, err error) {
 	at.rwmutex.Lock()
 	at.token = token
@@ -40,7 +40,7 @@ type Client struct {
 	// goroutine accessTokenService() 里有个定时器, 每次触发都会更新 access token,
 	// 同时 goroutine accessTokenService() 监听这个 resetTickChan,
 	// 如果有新的数据, 则重置定时器, 定时时间为 resetTickChan 传过来的数据;
-	// 主要用于用户手动更新 access token 的情况, Client.RefreshToken().
+	// 主要用于用户手动更新 access token 的情况, Client.TokenRefresh().
 	resetTickChan chan time.Duration
 	// 对于上传媒体文件, 一般要申请比较大的内存, 所以增加一个内存池;
 	// pool.Pool 的接口兼容 sync.Pool.
@@ -57,6 +57,6 @@ func NewClient(appid, appsecret string) *Client {
 		bufferPool:    pool.New(newBuffer, bufferPoolSize),
 	}
 	go c.accessTokenService() // 定时更新 c.accessToken
-	c.RefreshToken()          // *同步*获取 access token
+	c.TokenRefresh()          // *同步*获取 access token
 	return c
 }

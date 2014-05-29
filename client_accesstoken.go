@@ -15,7 +15,7 @@ func (c *Client) Token() (token string, err error) {
 
 // 从微信服务器获取 access token, 并更新本地缓存.
 //  NOTE: 正常情况下无需调用该函数, 请使用 Client.Token() 获取 access token.
-func (c *Client) RefreshToken() (token string, err error) {
+func (c *Client) TokenRefresh() (token string, err error) {
 	resp, err := c.getNewToken()
 	switch {
 	case err != nil:
