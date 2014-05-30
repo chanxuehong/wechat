@@ -10,7 +10,7 @@ import (
 )
 
 // 获取客服聊天记录
-func (c *Client) CSGetRecord(request *cs.RecordRequest) (*cs.RecordResponse, error) {
+func (c *Client) CSRecordGet(request *cs.RecordGetRequest) ([]cs.Record, error) {
 	if request == nil {
 		return nil, errors.New("request == nil")
 	}
@@ -25,7 +25,7 @@ func (c *Client) CSGetRecord(request *cs.RecordRequest) (*cs.RecordResponse, err
 		return nil, err
 	}
 
-	_url := csGetRecordUrlPrefix + token
+	_url := csRecordGetUrlPrefix + token
 	resp, err := http.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
@@ -38,7 +38,7 @@ func (c *Client) CSGetRecord(request *cs.RecordRequest) (*cs.RecordResponse, err
 	}
 
 	var result struct {
-		cs.RecordResponse
+		RecordList []cs.Record `json:"recordlist"`
 		Error
 	}
 	if err = json.Unmarshal(body, &result); err != nil {
@@ -48,13 +48,13 @@ func (c *Client) CSGetRecord(request *cs.RecordRequest) (*cs.RecordResponse, err
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}
-	return &result.RecordResponse, nil
+	return result.RecordList, nil
 }
 
 // 该结构实现了 cs.RecordIterator 接口
 type csRecordIterator struct {
-	recordRequest  *cs.RecordRequest
-	recordResponse *cs.RecordResponse
+	recordGetRequest  *cs.RecordGetRequest
+	recordGetResponse []cs.Record
 
 	wechatClient   *Client // 关联的微信 Client
 	nextPageCalled bool    // NextPage() 是否调用过
@@ -64,39 +64,39 @@ func (iter *csRecordIterator) HasNext() bool {
 	// 第一批数据不需要通过 NextPage() 来获取, 因为在创建这个对象的时候就获取了;
 	// 后续的数据都要通过 NextPage() 来获取.
 	if !iter.nextPageCalled {
-		return len(iter.recordResponse.RecordList) != 0
+		return len(iter.recordGetResponse) != 0
 	}
 	// 如果当前读取的数据等于 PageSize, 则有可能还有数据; 否则肯定是没有数据了.
-	return len(iter.recordResponse.RecordList) == iter.recordRequest.PageSize
+	return len(iter.recordGetResponse) == iter.recordGetRequest.PageSize
 }
-func (iter *csRecordIterator) NextPage() ([]cs.RecordItem, error) {
+func (iter *csRecordIterator) NextPage() ([]cs.Record, error) {
 	// 第一次调用 NextPage(), 因为在创建这个对象的时候已经获取了数据, 所以直接返回.
 	if !iter.nextPageCalled {
 		iter.nextPageCalled = true
-		iter.recordRequest.PageIndex++ // 为下一页准备数据
-		return iter.recordResponse.RecordList, nil
+		iter.recordGetRequest.PageIndex++ // 为下一页准备数据
+		return iter.recordGetResponse, nil
 	}
 
 	// 不是第一次调用的都要从服务器拉取数据
-	resp, err := iter.wechatClient.CSGetRecord(iter.recordRequest)
+	resp, err := iter.wechatClient.CSRecordGet(iter.recordGetRequest)
 	if err != nil {
 		return nil, err
 	}
 
-	iter.recordResponse = resp     // 覆盖老数据
-	iter.recordRequest.PageIndex++ // 为下一页准备数据
-	return resp.RecordList, nil
+	iter.recordGetResponse = resp     // 覆盖老数据
+	iter.recordGetRequest.PageIndex++ // 为下一页准备数据
+	return resp, nil
 }
 
 // 聊天记录遍历器
-func (c *Client) CSRecordIterator(queryRequest *cs.RecordRequest) (cs.RecordIterator, error) {
-	resp, err := c.CSGetRecord(queryRequest)
+func (c *Client) CSRecordIterator(queryRequest *cs.RecordGetRequest) (cs.RecordIterator, error) {
+	resp, err := c.CSRecordGet(queryRequest)
 	if err != nil {
 		return nil, err
 	}
 	var iter csRecordIterator
-	iter.recordRequest = queryRequest
-	iter.recordResponse = resp
+	iter.recordGetRequest = queryRequest
+	iter.recordGetResponse = resp
 	iter.wechatClient = c
 	return &iter, nil
 }

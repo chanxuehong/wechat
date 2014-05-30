@@ -95,11 +95,8 @@ func (c *Client) MenuGet() (*menu.Menu, error) {
 		return nil, err
 	}
 
-	type getMenuResponse struct {
-		Menu menu.Menu `json:"menu"`
-	}
 	var result struct {
-		getMenuResponse
+		Menu menu.Menu `json:"menu"`
 		Error
 	}
 	err = json.Unmarshal(body, &result)

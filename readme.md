@@ -57,7 +57,7 @@ func main() {
 	}
 
 	wechatServer := wechat.NewServer(&setting)
-	http.Handle("/", wechatServer)
+	http.Handle("/path", wechatServer)
 
 	http.ListenAndServe(":80", nil) // 启动接收微信数据服务器
 }
