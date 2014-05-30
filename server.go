@@ -10,83 +10,168 @@ import (
 	"net/http"
 )
 
-// 对于微信服务器推送过来的消息或者事件, 公众号服务程序就相当于服务器.
-//  被动回复和处理各种事件功能都封装在这个结构里, 并发安全.
-//  NOTE: 必须调用 NewServer() 创建对象!
-type Server struct {
-	token string
-
-	// TODO: go1.3有了新的实现(sync.Pool), 目前 GAE 还不支持,
-	// 如果你的环境是 go1.3+, 你可以自己更改.
-	// 对于微信服务器推送过来的请求, 基本都是中间处理下就丢弃, 所以可以缓存起来.
-	messageRequestPool *pool.Pool
-
-	// Invalid or unknown request handler
-	invalidRequestHandler InvalidRequestHandlerFunc
-	unknownRequestHandler UnknownRequestHandlerFunc
-
-	// request handler
-	textRequestHandler                   RequestHandlerFunc
-	imageRequestHandler                  RequestHandlerFunc
-	voiceRequestHandler                  RequestHandlerFunc
-	voiceRecognitionRequestHandler       RequestHandlerFunc
-	videoRequestHandler                  RequestHandlerFunc
-	locationRequestHandler               RequestHandlerFunc
-	linkRequestHandler                   RequestHandlerFunc
-	subscribeEventRequestHandler         RequestHandlerFunc
-	subscribeEventByScanRequestHandler   RequestHandlerFunc
-	unsubscribeEventRequestHandler       RequestHandlerFunc
-	scanEventRequestHandler              RequestHandlerFunc
-	locationEventRequestHandler          RequestHandlerFunc
-	clickEventRequestHandler             RequestHandlerFunc
-	viewEventRequestHandler              RequestHandlerFunc
-	masssendjobfinishEventRequestHandler RequestHandlerFunc
-}
-
 // 非法请求的处理函数
 type InvalidRequestHandlerFunc func(http.ResponseWriter, *http.Request, error)
-
-// 正常的从微信服务器推送过来的消息处理函数
-//  NOTE: *message.Request 这个对象系统会自动池化的, 所以需要这个对象里的数据要深拷贝
-type RequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
 
 // 目前不能识别的从微信服务器推送过来的消息处理函数
 //  NOTE: *message.Request 这个对象系统会自动池化的, 所以需要这个对象里的数据要深拷贝
 type UnknownRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
+
+// 正常的从微信服务器推送过来的消息处理函数
+//  NOTE: *message.Request 这个对象系统会自动池化的, 所以需要这个对象里的数据要深拷贝
+type RequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
 
 // 默认的消息处理函数是什么都不做
 func defaultInvalidRequestHandler(w http.ResponseWriter, r *http.Request, err error)                {}
 func defaultUnknownRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {}
 func defaultRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request)        {}
 
-func NewServer(token string) *Server {
+type ServerSetting struct {
+	Token string
+
+	// Invalid or unknown request handler
+	InvalidRequestHandler InvalidRequestHandlerFunc
+	UnknownRequestHandler UnknownRequestHandlerFunc
+
+	// request handler
+	TextRequestHandler                   RequestHandlerFunc
+	ImageRequestHandler                  RequestHandlerFunc
+	VoiceRequestHandler                  RequestHandlerFunc
+	VoiceRecognitionRequestHandler       RequestHandlerFunc
+	VideoRequestHandler                  RequestHandlerFunc
+	LocationRequestHandler               RequestHandlerFunc
+	LinkRequestHandler                   RequestHandlerFunc
+	SubscribeEventRequestHandler         RequestHandlerFunc
+	SubscribeEventByScanRequestHandler   RequestHandlerFunc
+	UnsubscribeEventRequestHandler       RequestHandlerFunc
+	ScanEventRequestHandler              RequestHandlerFunc
+	LocationEventRequestHandler          RequestHandlerFunc
+	ClickEventRequestHandler             RequestHandlerFunc
+	ViewEventRequestHandler              RequestHandlerFunc
+	MasssendjobfinishEventRequestHandler RequestHandlerFunc
+}
+
+// 根据另外一个 ServerSetting 来初始化.
+// 没有设置的函数将会被初始化为默认处理函数.
+func (ss *ServerSetting) initialize(setting *ServerSetting) {
+	if setting == nil { // 只是容错, 但是不会正常工作, 因为 Token == ""
+		setting = new(ServerSetting)
+	}
+
+	ss.Token = setting.Token
+
+	if setting.InvalidRequestHandler != nil {
+		ss.InvalidRequestHandler = setting.InvalidRequestHandler
+	} else {
+		ss.InvalidRequestHandler = defaultInvalidRequestHandler
+	}
+
+	if setting.UnknownRequestHandler != nil {
+		ss.UnknownRequestHandler = setting.UnknownRequestHandler
+	} else {
+		ss.UnknownRequestHandler = defaultUnknownRequestHandler
+	}
+
+	// request handler
+	if setting.TextRequestHandler != nil {
+		ss.TextRequestHandler = setting.TextRequestHandler
+	} else {
+		ss.TextRequestHandler = defaultRequestHandler
+	}
+	if setting.ImageRequestHandler != nil {
+		ss.ImageRequestHandler = setting.ImageRequestHandler
+	} else {
+		ss.ImageRequestHandler = defaultRequestHandler
+	}
+	if setting.VoiceRequestHandler != nil {
+		ss.VoiceRequestHandler = setting.VoiceRequestHandler
+	} else {
+		ss.VoiceRequestHandler = defaultRequestHandler
+	}
+	if setting.VoiceRecognitionRequestHandler != nil {
+		ss.VoiceRecognitionRequestHandler = setting.VoiceRecognitionRequestHandler
+	} else {
+		ss.VoiceRecognitionRequestHandler = defaultRequestHandler
+	}
+	if setting.VideoRequestHandler != nil {
+		ss.VideoRequestHandler = setting.VideoRequestHandler
+	} else {
+		ss.VideoRequestHandler = defaultRequestHandler
+	}
+	if setting.LocationRequestHandler != nil {
+		ss.LocationRequestHandler = setting.LocationRequestHandler
+	} else {
+		ss.LocationRequestHandler = defaultRequestHandler
+	}
+	if setting.LinkRequestHandler != nil {
+		ss.LinkRequestHandler = setting.LinkRequestHandler
+	} else {
+		ss.LinkRequestHandler = defaultRequestHandler
+	}
+	if setting.SubscribeEventRequestHandler != nil {
+		ss.SubscribeEventRequestHandler = setting.SubscribeEventRequestHandler
+	} else {
+		ss.SubscribeEventRequestHandler = defaultRequestHandler
+	}
+	if setting.SubscribeEventByScanRequestHandler != nil {
+		ss.SubscribeEventByScanRequestHandler = setting.SubscribeEventByScanRequestHandler
+	} else {
+		ss.SubscribeEventByScanRequestHandler = defaultRequestHandler
+	}
+	if setting.UnsubscribeEventRequestHandler != nil {
+		ss.UnsubscribeEventRequestHandler = setting.UnsubscribeEventRequestHandler
+	} else {
+		ss.UnsubscribeEventRequestHandler = defaultRequestHandler
+	}
+	if setting.ScanEventRequestHandler != nil {
+		ss.ScanEventRequestHandler = setting.ScanEventRequestHandler
+	} else {
+		ss.ScanEventRequestHandler = defaultRequestHandler
+	}
+	if setting.LocationEventRequestHandler != nil {
+		ss.LocationEventRequestHandler = setting.LocationEventRequestHandler
+	} else {
+		ss.LocationEventRequestHandler = defaultRequestHandler
+	}
+	if setting.ClickEventRequestHandler != nil {
+		ss.ClickEventRequestHandler = setting.ClickEventRequestHandler
+	} else {
+		ss.ClickEventRequestHandler = defaultRequestHandler
+	}
+	if setting.ViewEventRequestHandler != nil {
+		ss.ViewEventRequestHandler = setting.ViewEventRequestHandler
+	} else {
+		ss.ViewEventRequestHandler = defaultRequestHandler
+	}
+	if setting.MasssendjobfinishEventRequestHandler != nil {
+		ss.MasssendjobfinishEventRequestHandler = setting.MasssendjobfinishEventRequestHandler
+	} else {
+		ss.MasssendjobfinishEventRequestHandler = defaultRequestHandler
+	}
+}
+
+// 对于微信服务器推送过来的消息或者事件, 公众号服务程序就相当于服务器.
+//  被动回复和处理各种事件功能都封装在这个结构里; Server 并发安全.
+//  NOTE: 必须调用 NewServer() 创建对象!
+type Server struct {
+	setting ServerSetting
+
+	// TODO: go1.3有了新的实现(sync.Pool), 目前 GAE 还不支持,
+	// 如果你的环境是 go1.3+, 你可以自己更改.
+	// 对于微信服务器推送过来的请求, 基本都是中间处理下就丢弃, 所以可以缓存起来.
+	messageRequestPool *pool.Pool
+}
+
+func NewServer(setting *ServerSetting) *Server {
+	if setting == nil {
+		panic("wechat.NewServer: setting == nil")
+	}
+
 	const requestPoolSize = 1024 // 不暴露这个选项是为了变更到 sync.Pool 不做大的变动
 
 	var srv Server
-
-	srv.token = token
+	srv.setting.initialize(setting)
 	srv.messageRequestPool = pool.New(newMessageRequest, requestPoolSize)
-
-	// 注册默认的处理函数
-	srv.invalidRequestHandler = defaultInvalidRequestHandler
-	srv.unknownRequestHandler = defaultUnknownRequestHandler
-
-	srv.textRequestHandler = defaultRequestHandler
-	srv.imageRequestHandler = defaultRequestHandler
-	srv.voiceRequestHandler = defaultRequestHandler
-	srv.voiceRecognitionRequestHandler = defaultRequestHandler
-	srv.videoRequestHandler = defaultRequestHandler
-	srv.locationRequestHandler = defaultRequestHandler
-	srv.linkRequestHandler = defaultRequestHandler
-	srv.subscribeEventRequestHandler = defaultRequestHandler
-	srv.subscribeEventByScanRequestHandler = defaultRequestHandler
-	srv.unsubscribeEventRequestHandler = defaultRequestHandler
-	srv.scanEventRequestHandler = defaultRequestHandler
-	srv.locationEventRequestHandler = defaultRequestHandler
-	srv.clickEventRequestHandler = defaultRequestHandler
-	srv.viewEventRequestHandler = defaultRequestHandler
-	srv.masssendjobfinishEventRequestHandler = defaultRequestHandler
-
 	return &srv
 }
 
@@ -100,31 +185,31 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		var signature, timestamp, nonce string
 
 		if err = r.ParseForm(); err != nil {
-			s.invalidRequestHandler(w, r, err)
+			s.setting.InvalidRequestHandler(w, r, err)
 			return
 		}
 
 		if signature = r.FormValue("signature"); signature == "" {
-			s.invalidRequestHandler(w, r, errors.New("signature is empty"))
+			s.setting.InvalidRequestHandler(w, r, errors.New("signature is empty"))
 			return
 		}
 		if timestamp = r.FormValue("timestamp"); timestamp == "" {
-			s.invalidRequestHandler(w, r, errors.New("timestamp is empty"))
+			s.setting.InvalidRequestHandler(w, r, errors.New("timestamp is empty"))
 			return
 		}
 		if nonce = r.FormValue("nonce"); nonce == "" {
-			s.invalidRequestHandler(w, r, errors.New("nonce is empty"))
+			s.setting.InvalidRequestHandler(w, r, errors.New("nonce is empty"))
 			return
 		}
 
-		if !CheckSignature(signature, timestamp, nonce, s.token) {
-			s.invalidRequestHandler(w, r, errors.New("check signature failed"))
+		if !CheckSignature(signature, timestamp, nonce, s.setting.Token) {
+			s.setting.InvalidRequestHandler(w, r, errors.New("check signature failed"))
 			return
 		}
 
 		b, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			s.invalidRequestHandler(w, r, err)
+			s.setting.InvalidRequestHandler(w, r, err)
 			return
 		}
 
@@ -132,7 +217,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		defer s.putRequestEntity(rqstMsg) // important!
 
 		if err = xml.Unmarshal(b, rqstMsg); err != nil {
-			s.invalidRequestHandler(w, r, err)
+			s.setting.InvalidRequestHandler(w, r, err)
 			return
 		}
 
@@ -140,26 +225,26 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		switch rqstMsg.MsgType {
 
 		case message.RQST_MSG_TYPE_TEXT:
-			s.textRequestHandler(w, r, rqstMsg)
+			s.setting.TextRequestHandler(w, r, rqstMsg)
 
 		case message.RQST_MSG_TYPE_VOICE:
 			if rqstMsg.Recognition == "" { // 普通的语音请求
-				s.voiceRequestHandler(w, r, rqstMsg)
+				s.setting.VoiceRequestHandler(w, r, rqstMsg)
 			} else { // 语音识别请求
-				s.voiceRecognitionRequestHandler(w, r, rqstMsg)
+				s.setting.VoiceRecognitionRequestHandler(w, r, rqstMsg)
 			}
 
 		case message.RQST_MSG_TYPE_LOCATION:
-			s.locationRequestHandler(w, r, rqstMsg)
+			s.setting.LocationRequestHandler(w, r, rqstMsg)
 
 		case message.RQST_MSG_TYPE_LINK:
-			s.linkRequestHandler(w, r, rqstMsg)
+			s.setting.LinkRequestHandler(w, r, rqstMsg)
 
 		case message.RQST_MSG_TYPE_IMAGE:
-			s.imageRequestHandler(w, r, rqstMsg)
+			s.setting.ImageRequestHandler(w, r, rqstMsg)
 
 		case message.RQST_MSG_TYPE_VIDEO:
-			s.videoRequestHandler(w, r, rqstMsg)
+			s.setting.VideoRequestHandler(w, r, rqstMsg)
 
 		case message.RQST_MSG_TYPE_EVENT:
 			// event router
@@ -167,35 +252,35 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 			case message.RQST_EVENT_TYPE_SUBSCRIBE:
 				if rqstMsg.Ticket == "" {
-					s.subscribeEventRequestHandler(w, r, rqstMsg)
+					s.setting.SubscribeEventRequestHandler(w, r, rqstMsg)
 				} else { // 扫描二维码订阅
-					s.subscribeEventByScanRequestHandler(w, r, rqstMsg)
+					s.setting.SubscribeEventByScanRequestHandler(w, r, rqstMsg)
 				}
 
 			case message.RQST_EVENT_TYPE_UNSUBSCRIBE:
-				s.unsubscribeEventRequestHandler(w, r, rqstMsg)
+				s.setting.UnsubscribeEventRequestHandler(w, r, rqstMsg)
 
 			case message.RQST_EVENT_TYPE_SCAN:
-				s.scanEventRequestHandler(w, r, rqstMsg)
+				s.setting.ScanEventRequestHandler(w, r, rqstMsg)
 
 			case message.RQST_EVENT_TYPE_LOCATION:
-				s.locationEventRequestHandler(w, r, rqstMsg)
+				s.setting.LocationEventRequestHandler(w, r, rqstMsg)
 
 			case message.RQST_EVENT_TYPE_CLICK:
-				s.clickEventRequestHandler(w, r, rqstMsg)
+				s.setting.ClickEventRequestHandler(w, r, rqstMsg)
 
 			case message.RQST_EVENT_TYPE_VIEW:
-				s.viewEventRequestHandler(w, r, rqstMsg)
+				s.setting.ViewEventRequestHandler(w, r, rqstMsg)
 
 			case message.RQST_EVENT_TYPE_MASSSENDJOBFINISH:
-				s.masssendjobfinishEventRequestHandler(w, r, rqstMsg)
+				s.setting.MasssendjobfinishEventRequestHandler(w, r, rqstMsg)
 
 			default: // unknown event
-				s.unknownRequestHandler(w, r, rqstMsg)
+				s.setting.UnknownRequestHandler(w, r, rqstMsg)
 			}
 
 		default: // unknown request message type
-			s.unknownRequestHandler(w, r, rqstMsg)
+			s.setting.UnknownRequestHandler(w, r, rqstMsg)
 		}
 
 	// 首次验证 =================================================================
@@ -204,29 +289,29 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		var signature, timestamp, nonce, echostr string
 
 		if err = r.ParseForm(); err != nil {
-			s.invalidRequestHandler(w, r, err)
+			s.setting.InvalidRequestHandler(w, r, err)
 			return
 		}
 
 		if signature = r.FormValue("signature"); signature == "" {
-			s.invalidRequestHandler(w, r, errors.New("signature is empty"))
+			s.setting.InvalidRequestHandler(w, r, errors.New("signature is empty"))
 			return
 		}
 		if timestamp = r.FormValue("timestamp"); timestamp == "" {
-			s.invalidRequestHandler(w, r, errors.New("timestamp is empty"))
+			s.setting.InvalidRequestHandler(w, r, errors.New("timestamp is empty"))
 			return
 		}
 		if nonce = r.FormValue("nonce"); nonce == "" {
-			s.invalidRequestHandler(w, r, errors.New("nonce is empty"))
+			s.setting.InvalidRequestHandler(w, r, errors.New("nonce is empty"))
 			return
 		}
 		if echostr = r.FormValue("echostr"); echostr == "" {
-			s.invalidRequestHandler(w, r, errors.New("echostr is empty"))
+			s.setting.InvalidRequestHandler(w, r, errors.New("echostr is empty"))
 			return
 		}
 
-		if !CheckSignature(signature, timestamp, nonce, s.token) {
-			s.invalidRequestHandler(w, r, errors.New("check signature failed"))
+		if !CheckSignature(signature, timestamp, nonce, s.setting.Token) {
+			s.setting.InvalidRequestHandler(w, r, errors.New("check signature failed"))
 			return
 		}
 
