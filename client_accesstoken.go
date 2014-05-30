@@ -49,10 +49,11 @@ func (c *Client) accessTokenService() {
 	// 当前定时器的时间间隔, 正常情况下等于当前的 access token 的过期时间减去 10 秒;
 	// 异常情况下就要尝试不断的获取, 时间间隔就是 defaultTickDuration.
 	currentTickDuration := defaultTickDuration
+	var tk *time.Ticker
 
 OuterLoop: // 改变 currentTickDuration 重新开始
 	for {
-		tk := time.NewTicker(currentTickDuration)
+		tk = time.NewTicker(currentTickDuration)
 		for {
 			select {
 			// 在别的地方成功获取了 access token, 重置定时器.
