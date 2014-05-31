@@ -20,7 +20,7 @@ func (c *Client) msgCustomSend(msg interface{}) error {
 	}
 
 	_url := messageCustomSendUrlPrefix + token
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := commonHttpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return err
 	}

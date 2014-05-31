@@ -2,8 +2,6 @@ package wechat
 
 import (
 	"github.com/chanxuehong/util/pool"
-	"net"
-	"net/http"
 	"sync"
 	"time"
 )
@@ -37,7 +35,6 @@ func (at *accessToken) Update(token string, err error) {
 //  NOTE: 必须调用 NewClient() 创建对象!
 type Client struct {
 	appid, appsecret string
-	httpClient       *http.Client
 	// 缓存当前的 access token, 另起一个 goroutine accessTokenService() 定期更新;
 	accessToken accessToken
 	// goroutine accessTokenService() 里有个定时器, 每次触发都会更新 access token,
@@ -54,21 +51,8 @@ func NewClient(appid, appsecret string) *Client {
 	const bufferPoolSize = 64 // 不暴露这个选项是为了变更到 sync.Pool 不做大的变动
 
 	c := &Client{
-		appid:     appid,
-		appsecret: appsecret,
-
-		httpClient: &http.Client{
-			Transport: &http.Transport{
-				Proxy: http.ProxyFromEnvironment,
-				Dial: (&net.Dialer{
-					Timeout:   5 * time.Second, // 连接超时设置为 5 秒
-					KeepAlive: 30 * time.Second,
-				}).Dial,
-				TLSHandshakeTimeout: 5 * time.Second, // TLS 握手超时设置为 5 秒
-			},
-			Timeout: 15 * time.Second, // 请求超时时间设置为 15 秒
-		},
-
+		appid:         appid,
+		appsecret:     appsecret,
 		resetTickChan: make(chan time.Duration), // 同步 channel
 		bufferPool:    pool.New(newBuffer, bufferPoolSize),
 	}

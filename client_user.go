@@ -30,7 +30,7 @@ func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
 	}
 
 	_url := userGroupCreateUrlPrefix + token
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := commonHttpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (c *Client) UserGroupGet() ([]user.Group, error) {
 	}
 
 	_url := userGroupGetUrlPrefix + token
-	resp, err := c.httpClient.Get(_url)
+	resp, err := commonHttpClient.Get(_url)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (c *Client) UserGroupRename(groupid int, name string) (err error) {
 	}
 
 	_url := userGroupRenameUrlPrefix + token
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := commonHttpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return
 	}
@@ -156,7 +156,7 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int, err error) {
 	}
 
 	_url := userInWhichGroupUrlPrefix + token
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := commonHttpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return
 	}
@@ -204,7 +204,7 @@ func (c *Client) UserMoveToGroup(openid string, toGroupId int) (err error) {
 	}
 
 	_url := userMoveToGroupUrlPrefix + token
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := commonHttpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return
 	}
@@ -241,7 +241,7 @@ func (c *Client) UserInfo(openid string, lang string) (*user.UserInfo, error) {
 	}
 
 	_url := fmt.Sprintf(userInfoUrlFormat, token, openid, lang)
-	resp, err := c.httpClient.Get(_url)
+	resp, err := commonHttpClient.Get(_url)
 	if err != nil {
 		return nil, err
 	}
@@ -296,7 +296,7 @@ func (c *Client) userGet(beginOpenId string) (*userGetResponse, error) {
 		_url = userGetUrlPrefix + token + "&next_openid=" + beginOpenId
 	}
 
-	resp, err := c.httpClient.Get(_url)
+	resp, err := commonHttpClient.Get(_url)
 	if err != nil {
 		return nil, err
 	}
