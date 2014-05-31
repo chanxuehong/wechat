@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"time"
 )
 
@@ -113,7 +112,7 @@ type accessTokenResponse struct {
 // 从微信服务器获取新的 access_token
 func (c *Client) getNewToken() (*accessTokenResponse, error) {
 	_url := fmt.Sprintf(accessTokenGetUrlFormat, c.appid, c.appsecret)
-	resp, err := http.Get(_url)
+	resp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return nil, err
 	}

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"github.com/chanxuehong/wechat/message"
 	"io/ioutil"
-	"net/http"
 )
 
 // 发送客服消息功能都一样, 之所以不暴露这个接口是因为怕接收到不合法的参数.
@@ -21,7 +20,7 @@ func (c *Client) msgCustomSend(msg interface{}) error {
 	}
 
 	_url := messageCustomSendUrlPrefix + token
-	resp, err := http.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return err
 	}

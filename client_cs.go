@@ -6,7 +6,6 @@ import (
 	"errors"
 	"github.com/chanxuehong/wechat/cs"
 	"io/ioutil"
-	"net/http"
 )
 
 // 获取客服聊天记录
@@ -26,7 +25,7 @@ func (c *Client) CSRecordGet(request *cs.RecordGetRequest) ([]cs.Record, error) 
 	}
 
 	_url := csRecordGetUrlPrefix + token
-	resp, err := http.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}

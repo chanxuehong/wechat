@@ -9,7 +9,6 @@ import (
 	"io"
 	"io/ioutil"
 	"mime/multipart"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -81,7 +80,7 @@ func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) 
 		return nil, err
 	}
 
-	resp, err := http.Post(_url, bodyContentType, bodyBuf)
+	resp, err := c.httpClient.Post(_url, bodyContentType, bodyBuf)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +125,7 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 	}
 
 	_url := fmt.Sprintf(mediaDownloadUrlFormat, token, token)
-	resp, err := http.Get(_url)
+	resp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return err
 	}
@@ -167,7 +166,7 @@ func (c *Client) MediaUploadNews(news *media.News) (*media.UploadResponse, error
 	}
 
 	_url := mediaUploadNewsUrlPrefix + token
-	resp, err := http.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +206,7 @@ func (c *Client) MediaUploadVideo(video *media.Video) (*media.UploadResponse, er
 	}
 
 	_url := mediaUploadVideoUrlPrefix + token
-	resp, err := http.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}

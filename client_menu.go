@@ -6,7 +6,6 @@ import (
 	"errors"
 	"github.com/chanxuehong/wechat/menu"
 	"io/ioutil"
-	"net/http"
 )
 
 // 创建自定义菜单.
@@ -26,7 +25,7 @@ func (c *Client) MenuCreate(mn *menu.Menu) error {
 	}
 
 	_url := menuCreateUrlPrefix + token
-	resp, err := http.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return err
 	}
@@ -55,7 +54,7 @@ func (c *Client) MenuDelete() error {
 	}
 
 	_url := menuDeleteUrlPrefix + token
-	resp, err := http.Get(_url)
+	resp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return err
 	}
@@ -84,7 +83,7 @@ func (c *Client) MenuGet() (*menu.Menu, error) {
 	}
 
 	_url := menuGetUrlPrefix + token
-	resp, err := http.Get(_url)
+	resp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return nil, err
 	}
