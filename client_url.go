@@ -4,6 +4,8 @@ import (
 	"net/url"
 )
 
+// !!! 是不是所有的变量都要加 url.QueryEscape ? 知道的告诉我一声 !!!
+
 // https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=APPSECRET
 func clientTokenGetURL(appid, appsecret string) string {
 	return "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" +
@@ -144,7 +146,6 @@ func clientUserGetURL(accesstoken, nextOpenId string) string {
 		accesstoken +
 		"&next_openid=" +
 		nextOpenId
-
 }
 
 // https://api.weixin.qq.com/cgi-bin/customservice/getrecord?access_token=ACCESS_TOKEN

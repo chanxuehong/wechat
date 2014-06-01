@@ -53,11 +53,8 @@ type ServerSetting struct {
 
 // 根据另外一个 ServerSetting 来初始化.
 // 没有设置的函数将会被初始化为默认处理函数.
+//  NOTE: 确保 setting != nil
 func (ss *ServerSetting) initialize(setting *ServerSetting) {
-	if setting == nil { // 只是容错, 但是不会正常工作, 因为 Token == ""
-		setting = new(ServerSetting)
-	}
-
 	ss.Token = setting.Token
 
 	if setting.InvalidRequestHandler != nil {
@@ -221,34 +218,24 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// request router
+		// request router, 可一个根据自己的实际业务调整顺序!
 		switch rqstMsg.MsgType {
 
 		case message.RQST_MSG_TYPE_TEXT:
 			s.setting.TextRequestHandler(w, r, rqstMsg)
 
-		case message.RQST_MSG_TYPE_VOICE:
-			if rqstMsg.Recognition == "" { // 普通的语音请求
-				s.setting.VoiceRequestHandler(w, r, rqstMsg)
-			} else { // 语音识别请求
-				s.setting.VoiceRecognitionRequestHandler(w, r, rqstMsg)
-			}
-
-		case message.RQST_MSG_TYPE_LOCATION:
-			s.setting.LocationRequestHandler(w, r, rqstMsg)
-
-		case message.RQST_MSG_TYPE_LINK:
-			s.setting.LinkRequestHandler(w, r, rqstMsg)
-
-		case message.RQST_MSG_TYPE_IMAGE:
-			s.setting.ImageRequestHandler(w, r, rqstMsg)
-
-		case message.RQST_MSG_TYPE_VIDEO:
-			s.setting.VideoRequestHandler(w, r, rqstMsg)
-
 		case message.RQST_MSG_TYPE_EVENT:
 			// event router
 			switch rqstMsg.Event {
+
+			case message.RQST_EVENT_TYPE_CLICK:
+				s.setting.ClickEventRequestHandler(w, r, rqstMsg)
+
+			case message.RQST_EVENT_TYPE_VIEW:
+				s.setting.ViewEventRequestHandler(w, r, rqstMsg)
+
+			case message.RQST_EVENT_TYPE_LOCATION:
+				s.setting.LocationEventRequestHandler(w, r, rqstMsg)
 
 			case message.RQST_EVENT_TYPE_SUBSCRIBE:
 				if rqstMsg.Ticket == "" {
@@ -263,21 +250,31 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			case message.RQST_EVENT_TYPE_SCAN:
 				s.setting.ScanEventRequestHandler(w, r, rqstMsg)
 
-			case message.RQST_EVENT_TYPE_LOCATION:
-				s.setting.LocationEventRequestHandler(w, r, rqstMsg)
-
-			case message.RQST_EVENT_TYPE_CLICK:
-				s.setting.ClickEventRequestHandler(w, r, rqstMsg)
-
-			case message.RQST_EVENT_TYPE_VIEW:
-				s.setting.ViewEventRequestHandler(w, r, rqstMsg)
-
 			case message.RQST_EVENT_TYPE_MASSSENDJOBFINISH:
 				s.setting.MasssendjobfinishEventRequestHandler(w, r, rqstMsg)
 
 			default: // unknown event
 				s.setting.UnknownRequestHandler(w, r, rqstMsg)
 			}
+
+		case message.RQST_MSG_TYPE_LINK:
+			s.setting.LinkRequestHandler(w, r, rqstMsg)
+
+		case message.RQST_MSG_TYPE_VOICE:
+			if rqstMsg.Recognition == "" { // 普通的语音请求
+				s.setting.VoiceRequestHandler(w, r, rqstMsg)
+			} else { // 语音识别请求
+				s.setting.VoiceRecognitionRequestHandler(w, r, rqstMsg)
+			}
+
+		case message.RQST_MSG_TYPE_LOCATION:
+			s.setting.LocationRequestHandler(w, r, rqstMsg)
+
+		case message.RQST_MSG_TYPE_IMAGE:
+			s.setting.ImageRequestHandler(w, r, rqstMsg)
+
+		case message.RQST_MSG_TYPE_VIDEO:
+			s.setting.VideoRequestHandler(w, r, rqstMsg)
 
 		default: // unknown request message type
 			s.setting.UnknownRequestHandler(w, r, rqstMsg)

@@ -4,6 +4,8 @@ import (
 	"net/url"
 )
 
+// !!! 是不是所有的变量都要加 url.QueryEscape ? 知道的告诉我一声 !!!
+
 // https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID
 // &redirect_uri=REDIRECT_URI&response_type=code&scope=SCOPE&state=STATE#wechat_redirect
 func snsOAuth2AuthURL(appid, redirectURL, scope, state string) string {
@@ -26,7 +28,7 @@ func snsOAuth2TokenURL(appid, appsecret, code string) string {
 		"&secret=" +
 		appsecret +
 		"&code=" +
-		code +
+		url.QueryEscape(code) +
 		"&grant_type=authorization_code"
 }
 
