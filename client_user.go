@@ -29,7 +29,7 @@ func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
 		return nil, err
 	}
 
-	_url := clientUserGroupCreateUrlPrefix + token
+	_url := clientUserGroupCreateURL(token)
 	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func (c *Client) UserGroupGet() ([]user.Group, error) {
 		return nil, err
 	}
 
-	_url := clientUserGroupGetUrlPrefix + token
+	_url := clientUserGroupGetURL(token)
 	resp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return nil, err
@@ -116,7 +116,7 @@ func (c *Client) UserGroupRename(groupid int, name string) (err error) {
 		return
 	}
 
-	_url := clientUserGroupRenameUrlPrefix + token
+	_url := clientUserGroupRenameURL(token)
 	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return
@@ -155,7 +155,7 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int, err error) {
 		return
 	}
 
-	_url := clientUserInWhichGroupUrlPrefix + token
+	_url := clientUserInWhichGroupURL(token)
 	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return
@@ -203,7 +203,7 @@ func (c *Client) UserMoveToGroup(openid string, toGroupId int) (err error) {
 		return
 	}
 
-	_url := clientUserMoveToGroupUrlPrefix + token
+	_url := clientUserMoveToGroupURL(token)
 	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return
@@ -242,7 +242,7 @@ func (c *Client) UserInfo(openid string, lang string) (*user.UserInfo, error) {
 		return nil, err
 	}
 
-	_url := fmt.Sprintf(clientUserInfoUrlFormat, token, openid, lang)
+	_url := clientUserInfoURL(token, openid, lang)
 	resp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return nil, err
@@ -291,13 +291,7 @@ func (c *Client) userGet(beginOpenId string) (*userGetResponse, error) {
 		return nil, err
 	}
 
-	var _url string
-	if beginOpenId == "" {
-		_url = clientUserGetUrlPrefix + token
-	} else {
-		_url = clientUserGetUrlPrefix + token + "&next_openid=" + beginOpenId
-	}
-
+	_url := clientUserGetURL(token, beginOpenId)
 	resp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return nil, err

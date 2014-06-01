@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+const postJSONContentType = "application/json; charset=utf-8"
+
 // 相对于微信服务器, 主动请求的功能模块都相当于是 Client;
 // 这个结构就是封装所有这些请求功能, 并发安全.
 //  NOTE: 必须调用 NewClient() 创建对象!

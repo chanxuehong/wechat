@@ -122,7 +122,7 @@ type clientTokenResponse struct {
 
 // 从微信服务器获取新的 access_token
 func (c *Client) getNewToken() (*clientTokenResponse, error) {
-	_url := fmt.Sprintf(clientTokenGetUrlFormat, c.appid, c.appsecret)
+	_url := clientTokenGetURL(c.appid, c.appsecret)
 	resp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return nil, err

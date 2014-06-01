@@ -24,7 +24,7 @@ func (c *Client) CSRecordGet(request *cs.RecordGetRequest) ([]cs.Record, error) 
 		return nil, err
 	}
 
-	_url := clientCSRecordGetUrlPrefix + token
+	_url := clientCSRecordGetURL(token)
 	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err

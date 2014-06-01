@@ -9,7 +9,6 @@ import (
 	"github.com/chanxuehong/wechat/user"
 	"github.com/chanxuehong/wechat/user/sns"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 )
@@ -27,16 +26,6 @@ type OAuth2Config struct {
 	// Scope identifies the level of access being requested. Multiple scope
 	// values should be provided as a space-delimited string.
 	Scope string
-
-	// AuthURL is the URL the user will be directed to in order to grant
-	// access.
-	AuthURL string
-
-	// TokenURL is the URL used to Exchange OAuth tokens.
-	TokenURL string
-
-	// RefreshTokenURL is the URL used to Refresh OAuth tokens.
-	RefreshTokenURL string
 
 	// RedirectURL is the URL to which the user will be returned after
 	// granting (or denying) access.
@@ -57,37 +46,17 @@ type OAuth2Config struct {
 
 func NewOAuth2Config(appid, appsecret, redirectURL string, scope ...string) *OAuth2Config {
 	return &OAuth2Config{
-		ClientId:        appid,
-		ClientSecret:    appsecret,
-		Scope:           strings.Join(scope, " "),
-		AuthURL:         snsOAuth2AuthURL,
-		TokenURL:        snsOAuth2TokenURL,
-		RefreshTokenURL: snsOAuth2RefreshTokenURL,
-		RedirectURL:     redirectURL,
+		ClientId:     appid,
+		ClientSecret: appsecret,
+		Scope:        strings.Join(scope, " "),
+		RedirectURL:  redirectURL,
 	}
 }
 
 // AuthCodeURL returns a URL that the end-user should be redirected to,
 // so that they may obtain an authorization code.
 func (c *OAuth2Config) AuthCodeURL(state string) string {
-	_url, err := url.Parse(c.AuthURL)
-	if err != nil {
-		panic("AuthURL malformed: " + err.Error())
-	}
-	q := url.Values{
-		"appid":         {c.ClientId},
-		"redirect_uri":  {c.RedirectURL},
-		"response_type": {"code"},
-		"scope":         {c.Scope},
-		"state":         {state},
-	}.Encode()
-
-	if _url.RawQuery == "" {
-		_url.RawQuery = q
-	} else {
-		_url.RawQuery += "&" + q
-	}
-	return _url.String() + "#wechat_redirect"
+	return snsOAuth2AuthURL(c.ClientId, c.RedirectURL, c.Scope, state)
 }
 
 // OAuth2Token contains an end-user's tokens.
@@ -137,30 +106,8 @@ func (c *SNSClient) Exchange(code string) (*OAuth2Token, error) {
 		tok = new(OAuth2Token)
 	}
 
-	_url, err := url.Parse(c.TokenURL)
-	if err != nil {
-		panic("TokenURL malformed: " + err.Error())
-	}
-
-	q := url.Values{
-		"appid":      {c.ClientId},
-		"secret":     {c.ClientSecret},
-		"grant_type": {"authorization_code"},
-		"code":       {code},
-	}.Encode()
-
-	if _url.RawQuery == "" {
-		_url.RawQuery = q
-	} else {
-		_url.RawQuery += "&" + q
-	}
-
-	client := c.httpClient()
-	req, err := http.NewRequest("GET", _url.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-	resp, err := client.Do(req)
+	_url := snsOAuth2TokenURL(c.ClientId, c.ClientSecret, code)
+	resp, err := c.httpClient().Get(_url)
 	if err != nil {
 		return nil, err
 	}
@@ -217,29 +164,8 @@ func (c *SNSClient) Refresh() error {
 		return errors.New("Refresh: no Refresh Token")
 	}
 
-	_url, err := url.Parse(c.RefreshTokenURL)
-	if err != nil {
-		panic("RefreshTokenURL malformed: " + err.Error())
-	}
-
-	q := url.Values{
-		"appid":         {c.ClientId},
-		"grant_type":    {"refresh_token"},
-		"refresh_token": {c.RefreshToken},
-	}.Encode()
-
-	if _url.RawQuery == "" {
-		_url.RawQuery = q
-	} else {
-		_url.RawQuery += "&" + q
-	}
-
-	client := c.httpClient()
-	req, err := http.NewRequest("GET", _url.String(), nil)
-	if err != nil {
-		return err
-	}
-	resp, err := client.Do(req)
+	_url := snsOAuth2RefreshTokenURL(c.ClientId, c.RefreshToken)
+	resp, err := c.httpClient().Get(_url)
 	if err != nil {
 		return err
 	}
@@ -304,13 +230,8 @@ func (c *SNSClient) UserInfo(openid, lang string) (*sns.UserInfo, error) {
 		}
 	}
 
-	_url := fmt.Sprintf(snsUserInfoURLFormat, c.AccessToken, openid, lang)
-	client := c.httpClient()
-	req, err := http.NewRequest("GET", _url, nil)
-	if err != nil {
-		return nil, err
-	}
-	resp, err := client.Do(req)
+	_url := snsUserInfoURL(c.AccessToken, openid, lang)
+	resp, err := c.httpClient().Get(_url)
 	if err != nil {
 		return nil, err
 	}

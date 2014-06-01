@@ -24,7 +24,7 @@ func (c *Client) MenuCreate(mn *menu.Menu) error {
 		return err
 	}
 
-	_url := clientMenuCreateUrlPrefix + token
+	_url := clientMenuCreateURL(token)
 	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return err
@@ -53,7 +53,7 @@ func (c *Client) MenuDelete() error {
 		return err
 	}
 
-	_url := clientMenuDeleteUrlPrefix + token
+	_url := clientMenuDeleteURL(token)
 	resp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return err
@@ -82,7 +82,7 @@ func (c *Client) MenuGet() (*menu.Menu, error) {
 		return nil, err
 	}
 
-	_url := clientMenuGetUrlPrefix + token
+	_url := clientMenuGetURL(token)
 	resp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return nil, err

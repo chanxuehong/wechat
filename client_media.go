@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/chanxuehong/wechat/media"
 	"io"
 	"io/ioutil"
@@ -60,8 +59,8 @@ func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) 
 	if err != nil {
 		return nil, err
 	}
-	_url := fmt.Sprintf(clientMediaUploadUrlFormat, token, mediaType)
 
+	_url := clientMediaUploadURL(token, mediaType)
 	bodyBuf := c.getBuffer()   // io.ReadWriter
 	defer c.putBuffer(bodyBuf) // important!
 
@@ -124,7 +123,7 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 		return err
 	}
 
-	_url := fmt.Sprintf(clientMediaDownloadUrlFormat, token, token)
+	_url := clientMediaDownloadURL(token, mediaId)
 	resp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return err
@@ -165,7 +164,7 @@ func (c *Client) MediaUploadNews(news *media.News) (*media.UploadResponse, error
 		return nil, err
 	}
 
-	_url := clientMediaUploadNewsUrlPrefix + token
+	_url := clientMediaUploadNewsURL(token)
 	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
@@ -205,7 +204,7 @@ func (c *Client) MediaUploadVideo(video *media.Video) (*media.UploadResponse, er
 		return nil, err
 	}
 
-	_url := clientMediaUploadVideoUrlPrefix + token
+	_url := clientMediaUploadVideoURL(token)
 	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
