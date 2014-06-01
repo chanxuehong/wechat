@@ -36,5 +36,5 @@ type Record struct {
 */
 type RecordIterator interface {
 	HasNext() bool
-	NextPage() ([]Record, error)
+	NextPage() (records []Record, err error)
 }

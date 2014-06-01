@@ -50,8 +50,8 @@ func (c *Client) QRCodeCreate(sceneId int, expireSeconds int) (*qrcode.QRCode, e
 		return nil, err
 	}
 
-	_url := qrcodeCreateUrlPrefix + token
-	resp, err := commonHttpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	_url := clientQRCodeCreateUrlPrefix + token
+	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}
@@ -104,8 +104,8 @@ func (c *Client) QRCodeLimitCreate(sceneId int) (*qrcode.QRCode, error) {
 		return nil, err
 	}
 
-	_url := qrcodeCreateUrlPrefix + token
-	resp, err := commonHttpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	_url := clientQRCodeCreateUrlPrefix + token
+	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}
@@ -133,13 +133,13 @@ func (c *Client) QRCodeLimitCreate(sceneId int) (*qrcode.QRCode, error) {
 
 // 根据 qrcode ticket 得到 qrcode 图片的 url
 func QRCodeUrl(ticket string) string {
-	return qrcodeUrlPrefix + url.QueryEscape(ticket)
+	return clientQRCodeUrlPrefix + url.QueryEscape(ticket)
 }
 
 // 通过 ticket 换取二维码到 writer
 func QRCodeDownload(ticket string, writer io.Writer) error {
 	_url := QRCodeUrl(ticket)
-	resp, err := mediaHttpClient.Get(_url)
+	resp, err := http.Get(_url)
 	if err != nil {
 		return err
 	}

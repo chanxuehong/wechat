@@ -20,7 +20,7 @@ var DefaultTransport RoundTripper = &Transport{
 */
 
 // 一般的请求
-var commonHttpClient = &http.Client{
+var CommonHttpClient = &http.Client{
 	Transport: &http.Transport{
 		Proxy: http.ProxyFromEnvironment,
 		Dial: (&net.Dialer{
@@ -33,7 +33,7 @@ var commonHttpClient = &http.Client{
 }
 
 // 多媒体上传下载请求
-var mediaHttpClient = &http.Client{
+var MediaHttpClient = &http.Client{
 	Transport: &http.Transport{
 		Proxy: http.ProxyFromEnvironment,
 		Dial: (&net.Dialer{

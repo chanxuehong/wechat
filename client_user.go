@@ -29,8 +29,8 @@ func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
 		return nil, err
 	}
 
-	_url := userGroupCreateUrlPrefix + token
-	resp, err := commonHttpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	_url := clientUserGroupCreateUrlPrefix + token
+	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}
@@ -68,8 +68,8 @@ func (c *Client) UserGroupGet() ([]user.Group, error) {
 		return nil, err
 	}
 
-	_url := userGroupGetUrlPrefix + token
-	resp, err := commonHttpClient.Get(_url)
+	_url := clientUserGroupGetUrlPrefix + token
+	resp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return nil, err
 	}
@@ -116,8 +116,8 @@ func (c *Client) UserGroupRename(groupid int, name string) (err error) {
 		return
 	}
 
-	_url := userGroupRenameUrlPrefix + token
-	resp, err := commonHttpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	_url := clientUserGroupRenameUrlPrefix + token
+	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return
 	}
@@ -155,8 +155,8 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int, err error) {
 		return
 	}
 
-	_url := userInWhichGroupUrlPrefix + token
-	resp, err := commonHttpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	_url := clientUserInWhichGroupUrlPrefix + token
+	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return
 	}
@@ -203,8 +203,8 @@ func (c *Client) UserMoveToGroup(openid string, toGroupId int) (err error) {
 		return
 	}
 
-	_url := userMoveToGroupUrlPrefix + token
-	resp, err := commonHttpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	_url := clientUserMoveToGroupUrlPrefix + token
+	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
 	if err != nil {
 		return
 	}
@@ -227,10 +227,12 @@ func (c *Client) UserMoveToGroup(openid string, toGroupId int) (err error) {
 }
 
 // 获取用户基本信息.
-// lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
+//  lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
 func (c *Client) UserInfo(openid string, lang string) (*user.UserInfo, error) {
 	switch lang {
-	case "", user.Language_zh_CN, user.Language_zh_TW, user.Language_en:
+	case "":
+		lang = user.Language_zh_CN
+	case user.Language_zh_CN, user.Language_zh_TW, user.Language_en:
 	default:
 		return nil, errors.New(`lang 必须是 "", zh_CN, zh_TW, en 之一`)
 	}
@@ -240,8 +242,8 @@ func (c *Client) UserInfo(openid string, lang string) (*user.UserInfo, error) {
 		return nil, err
 	}
 
-	_url := fmt.Sprintf(userInfoUrlFormat, token, openid, lang)
-	resp, err := commonHttpClient.Get(_url)
+	_url := fmt.Sprintf(clientUserInfoUrlFormat, token, openid, lang)
+	resp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return nil, err
 	}
@@ -291,12 +293,12 @@ func (c *Client) userGet(beginOpenId string) (*userGetResponse, error) {
 
 	var _url string
 	if beginOpenId == "" {
-		_url = userGetUrlPrefix + token
+		_url = clientUserGetUrlPrefix + token
 	} else {
-		_url = userGetUrlPrefix + token + "&next_openid=" + beginOpenId
+		_url = clientUserGetUrlPrefix + token + "&next_openid=" + beginOpenId
 	}
 
-	resp, err := commonHttpClient.Get(_url)
+	resp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return nil, err
 	}

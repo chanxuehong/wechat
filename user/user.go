@@ -40,6 +40,6 @@ type UserInfo struct {
 */
 type UserIterator interface {
 	HasNext() bool
-	NextPage() ([]string, error)
+	NextPage() (openids []string, err error)
 	Total() int
 }

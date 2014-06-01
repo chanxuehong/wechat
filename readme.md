@@ -1,6 +1,6 @@
 # 微信公众平台 golang SDK
 
-Version: 0.6.1
+Version: 0.6.8
 
 NOTE: 在 v1.0.0 之前 API 都有可能微调
 
