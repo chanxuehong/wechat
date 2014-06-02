@@ -7,10 +7,10 @@ import (
 	"github.com/chanxuehong/wechat/media"
 	"io"
 	"io/ioutil"
+	"mime"
 	"mime/multipart"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 // 上传多媒体文件.
@@ -130,8 +130,8 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 	}
 	defer resp.Body.Close()
 
-	// 如果下载失败返回的是 Content-Type: text/plain, 下载成功是其他的 Content-Type
-	if !strings.HasPrefix(resp.Header.Get("Content-Type"), "text/plain") {
+	contentType, _, _ := mime.ParseMediaType(resp.Header.Get("Content-Type"))
+	if contentType != "text/plain" { // 如果下载失败返回的是 Content-Type: text/plain, 下载成功是其他的 Content-Type
 		_, err = io.Copy(writer, resp.Body)
 		return err
 	}
