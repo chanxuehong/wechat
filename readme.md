@@ -97,6 +97,7 @@ func main() {
 
 	fmt.Println(qrcode)
 }
+```
 
 ### OAuth2：网页授权获取用户基本信息
 
