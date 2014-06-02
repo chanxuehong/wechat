@@ -1,6 +1,6 @@
 # 微信公众平台 golang SDK
 
-Version: 0.6.8
+Version: 0.6.9
 
 NOTE: 在 v1.0.0 之前 API 都有可能微调
 
@@ -96,5 +96,56 @@ func main() {
 	}
 
 	fmt.Println(qrcode)
+}
+
+### OAuth2：网页授权获取用户基本信息
+
+```Go
+// 下面代码没有经过实际验证，只是我根据文档来写的，哈哈。
+// 因为我没有接口测试，所以如果有问题一定要告诉我！谢谢！
+package main
+
+import (
+	"github.com/chanxuehong/wechat"
+	"net/http"
+)
+
+// 一般一个应用只用一个全局变量
+var oauth2Config = wechat.NewOAuth2Config("appid", "appsecret", "redirectURL", "scope0", "scope1")
+
+// 引导用户到认证页面认证
+func landing(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, oauth2Config.AuthCodeURL("foo"), http.StatusFound)
+}
+
+// 跳转后的页面请求处理，授权和不授权都会跳转到这里，只是授权有 code 参数，不授权没有
+// redirect_uri/?code=CODE&state=STATE
+// redirect_uri?state=STATE
+func handler(w http.ResponseWriter, r *http.Request) {
+	// 下面是授权的代码
+	var code string
+	// 获取 code 的代码略去
+	client := wechat.SNSClient{
+		OAuth2Config: oauth2Config,
+	}
+	token, err := client.Exchange(code)
+	if err != nil {
+		// ...
+		return
+	}
+	// 这里把 token 根据 token.OpenId 缓存起来，以后可以直接用
+
+	userinfo, err := client.UserInfo(token.OpenId, "zh_CN")
+	if err != nil {
+		// ...
+		return
+	}
+
+	// 处理 userinfo
+	_ = userinfo
+}
+
+func main() {
+	// 为 http 添加路由处理，然后在运行 http service
 }
 ```

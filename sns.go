@@ -75,8 +75,7 @@ func (t *OAuth2Token) Expired() bool {
 	if t.Expiry == 0 {
 		return false
 	}
-	// 考虑到网络延时, 提前 10 秒过期; 如果返回的过期时间小于 10 秒则不能正常工作!
-	return time.Now().Unix()+10 > t.Expiry
+	return time.Now().Unix() > t.Expiry
 }
 
 type SNSClient struct {
@@ -140,10 +139,16 @@ func (c *SNSClient) Exchange(code string) (*OAuth2Token, error) {
 	if len(result.RefreshToken) > 0 {
 		tok.RefreshToken = result.RefreshToken
 	}
-	if result.ExpiresIn == 0 {
-		tok.Expiry = 0
-	} else {
+	switch {
+	case result.ExpiresIn > 10: // 正常情况下远大于 10
+		// 考虑到网络延时，提前 10 秒过期
+		tok.Expiry = time.Now().Unix() + result.ExpiresIn - 10
+	case result.ExpiresIn > 0:
 		tok.Expiry = time.Now().Unix() + result.ExpiresIn
+	case result.ExpiresIn == 0:
+		tok.Expiry = 0
+	default:
+		return nil, fmt.Errorf("Exchange: token ExpiresIn: %d < 0", result.ExpiresIn)
 	}
 	tok.OpenId = result.OpenId
 	tok.Scope = result.Scope
@@ -198,10 +203,16 @@ func (c *SNSClient) Refresh() error {
 	if len(result.RefreshToken) > 0 {
 		c.OAuth2Token.RefreshToken = result.RefreshToken
 	}
-	if result.ExpiresIn == 0 {
-		c.OAuth2Token.Expiry = 0
-	} else {
+	switch {
+	case result.ExpiresIn > 10: // 正常情况下远大于 10
+		// 考虑到网络延时，提前 10 秒过期
+		c.OAuth2Token.Expiry = time.Now().Unix() + result.ExpiresIn - 10
+	case result.ExpiresIn > 0:
 		c.OAuth2Token.Expiry = time.Now().Unix() + result.ExpiresIn
+	case result.ExpiresIn == 0:
+		c.OAuth2Token.Expiry = 0
+	default:
+		return fmt.Errorf("Refresh: token ExpiresIn: %d < 0", result.ExpiresIn)
 	}
 	c.OAuth2Token.OpenId = result.OpenId
 	c.OAuth2Token.Scope = result.Scope
