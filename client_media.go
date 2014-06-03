@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/chanxuehong/wechat/media"
 	"io"
-	"io/ioutil"
 	"mime"
 	"mime/multipart"
+	"net/http"
 	"os"
 	"path/filepath"
 )
@@ -85,16 +86,15 @@ func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) 
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("MediaUpload: %s", resp.Status)
 	}
 
 	var result struct {
 		media.UploadResponse
 		Error
 	}
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
 	if result.ErrCode != 0 {
@@ -130,6 +130,10 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("MediaDownload: %s", resp.Status)
+	}
+
 	contentType, _, _ := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 	if contentType != "text/plain" { // 如果下载失败返回的是 Content-Type: text/plain, 下载成功是其他的 Content-Type
 		_, err = io.Copy(writer, resp.Body)
@@ -137,13 +141,9 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 	}
 
 	// 返回的是错误信息
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
 
 	var result Error
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return err
 	}
 	return &result
@@ -171,16 +171,15 @@ func (c *Client) MediaUploadNews(news *media.News) (*media.UploadResponse, error
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("MediaUploadNews: %s", resp.Status)
 	}
 
 	var result struct {
 		media.UploadResponse
 		Error
 	}
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
 	if result.ErrCode != 0 {
@@ -211,16 +210,15 @@ func (c *Client) MediaUploadVideo(video *media.Video) (*media.UploadResponse, er
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("MediaUploadVideo: %s", resp.Status)
 	}
 
 	var result struct {
 		media.UploadResponse
 		Error
 	}
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
 	if result.ErrCode != 0 {

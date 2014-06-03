@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/chanxuehong/wechat/message/mass"
-	"io/ioutil"
+	"net/http"
 )
 
 // 根据分组群发 ==================================================================
@@ -28,8 +29,8 @@ func (c *Client) msgMassSendByGroup(msg interface{}) (msgid int, err error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
+	if resp.StatusCode != http.StatusOK {
+		err = fmt.Errorf("msgMassSendByGroup: %s", resp.Status)
 		return
 	}
 
@@ -37,7 +38,7 @@ func (c *Client) msgMassSendByGroup(msg interface{}) (msgid int, err error) {
 		Error
 		MsgId int `json:"msg_id"`
 	}
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return
 	}
 	if result.ErrCode != 0 {
@@ -113,8 +114,8 @@ func (c *Client) msgMassSendByOpenId(msg interface{}) (msgid int, err error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
+	if resp.StatusCode != http.StatusOK {
+		err = fmt.Errorf("msgMassSendByOpenId: %s", resp.Status)
 		return
 	}
 
@@ -122,7 +123,7 @@ func (c *Client) msgMassSendByOpenId(msg interface{}) (msgid int, err error) {
 		Error
 		MsgId int `json:"msg_id"`
 	}
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return
 	}
 	if result.ErrCode != 0 {
@@ -205,13 +206,12 @@ func (c *Client) MsgMassDelete(msgid int) error {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("MsgMassDelete: %s", resp.Status)
 	}
 
 	var result Error
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return err
 	}
 	if result.ErrCode != 0 {

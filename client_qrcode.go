@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/chanxuehong/wechat/qrcode"
 	"io"
-	"io/ioutil"
 	"math"
 	"net/http"
 	"os"
@@ -56,16 +55,15 @@ func (c *Client) QRCodeCreate(sceneId int, expireSeconds int) (*qrcode.QRCode, e
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("QRCodeCreate: %s", resp.Status)
 	}
 
 	var result struct {
 		qrcode.QRCode
 		Error
 	}
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
 	if result.ErrCode != 0 {
@@ -110,16 +108,15 @@ func (c *Client) QRCodeLimitCreate(sceneId int) (*qrcode.QRCode, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("QRCodeLimitCreate: %s", resp.Status)
 	}
 
 	var result struct {
 		qrcode.QRCode
 		Error
 	}
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
 	if result.ErrCode != 0 {

@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/chanxuehong/wechat/menu"
-	"io/ioutil"
+	"net/http"
 )
 
 // 创建自定义菜单.
@@ -31,13 +32,12 @@ func (c *Client) MenuCreate(mn *menu.Menu) error {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("MenuCreate: %s", resp.Status)
 	}
 
 	var result Error
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return err
 	}
 	if result.ErrCode != 0 {
@@ -60,13 +60,12 @@ func (c *Client) MenuDelete() error {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("MenuDelete: %s", resp.Status)
 	}
 
 	var result Error
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return err
 	}
 	if result.ErrCode != 0 {
@@ -89,17 +88,15 @@ func (c *Client) MenuGet() (*menu.Menu, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("MenuGet: %s", resp.Status)
 	}
 
 	var result struct {
 		Menu menu.Menu `json:"menu"`
 		Error
 	}
-	err = json.Unmarshal(body, &result)
-	if err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
 

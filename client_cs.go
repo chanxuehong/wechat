@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/chanxuehong/wechat/cs"
-	"io/ioutil"
+	"net/http"
 )
 
 // 获取客服聊天记录
@@ -31,19 +32,17 @@ func (c *Client) CSRecordGet(request *cs.RecordGetRequest) ([]cs.Record, error) 
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("CSRecordGet: %s", resp.Status)
 	}
 
 	var result struct {
 		RecordList []cs.Record `json:"recordlist"`
 		Error
 	}
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
-
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}

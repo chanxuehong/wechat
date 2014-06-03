@@ -6,7 +6,6 @@ import (
 	"github.com/chanxuehong/util/pool"
 	"github.com/chanxuehong/wechat/message"
 	"io"
-	"io/ioutil"
 	"net/http"
 )
 
@@ -204,16 +203,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		b, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			s.setting.InvalidRequestHandler(w, r, err)
-			return
-		}
-
 		rqstMsg := s.getRequestEntity()   // *message.Request
 		defer s.putRequestEntity(rqstMsg) // important!
 
-		if err = xml.Unmarshal(b, rqstMsg); err != nil {
+		if err = xml.NewDecoder(r.Body).Decode(rqstMsg); err != nil {
 			s.setting.InvalidRequestHandler(w, r, err)
 			return
 		}

@@ -3,7 +3,7 @@ package wechat
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"net/http"
 	"time"
 )
 
@@ -32,22 +32,22 @@ func (c *Client) TokenRefresh() (token string, err error) {
 	case err != nil:
 		c.update("", err)
 		return
-	case resp.ExpiresIn <= 0: // 正常情况下不会出现
-		err = fmt.Errorf("access token 过期时间是负数: %d", resp.ExpiresIn)
-		c.update("", err)
-		return
-	case resp.ExpiresIn <= 10: // 正常情况下不会出现
-		c.update(resp.Token, nil)
-		token = resp.Token
-		// 通知 goroutine tokenService() 重置定时器
-		c.resetTickChan <- time.Duration(resp.ExpiresIn) * time.Second
-		return
-	default: // resp.ExpiresIn > 10
+	case resp.ExpiresIn > 10: // 正常情况
 		c.update(resp.Token, nil)
 		token = resp.Token
 		// 通知 goroutine tokenService() 重置定时器
 		// 考虑到网络延时, 提前 10 秒过期
 		c.resetTickChan <- time.Duration(resp.ExpiresIn-10) * time.Second
+		return
+	case resp.ExpiresIn > 0: // 正常情况下不会出现
+		c.update(resp.Token, nil)
+		token = resp.Token
+		// 通知 goroutine tokenService() 重置定时器
+		c.resetTickChan <- time.Duration(resp.ExpiresIn) * time.Second
+		return
+	default: // resp.ExpiresIn <= 0, 正常情况下不会出现
+		err = fmt.Errorf("access token 过期时间应该是正整数: %d", resp.ExpiresIn)
+		c.update("", err)
 		return
 	}
 }
@@ -81,15 +81,17 @@ NewTickDuration:
 						currentTickDuration = defaultTickDuration
 						break NewTickDuration
 					}
-				case resp.ExpiresIn <= 0: // 正常情况下不会出现
-					c.update("", fmt.Errorf("access token 过期时间是负数: %d", resp.ExpiresIn))
-					// 出错则重置到 defaultTickDuration
-					if currentTickDuration != defaultTickDuration { // 这个判断的目的是避免重置定时器开销
+				case resp.ExpiresIn > 10: // 正常情况
+					c.update(resp.Token, nil)
+					// 根据返回的过期时间来重新设置定时器
+					// 设置新的 currentTickDuration, 考虑到网络延时, 提前 10 秒过期
+					nextTickDuration := time.Duration(resp.ExpiresIn-10) * time.Second
+					if currentTickDuration != nextTickDuration { // 这个判断的目的是避免重置定时器开销
 						tk.Stop()
-						currentTickDuration = defaultTickDuration
+						currentTickDuration = nextTickDuration
 						break NewTickDuration
 					}
-				case resp.ExpiresIn <= 10: // 正常情况下不会出现
+				case resp.ExpiresIn > 0: // 正常情况下不会出现
 					c.update(resp.Token, nil)
 					// 根据返回的过期时间来重新设置定时器
 					nextTickDuration := time.Duration(resp.ExpiresIn) * time.Second
@@ -98,14 +100,12 @@ NewTickDuration:
 						currentTickDuration = nextTickDuration
 						break NewTickDuration
 					}
-				default: // resp.ExpiresIn > 10
-					c.update(resp.Token, nil)
-					// 根据返回的过期时间来重新设置定时器
-					// 设置新的 currentTickDuration, 考虑到网络延时, 提前 10 秒过期
-					nextTickDuration := time.Duration(resp.ExpiresIn-10) * time.Second
-					if currentTickDuration != nextTickDuration { // 这个判断的目的是避免重置定时器开销
+				default: // resp.ExpiresIn <= 0, 正常情况下不会出现
+					c.update("", fmt.Errorf("access token 过期时间应该是正整数: %d", resp.ExpiresIn))
+					// 出错则重置到 defaultTickDuration
+					if currentTickDuration != defaultTickDuration { // 这个判断的目的是避免重置定时器开销
 						tk.Stop()
-						currentTickDuration = nextTickDuration
+						currentTickDuration = defaultTickDuration
 						break NewTickDuration
 					}
 				}
@@ -129,17 +129,15 @@ func (c *Client) getNewToken() (*clientTokenResponse, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("getNewToken: %s", resp.Status)
 	}
 
 	var result struct {
 		clientTokenResponse
 		Error
 	}
-	err = json.Unmarshal(body, &result)
-	if err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
 

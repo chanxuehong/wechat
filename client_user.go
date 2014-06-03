@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/chanxuehong/wechat/user"
-	"io/ioutil"
+	"net/http"
 )
 
 // 创建分组
@@ -36,9 +36,8 @@ func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("UserGroupCreate: %s", resp.Status)
 	}
 
 	var result struct {
@@ -48,7 +47,7 @@ func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
 		} `json:"group"`
 		Error
 	}
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
 	if result.ErrCode != 0 {
@@ -75,16 +74,15 @@ func (c *Client) UserGroupGet() ([]user.Group, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("UserGroupGet: %s", resp.Status)
 	}
 
 	var result struct {
 		Groups []user.Group `json:"groups"`
 		Error
 	}
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
 
@@ -123,13 +121,12 @@ func (c *Client) UserGroupRename(groupid int, name string) (err error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("UserGroupRename: %s", resp.Status)
 	}
 
 	var result Error
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return
 	}
 	if result.ErrCode != 0 {
@@ -162,8 +159,8 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int, err error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
+	if resp.StatusCode != http.StatusOK {
+		err = fmt.Errorf("UserInWhichGroup: %s", resp.Status)
 		return
 	}
 
@@ -171,7 +168,7 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int, err error) {
 		GroupId int `json:"groupid"`
 		Error
 	}
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return
 	}
 	if result.ErrCode != 0 {
@@ -210,13 +207,13 @@ func (c *Client) UserMoveToGroup(openid string, toGroupId int) (err error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
+	if resp.StatusCode != http.StatusOK {
+		err = fmt.Errorf("UserMoveToGroup: %s", resp.Status)
 		return
 	}
 
 	var result Error
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return
 	}
 	if result.ErrCode != 0 {
@@ -249,9 +246,8 @@ func (c *Client) UserInfo(openid string, lang string) (*user.UserInfo, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("UserInfo: %s", resp.Status)
 	}
 
 	var result struct {
@@ -260,10 +256,9 @@ func (c *Client) UserInfo(openid string, lang string) (*user.UserInfo, error) {
 		user.UserInfo
 		Error
 	}
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
-
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}
@@ -298,19 +293,17 @@ func (c *Client) userGet(beginOpenId string) (*userGetResponse, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("userGet: %s", resp.Status)
 	}
 
 	var result struct {
 		userGetResponse
 		Error
 	}
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
-
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}
