@@ -134,6 +134,13 @@ func QRCodeUrl(ticket string) string {
 
 // 通过 ticket 换取二维码到 writer
 func QRCodeDownload(ticket string, writer io.Writer) error {
+	if len(ticket) == 0 {
+		return errors.New("QRCodeDownload: ticket == \"\"")
+	}
+	if writer == nil {
+		return errors.New("QRCodeDownload: writer == nil")
+	}
+
 	_url := clientQRCodeURL(ticket)
 	resp, err := http.Get(_url)
 	if err != nil {

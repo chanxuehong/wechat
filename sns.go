@@ -95,6 +95,9 @@ func (c *SNSClient) httpClient() *http.Client {
 
 // 通过code换取网页授权access_token
 func (c *SNSClient) Exchange(code string) (*OAuth2Token, error) {
+	if len(code) == 0 {
+		return nil, errors.New("Exchange: code == \"\"")
+	}
 	if c.OAuth2Config == nil {
 		return nil, errors.New("Exchange: no OAuth2Config supplied")
 	}
@@ -222,6 +225,9 @@ func (c *SNSClient) Refresh() error {
 // 拉取用户信息(需scope为 snsapi_userinfo).
 //  lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
 func (c *SNSClient) UserInfo(openid, lang string) (*sns.UserInfo, error) {
+	if len(openid) == 0 {
+		return nil, errors.New("UserInfo: openid == \"\"")
+	}
 	switch lang {
 	case "":
 		lang = user.Language_zh_CN

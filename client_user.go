@@ -11,6 +11,10 @@ import (
 
 // 创建分组
 func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
+	if len(name) == 0 {
+		return nil, errors.New("UserGroupCreate: name == \"\"")
+	}
+
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
@@ -94,6 +98,10 @@ func (c *Client) UserGroupGet() ([]user.Group, error) {
 
 // 修改分组名
 func (c *Client) UserGroupRename(groupid int, name string) (err error) {
+	if len(name) == 0 {
+		return errors.New("UserGroupRename: name == \"\"")
+	}
+
 	token, err := c.Token()
 	if err != nil {
 		return
@@ -138,6 +146,11 @@ func (c *Client) UserGroupRename(groupid int, name string) (err error) {
 
 // 查询用户所在分组
 func (c *Client) UserInWhichGroup(openid string) (groupid int, err error) {
+	if len(openid) == 0 {
+		err = errors.New("UserInWhichGroup: openid == \"\"")
+		return
+	}
+
 	token, err := c.Token()
 	if err != nil {
 		return
@@ -182,6 +195,10 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int, err error) {
 
 // 移动用户分组
 func (c *Client) UserMoveToGroup(openid string, toGroupId int) (err error) {
+	if len(openid) == 0 {
+		return errors.New("UserMoveToGroup: openid == \"\"")
+	}
+
 	token, err := c.Token()
 	if err != nil {
 		return
@@ -226,12 +243,16 @@ func (c *Client) UserMoveToGroup(openid string, toGroupId int) (err error) {
 // 获取用户基本信息.
 //  lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
 func (c *Client) UserInfo(openid string, lang string) (*user.UserInfo, error) {
+	if len(openid) == 0 {
+		return nil, errors.New("UserInfo: openid == \"\"")
+	}
+
 	switch lang {
 	case "":
 		lang = user.Language_zh_CN
 	case user.Language_zh_CN, user.Language_zh_TW, user.Language_en:
 	default:
-		return nil, errors.New(`lang 必须是 "", zh_CN, zh_TW, en 之一`)
+		return nil, errors.New(`UserInfo: lang 必须是 "", zh_CN, zh_TW, en 之一`)
 	}
 
 	token, err := c.Token()

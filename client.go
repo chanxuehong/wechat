@@ -7,7 +7,9 @@ import (
 	"time"
 )
 
-const postJSONContentType = "application/json; charset=utf-8"
+const (
+	postJSONContentType = "application/json; charset=utf-8"
+)
 
 // 相对于微信服务器, 主动请求的功能模块都相当于是 Client;
 // 这个结构就是封装所有这些请求功能, 并发安全.
@@ -28,12 +30,12 @@ type Client struct {
 	// 对于上传媒体文件, 一般要申请比较大的内存, 所以增加一个内存池;
 	// pool.Pool 的接口兼容 sync.Pool.
 	bufferPool *pool.Pool
-	httpClient *http.Client // It will default to http.DefaultClient if httpClient == nil.
+	httpClient *http.Client
 }
 
 // It will default to http.DefaultClient if httpClient == nil.
 func NewClient(appid, appsecret string, httpClient *http.Client) *Client {
-	const bufferPoolSize = 64 // 不暴露这个选项是为了变更到 sync.Pool 不做大的变动
+	const bufferPoolSize = 16 // 不暴露这个选项是为了变更到 sync.Pool 不做大的变动
 
 	c := &Client{
 		appid:                appid,

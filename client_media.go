@@ -61,7 +61,6 @@ func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) 
 		return nil, err
 	}
 
-	_url := clientMediaUploadURL(token, mediaType)
 	bodyBuf := c.getBuffer()   // io.ReadWriter
 	defer c.putBuffer(bodyBuf) // important!
 
@@ -80,6 +79,7 @@ func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) 
 		return nil, err
 	}
 
+	_url := clientMediaUploadURL(token, mediaType)
 	resp, err := c.httpClient.Post(_url, bodyContentType, bodyBuf)
 	if err != nil {
 		return nil, err
@@ -118,6 +118,13 @@ func (c *Client) MediaDownloadToFile(mediaId, filePath string) error {
 // 下载多媒体文件.
 //  NOTE: 视频文件不支持下载.
 func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
+	if mediaId == "" {
+		return errors.New("MediaDownload: mediaId == \"\"")
+	}
+	if writer == nil {
+		return errors.New("MediaDownload: writer == nil")
+	}
+
 	token, err := c.Token()
 	if err != nil {
 		return err
