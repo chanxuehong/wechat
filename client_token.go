@@ -9,19 +9,19 @@ import (
 
 // 从本地缓存获取 access token.
 func (c *Client) Token() (token string, err error) {
-	c._token.rwmutex.RLock()
-	token = c._token.token
-	err = c._token.err
-	c._token.rwmutex.RUnlock()
+	c.tokenCache.rwmutex.RLock()
+	token = c.tokenCache.token
+	err = c.tokenCache.err
+	c.tokenCache.rwmutex.RUnlock()
 	return
 }
 
 // see Client.TokenRefresh() and Client.tokenService()
 func (c *Client) update(token string, err error) {
-	c._token.rwmutex.Lock()
-	c._token.token = token
-	c._token.err = err
-	c._token.rwmutex.Unlock()
+	c.tokenCache.rwmutex.Lock()
+	c.tokenCache.token = token
+	c.tokenCache.err = err
+	c.tokenCache.rwmutex.Unlock()
 }
 
 // 从微信服务器获取 access token, 并更新本地缓存.
@@ -37,13 +37,13 @@ func (c *Client) TokenRefresh() (token string, err error) {
 		token = resp.Token
 		// 通知 goroutine tokenService() 重置定时器
 		// 考虑到网络延时, 提前 10 秒过期
-		c.resetTickChan <- time.Duration(resp.ExpiresIn-10) * time.Second
+		c.resetRefreshTickChan <- time.Duration(resp.ExpiresIn-10) * time.Second
 		return
 	case resp.ExpiresIn > 0: // 正常情况下不会出现
 		c.update(resp.Token, nil)
 		token = resp.Token
 		// 通知 goroutine tokenService() 重置定时器
-		c.resetTickChan <- time.Duration(resp.ExpiresIn) * time.Second
+		c.resetRefreshTickChan <- time.Duration(resp.ExpiresIn) * time.Second
 		return
 	default: // resp.ExpiresIn <= 0, 正常情况下不会出现
 		err = fmt.Errorf("access token 过期时间应该是正整数: %d", resp.ExpiresIn)
@@ -67,7 +67,7 @@ NewTickDuration:
 		tk = time.NewTicker(currentTickDuration)
 		for {
 			select {
-			case currentTickDuration = <-c.resetTickChan: // 在别的地方成功获取了 access token, 重置定时器.
+			case currentTickDuration = <-c.resetRefreshTickChan: // 在别的地方成功获取了 access token, 重置定时器.
 				tk.Stop()
 				break NewTickDuration
 			case <-tk.C:
