@@ -46,7 +46,7 @@ func (c *Client) TokenRefresh() (token string, err error) {
 		c.resetRefreshTickChan <- time.Duration(resp.ExpiresIn) * time.Second
 		return
 	default: // resp.ExpiresIn <= 0, 正常情况下不会出现
-		err = fmt.Errorf("access token 过期时间应该是正整数: %d", resp.ExpiresIn)
+		err = fmt.Errorf("TokenRefresh: access token 过期时间应该是正整数: %d", resp.ExpiresIn)
 		c.update("", err)
 		return
 	}
@@ -70,6 +70,7 @@ NewTickDuration:
 			case currentTickDuration = <-c.resetRefreshTickChan: // 在别的地方成功获取了 access token, 重置定时器.
 				tk.Stop()
 				break NewTickDuration
+
 			case <-tk.C:
 				resp, err := c.getNewToken()
 				switch {
@@ -101,7 +102,7 @@ NewTickDuration:
 						break NewTickDuration
 					}
 				default: // resp.ExpiresIn <= 0, 正常情况下不会出现
-					c.update("", fmt.Errorf("access token 过期时间应该是正整数: %d", resp.ExpiresIn))
+					c.update("", fmt.Errorf("tokenService: access token 过期时间应该是正整数: %d", resp.ExpiresIn))
 					// 出错则重置到 defaultTickDuration
 					if currentTickDuration != defaultTickDuration { // 这个判断的目的是避免重置定时器开销
 						tk.Stop()
@@ -130,7 +131,7 @@ func (c *Client) getNewToken() (*clientTokenResponse, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("getNewToken: %s", resp.Status)
+		return nil, fmt.Errorf("getNewToken: getNewToken: %s", resp.Status)
 	}
 
 	var result struct {

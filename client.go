@@ -23,8 +23,8 @@ type Client struct {
 		err     error
 	}
 	// goroutine tokenService() 里有个定时器, 每次触发都会更新 access token,
-	// 同时 goroutine tokenService() 监听这个 resetTickChan,
-	// 如果有新的数据, 则重置定时器, 定时时间为 resetTickChan 传过来的数据;
+	// 同时 goroutine tokenService() 监听这个 resetRefreshTickChan,
+	// 如果有新的数据, 则重置定时器, 定时时间为 resetRefreshTickChan 传过来的数据;
 	// 主要用于用户手动更新 access token 的情况, see Client.TokenRefresh().
 	resetRefreshTickChan chan time.Duration
 	// 对于上传媒体文件, 一般要申请比较大的内存, 所以增加一个内存池;

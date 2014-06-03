@@ -12,7 +12,7 @@ import (
 // 创建分组
 func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
 	if len(name) == 0 {
-		return nil, errors.New("UserGroupCreate: name == \"\"")
+		return nil, errors.New(`UserGroupCreate: UserGroupCreate: name == ""`)
 	}
 
 	token, err := c.Token()
@@ -99,7 +99,7 @@ func (c *Client) UserGroupGet() ([]user.Group, error) {
 // 修改分组名
 func (c *Client) UserGroupRename(groupid int, name string) (err error) {
 	if len(name) == 0 {
-		return errors.New("UserGroupRename: name == \"\"")
+		return errors.New(`UserGroupRename: name == ""`)
 	}
 
 	token, err := c.Token()
@@ -147,7 +147,7 @@ func (c *Client) UserGroupRename(groupid int, name string) (err error) {
 // 查询用户所在分组
 func (c *Client) UserInWhichGroup(openid string) (groupid int, err error) {
 	if len(openid) == 0 {
-		err = errors.New("UserInWhichGroup: openid == \"\"")
+		err = errors.New(`UserInWhichGroup: openid == ""`)
 		return
 	}
 
@@ -196,7 +196,7 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int, err error) {
 // 移动用户分组
 func (c *Client) UserMoveToGroup(openid string, toGroupId int) (err error) {
 	if len(openid) == 0 {
-		return errors.New("UserMoveToGroup: openid == \"\"")
+		return errors.New(`UserMoveToGroup: openid == ""`)
 	}
 
 	token, err := c.Token()
@@ -244,7 +244,7 @@ func (c *Client) UserMoveToGroup(openid string, toGroupId int) (err error) {
 //  lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
 func (c *Client) UserInfo(openid string, lang string) (*user.UserInfo, error) {
 	if len(openid) == 0 {
-		return nil, errors.New("UserInfo: openid == \"\"")
+		return nil, errors.New(`UserInfo: openid == ""`)
 	}
 
 	switch lang {
@@ -284,7 +284,7 @@ func (c *Client) UserInfo(openid string, lang string) (*user.UserInfo, error) {
 		return nil, &result.Error
 	}
 	if result.Subscribe == 0 {
-		return nil, fmt.Errorf("该用户 %s 没有订阅这个公众号", openid)
+		return nil, fmt.Errorf("UserInfo: 该用户 %s 没有订阅这个公众号", openid)
 	}
 	return &result.UserInfo, nil
 }
@@ -333,7 +333,7 @@ func (c *Client) userGet(beginOpenId string) (*userGetResponse, error) {
 
 // 该结构实现了 user.UserIterator 接口
 type userGetIterator struct {
-	userGetResponse *userGetResponse // NextPage() 返回的数据
+	userGetResponse *userGetResponse // 对于 HasNext() 表示上次返回的数据
 
 	wechatClient   *Client // 关联的微信 Client
 	nextPageCalled bool    // NextPage() 是否调用过
@@ -346,7 +346,7 @@ func (iter *userGetIterator) HasNext() bool {
 	// 第一批数据不需要通过 NextPage() 来获取, 因为在创建这个对象的时候就获取了;
 	// 后续的数据都要通过 NextPage() 来获取, 所以要通过上一次的 NextOpenId 来判断了.
 	if !iter.nextPageCalled {
-		return iter.userGetResponse.GetCount != 0
+		return iter.userGetResponse.GetCount > 0
 	}
 	return iter.userGetResponse.NextOpenId != ""
 }

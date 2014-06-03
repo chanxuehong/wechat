@@ -47,13 +47,13 @@ func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) 
 		media.MEDIA_TYPE_VIDEO,
 		media.MEDIA_TYPE_THUMB:
 	default:
-		return nil, errors.New("错误的 mediaType")
+		return nil, errors.New("MediaUpload: 错误的 mediaType")
 	}
 	if filename == "" {
-		return nil, errors.New(`filename == ""`)
+		return nil, errors.New(`MediaUpload: filename == ""`)
 	}
 	if mediaReader == nil {
-		return nil, errors.New("mediaReader == nil")
+		return nil, errors.New("MediaUpload: mediaReader == nil")
 	}
 
 	token, err := c.Token()
@@ -119,7 +119,7 @@ func (c *Client) MediaDownloadToFile(mediaId, filePath string) error {
 //  NOTE: 视频文件不支持下载.
 func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 	if mediaId == "" {
-		return errors.New("MediaDownload: mediaId == \"\"")
+		return errors.New(`MediaDownload: mediaId == ""`)
 	}
 	if writer == nil {
 		return errors.New("MediaDownload: writer == nil")
@@ -159,7 +159,7 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 // 上传图文消息素材
 func (c *Client) MediaUploadNews(news *media.News) (*media.UploadResponse, error) {
 	if news == nil {
-		return nil, errors.New("news == nil")
+		return nil, errors.New("MediaUploadNews: news == nil")
 	}
 
 	token, err := c.Token()
@@ -198,7 +198,7 @@ func (c *Client) MediaUploadNews(news *media.News) (*media.UploadResponse, error
 // 上传视频消息
 func (c *Client) MediaUploadVideo(video *media.Video) (*media.UploadResponse, error) {
 	if video == nil {
-		return nil, errors.New("video == nil")
+		return nil, errors.New("MediaUploadVideo: video == nil")
 	}
 
 	token, err := c.Token()

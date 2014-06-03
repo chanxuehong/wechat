@@ -30,8 +30,26 @@ func (c *Client) msgMassSendByGroup(msg interface{}) (msgid int, err error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		err = fmt.Errorf("msgMassSendByGroup: %s", resp.Status)
-		return
+		switch msg.(type) {
+		case *mass.GroupNews:
+			err = fmt.Errorf("MsgMassSendNewsByGroup: %s", resp.Status)
+			return
+		case *mass.GroupText:
+			err = fmt.Errorf("MsgMassSendTextByGroup: %s", resp.Status)
+			return
+		case *mass.GroupVoice:
+			err = fmt.Errorf("MsgMassSendVoiceByGroup: %s", resp.Status)
+			return
+		case *mass.GroupImage:
+			err = fmt.Errorf("MsgMassSendImageByGroup: %s", resp.Status)
+			return
+		case *mass.GroupVideo:
+			err = fmt.Errorf("MsgMassSendVideoByGroup: %s", resp.Status)
+			return
+		default:
+			err = fmt.Errorf("msgMassSendByGroup: %s", resp.Status)
+			return
+		}
 	}
 
 	var result struct {
@@ -52,7 +70,7 @@ func (c *Client) msgMassSendByGroup(msg interface{}) (msgid int, err error) {
 // 根据分组群发图文消息.
 func (c *Client) MsgMassSendNewsByGroup(msg *mass.GroupNews) (msgid int, err error) {
 	if msg == nil {
-		err = errors.New("msg == nil")
+		err = errors.New("MsgMassSendNewsByGroup: msg == nil")
 		return
 	}
 	return c.msgMassSendByGroup(msg)
@@ -61,7 +79,7 @@ func (c *Client) MsgMassSendNewsByGroup(msg *mass.GroupNews) (msgid int, err err
 // 根据分组群发文本消息.
 func (c *Client) MsgMassSendTextByGroup(msg *mass.GroupText) (msgid int, err error) {
 	if msg == nil {
-		err = errors.New("msg == nil")
+		err = errors.New("MsgMassSendTextByGroup: msg == nil")
 		return
 	}
 	return c.msgMassSendByGroup(msg)
@@ -70,7 +88,7 @@ func (c *Client) MsgMassSendTextByGroup(msg *mass.GroupText) (msgid int, err err
 // 根据分组群发语音消息.
 func (c *Client) MsgMassSendVoiceByGroup(msg *mass.GroupVoice) (msgid int, err error) {
 	if msg == nil {
-		err = errors.New("msg == nil")
+		err = errors.New("MsgMassSendVoiceByGroup: msg == nil")
 		return
 	}
 	return c.msgMassSendByGroup(msg)
@@ -79,7 +97,7 @@ func (c *Client) MsgMassSendVoiceByGroup(msg *mass.GroupVoice) (msgid int, err e
 // 根据分组群发图片消息.
 func (c *Client) MsgMassSendImageByGroup(msg *mass.GroupImage) (msgid int, err error) {
 	if msg == nil {
-		err = errors.New("msg == nil")
+		err = errors.New("MsgMassSendImageByGroup: msg == nil")
 		return
 	}
 	return c.msgMassSendByGroup(msg)
@@ -88,7 +106,7 @@ func (c *Client) MsgMassSendImageByGroup(msg *mass.GroupImage) (msgid int, err e
 // 根据分组群发视频消息.
 func (c *Client) MsgMassSendVideoByGroup(msg *mass.GroupVideo) (msgid int, err error) {
 	if msg == nil {
-		err = errors.New("msg == nil")
+		err = errors.New("MsgMassSendVideoByGroup: msg == nil")
 		return
 	}
 	return c.msgMassSendByGroup(msg)
@@ -115,8 +133,26 @@ func (c *Client) msgMassSendByOpenId(msg interface{}) (msgid int, err error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		err = fmt.Errorf("msgMassSendByOpenId: %s", resp.Status)
-		return
+		switch msg.(type) {
+		case *mass.OpenIdNews:
+			err = fmt.Errorf("MsgMassSendNewsByOpenId: %s", resp.Status)
+			return
+		case *mass.OpenIdText:
+			err = fmt.Errorf("MsgMassSendTextByOpenId: %s", resp.Status)
+			return
+		case *mass.OpenIdVoice:
+			err = fmt.Errorf("MsgMassSendVoiceByOpenId: %s", resp.Status)
+			return
+		case *mass.OpenIdImage:
+			err = fmt.Errorf("MsgMassSendImageByOpenId: %s", resp.Status)
+			return
+		case *mass.OpenIdVideo:
+			err = fmt.Errorf("MsgMassSendVideoByOpenId: %s", resp.Status)
+			return
+		default:
+			err = fmt.Errorf("msgMassSendByOpenId: %s", resp.Status)
+			return
+		}
 	}
 
 	var result struct {
@@ -137,7 +173,7 @@ func (c *Client) msgMassSendByOpenId(msg interface{}) (msgid int, err error) {
 // 根据用户列表群发图文消息.
 func (c *Client) MsgMassSendNewsByOpenId(msg *mass.OpenIdNews) (msgid int, err error) {
 	if msg == nil {
-		err = errors.New("msg == nil")
+		err = errors.New("MsgMassSendNewsByOpenId: msg == nil")
 		return
 	}
 	return c.msgMassSendByOpenId(msg)
@@ -146,7 +182,7 @@ func (c *Client) MsgMassSendNewsByOpenId(msg *mass.OpenIdNews) (msgid int, err e
 // 根据用户列表群发文本消息.
 func (c *Client) MsgMassSendTextByOpenId(msg *mass.OpenIdText) (msgid int, err error) {
 	if msg == nil {
-		err = errors.New("msg == nil")
+		err = errors.New("MsgMassSendTextByOpenId: msg == nil")
 		return
 	}
 	return c.msgMassSendByOpenId(msg)
@@ -155,7 +191,7 @@ func (c *Client) MsgMassSendTextByOpenId(msg *mass.OpenIdText) (msgid int, err e
 // 根据用户列表群发语音消息.
 func (c *Client) MsgMassSendVoiceByOpenId(msg *mass.OpenIdVoice) (msgid int, err error) {
 	if msg == nil {
-		err = errors.New("msg == nil")
+		err = errors.New("MsgMassSendVoiceByOpenId: msg == nil")
 		return
 	}
 	return c.msgMassSendByOpenId(msg)
@@ -164,7 +200,7 @@ func (c *Client) MsgMassSendVoiceByOpenId(msg *mass.OpenIdVoice) (msgid int, err
 // 根据用户列表群发图片消息.
 func (c *Client) MsgMassSendImageByOpenId(msg *mass.OpenIdImage) (msgid int, err error) {
 	if msg == nil {
-		err = errors.New("msg == nil")
+		err = errors.New("MsgMassSendImageByOpenId: msg == nil")
 		return
 	}
 	return c.msgMassSendByOpenId(msg)
@@ -173,7 +209,7 @@ func (c *Client) MsgMassSendImageByOpenId(msg *mass.OpenIdImage) (msgid int, err
 // 根据用户列表群发视频消息.
 func (c *Client) MsgMassSendVideoByOpenId(msg *mass.OpenIdVideo) (msgid int, err error) {
 	if msg == nil {
-		err = errors.New("msg == nil")
+		err = errors.New("MsgMassSendVideoByOpenId: msg == nil")
 		return
 	}
 	return c.msgMassSendByOpenId(msg)

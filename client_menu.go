@@ -12,15 +12,16 @@ import (
 // 创建自定义菜单.
 //  NOTE: 创建自定义菜单后，由于微信客户端缓存，需要24小时微信客户端才会展现出来。
 //  建议测试时可以尝试取消关注公众账号后再次关注，则可以看到创建后的效果。
-func (c *Client) MenuCreate(mn *menu.Menu) error {
-	if mn == nil {
-		return errors.New("menu == nil")
+func (c *Client) MenuCreate(Menu *menu.Menu) error {
+	if Menu == nil {
+		return errors.New("MenuCreate: Menu == nil")
 	}
+
 	token, err := c.Token()
 	if err != nil {
 		return err
 	}
-	jsonData, err := json.Marshal(mn)
+	jsonData, err := json.Marshal(Menu)
 	if err != nil {
 		return err
 	}

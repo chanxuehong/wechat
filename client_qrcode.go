@@ -15,13 +15,13 @@ import (
 // 创建临时二维码
 func (c *Client) QRCodeCreate(sceneId int, expireSeconds int) (*qrcode.QRCode, error) {
 	if sceneId == 0 {
-		return nil, errors.New("sceneId 应该是个32位非0整型")
+		return nil, errors.New("QRCodeCreate: sceneId 应该是个32位非0整型")
 	}
 	if sceneId < math.MinInt32 || sceneId > math.MaxUint32 { // 包括了 int32, uint32
-		return nil, errors.New("sceneId 应该是个32位非0整型")
+		return nil, errors.New("QRCodeCreate: sceneId 应该是个32位非0整型")
 	}
 	if expireSeconds <= 0 || expireSeconds > qrcode.QRCodeExpireSecondsLimit {
-		return nil, fmt.Errorf("expireSeconds 应该在 (0,%d] 之间", qrcode.QRCodeExpireSecondsLimit)
+		return nil, fmt.Errorf("QRCodeCreate: expireSeconds 应该在 (0,%d] 之间", qrcode.QRCodeExpireSecondsLimit)
 	}
 
 	token, err := c.Token()
@@ -76,7 +76,7 @@ func (c *Client) QRCodeCreate(sceneId int, expireSeconds int) (*qrcode.QRCode, e
 // 创建永久二维码
 func (c *Client) QRCodeLimitCreate(sceneId int) (*qrcode.QRCode, error) {
 	if sceneId <= 0 || sceneId > qrcode.QRCodeLimitSceneIdLimit {
-		return nil, fmt.Errorf("sceneId 应该在 (0,%d] 之间", qrcode.QRCodeLimitSceneIdLimit)
+		return nil, fmt.Errorf("QRCodeLimitCreate: sceneId 应该在 (0,%d] 之间", qrcode.QRCodeLimitSceneIdLimit)
 	}
 
 	token, err := c.Token()
@@ -123,7 +123,7 @@ func (c *Client) QRCodeLimitCreate(sceneId int) (*qrcode.QRCode, error) {
 		return nil, &result.Error
 	}
 	result.QRCode.SceneId = sceneId
-	result.QRCode.ExpireSeconds = 0
+	result.QRCode.ExpireSeconds = 0 // 强制为 0
 	return &result.QRCode, nil
 }
 
@@ -135,7 +135,7 @@ func QRCodeUrl(ticket string) string {
 // 通过 ticket 换取二维码到 writer
 func QRCodeDownload(ticket string, writer io.Writer) error {
 	if len(ticket) == 0 {
-		return errors.New("QRCodeDownload: ticket == \"\"")
+		return errors.New(`QRCodeDownload: ticket == ""`)
 	}
 	if writer == nil {
 		return errors.New("QRCodeDownload: writer == nil")
@@ -153,7 +153,7 @@ func QRCodeDownload(ticket string, writer io.Writer) error {
 		return err
 	}
 
-	return errors.New("not found")
+	return fmt.Errorf("QRCodeDownload: qrcode with ticket %s not found", ticket)
 }
 
 // 通过 ticket 换取二维码到文件 filePath
