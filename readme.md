@@ -1,8 +1,10 @@
 # 微信公众平台 golang SDK
 
 Version: 0.6.9
-
 NOTE: 在 v1.0.0 之前 API 都有可能微调
+## 基本定型了，目前该有的API都有了，因为我的公众号只有基本接口，不好调试，所以请大家发现问题
+## 一定要通知我，我好更新；或者等我以后开发过程中发现问题更新。
+## 以后的更新都是 “被动” 更新了，也就是需求或者 bug 驱动的更新！！！
 
 ## 简介
 
@@ -111,39 +113,56 @@ import (
 	"net/http"
 )
 
-// 一般一个应用只用一个全局变量
+// 一个应用只用一个全局变量
 var oauth2Config = wechat.NewOAuth2Config("appid", "appsecret", "redirectURL", "scope0", "scope1")
 
 // 引导用户到认证页面认证
 func landing(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, oauth2Config.AuthCodeURL("foo"), http.StatusFound)
+	var state = "state"
+	// TODO: state 做相应处理，好识别下次跳转回来的 state 参数
+	http.Redirect(w, r, oauth2Config.AuthCodeURL(state), http.StatusFound)
 }
 
 // 跳转后的页面请求处理，授权和不授权都会跳转到这里，只是授权有 code 参数，不授权没有
 // redirect_uri/?code=CODE&state=STATE
 // redirect_uri?state=STATE
 func handler(w http.ResponseWriter, r *http.Request) {
-	// 下面是授权的代码
-	var code string
-	// 获取 code 的代码略去
-	client := wechat.SNSClient{
-		OAuth2Config: oauth2Config,
-	}
-	token, err := client.Exchange(code)
-	if err != nil {
-		// ...
-		return
-	}
-	// 这里把 token 根据 token.OpenId 缓存起来，以后可以直接用
-
-	userinfo, err := client.UserInfo(token.OpenId, "zh_CN")
-	if err != nil {
-		// ...
+	if err := r.ParseForm(); err != nil {
+		// TODO: 处理 error
 		return
 	}
 
-	// 处理 userinfo
-	_ = userinfo
+	state := r.FormValue("state")
+
+	// TODO: 处理这个 state 参数, 判断是否是有效的
+	_ = state // 实际开发中不要有这个
+	// 假如 state 是有效的
+
+	if code := r.FormValue("code"); code != "" { // 授权
+
+		client := wechat.SNSClient{
+			OAuth2Config: oauth2Config,
+		}
+		token, err := client.Exchange(code)
+		if err != nil {
+			// ...
+			return
+		}
+
+		// 这里把 token 根据 token.OpenId 缓存起来，以后可以直接用
+
+		userinfo, err := client.UserInfo(token.OpenId, "zh_CN")
+		if err != nil {
+			// ...
+			return
+		}
+
+		// 处理 userinfo
+		_ = userinfo
+
+	} else { // 不授权
+
+	}
 }
 
 func main() {
