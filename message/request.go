@@ -9,16 +9,16 @@ type Request struct {
 	XMLName xml.Name `xml:"xml" json:"-"`
 
 	// head
-	ToUserName   string `xml:"ToUserName"   json:"ToUserName,omitempty"`   // 开发者微信号
-	FromUserName string `xml:"FromUserName" json:"FromUserName,omitempty"` // 发送方帐号(一个OpenID)
-	CreateTime   int64  `xml:"CreateTime"   json:"CreateTime,omitempty"`   // 消息创建时间(整型), unixtime
-	MsgType      string `xml:"MsgType"      json:"MsgType,omitempty"`      // text, image, voice, video, location, link, event
+	ToUserName   string `xml:"ToUserName"   json:"ToUserName"`   // 开发者微信号
+	FromUserName string `xml:"FromUserName" json:"FromUserName"` // 发送方帐号(一个OpenID)
+	CreateTime   int64  `xml:"CreateTime"   json:"CreateTime"`   // 消息创建时间(整型), unixtime
+	MsgType      string `xml:"MsgType"      json:"MsgType"`      // text, image, voice, video, location, link, event
 
 	// body
 
 	// fuck weixin, MsgId != MsgID
 	MsgId int64 `xml:"MsgId" json:"MsgId,omitempty"` // 消息id, 64位整型
-	MsgID int64 `xml:"MsgID" json:"MsgID,omitempty"` // 消息id, 64位整型
+	MsgID int64 `xml:"MsgID" json:"MsgID,omitempty"` // 消息id, 64位整型; 高级群发接口的 事件推送群发结果 貌似用的是这个!
 
 	// common message
 	Content      string  `xml:"Content"      json:"Content,omitempty"`      // text, 文本消息内容
