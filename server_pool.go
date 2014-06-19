@@ -4,15 +4,15 @@ import (
 	"github.com/chanxuehong/wechat/message"
 )
 
-func newMessageRequest() interface{} {
+func serverNewMessageRequest() interface{} {
 	return new(message.Request)
 }
 
-func (s *Server) getRequestEntity() *message.Request {
+func (s *Server) getMessageRequestFromPool() *message.Request {
 	msg := s.messageRequestPool.Get().(*message.Request)
 	return msg.Zero() // important!
 }
 
-func (s *Server) putRequestEntity(msg *message.Request) {
+func (s *Server) putMessageRequestToPool(msg *message.Request) {
 	s.messageRequestPool.Put(msg)
 }

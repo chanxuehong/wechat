@@ -1,6 +1,7 @@
 package wechat
 
 import (
+	"github.com/chanxuehong/util/pool"
 	"net/http"
 	"sync"
 	"time"
@@ -31,22 +32,22 @@ type Client struct {
 	resetRefreshTokenTickChan chan time.Duration
 
 	// 对于上传媒体文件, 一般要申请比较大的内存, 所以增加一个内存池;
-	//  NOTE: require go1.3+ , 如果你的环境不满足这个条件, 可以自己实现一个简单的 Pool,
-	//        see github.com/chanxuehong/util/pool 或者直接用 sync.Pool.Patch 目录下的文件;
-	bufferPool *sync.Pool // 缓存的是 *bytes.Buffer
+	//  NOTE: pool.Pool 兼容 go1.3+ 的 sync.Pool, 目前 GAE 还不支持,
+	//        如果你的环境是 go1.3+, 你可以自己更改.
+	bufferPool *pool.Pool // 缓存的是 *bytes.Buffer
 
 	httpClient *http.Client // 可以根据自己的需要定制 http.Client
 }
 
 // It will default to http.DefaultClient if httpClient == nil.
 func NewClient(appid, appsecret string, httpClient *http.Client) *Client {
+	const bufferPoolSize = 16 // 不暴露这个选项是为了变更到 sync.Pool 不做大的变动
+
 	c := &Client{
 		appid:                     appid,
 		appsecret:                 appsecret,
 		resetRefreshTokenTickChan: make(chan time.Duration), // 同步 channel
-		bufferPool: &sync.Pool{
-			New: clientNewBuffer,
-		},
+		bufferPool:                pool.New(clientNewBuffer, bufferPoolSize),
 	}
 
 	if httpClient == nil {

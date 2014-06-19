@@ -61,8 +61,8 @@ func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) 
 		return nil, err
 	}
 
-	bodyBuf := c.getBuffer()   // io.ReadWriter
-	defer c.putBuffer(bodyBuf) // important!
+	bodyBuf := c.getBufferFromPool() // io.ReadWriter
+	defer c.putBufferToPool(bodyBuf) // important!
 
 	bodyWriter := multipart.NewWriter(bodyBuf)
 	fileWriter, err := bodyWriter.CreateFormFile("file", filename)

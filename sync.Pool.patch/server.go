@@ -3,10 +3,10 @@ package wechat
 import (
 	"encoding/xml"
 	"errors"
+	"github.com/chanxuehong/util/pool"
 	"github.com/chanxuehong/wechat/message"
 	"io"
 	"net/http"
-	"sync"
 )
 
 // 非法请求的处理函数
@@ -153,9 +153,9 @@ type Server struct {
 	setting ServerSetting
 
 	// 对于微信服务器推送过来的请求, 基本都是中间处理下就丢弃, 所以可以缓存起来.
-	//  NOTE: require go1.3+ , 如果你的环境不满足这个条件, 可以自己实现一个简单的 Pool,
-	//        see github.com/chanxuehong/util/pool 或者直接用 sync.Pool.Patch 目录下的文件;
-	messageRequestPool *sync.Pool
+	//  NOTE: pool.Pool 兼容 go1.3+ 的 sync.Pool, 目前 GAE 还不支持,
+	//        如果你的环境是 go1.3+, 你可以自己更改.
+	messageRequestPool *pool.Pool
 }
 
 func NewServer(setting *ServerSetting) *Server {
@@ -163,11 +163,11 @@ func NewServer(setting *ServerSetting) *Server {
 		panic("wechat.NewServer: setting == nil")
 	}
 
+	const requestPoolSize = 1024 // 不暴露这个选项是为了变更到 sync.Pool 不做大的变动
+
 	var srv Server
 	srv.setting.initialize(setting)
-	srv.messageRequestPool = &sync.Pool{
-		New: serverNewMessageRequest,
-	}
+	srv.messageRequestPool = pool.New(serverNewMessageRequest, requestPoolSize)
 
 	return &srv
 }

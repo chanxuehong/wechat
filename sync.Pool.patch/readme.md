@@ -1,0 +1,1 @@
+go1.3 以下是不支持 sync.Pool 的，所以提供了这个 patch，覆盖 wechat 目录下的文件即可。
