@@ -7,24 +7,24 @@ import (
 	"time"
 )
 
-// 从本地缓存获取 access token.
+// 获取 access token.
 func (c *Client) Token() (token string, err error) {
-	c.tokenCache.rwmutex.RLock()
-	token = c.tokenCache.token
-	err = c.tokenCache.err
-	c.tokenCache.rwmutex.RUnlock()
+	c.currentToken.rwmutex.RLock()
+	token = c.currentToken.token
+	err = c.currentToken.err
+	c.currentToken.rwmutex.RUnlock()
 	return
 }
 
 // see Client.TokenRefresh() and Client.tokenService()
 func (c *Client) update(token string, err error) {
-	c.tokenCache.rwmutex.Lock()
-	c.tokenCache.token = token
-	c.tokenCache.err = err
-	c.tokenCache.rwmutex.Unlock()
+	c.currentToken.rwmutex.Lock()
+	c.currentToken.token = token
+	c.currentToken.err = err
+	c.currentToken.rwmutex.Unlock()
 }
 
-// 从微信服务器获取 access token, 并更新本地缓存.
+// 从微信服务器获取新的 access token, 并保存到本地.
 //  NOTE: 正常情况下无需调用该函数, 请使用 Client.Token() 获取 access token.
 func (c *Client) TokenRefresh() (token string, err error) {
 	resp, err := c.getNewToken()
@@ -37,23 +37,23 @@ func (c *Client) TokenRefresh() (token string, err error) {
 		token = resp.Token
 		// 通知 goroutine tokenService() 重置定时器
 		// 考虑到网络延时, 提前 10 秒过期
-		c.resetRefreshTickChan <- time.Duration(resp.ExpiresIn-10) * time.Second
+		c.resetRefreshTokenTickChan <- time.Duration(resp.ExpiresIn-10) * time.Second
 		return
-	case resp.ExpiresIn > 0: // 正常情况下不会出现
+	case resp.ExpiresIn > 0: // (0, 10], 正常情况下不会出现
 		c.update(resp.Token, nil)
 		token = resp.Token
 		// 通知 goroutine tokenService() 重置定时器
-		c.resetRefreshTickChan <- time.Duration(resp.ExpiresIn) * time.Second
+		c.resetRefreshTokenTickChan <- time.Duration(resp.ExpiresIn) * time.Second
 		return
 	default: // resp.ExpiresIn <= 0, 正常情况下不会出现
-		err = fmt.Errorf("TokenRefresh: access token 过期时间应该是正整数: %d", resp.ExpiresIn)
+		err = fmt.Errorf("TokenRefresh: access token 过期时间应该是正整数, 现在 ==%d", resp.ExpiresIn)
 		c.update("", err)
 		return
 	}
 }
 
-// 负责定时更新本地缓存的 access token.
-// 使用这种复杂的实现是减少 time.Now() 的调用, 不然每次都要比较 time.Now().
+// 负责定时更新 access token.
+//  NOTE: 使用这种复杂的实现是减少 time.Now() 的调用, 不然每次都要比较 time.Now().
 func (c *Client) tokenService() {
 	const defaultTickDuration = time.Minute // 设置 44 秒以上就不会超过限制(2000次/日 的限制)
 
@@ -67,7 +67,7 @@ NewTickDuration:
 		tk = time.NewTicker(currentTickDuration)
 		for {
 			select {
-			case currentTickDuration = <-c.resetRefreshTickChan: // 在别的地方成功获取了 access token, 重置定时器.
+			case currentTickDuration = <-c.resetRefreshTokenTickChan: // 在别的地方成功获取了 access token, 重置定时器.
 				tk.Stop()
 				break NewTickDuration
 
@@ -92,7 +92,7 @@ NewTickDuration:
 						currentTickDuration = nextTickDuration
 						break NewTickDuration
 					}
-				case resp.ExpiresIn > 0: // 正常情况下不会出现
+				case resp.ExpiresIn > 0: // (0, 10], 正常情况下不会出现
 					c.update(resp.Token, nil)
 					// 根据返回的过期时间来重新设置定时器
 					nextTickDuration := time.Duration(resp.ExpiresIn) * time.Second
@@ -102,7 +102,7 @@ NewTickDuration:
 						break NewTickDuration
 					}
 				default: // resp.ExpiresIn <= 0, 正常情况下不会出现
-					c.update("", fmt.Errorf("tokenService: access token 过期时间应该是正整数: %d", resp.ExpiresIn))
+					c.update("", fmt.Errorf("tokenService: access token 过期时间应该是正整数, 现在 ==%d", resp.ExpiresIn))
 					// 出错则重置到 defaultTickDuration
 					if currentTickDuration != defaultTickDuration { // 这个判断的目的是避免重置定时器开销
 						tk.Stop()
