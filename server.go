@@ -154,7 +154,7 @@ type Server struct {
 
 	// 对于微信服务器推送过来的请求, 基本都是中间处理下就丢弃, 所以可以缓存起来.
 	//  NOTE: require go1.3+ , 如果你的环境不满足这个条件, 可以自己实现一个简单的 Pool,
-	//        see github.com/chanxuehong/util/pool 或者直接用 sync.Pool.Patch 目录下的文件;
+	//        see github.com/chanxuehong/util/pool 或者直接用 sync.Pool.patch 目录下的文件;
 	messageRequestPool *sync.Pool
 }
 
