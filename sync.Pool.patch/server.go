@@ -22,14 +22,16 @@ type RequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Reques
 
 // 默认的消息处理函数是什么都不做
 func defaultInvalidRequestHandler(w http.ResponseWriter, r *http.Request, err error)                {}
-func defaultUnknownRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request) {}
-func defaultRequestHandler(w http.ResponseWriter, r *http.Request, rqstMsg *message.Request)        {}
+func defaultUnknownRequestHandler(w http.ResponseWriter, r *http.Request, msgRqst *message.Request) {}
+func defaultRequestHandler(w http.ResponseWriter, r *http.Request, msgRqst *message.Request)        {}
 
 type ServerSetting struct {
 	Token string
 
-	// Invalid or unknown request handler
+	// Invalid request handler
 	InvalidRequestHandler InvalidRequestHandlerFunc
+
+	// unknown request handler
 	UnknownRequestHandler UnknownRequestHandlerFunc
 
 	// request handler
@@ -47,7 +49,7 @@ type ServerSetting struct {
 	LocationEventRequestHandler          RequestHandlerFunc
 	ClickEventRequestHandler             RequestHandlerFunc
 	ViewEventRequestHandler              RequestHandlerFunc
-	MasssendjobfinishEventRequestHandler RequestHandlerFunc
+	MassSendJobFinishEventRequestHandler RequestHandlerFunc
 }
 
 // 根据另外一个 ServerSetting 来初始化.
@@ -139,15 +141,15 @@ func (ss *ServerSetting) initialize(setting *ServerSetting) {
 	} else {
 		ss.ViewEventRequestHandler = defaultRequestHandler
 	}
-	if setting.MasssendjobfinishEventRequestHandler != nil {
-		ss.MasssendjobfinishEventRequestHandler = setting.MasssendjobfinishEventRequestHandler
+	if setting.MassSendJobFinishEventRequestHandler != nil {
+		ss.MassSendJobFinishEventRequestHandler = setting.MassSendJobFinishEventRequestHandler
 	} else {
-		ss.MasssendjobfinishEventRequestHandler = defaultRequestHandler
+		ss.MassSendJobFinishEventRequestHandler = defaultRequestHandler
 	}
 }
 
 // 对于微信服务器推送过来的消息或者事件, 公众号服务程序就相当于服务器.
-//  被动回复和处理各种事件功能都封装在这个结构里; Server 并发安全.
+// 被动回复和处理各种事件功能都封装在这个结构里; Server 并发安全.
 //  NOTE: 必须调用 NewServer() 创建对象!
 type Server struct {
 	setting ServerSetting
@@ -159,7 +161,7 @@ type Server struct {
 
 func NewServer(setting *ServerSetting) *Server {
 	if setting == nil {
-		panic("wechat.NewServer: setting == nil")
+		panic("error, wechat.NewServer: setting == nil")
 	}
 
 	var srv Server
@@ -172,9 +174,7 @@ func NewServer(setting *ServerSetting) *Server {
 // Server 实现 http.Handler 接口
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-
-	// 处理从微信服务器推送过来的消息 ==============================================
-	case "POST":
+	case "POST": // 处理从微信服务器推送过来的消息 ===================================
 		var err error
 		var signature, timestamp, nonce string
 
@@ -201,78 +201,75 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		rqstMsg := s.getMessageRequestFromPool() // *message.Request
-		defer s.putMessageRequestToPool(rqstMsg) // important!
+		msgRqst := s.getMessageRequestFromPool() // *message.Request
+		defer s.putMessageRequestToPool(msgRqst) // important!
 
-		if err = xml.NewDecoder(r.Body).Decode(rqstMsg); err != nil {
+		if err = xml.NewDecoder(r.Body).Decode(msgRqst); err != nil {
 			s.setting.InvalidRequestHandler(w, r, err)
 			return
 		}
 
 		// request router, 可一个根据自己的实际业务调整顺序!
-		switch rqstMsg.MsgType {
-
+		switch msgRqst.MsgType {
 		case message.RQST_MSG_TYPE_TEXT:
-			s.setting.TextRequestHandler(w, r, rqstMsg)
+			s.setting.TextRequestHandler(w, r, msgRqst)
 
 		case message.RQST_MSG_TYPE_EVENT:
 			// event router
-			switch rqstMsg.Event {
-
+			switch msgRqst.Event {
 			case message.RQST_EVENT_TYPE_CLICK:
-				s.setting.ClickEventRequestHandler(w, r, rqstMsg)
+				s.setting.ClickEventRequestHandler(w, r, msgRqst)
 
 			case message.RQST_EVENT_TYPE_VIEW:
-				s.setting.ViewEventRequestHandler(w, r, rqstMsg)
+				s.setting.ViewEventRequestHandler(w, r, msgRqst)
 
 			case message.RQST_EVENT_TYPE_LOCATION:
-				s.setting.LocationEventRequestHandler(w, r, rqstMsg)
+				s.setting.LocationEventRequestHandler(w, r, msgRqst)
 
 			case message.RQST_EVENT_TYPE_SUBSCRIBE:
-				if rqstMsg.Ticket == "" {
-					s.setting.SubscribeEventRequestHandler(w, r, rqstMsg)
+				if msgRqst.Ticket == "" { // 普通订阅
+					s.setting.SubscribeEventRequestHandler(w, r, msgRqst)
 				} else { // 扫描二维码订阅
-					s.setting.SubscribeEventByScanRequestHandler(w, r, rqstMsg)
+					s.setting.SubscribeEventByScanRequestHandler(w, r, msgRqst)
 				}
 
 			case message.RQST_EVENT_TYPE_UNSUBSCRIBE:
-				s.setting.UnsubscribeEventRequestHandler(w, r, rqstMsg)
+				s.setting.UnsubscribeEventRequestHandler(w, r, msgRqst)
 
 			case message.RQST_EVENT_TYPE_SCAN:
-				s.setting.ScanEventRequestHandler(w, r, rqstMsg)
+				s.setting.ScanEventRequestHandler(w, r, msgRqst)
 
 			case message.RQST_EVENT_TYPE_MASSSENDJOBFINISH:
-				s.setting.MasssendjobfinishEventRequestHandler(w, r, rqstMsg)
+				s.setting.MassSendJobFinishEventRequestHandler(w, r, msgRqst)
 
 			default: // unknown event
-				s.setting.UnknownRequestHandler(w, r, rqstMsg)
+				s.setting.UnknownRequestHandler(w, r, msgRqst)
 			}
 
 		case message.RQST_MSG_TYPE_LINK:
-			s.setting.LinkRequestHandler(w, r, rqstMsg)
+			s.setting.LinkRequestHandler(w, r, msgRqst)
 
 		case message.RQST_MSG_TYPE_VOICE:
-			if rqstMsg.Recognition == "" { // 普通的语音请求
-				s.setting.VoiceRequestHandler(w, r, rqstMsg)
+			if msgRqst.Recognition == "" { // 普通的语音请求
+				s.setting.VoiceRequestHandler(w, r, msgRqst)
 			} else { // 语音识别请求
-				s.setting.VoiceRecognitionRequestHandler(w, r, rqstMsg)
+				s.setting.VoiceRecognitionRequestHandler(w, r, msgRqst)
 			}
 
 		case message.RQST_MSG_TYPE_LOCATION:
-			s.setting.LocationRequestHandler(w, r, rqstMsg)
+			s.setting.LocationRequestHandler(w, r, msgRqst)
 
 		case message.RQST_MSG_TYPE_IMAGE:
-			s.setting.ImageRequestHandler(w, r, rqstMsg)
+			s.setting.ImageRequestHandler(w, r, msgRqst)
 
 		case message.RQST_MSG_TYPE_VIDEO:
-			s.setting.VideoRequestHandler(w, r, rqstMsg)
+			s.setting.VideoRequestHandler(w, r, msgRqst)
 
 		default: // unknown request message type
-			s.setting.UnknownRequestHandler(w, r, rqstMsg)
+			s.setting.UnknownRequestHandler(w, r, msgRqst)
 		}
 
-	// 首次验证 =================================================================
-	case "GET":
+	case "GET": // 首次验证 ======================================================
 		var err error
 		var signature, timestamp, nonce, echostr string
 
