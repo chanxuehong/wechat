@@ -39,6 +39,7 @@ type Client struct {
 }
 
 // It will default to http.DefaultClient if httpClient == nil.
+//  see wechat.CommonHttpClient and wechat.MediaHttpClient
 func NewClient(appid, appsecret string, httpClient *http.Client) *Client {
 	c := &Client{
 		appid:                     appid,
