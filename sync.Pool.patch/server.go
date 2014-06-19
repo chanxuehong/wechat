@@ -153,8 +153,7 @@ type Server struct {
 	setting ServerSetting
 
 	// 对于微信服务器推送过来的请求, 基本都是中间处理下就丢弃, 所以可以缓存起来.
-	//  NOTE: pool.Pool 兼容 go1.3+ 的 sync.Pool, 目前 GAE 还不支持,
-	//        如果你的环境是 go1.3+, 你可以自己更改.
+	//  NOTE: pool.Pool 兼容 go1.3+ 的 sync.Pool, 用于 go1.3 以下的环境.
 	messageRequestPool *pool.Pool
 }
 
@@ -163,11 +162,9 @@ func NewServer(setting *ServerSetting) *Server {
 		panic("wechat.NewServer: setting == nil")
 	}
 
-	const requestPoolSize = 1024 // 不暴露这个选项是为了变更到 sync.Pool 不做大的变动
-
 	var srv Server
 	srv.setting.initialize(setting)
-	srv.messageRequestPool = pool.New(serverNewMessageRequest, requestPoolSize)
+	srv.messageRequestPool = pool.New(serverNewMessageRequest, 1024) // 这个常数 1024 可以根据实际修改
 
 	return &srv
 }

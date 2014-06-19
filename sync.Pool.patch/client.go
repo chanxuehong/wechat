@@ -32,8 +32,7 @@ type Client struct {
 	resetRefreshTokenTickChan chan time.Duration
 
 	// 对于上传媒体文件, 一般要申请比较大的内存, 所以增加一个内存池;
-	//  NOTE: pool.Pool 兼容 go1.3+ 的 sync.Pool, 目前 GAE 还不支持,
-	//        如果你的环境是 go1.3+, 你可以自己更改.
+	//  NOTE: pool.Pool 兼容 go1.3+ 的 sync.Pool, 用于 go1.3 以下的环境.
 	bufferPool *pool.Pool // 缓存的是 *bytes.Buffer
 
 	httpClient *http.Client // 可以根据自己的需要定制 http.Client
@@ -41,13 +40,11 @@ type Client struct {
 
 // It will default to http.DefaultClient if httpClient == nil.
 func NewClient(appid, appsecret string, httpClient *http.Client) *Client {
-	const bufferPoolSize = 16 // 不暴露这个选项是为了变更到 sync.Pool 不做大的变动
-
 	c := &Client{
 		appid:                     appid,
 		appsecret:                 appsecret,
-		resetRefreshTokenTickChan: make(chan time.Duration), // 同步 channel
-		bufferPool:                pool.New(clientNewBuffer, bufferPoolSize),
+		resetRefreshTokenTickChan: make(chan time.Duration),      // 同步 channel
+		bufferPool:                pool.New(clientNewBuffer, 16), // 这个常数 16 可以根据实际修改
 	}
 
 	if httpClient == nil {
