@@ -30,6 +30,7 @@ func CheckSignature(signature, timestamp, nonce, token string) bool {
 	hashSumHexBytes := make([]byte, 40)
 	hex.Encode(hashSumHexBytes, hashSumArray[:])
 
+	// 采用 subtle.ConstantTimeCompare 是防止 计时攻击!
 	// 现在 len(signature) == 40, 不会 panic
 	if rslt := subtle.ConstantTimeCompare(hashSumHexBytes, []byte(signature)); rslt == 1 {
 		return true
