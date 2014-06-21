@@ -1,6 +1,7 @@
 package product
 
 type Product struct {
+	Id   string `json:"product_id,omitempty"` // 商品id
 	Attr struct {
 		Name       string     `json:"name"`                // 商品名称
 		CategoryId []string   `json:"category_id"`         // 商品分类id，商品分类列表请通过《获取指定分类的所有子分类》获取
@@ -13,7 +14,7 @@ type Product struct {
 	} `json:"product_base"` // 基本属性
 
 	AttrExt      *AttrExt `json:"attrext,omitempty"`  // 商品其他属性
-	SKUList      []SKU    `json:"sku_list,omitempty"` // sku信息列表(可为多个)，每个sku信息串即为一个确定的商品，比如白色的37码的鞋子
+	SKU          []SKU    `json:"sku_list,omitempty"` // sku信息列表(可为多个)，每个sku信息串即为一个确定的商品，比如白色的37码的鞋子
 	DeliveryInfo struct {
 		DeliveryType int       `json:"delivery_type"` // 运费类型(0-使用下面express字段的默认模板, 1-使用template_id代表的邮费模板, 详见邮费模板相关API)
 		TemplateId   int       `json:"template_id"`   // 邮费模板ID
@@ -21,10 +22,10 @@ type Product struct {
 	} `json:"delivery_info"` // 运费信息
 }
 
-// 同一时刻只能设置一个值
+// 同一时刻只能设置一个值, 如果两个都设置则只有 Text 有效
 type Detail struct {
-	Text  string `json:"text"` // 文字描述
-	Image string `json:"img"`  // 图片(图片需调用图片上传接口获得图片Url填写至此，否则无法添加商品)
+	Text  string `json:"text,omitempty"` // 文字描述
+	Image string `json:"img,omitempty"`  // 图片(图片需调用图片上传接口获得图片Url填写至此，否则无法添加商品)
 }
 
 // 实现 json.Marshaler.
@@ -52,13 +53,15 @@ func (detail Detail) MarshalJSON() ([]byte, error) {
 }
 
 type Property struct {
-	Id  string `json:"id"`  // 属性id
-	VId string `json:"vid"` // 属性值id
+	Id      string `json:"id"`             // 属性id
+	Name    string `json:"name,omitempty"` // 属性name
+	ValueId string `json:"vid"`            // 属性值id
 }
 
 type SKUInfo struct {
-	Id  string   `json:"id"`  // sku属性(SKU列表中id, 支持自定义SKU，格式为"$xxx"，xxx即为显示在客户端中的字符串)
-	VId []string `json:"vid"` // sku值(SKU列表中vid, 如需自定义SKU，格式为"$xxx"，xxx即为显示在客户端中的字符串)
+	Id      string   `json:"id"`             // sku属性(SKU列表中id, 支持自定义SKU，格式为"$xxx"，xxx即为显示在客户端中的字符串)
+	Name    string   `json:"name,omitempty"` // sku 名称
+	ValueId []string `json:"vid"`            // sku值(SKU列表中vid, 如需自定义SKU，格式为"$xxx"，xxx即为显示在客户端中的字符串)
 }
 
 // 商品的其他属性
@@ -90,6 +93,12 @@ type SKU struct {
 }
 
 type Express struct {
-	Id    int `json:"id"`    // 快递ID
-	Price int `json:"price"` // 运费(单位 : 分)
+	Id    int    `json:"id"`             // 快递id
+	Name  string `json:"name,omitempty"` // 快递name
+	Price int    `json:"price"`          // 运费(单位 : 分)
+}
+
+type Category struct {
+	Id   string `json:"id"`   // 分类id
+	Name string `json:"name"` // 分类name
 }
