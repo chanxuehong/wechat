@@ -22,8 +22,8 @@ type NewsArticle struct {
 	Title            string `json:"title"`                        // 图文消息的标题
 	ContentSourceUrl string `json:"content_source_url,omitempty"` // 在图文消息页面点击“阅读原文”后的页面
 	Content          string `json:"content"`                      // 图文消息页面的内容，支持HTML标签
-	Digest           string `json:"digest,,omitempty"`            // 图文消息的描述
-	ShowCoverPic     string `json:"show_cover_pic"`               // 是否显示封面，1为显示，0为不显示
+	Digest           string `json:"digest,omitempty"`             // 图文消息的描述
+	ShowCoverPic     string `json:"show_cover_pic,omitempty"`     // 是否显示封面，1为显示，0为不显示
 }
 
 // 上传图文消息
@@ -53,6 +53,6 @@ func (news *News) AppendArticle(article ...*NewsArticle) {
 // 上传视频消息
 type Video struct {
 	MediaId     string `json:"media_id"` // 此处media_id需通过基础支持中的上传下载多媒体文件来得到
-	Title       string `json:"title"`
-	Description string `json:"description"`
+	Title       string `json:"title,omitempty"`
+	Description string `json:"description,omitempty"`
 }

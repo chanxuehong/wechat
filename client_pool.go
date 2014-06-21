@@ -5,7 +5,7 @@ import (
 )
 
 func clientNewBuffer() interface{} {
-	return bytes.NewBuffer(make([]byte, 1<<20)) // 默认 1M
+	return bytes.NewBuffer(make([]byte, 1<<20)) // 默认 1MB
 }
 
 func (c *Client) getBufferFromPool() *bytes.Buffer {

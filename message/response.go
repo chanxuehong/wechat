@@ -214,3 +214,20 @@ func (msg *NewsResponse) AppendArticle(article ...*NewsResponseArticle) {
 		msg.Articles = msg.Articles[:NewsResponseArticleCountLimit]
 	}
 }
+
+// 将消息转发到多客服
+type TransferCustomerServiceResponse struct {
+	XMLName xml.Name `xml:"xml" json:"-"`
+	commonResponseHead
+}
+
+func NewTransferCustomerServiceResponse(to, from string) *TransferCustomerServiceResponse {
+	return &TransferCustomerServiceResponse{
+		commonResponseHead: commonResponseHead{
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      RESP_MSG_TYPE_TRANSFER_CUSTOMER_SERVICE,
+		},
+	}
+}

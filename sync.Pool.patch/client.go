@@ -20,7 +20,7 @@ type Client struct {
 	currentToken struct {
 		rwmutex sync.RWMutex
 		token   string
-		err     error // 获取或更新 access token 的时候可能会出错
+		err     error // 获取或更新 access token 的时候可能会出错, 错误保存在这里
 	}
 
 	// goroutine tokenService() 里有个定时器, 每次触发都会更新 access token,

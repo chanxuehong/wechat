@@ -25,10 +25,11 @@ const (
 
 const (
 	// 回复消息类型
-	RESP_MSG_TYPE_TEXT  = "text"  // 文本消息
-	RESP_MSG_TYPE_IMAGE = "image" // 图片消息
-	RESP_MSG_TYPE_VOICE = "voice" // 语音消息
-	RESP_MSG_TYPE_VIDEO = "video" // 视频消息
-	RESP_MSG_TYPE_MUSIC = "music" // 音乐消息
-	RESP_MSG_TYPE_NEWS  = "news"  // 图文消息
+	RESP_MSG_TYPE_TEXT                      = "text"                      // 文本消息
+	RESP_MSG_TYPE_IMAGE                     = "image"                     // 图片消息
+	RESP_MSG_TYPE_VOICE                     = "voice"                     // 语音消息
+	RESP_MSG_TYPE_VIDEO                     = "video"                     // 视频消息
+	RESP_MSG_TYPE_MUSIC                     = "music"                     // 音乐消息
+	RESP_MSG_TYPE_NEWS                      = "news"                      // 图文消息
+	RESP_MSG_TYPE_TRANSFER_CUSTOMER_SERVICE = "transfer_customer_service" // 将消息转发到多客服
 )
