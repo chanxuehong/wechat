@@ -1,7 +1,6 @@
 package wechat
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/chanxuehong/wechat/qrcode"
@@ -14,19 +13,20 @@ import (
 // 创建临时二维码
 func (c *Client) QRCodeCreate(sceneId int, expireSeconds int) (*qrcode.QRCode, error) {
 	if sceneId == 0 {
-		return nil, errors.New("QRCodeCreate: sceneId 应该是个32位非0整型")
+		return nil, errors.New("sceneId 应该是个32位非0整型")
 	}
 	if sceneId < math.MinInt32 || sceneId > math.MaxUint32 { // 包括了 int32, uint32
-		return nil, errors.New("QRCodeCreate: sceneId 应该是个32位非0整型")
+		return nil, errors.New("sceneId 应该是个32位非0整型")
 	}
 	if expireSeconds <= 0 || expireSeconds > qrcode.QRCodeExpireSecondsLimit {
-		return nil, fmt.Errorf("QRCodeCreate: expireSeconds 应该在 (0,%d] 之间", qrcode.QRCodeExpireSecondsLimit)
+		return nil, fmt.Errorf("expireSeconds 应该在 (0,%d] 之间", qrcode.QRCodeExpireSecondsLimit)
 	}
 
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
 	}
+	_url := clientQRCodeCreateURL(token)
 
 	var request struct {
 		ExpireSeconds int    `json:"expire_seconds"`
@@ -42,33 +42,14 @@ func (c *Client) QRCodeCreate(sceneId int, expireSeconds int) (*qrcode.QRCode, e
 	request.ActionName = "QR_SCENE"
 	request.ActionInfo.Scene.SceneId = sceneId
 
-	buf := c.getBufferFromPool()
-	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
-
-	if err = json.NewEncoder(buf).Encode(&request); err != nil {
-		c.putBufferToPool(buf) ////
-		return nil, err
-	}
-
-	_url := clientQRCodeCreateURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
-	c.putBufferToPool(buf) ////
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("QRCodeCreate: %s", resp.Status)
-	}
-
 	var result struct {
 		qrcode.QRCode
 		Error
 	}
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = c.postJSON(_url, &request, &result); err != nil {
 		return nil, err
 	}
+
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}
@@ -79,13 +60,14 @@ func (c *Client) QRCodeCreate(sceneId int, expireSeconds int) (*qrcode.QRCode, e
 // 创建永久二维码
 func (c *Client) QRCodeLimitCreate(sceneId int) (*qrcode.QRCode, error) {
 	if sceneId <= 0 || sceneId > qrcode.QRCodeLimitSceneIdLimit {
-		return nil, fmt.Errorf("QRCodeLimitCreate: sceneId 应该在 (0,%d] 之间", qrcode.QRCodeLimitSceneIdLimit)
+		return nil, fmt.Errorf("sceneId 应该在 (0,%d] 之间", qrcode.QRCodeLimitSceneIdLimit)
 	}
 
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
 	}
+	_url := clientQRCodeCreateURL(token)
 
 	var request struct {
 		ActionName string `json:"action_name"`
@@ -99,33 +81,14 @@ func (c *Client) QRCodeLimitCreate(sceneId int) (*qrcode.QRCode, error) {
 	request.ActionName = "QR_LIMIT_SCENE"
 	request.ActionInfo.Scene.SceneId = sceneId
 
-	buf := c.getBufferFromPool()
-	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
-
-	if err = json.NewEncoder(buf).Encode(&request); err != nil {
-		c.putBufferToPool(buf) ////
-		return nil, err
-	}
-
-	_url := clientQRCodeCreateURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
-	c.putBufferToPool(buf) ////
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("QRCodeLimitCreate: %s", resp.Status)
-	}
-
 	var result struct {
 		qrcode.QRCode
 		Error
 	}
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = c.postJSON(_url, &request, &result); err != nil {
 		return nil, err
 	}
+
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}
@@ -142,10 +105,10 @@ func QRCodeUrl(ticket string) string {
 // 通过 ticket 换取二维码到 writer
 func QRCodeDownload(ticket string, writer io.Writer) error {
 	if len(ticket) == 0 {
-		return errors.New(`QRCodeDownload: ticket == ""`)
+		return errors.New(`ticket == ""`)
 	}
 	if writer == nil {
-		return errors.New("QRCodeDownload: writer == nil")
+		return errors.New("writer == nil")
 	}
 
 	_url := clientQRCodeURL(ticket)
@@ -160,7 +123,7 @@ func QRCodeDownload(ticket string, writer io.Writer) error {
 		return err
 	}
 
-	return fmt.Errorf("QRCodeDownload: qrcode with ticket %s not found", ticket)
+	return fmt.Errorf("qrcode with ticket %s not found", ticket)
 }
 
 // 通过 ticket 换取二维码到文件 filePath

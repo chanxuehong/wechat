@@ -1,23 +1,22 @@
 package wechat
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/chanxuehong/wechat/user"
-	"net/http"
 )
 
 // 创建分组
 func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
 	if len(name) == 0 {
-		return nil, errors.New(`UserGroupCreate: UserGroupCreate: name == ""`)
+		return nil, errors.New(`name == ""`)
 	}
 
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
 	}
+	_url := clientUserGroupCreateURL(token)
 
 	var request struct {
 		Group struct {
@@ -27,26 +26,6 @@ func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
 
 	request.Group.Name = name
 
-	buf := c.getBufferFromPool()
-	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
-
-	if err = json.NewEncoder(buf).Encode(&request); err != nil {
-		c.putBufferToPool(buf) ////
-		return nil, err
-	}
-
-	_url := clientUserGroupCreateURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
-	c.putBufferToPool(buf) ////
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("UserGroupCreate: %s", resp.Status)
-	}
-
 	var result struct {
 		Group struct {
 			Id   int    `json:"id"`
@@ -54,9 +33,10 @@ func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
 		} `json:"group"`
 		Error
 	}
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = c.postJSON(_url, &request, &result); err != nil {
 		return nil, err
 	}
+
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}
@@ -73,23 +53,13 @@ func (c *Client) UserGroupGet() ([]user.Group, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	_url := clientUserGroupGetURL(token)
-	resp, err := c.httpClient.Get(_url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("UserGroupGet: %s", resp.Status)
-	}
 
 	var result struct {
 		Groups []user.Group `json:"groups"`
 		Error
 	}
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = c.getJSON(_url, &result); err != nil {
 		return nil, err
 	}
 
@@ -102,13 +72,14 @@ func (c *Client) UserGroupGet() ([]user.Group, error) {
 // 修改分组名
 func (c *Client) UserGroupRename(groupid int, name string) (err error) {
 	if len(name) == 0 {
-		return errors.New(`UserGroupRename: name == ""`)
+		return errors.New(`name == ""`)
 	}
 
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+	_url := clientUserGroupRenameURL(token)
 
 	var request struct {
 		Group struct {
@@ -116,34 +87,14 @@ func (c *Client) UserGroupRename(groupid int, name string) (err error) {
 			Name string `json:"name"`
 		} `json:"group"`
 	}
-
 	request.Group.Id = groupid
 	request.Group.Name = name
 
-	buf := c.getBufferFromPool()
-	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
-
-	if err = json.NewEncoder(buf).Encode(&request); err != nil {
-		c.putBufferToPool(buf) ////
-		return
-	}
-
-	_url := clientUserGroupRenameURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
-	c.putBufferToPool(buf) ////
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("UserGroupRename: %s", resp.Status)
-	}
-
 	var result Error
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
+
 	if result.ErrCode != 0 {
 		return &result
 	}
@@ -154,7 +105,7 @@ func (c *Client) UserGroupRename(groupid int, name string) (err error) {
 // 查询用户所在分组
 func (c *Client) UserInWhichGroup(openid string) (groupid int, err error) {
 	if len(openid) == 0 {
-		err = errors.New(`UserInWhichGroup: openid == ""`)
+		err = errors.New(`openid == ""`)
 		return
 	}
 
@@ -162,39 +113,20 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int, err error) {
 	if err != nil {
 		return
 	}
+	_url := clientUserInWhichGroupURL(token)
 
 	var request = struct {
 		OpenId string `json:"openid"`
 	}{OpenId: openid}
 
-	buf := c.getBufferFromPool()
-	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
-
-	if err = json.NewEncoder(buf).Encode(&request); err != nil {
-		c.putBufferToPool(buf) ////
-		return
-	}
-
-	_url := clientUserInWhichGroupURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
-	c.putBufferToPool(buf) ////
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		err = fmt.Errorf("UserInWhichGroup: %s", resp.Status)
-		return
-	}
-
 	var result struct {
 		GroupId int `json:"groupid"`
 		Error
 	}
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = c.postJSON(_url, &request, &result); err != nil {
 		return
 	}
+
 	if result.ErrCode != 0 {
 		err = &result.Error
 		return
@@ -207,13 +139,14 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int, err error) {
 // 移动用户分组
 func (c *Client) UserMoveToGroup(openid string, toGroupId int) (err error) {
 	if len(openid) == 0 {
-		return errors.New(`UserMoveToGroup: openid == ""`)
+		return errors.New(`openid == ""`)
 	}
 
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+	_url := clientUserMoveToGroupURL(token)
 
 	var request = struct {
 		OpenId    string `json:"openid"`
@@ -223,31 +156,11 @@ func (c *Client) UserMoveToGroup(openid string, toGroupId int) (err error) {
 		ToGroupId: toGroupId,
 	}
 
-	buf := c.getBufferFromPool()
-	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
-
-	if err = json.NewEncoder(buf).Encode(&request); err != nil {
-		c.putBufferToPool(buf) ////
-		return
-	}
-
-	_url := clientUserMoveToGroupURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
-	c.putBufferToPool(buf) ////
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		err = fmt.Errorf("UserMoveToGroup: %s", resp.Status)
-		return
-	}
-
 	var result Error
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = c.postJSON(_url, &request, &result); err != nil {
 		return
 	}
+
 	if result.ErrCode != 0 {
 		return &result
 	}
@@ -259,7 +172,7 @@ func (c *Client) UserMoveToGroup(openid string, toGroupId int) (err error) {
 //  lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
 func (c *Client) UserInfo(openid string, lang string) (*user.UserInfo, error) {
 	if len(openid) == 0 {
-		return nil, errors.New(`UserInfo: openid == ""`)
+		return nil, errors.New(`openid == ""`)
 	}
 
 	switch lang {
@@ -267,39 +180,29 @@ func (c *Client) UserInfo(openid string, lang string) (*user.UserInfo, error) {
 		lang = user.Language_zh_CN
 	case user.Language_zh_CN, user.Language_zh_TW, user.Language_en:
 	default:
-		return nil, errors.New(`UserInfo: lang 必须是 "", zh_CN, zh_TW, en 之一`)
+		return nil, errors.New(`lang 必须是 "", zh_CN, zh_TW, en 之一`)
 	}
 
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
 	}
-
 	_url := clientUserInfoURL(token, openid, lang)
-	resp, err := c.httpClient.Get(_url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("UserInfo: %s", resp.Status)
-	}
 
 	var result struct {
-		// 用户是否订阅该公众号标识，值为0时，代表此用户没有关注该公众号，拉取不到其余信息。
-		Subscribe int `json:"subscribe"`
+		Subscribe int `json:"subscribe"` // 用户是否订阅该公众号标识，值为0时，代表此用户没有关注该公众号，拉取不到其余信息。
 		user.UserInfo
 		Error
 	}
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = c.getJSON(_url, &result); err != nil {
 		return nil, err
 	}
+
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}
 	if result.Subscribe == 0 {
-		return nil, fmt.Errorf("UserInfo: 该用户 %s 没有订阅这个公众号", openid)
+		return nil, fmt.Errorf("该用户 %s 没有订阅这个公众号", openid)
 	}
 	return &result.UserInfo, nil
 }
@@ -321,25 +224,16 @@ func (c *Client) userGet(beginOpenId string) (*userGetResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	_url := clientUserGetURL(token, beginOpenId)
-	resp, err := c.httpClient.Get(_url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("userGet: %s", resp.Status)
-	}
 
 	var result struct {
 		userGetResponse
 		Error
 	}
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = c.getJSON(_url, &result); err != nil {
 		return nil, err
 	}
+
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}

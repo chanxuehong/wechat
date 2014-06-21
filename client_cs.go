@@ -1,51 +1,30 @@
 package wechat
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/chanxuehong/wechat/cs"
-	"net/http"
 )
 
 // 获取客服聊天记录
 func (c *Client) CSRecordGet(request *cs.RecordGetRequest) ([]cs.Record, error) {
 	if request == nil {
-		return nil, errors.New("CSRecordGet: request == nil")
+		return nil, errors.New("request == nil")
 	}
 
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
 	}
-
-	buf := c.getBufferFromPool()
-	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
-
-	if err = json.NewEncoder(buf).Encode(request); err != nil {
-		c.putBufferToPool(buf) ////
-		return nil, err
-	}
-
 	_url := clientCSRecordGetURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
-	c.putBufferToPool(buf) ////
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("CSRecordGet: %s", resp.Status)
-	}
 
 	var result struct {
 		RecordList []cs.Record `json:"recordlist"`
 		Error
 	}
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = c.postJSON(_url, request, &result); err != nil {
 		return nil, err
 	}
+
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}

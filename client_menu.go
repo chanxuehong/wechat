@@ -1,54 +1,33 @@
 package wechat
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/chanxuehong/wechat/menu"
-	"net/http"
 )
 
 // 创建自定义菜单.
 //  NOTE: 创建自定义菜单后，由于微信客户端缓存，需要24小时微信客户端才会展现出来。
 //  建议测试时可以尝试取消关注公众账号后再次关注，则可以看到创建后的效果。
-func (c *Client) MenuCreate(_menu *menu.Menu) error {
+func (c *Client) MenuCreate(_menu *menu.Menu) (err error) {
 	if _menu == nil {
-		return errors.New("MenuCreate: Menu == nil")
+		return errors.New("_menu == nil")
 	}
 
 	token, err := c.Token()
 	if err != nil {
-		return err
+		return
 	}
-
-	buf := c.getBufferFromPool()
-	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
-
-	if err = json.NewEncoder(buf).Encode(_menu); err != nil {
-		c.putBufferToPool(buf) ////
-		return err
-	}
-
 	_url := clientMenuCreateURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
-	c.putBufferToPool(buf) ////
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("MenuCreate: %s", resp.Status)
-	}
 
 	var result Error
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return err
+	if err = c.postJSON(_url, _menu, &result); err != nil {
+		return
 	}
+
 	if result.ErrCode != 0 {
 		return &result
 	}
-	return nil
+	return
 }
 
 // 删除自定义菜单
@@ -57,22 +36,13 @@ func (c *Client) MenuDelete() error {
 	if err != nil {
 		return err
 	}
-
 	_url := clientMenuDeleteURL(token)
-	resp, err := c.httpClient.Get(_url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("MenuDelete: %s", resp.Status)
-	}
 
 	var result Error
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = c.getJSON(_url, &result); err != nil {
 		return err
 	}
+
 	if result.ErrCode != 0 {
 		return &result
 	}
@@ -85,23 +55,13 @@ func (c *Client) MenuGet() (*menu.Menu, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	_url := clientMenuGetURL(token)
-	resp, err := c.httpClient.Get(_url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("MenuGet: %s", resp.Status)
-	}
 
 	var result struct {
 		Menu menu.Menu `json:"menu"`
 		Error
 	}
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = c.getJSON(_url, &result); err != nil {
 		return nil, err
 	}
 

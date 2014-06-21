@@ -1,9 +1,7 @@
 package wechat
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"time"
 )
 
@@ -46,7 +44,7 @@ func (c *Client) TokenRefresh() (token string, err error) {
 		c.resetRefreshTokenTickChan <- time.Duration(resp.ExpiresIn) * time.Second
 		return
 	default: // resp.ExpiresIn <= 0, 正常情况下不会出现
-		err = fmt.Errorf("TokenRefresh: access token 过期时间应该是正整数, 现在 ==%d", resp.ExpiresIn)
+		err = fmt.Errorf("access token 过期时间应该是正整数, 现在 ==%d", resp.ExpiresIn)
 		c.update("", err)
 		return
 	}
@@ -102,7 +100,7 @@ NewTickDuration:
 						break NewTickDuration
 					}
 				default: // resp.ExpiresIn <= 0, 正常情况下不会出现
-					c.update("", fmt.Errorf("tokenService: access token 过期时间应该是正整数, 现在 ==%d", resp.ExpiresIn))
+					c.update("", fmt.Errorf("access token 过期时间应该是正整数, 现在 ==%d", resp.ExpiresIn))
 					// 出错则重置到 defaultTickDuration
 					if currentTickDuration != defaultTickDuration { // 这个判断的目的是避免重置定时器开销
 						tk.Stop()
@@ -124,21 +122,11 @@ type clientTokenResponse struct {
 // 从微信服务器获取新的 access_token
 func (c *Client) getNewToken() (*clientTokenResponse, error) {
 	_url := clientTokenGetURL(c.appid, c.appsecret)
-	resp, err := c.httpClient.Get(_url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("getNewToken: getNewToken: %s", resp.Status)
-	}
-
 	var result struct {
 		clientTokenResponse
 		Error
 	}
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := c.getJSON(_url, &result); err != nil {
 		return nil, err
 	}
 

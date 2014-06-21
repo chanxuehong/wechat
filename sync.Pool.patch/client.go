@@ -1,14 +1,12 @@
 package wechat
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/chanxuehong/util/pool"
 	"net/http"
 	"sync"
 	"time"
-)
-
-const (
-	postJSONContentType = "application/json; charset=utf-8"
 )
 
 // 相对于微信服务器, 主动请求的功能模块都相当于是 Client;
@@ -57,4 +55,57 @@ func NewClient(appid, appsecret string, httpClient *http.Client) *Client {
 	c.TokenRefresh()    // *同步*获取 access token
 
 	return c
+}
+
+// Client 通用的 json post 请求
+func (c *Client) postJSON(_url string, request interface{}, response interface{}) (err error) {
+	buf := c.getBufferFromPool()
+	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 尽量提前释放
+
+	if err = json.NewEncoder(buf).Encode(request); err != nil {
+		c.putBufferToPool(buf) //
+		return
+	}
+
+	resp, err := c.httpClient.Post(_url, "application/json; charset=utf-8", buf)
+	c.putBufferToPool(buf) //
+	if err != nil {
+		return
+	}
+	// defer resp.Body.Close() // 逻辑简单, 不用 defer
+
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close() //
+		return fmt.Errorf("http.Status: %s", resp.Status)
+	}
+
+	if err = json.NewDecoder(resp.Body).Decode(response); err != nil {
+		resp.Body.Close() //
+		return
+	}
+
+	resp.Body.Close() //
+	return
+}
+
+// Client 通用的 json get 请求
+func (c *Client) getJSON(_url string, response interface{}) (err error) {
+	resp, err := c.httpClient.Get(_url)
+	if err != nil {
+		return
+	}
+	// defer resp.Body.Close() // 逻辑简单, 不用 defer
+
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close() //
+		return fmt.Errorf("http.Status: %s", resp.Status)
+	}
+
+	if err = json.NewDecoder(resp.Body).Decode(response); err != nil {
+		resp.Body.Close() //
+		return
+	}
+
+	resp.Body.Close() //
+	return
 }

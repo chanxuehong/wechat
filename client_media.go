@@ -46,13 +46,13 @@ func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) 
 		media.MEDIA_TYPE_VIDEO,
 		media.MEDIA_TYPE_THUMB:
 	default:
-		return nil, errors.New("MediaUpload: 错误的 mediaType")
+		return nil, errors.New("错误的 mediaType")
 	}
 	if filename == "" {
-		return nil, errors.New(`MediaUpload: filename == ""`)
+		return nil, errors.New(`filename == ""`)
 	}
 	if mediaReader == nil {
-		return nil, errors.New("MediaUpload: mediaReader == nil")
+		return nil, errors.New("mediaReader == nil")
 	}
 
 	token, err := c.Token()
@@ -86,7 +86,7 @@ func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("MediaUpload: %s", resp.Status)
+		return nil, fmt.Errorf("http.Status: %s", resp.Status)
 	}
 
 	var result struct {
@@ -118,10 +118,10 @@ func (c *Client) MediaDownloadToFile(mediaId, filePath string) error {
 //  NOTE: 视频文件不支持下载.
 func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 	if mediaId == "" {
-		return errors.New(`MediaDownload: mediaId == ""`)
+		return errors.New(`mediaId == ""`)
 	}
 	if writer == nil {
-		return errors.New("MediaDownload: writer == nil")
+		return errors.New("writer == nil")
 	}
 
 	token, err := c.Token()
@@ -137,7 +137,7 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("MediaDownload: %s", resp.Status)
+		return fmt.Errorf("http.Status: %s", resp.Status)
 	}
 
 	contentType, _, _ := mime.ParseMediaType(resp.Header.Get("Content-Type"))
@@ -158,41 +158,23 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 // 上传图文消息素材
 func (c *Client) MediaUploadNews(news *media.News) (*media.UploadResponse, error) {
 	if news == nil {
-		return nil, errors.New("MediaUploadNews: news == nil")
+		return nil, errors.New("news == nil")
 	}
 
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
 	}
-
-	buf := c.getBufferFromPool()
-	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
-
-	if err = json.NewEncoder(buf).Encode(news); err != nil {
-		c.putBufferToPool(buf) ////
-		return nil, err
-	}
-
 	_url := clientMediaUploadNewsURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
-	c.putBufferToPool(buf) ////
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("MediaUploadNews: %s", resp.Status)
-	}
 
 	var result struct {
 		media.UploadResponse
 		Error
 	}
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = c.postJSON(_url, news, &result); err != nil {
 		return nil, err
 	}
+
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}
@@ -202,41 +184,23 @@ func (c *Client) MediaUploadNews(news *media.News) (*media.UploadResponse, error
 // 上传视频消息
 func (c *Client) MediaUploadVideo(video *media.Video) (*media.UploadResponse, error) {
 	if video == nil {
-		return nil, errors.New("MediaUploadVideo: video == nil")
+		return nil, errors.New("video == nil")
 	}
 
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
 	}
-
-	buf := c.getBufferFromPool()
-	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
-
-	if err = json.NewEncoder(buf).Encode(video); err != nil {
-		c.putBufferToPool(buf) ////
-		return nil, err
-	}
-
 	_url := clientMediaUploadVideoURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
-	c.putBufferToPool(buf) ////
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("MediaUploadVideo: %s", resp.Status)
-	}
 
 	var result struct {
 		media.UploadResponse
 		Error
 	}
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = c.postJSON(_url, video, &result); err != nil {
 		return nil, err
 	}
+
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}

@@ -96,10 +96,10 @@ func (c *SNSClient) httpClient() *http.Client {
 // 通过code换取网页授权access_token
 func (c *SNSClient) Exchange(code string) (*OAuth2Token, error) {
 	if len(code) == 0 {
-		return nil, errors.New(`Exchange: code == ""`)
+		return nil, errors.New(`code == ""`)
 	}
 	if c.OAuth2Config == nil {
-		return nil, errors.New("Exchange: no OAuth2Config supplied")
+		return nil, errors.New("no OAuth2Config supplied")
 	}
 
 	// If the SNSClient has a token, preserve existing refresh token.
@@ -116,7 +116,7 @@ func (c *SNSClient) Exchange(code string) (*OAuth2Token, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Exchange: %s", resp.Status)
+		return nil, fmt.Errorf("http.Status: %s", resp.Status)
 	}
 
 	type tokenResponse struct {
@@ -151,7 +151,7 @@ func (c *SNSClient) Exchange(code string) (*OAuth2Token, error) {
 	case result.ExpiresIn == 0:
 		tok.Expiry = 0
 	default:
-		return nil, fmt.Errorf("Exchange: token ExpiresIn: %d < 0", result.ExpiresIn)
+		return nil, fmt.Errorf("token ExpiresIn: %d < 0", result.ExpiresIn)
 	}
 	tok.OpenId = result.OpenId
 	tok.Scope = result.Scope
@@ -163,13 +163,13 @@ func (c *SNSClient) Exchange(code string) (*OAuth2Token, error) {
 // 刷新access_token（如果需要）
 func (c *SNSClient) Refresh() error {
 	if c.OAuth2Config == nil {
-		return errors.New("Refresh: no OAuth2Config supplied")
+		return errors.New("no OAuth2Config supplied")
 	}
 	if c.OAuth2Token == nil {
-		return errors.New("Refresh: no OAuth2Token supplied")
+		return errors.New("no OAuth2Token supplied")
 	}
 	if c.RefreshToken == "" {
-		return errors.New("Refresh: no Refresh Token")
+		return errors.New("no Refresh Token")
 	}
 
 	_url := snsOAuth2RefreshTokenURL(c.ClientId, c.RefreshToken)
@@ -180,7 +180,7 @@ func (c *SNSClient) Refresh() error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("Refresh: %s", resp.Status)
+		return fmt.Errorf("http.Status: %s", resp.Status)
 	}
 
 	type tokenResponse struct {
@@ -215,7 +215,7 @@ func (c *SNSClient) Refresh() error {
 	case result.ExpiresIn == 0:
 		c.OAuth2Token.Expiry = 0
 	default:
-		return fmt.Errorf("Refresh: token ExpiresIn: %d < 0", result.ExpiresIn)
+		return fmt.Errorf("token ExpiresIn: %d < 0", result.ExpiresIn)
 	}
 	c.OAuth2Token.OpenId = result.OpenId
 	c.OAuth2Token.Scope = result.Scope
@@ -226,18 +226,18 @@ func (c *SNSClient) Refresh() error {
 //  lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
 func (c *SNSClient) UserInfo(openid, lang string) (*sns.UserInfo, error) {
 	if len(openid) == 0 {
-		return nil, errors.New(`UserInfo: openid == ""`)
+		return nil, errors.New(`openid == ""`)
 	}
 	switch lang {
 	case "":
 		lang = user.Language_zh_CN
 	case user.Language_zh_CN, user.Language_zh_TW, user.Language_en:
 	default:
-		return nil, errors.New(`UserInfo: lang 必须是 "", zh_CN, zh_TW, en 之一`)
+		return nil, errors.New(`lang 必须是 "", zh_CN, zh_TW, en 之一`)
 	}
 
 	if c.OAuth2Token == nil {
-		return nil, errors.New("UserInfo: no OAuth2Token supplied")
+		return nil, errors.New("no OAuth2Token supplied")
 	}
 
 	// Refresh the OAuth2Token if it has expired.
@@ -255,7 +255,7 @@ func (c *SNSClient) UserInfo(openid, lang string) (*sns.UserInfo, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("UserInfo: %s", resp.Status)
+		return nil, fmt.Errorf("http.Status: %s", resp.Status)
 	}
 
 	var result struct {
