@@ -1,7 +1,6 @@
 package wechat
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -166,13 +165,18 @@ func (c *Client) MediaUploadNews(news *media.News) (*media.UploadResponse, error
 	if err != nil {
 		return nil, err
 	}
-	jsonData, err := json.Marshal(news)
-	if err != nil {
+
+	buf := c.getBufferFromPool()
+	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
+
+	if err = json.NewEncoder(buf).Encode(news); err != nil {
+		c.putBufferToPool(buf) ////
 		return nil, err
 	}
 
 	_url := clientMediaUploadNewsURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
+	c.putBufferToPool(buf) ////
 	if err != nil {
 		return nil, err
 	}
@@ -205,13 +209,18 @@ func (c *Client) MediaUploadVideo(video *media.Video) (*media.UploadResponse, er
 	if err != nil {
 		return nil, err
 	}
-	jsonData, err := json.Marshal(video)
-	if err != nil {
+
+	buf := c.getBufferFromPool()
+	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
+
+	if err = json.NewEncoder(buf).Encode(video); err != nil {
+		c.putBufferToPool(buf) ////
 		return nil, err
 	}
 
 	_url := clientMediaUploadVideoURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
+	c.putBufferToPool(buf) ////
 	if err != nil {
 		return nil, err
 	}

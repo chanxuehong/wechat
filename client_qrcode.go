@@ -1,7 +1,6 @@
 package wechat
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -43,13 +42,17 @@ func (c *Client) QRCodeCreate(sceneId int, expireSeconds int) (*qrcode.QRCode, e
 	request.ActionName = "QR_SCENE"
 	request.ActionInfo.Scene.SceneId = sceneId
 
-	jsonData, err := json.Marshal(&request)
-	if err != nil {
+	buf := c.getBufferFromPool()
+	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
+
+	if err = json.NewEncoder(buf).Encode(&request); err != nil {
+		c.putBufferToPool(buf) ////
 		return nil, err
 	}
 
 	_url := clientQRCodeCreateURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
+	c.putBufferToPool(buf) ////
 	if err != nil {
 		return nil, err
 	}
@@ -96,13 +99,17 @@ func (c *Client) QRCodeLimitCreate(sceneId int) (*qrcode.QRCode, error) {
 	request.ActionName = "QR_LIMIT_SCENE"
 	request.ActionInfo.Scene.SceneId = sceneId
 
-	jsonData, err := json.Marshal(&request)
-	if err != nil {
+	buf := c.getBufferFromPool()
+	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
+
+	if err = json.NewEncoder(buf).Encode(&request); err != nil {
+		c.putBufferToPool(buf) ////
 		return nil, err
 	}
 
 	_url := clientQRCodeCreateURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
+	c.putBufferToPool(buf) ////
 	if err != nil {
 		return nil, err
 	}

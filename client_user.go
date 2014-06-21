@@ -1,7 +1,6 @@
 package wechat
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -28,13 +27,17 @@ func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
 
 	request.Group.Name = name
 
-	jsonData, err := json.Marshal(&request)
-	if err != nil {
+	buf := c.getBufferFromPool()
+	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
+
+	if err = json.NewEncoder(buf).Encode(&request); err != nil {
+		c.putBufferToPool(buf) ////
 		return nil, err
 	}
 
 	_url := clientUserGroupCreateURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
+	c.putBufferToPool(buf) ////
 	if err != nil {
 		return nil, err
 	}
@@ -117,13 +120,17 @@ func (c *Client) UserGroupRename(groupid int, name string) (err error) {
 	request.Group.Id = groupid
 	request.Group.Name = name
 
-	jsonData, err := json.Marshal(&request)
-	if err != nil {
+	buf := c.getBufferFromPool()
+	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
+
+	if err = json.NewEncoder(buf).Encode(&request); err != nil {
+		c.putBufferToPool(buf) ////
 		return
 	}
 
 	_url := clientUserGroupRenameURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
+	c.putBufferToPool(buf) ////
 	if err != nil {
 		return
 	}
@@ -160,13 +167,17 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int, err error) {
 		OpenId string `json:"openid"`
 	}{OpenId: openid}
 
-	jsonData, err := json.Marshal(&request)
-	if err != nil {
+	buf := c.getBufferFromPool()
+	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
+
+	if err = json.NewEncoder(buf).Encode(&request); err != nil {
+		c.putBufferToPool(buf) ////
 		return
 	}
 
 	_url := clientUserInWhichGroupURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
+	c.putBufferToPool(buf) ////
 	if err != nil {
 		return
 	}
@@ -212,13 +223,17 @@ func (c *Client) UserMoveToGroup(openid string, toGroupId int) (err error) {
 		ToGroupId: toGroupId,
 	}
 
-	jsonData, err := json.Marshal(&request)
-	if err != nil {
+	buf := c.getBufferFromPool()
+	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
+
+	if err = json.NewEncoder(buf).Encode(&request); err != nil {
+		c.putBufferToPool(buf) ////
 		return
 	}
 
 	_url := clientUserMoveToGroupURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
+	c.putBufferToPool(buf) ////
 	if err != nil {
 		return
 	}

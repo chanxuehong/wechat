@@ -1,7 +1,6 @@
 package wechat
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,8 +11,8 @@ import (
 // 创建自定义菜单.
 //  NOTE: 创建自定义菜单后，由于微信客户端缓存，需要24小时微信客户端才会展现出来。
 //  建议测试时可以尝试取消关注公众账号后再次关注，则可以看到创建后的效果。
-func (c *Client) MenuCreate(Menu *menu.Menu) error {
-	if Menu == nil {
+func (c *Client) MenuCreate(_menu *menu.Menu) error {
+	if _menu == nil {
 		return errors.New("MenuCreate: Menu == nil")
 	}
 
@@ -21,13 +20,18 @@ func (c *Client) MenuCreate(Menu *menu.Menu) error {
 	if err != nil {
 		return err
 	}
-	jsonData, err := json.Marshal(Menu)
-	if err != nil {
+
+	buf := c.getBufferFromPool()
+	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
+
+	if err = json.NewEncoder(buf).Encode(_menu); err != nil {
+		c.putBufferToPool(buf) ////
 		return err
 	}
 
 	_url := clientMenuCreateURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
+	c.putBufferToPool(buf) ////
 	if err != nil {
 		return err
 	}

@@ -31,7 +31,6 @@ type Client struct {
 	// 主要用于用户手动更新 access token 的情况, see Client.TokenRefresh().
 	resetRefreshTokenTickChan chan time.Duration
 
-	// 对于上传媒体文件, 一般要申请比较大的内存, 所以增加一个内存池;
 	//  NOTE: pool.Pool 兼容 go1.3+ 的 sync.Pool, 用于 go1.3 以下的环境.
 	bufferPool *pool.Pool // 缓存的是 *bytes.Buffer
 

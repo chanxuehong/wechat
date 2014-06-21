@@ -1,7 +1,6 @@
 package wechat
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,13 +19,17 @@ func (c *Client) CSRecordGet(request *cs.RecordGetRequest) ([]cs.Record, error) 
 		return nil, err
 	}
 
-	jsonData, err := json.Marshal(request)
-	if err != nil {
+	buf := c.getBufferFromPool()
+	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
+
+	if err = json.NewEncoder(buf).Encode(request); err != nil {
+		c.putBufferToPool(buf) ////
 		return nil, err
 	}
 
 	_url := clientCSRecordGetURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
+	c.putBufferToPool(buf) ////
 	if err != nil {
 		return nil, err
 	}

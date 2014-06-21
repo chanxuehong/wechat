@@ -1,7 +1,6 @@
 package wechat
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,13 +16,18 @@ func (c *Client) msgMassSendByGroup(msg interface{}) (msgid int, err error) {
 	if err != nil {
 		return
 	}
-	jsonData, err := json.Marshal(msg)
-	if err != nil {
+
+	buf := c.getBufferFromPool()
+	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
+
+	if err = json.NewEncoder(buf).Encode(msg); err != nil {
+		c.putBufferToPool(buf) ////
 		return
 	}
 
 	_url := clientMessageMassSendByGroupURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
+	c.putBufferToPool(buf) ////
 	if err != nil {
 		return
 	}
@@ -120,13 +124,18 @@ func (c *Client) msgMassSendByOpenId(msg interface{}) (msgid int, err error) {
 	if err != nil {
 		return
 	}
-	jsonData, err := json.Marshal(msg)
-	if err != nil {
+
+	buf := c.getBufferFromPool()
+	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
+
+	if err = json.NewEncoder(buf).Encode(msg); err != nil {
+		c.putBufferToPool(buf) ////
 		return
 	}
 
 	_url := clientMessageMassSendByOpenIdURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
+	c.putBufferToPool(buf) ////
 	if err != nil {
 		return
 	}
@@ -230,13 +239,17 @@ func (c *Client) MsgMassDelete(msgid int) error {
 	}
 	deleteRequest.MsgId = msgid
 
-	jsonData, err := json.Marshal(deleteRequest)
-	if err != nil {
+	buf := c.getBufferFromPool()
+	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 要提前释放
+
+	if err = json.NewEncoder(buf).Encode(deleteRequest); err != nil {
+		c.putBufferToPool(buf) ////
 		return err
 	}
 
 	_url := clientMessageMassDeleteURL(token)
-	resp, err := c.httpClient.Post(_url, postJSONContentType, bytes.NewReader(jsonData))
+	resp, err := c.httpClient.Post(_url, postJSONContentType, buf)
+	c.putBufferToPool(buf) ////
 	if err != nil {
 		return err
 	}
