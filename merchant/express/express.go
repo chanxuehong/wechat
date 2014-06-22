@@ -30,3 +30,28 @@ type TopFeeCustom struct {
 	DestProvince string `json:"DestProvince"` // 指定省份(详见《地区列表》说明)
 	DestCity     string `json:"DestCity"`     // 指定城市(详见《地区列表》说明)
 }
+
+type DeliveryInfo struct {
+	DeliveryType int       `json:"delivery_type"`         // 运费类型(0-使用下面express字段的默认模板, 1-使用template_id代表的邮费模板, 详见邮费模板相关API)
+	TemplateId   int64     `json:"template_id,omitempty"` // 邮费模板ID
+	Expresses    []Express `json:"express,omitempty"`
+}
+
+func NewDeliveryInfoFromTemplate(templateId int64) *DeliveryInfo {
+	return &DeliveryInfo{
+		DeliveryType: 1,
+		TemplateId:   templateId,
+	}
+}
+func NewDeliveryInfoFromExpresses(expresses []Express) *DeliveryInfo {
+	return &DeliveryInfo{
+		DeliveryType: 0,
+		Expresses:    expresses,
+	}
+}
+
+type Express struct {
+	Id    int    `json:"id"`             // 快递id
+	Name  string `json:"name,omitempty"` // 快递name
+	Price int    `json:"price"`          // 运费(单位 : 分)
+}

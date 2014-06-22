@@ -1,5 +1,9 @@
 package product
 
+import (
+	"github.com/chanxuehong/wechat/merchant/express"
+)
+
 type Product struct {
 	Id   string `json:"product_id,omitempty"` // 商品id
 	Attr struct {
@@ -13,9 +17,9 @@ type Product struct {
 		BuyLimit    int        `json:"buy_limit,omitempty"` // 用户商品限购数量
 	} `json:"product_base"` // 基本属性
 
-	AttrExt      *AttrExt      `json:"attrext,omitempty"`       // 商品其他属性
-	SKUs         []SKU         `json:"sku_list,omitempty"`      // sku信息列表(可为多个)，每个sku信息串即为一个确定的商品，比如白色的37码的鞋子
-	DeliveryInfo *DeliveryInfo `json:"delivery_info,omitempty"` // 运费信息
+	AttrExt      *AttrExt              `json:"attrext,omitempty"`       // 商品其他属性
+	SKUs         []SKU                 `json:"sku_list,omitempty"`      // sku信息列表(可为多个)，每个sku信息串即为一个确定的商品，比如白色的37码的鞋子
+	DeliveryInfo *express.DeliveryInfo `json:"delivery_info,omitempty"` // 运费信息
 }
 
 // 同一时刻只能设置一个值, 如果两个都设置则只有 Text 有效
@@ -86,18 +90,6 @@ type SKU struct {
 	IconURL       string `json:"icon_url"`     // sku iconurl(图片需调用图片上传接口获得图片Url)
 	ProductCode   string `json:"product_code"` // 商家商品编码
 	Quantity      int    `json:"quantity"`     // sku库存
-}
-
-type DeliveryInfo struct {
-	DeliveryType int       `json:"delivery_type"` // 运费类型(0-使用下面express字段的默认模板, 1-使用template_id代表的邮费模板, 详见邮费模板相关API)
-	TemplateId   int64     `json:"template_id"`   // 邮费模板ID
-	Expresses    []Express `json:"express"`
-}
-
-type Express struct {
-	Id    int    `json:"id"`             // 快递id
-	Name  string `json:"name,omitempty"` // 快递name
-	Price int    `json:"price"`          // 运费(单位 : 分)
 }
 
 type Category struct {
