@@ -3,18 +3,18 @@ package product
 type Product struct {
 	Id   string `json:"product_id,omitempty"` // 商品id
 	Attr struct {
-		Name       string     `json:"name"`                // 商品名称
-		CategoryId []string   `json:"category_id"`         // 商品分类id，商品分类列表请通过《获取指定分类的所有子分类》获取
-		MainImage  string     `json:"main_img"`            // 商品主图(图片需调用图片上传接口获得图片Url填写至此，否则无法添加商品。图片分辨率推荐尺寸为640×600)
-		Image      []string   `json:"img"`                 // 商品图片列表(图片需调用图片上传接口获得图片Url填写至此，否则无法添加商品。图片分辨率推荐尺寸为640×600)
-		Detail     []Detail   `json:"detail"`              // 商品详情列表，显示在客户端的商品详情页内
-		Property   []Property `json:"property,omitempty"`  // 商品属性列表，属性列表请通过《获取指定分类的所有属性》获取
-		SKUInfo    []SKUInfo  `json:"sku_info,omitempty"`  // 商品sku定义，SKU列表请通过《获取指定子分类的所有SKU》获取
-		BuyLimit   int        `json:"buy_limit,omitempty"` // 用户商品限购数量
+		Name        string     `json:"name"`                // 商品名称
+		CategoryIds []string   `json:"category_id"`         // 商品分类id，商品分类列表请通过《获取指定分类的所有子分类》获取
+		MainImage   string     `json:"main_img"`            // 商品主图(图片需调用图片上传接口获得图片Url填写至此，否则无法添加商品。图片分辨率推荐尺寸为640×600)
+		Images      []string   `json:"img"`                 // 商品图片列表(图片需调用图片上传接口获得图片Url填写至此，否则无法添加商品。图片分辨率推荐尺寸为640×600)
+		Details     []Detail   `json:"detail"`              // 商品详情列表，显示在客户端的商品详情页内
+		Properties  []Property `json:"property,omitempty"`  // 商品属性列表，属性列表请通过《获取指定分类的所有属性》获取
+		SKUInfos    []SKUInfo  `json:"sku_info,omitempty"`  // 商品sku定义，SKU列表请通过《获取指定子分类的所有SKU》获取
+		BuyLimit    int        `json:"buy_limit,omitempty"` // 用户商品限购数量
 	} `json:"product_base"` // 基本属性
 
 	AttrExt      *AttrExt      `json:"attrext,omitempty"`       // 商品其他属性
-	SKU          []SKU         `json:"sku_list,omitempty"`      // sku信息列表(可为多个)，每个sku信息串即为一个确定的商品，比如白色的37码的鞋子
+	SKUs         []SKU         `json:"sku_list,omitempty"`      // sku信息列表(可为多个)，每个sku信息串即为一个确定的商品，比如白色的37码的鞋子
 	DeliveryInfo *DeliveryInfo `json:"delivery_info,omitempty"` // 运费信息
 }
 
@@ -55,9 +55,9 @@ type Property struct {
 }
 
 type SKUInfo struct {
-	Id      string   `json:"id"`             // sku属性(SKU列表中id, 支持自定义SKU，格式为"$xxx"，xxx即为显示在客户端中的字符串)
-	Name    string   `json:"name,omitempty"` // sku 名称
-	ValueId []string `json:"vid"`            // sku值(SKU列表中vid, 如需自定义SKU，格式为"$xxx"，xxx即为显示在客户端中的字符串)
+	Id       string   `json:"id"`             // sku属性(SKU列表中id, 支持自定义SKU，格式为"$xxx"，xxx即为显示在客户端中的字符串)
+	Name     string   `json:"name,omitempty"` // sku 名称
+	ValueIds []string `json:"vid"`            // sku值(SKU列表中vid, 如需自定义SKU，格式为"$xxx"，xxx即为显示在客户端中的字符串)
 }
 
 // 商品的其他属性
@@ -91,7 +91,7 @@ type SKU struct {
 type DeliveryInfo struct {
 	DeliveryType int       `json:"delivery_type"` // 运费类型(0-使用下面express字段的默认模板, 1-使用template_id代表的邮费模板, 详见邮费模板相关API)
 	TemplateId   int64     `json:"template_id"`   // 邮费模板ID
-	Express      []Express `json:"express"`
+	Expresses    []Express `json:"express"`
 }
 
 type Express struct {
