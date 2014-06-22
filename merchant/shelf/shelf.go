@@ -10,7 +10,7 @@ type Shelf struct {
 	Banner string `json:"shelf_banner,omitempty"`
 
 	Info struct {
-		ModuleInfos []Module `json:"module_infos,omitempty"`
+		ModuleInfos []*Module `json:"module_infos,omitempty"`
 	} `json:"shelf_data"`
 }
 
@@ -24,7 +24,7 @@ type ShelfX struct {
 	Banner string `json:"shelf_banner,omitempty"`
 
 	Info struct {
-		ModuleInfos []Module `json:"module_infos,omitempty"`
+		ModuleInfos []*Module `json:"module_infos,omitempty"`
 	} `json:"shelf_info"`
 }
 
@@ -34,6 +34,62 @@ type Module struct {
 
 	GroupInfo  *GroupInfo  `json:"group_info,omitempty"`  // 分组信息, 控件 1,3   的属性
 	GroupInfos *GroupInfos `json:"group_infos,omitempty"` // 分组信息, 控件 2,4,5 的属性
+}
+
+func NewModule1(groupId int64, count int) *Module {
+	return &Module{
+		EId: 1,
+		GroupInfo: &GroupInfo{
+			GroupId: groupId,
+			Filter: &GroupInfoFilter{
+				Count: count,
+			},
+		},
+	}
+}
+func NewModule2(groupIds []int64) *Module {
+	groups := make([]Group, len(groupIds))
+	for i := 0; i < len(groupIds); i++ {
+		groups[i].GroupId = groupIds[i]
+	}
+
+	return &Module{
+		EId: 2,
+		GroupInfos: &GroupInfos{
+			Groups: groups,
+		},
+	}
+}
+func NewModule3(groupId int64, image string) *Module {
+	return &Module{
+		EId: 3,
+		GroupInfo: &GroupInfo{
+			GroupId: groupId,
+			Image:   image,
+		},
+	}
+}
+func NewModule4(groups []Group) *Module {
+	return &Module{
+		EId: 4,
+		GroupInfos: &GroupInfos{
+			Groups: groups,
+		},
+	}
+}
+func NewModule5(groupIds []int64, imageBackground string) *Module {
+	groups := make([]Group, len(groupIds))
+	for i := 0; i < len(groupIds); i++ {
+		groups[i].GroupId = groupIds[i]
+	}
+
+	return &Module{
+		EId: 5,
+		GroupInfos: &GroupInfos{
+			Groups:          groups,
+			ImageBackground: imageBackground,
+		},
+	}
 }
 
 // 控件 1,3 包含这个结构
