@@ -50,6 +50,7 @@ type ServerSetting struct {
 	ClickEventRequestHandler             RequestHandlerFunc
 	ViewEventRequestHandler              RequestHandlerFunc
 	MassSendJobFinishEventRequestHandler RequestHandlerFunc
+	MerchantOrderEventRequestHandler     RequestHandlerFunc
 }
 
 // 根据另外一个 ServerSetting 来初始化.
@@ -146,6 +147,11 @@ func (ss *ServerSetting) initialize(setting *ServerSetting) {
 	} else {
 		ss.MassSendJobFinishEventRequestHandler = defaultRequestHandler
 	}
+	if setting.MerchantOrderEventRequestHandler != nil {
+		ss.MerchantOrderEventRequestHandler = setting.MerchantOrderEventRequestHandler
+	} else {
+		ss.MerchantOrderEventRequestHandler = defaultRequestHandler
+	}
 }
 
 // 对于微信服务器推送过来的消息或者事件, 公众号服务程序就相当于服务器.
@@ -228,6 +234,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 			case message.RQST_EVENT_TYPE_LOCATION:
 				s.setting.LocationEventRequestHandler(w, r, msgRqst)
+
+			case message.RQST_EVENT_TYPE_MERCHANTORDER:
+				s.setting.MerchantOrderEventRequestHandler(w, r, msgRqst)
 
 			case message.RQST_EVENT_TYPE_SUBSCRIBE:
 				if msgRqst.Ticket == "" { // 普通订阅

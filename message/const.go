@@ -21,6 +21,7 @@ const (
 	RQST_EVENT_TYPE_CLICK             = "CLICK"             // 点击菜单拉取消息时的事件推送
 	RQST_EVENT_TYPE_VIEW              = "VIEW"              // 点击菜单跳转链接时的事件推送
 	RQST_EVENT_TYPE_MASSSENDJOBFINISH = "MASSSENDJOBFINISH" // 微信服务器推送群发结果
+	RQST_EVENT_TYPE_MERCHANTORDER     = "merchant_order"    // 订单付款通知
 )
 
 const (

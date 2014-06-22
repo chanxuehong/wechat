@@ -62,6 +62,12 @@ type Request struct {
 	FilterCount int `xml:"FilterCount" json:"FilterCount,omitempty"`
 	SentCount   int `xml:"SentCount"   json:"SentCount,omitempty"`  // 发送成功的粉丝数
 	ErrorCount  int `xml:"ErrorCount"  json:"ErrorCount,omitempty"` // 发送失败的粉丝数
+
+	// merchant order
+	OrderId     string `xml:"OrderId"      json:"OrderId,omitempty"`
+	OrderStatus int    `xml:"OrderStatus"  json:"OrderStatus,omitempty"`
+	ProductId   string `xml:"ProductId"    json:"ProductId,omitempty"`
+	SkuInfo     string `xml:"SkuInfo"      json:"SkuInfo,omitempty"`
 }
 
 var _zeroRequest Request

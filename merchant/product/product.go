@@ -17,7 +17,7 @@ type Product struct {
 	SKU          []SKU    `json:"sku_list,omitempty"` // sku信息列表(可为多个)，每个sku信息串即为一个确定的商品，比如白色的37码的鞋子
 	DeliveryInfo struct {
 		DeliveryType int       `json:"delivery_type"` // 运费类型(0-使用下面express字段的默认模板, 1-使用template_id代表的邮费模板, 详见邮费模板相关API)
-		TemplateId   int       `json:"template_id"`   // 邮费模板ID
+		TemplateId   int64     `json:"template_id"`   // 邮费模板ID
 		Express      []Express `json:"express"`
 	} `json:"delivery_info"` // 运费信息
 }
