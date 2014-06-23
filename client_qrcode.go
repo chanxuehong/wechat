@@ -98,7 +98,7 @@ func (c *Client) QRCodeLimitCreate(sceneId int) (*qrcode.QRCode, error) {
 }
 
 // 根据 qrcode ticket 得到 qrcode 图片的 url
-func QRCodeUrl(ticket string) string {
+func QRCodeURL(ticket string) string {
 	return clientQRCodeURL(ticket)
 }
 

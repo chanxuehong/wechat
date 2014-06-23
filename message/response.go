@@ -118,14 +118,14 @@ type MusicResponse struct {
 	Music struct {
 		Title        string `xml:"Title,omitempty"`       // 音乐标题
 		Description  string `xml:"Description,omitempty"` // 音乐描述
-		MusicUrl     string `xml:"MusicUrl"`              // 音乐链接
-		HQMusicUrl   string `xml:"HQMusicUrl"`            // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
+		MusicURL     string `xml:"MusicUrl"`              // 音乐链接
+		HQMusicURL   string `xml:"HQMusicUrl"`            // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
 		ThumbMediaId string `xml:"ThumbMediaId"`          // 缩略图的媒体id, 通过上传多媒体文件, 得到的id
 	} `xml:"Music"`
 }
 
 // title, description 可以为 ""
-func NewMusicResponse(to, from, thumbMediaId, musicUrl, HQMusicUrl, title, description string) *MusicResponse {
+func NewMusicResponse(to, from, thumbMediaId, musicURL, HQMusicURL, title, description string) *MusicResponse {
 	msg := MusicResponse{
 		commonResponseHead: commonResponseHead{
 			ToUser:     to,
@@ -135,8 +135,8 @@ func NewMusicResponse(to, from, thumbMediaId, musicUrl, HQMusicUrl, title, descr
 		},
 	}
 	msg.Music.ThumbMediaId = thumbMediaId
-	msg.Music.MusicUrl = musicUrl
-	msg.Music.HQMusicUrl = HQMusicUrl
+	msg.Music.MusicURL = musicURL
+	msg.Music.HQMusicURL = HQMusicURL
 	msg.Music.Title = title
 	msg.Music.Description = description
 
@@ -149,8 +149,8 @@ func NewMusicResponse(to, from, thumbMediaId, musicUrl, HQMusicUrl, title, descr
 type NewsResponseArticle struct {
 	Title       string `xml:"Title,omitempty"`       // 图文消息标题
 	Description string `xml:"Description,omitempty"` // 图文消息描述
-	PicUrl      string `xml:"PicUrl,omitempty"`      // 图片链接, 支持JPG, PNG格式, 较好的效果为大图360*200, 小图200*200
-	Url         string `xml:"Url,omitempty"`         // 点击图文消息跳转链接
+	PicURL      string `xml:"PicUrl,omitempty"`      // 图片链接, 支持JPG, PNG格式, 较好的效果为大图360*200, 小图200*200
+	URL         string `xml:"Url,omitempty"`         // 点击图文消息跳转链接
 }
 
 // 图文消息

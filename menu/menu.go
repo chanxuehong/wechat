@@ -3,10 +3,10 @@ package menu
 // 菜单的按钮.
 type MenuButton struct {
 	Name string `json:"name"` // 菜单标题，不超过16个字节，子菜单不超过40个字节
-	// NOTE: (MenuButton.Type, MenuButton.Key, MenuButton.Url) 不能和 MenuButton.SubButton 不能同时设置
+	// NOTE: (MenuButton.Type, MenuButton.Key, MenuButton.URL) 不能和 MenuButton.SubButton 不能同时设置
 	Type string `json:"type,omitempty"` // 菜单的响应动作类型，目前有click、view两种类型
 	Key  string `json:"key,omitempty"`  // click类型必须; 菜单KEY值, 用于消息接口推送, 不超过128字节
-	Url  string `json:"url,omitempty"`  // view类型必须; 网页链接, 用户点击菜单可打开链接, 不超过256字节
+	URL  string `json:"url,omitempty"`  // view类型必须; 网页链接, 用户点击菜单可打开链接, 不超过256字节
 	// 二级菜单数组, 个数不能超过 SubMenuButtonCountLimit
 	SubButton []*MenuButton `json:"sub_button,omitempty"`
 }

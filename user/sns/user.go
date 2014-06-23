@@ -9,7 +9,7 @@ type UserInfo struct {
 	Country  string `json:"country"`  // 国家，如中国为CN
 	// 用户头像，最后一个数值代表正方形头像大小（有0、46、64、96、132数值可选，
 	// 0代表640*640正方形头像），用户没有头像时该项为空
-	HeadImgUrl string `json:"headimgurl"`
+	HeadImgURL string `json:"headimgurl"`
 	// 用户特权信息，json 数组，如微信沃卡用户为（chinaunicom）
 	Privilege []string `json:"privilege"`
 }

@@ -5,7 +5,7 @@ type Shelf struct {
 	Id   int64  `json:"shelf_id,omitempty"`
 	Name string `json:"shelf_name"`
 
-	// 货架招牌图片Url(图片需调用图片上传接口获得图片Url填写至此，否则添加货架失败，
+	// 货架招牌图片URL(图片需调用图片上传接口获得图片URL填写至此，否则添加货架失败，
 	// 建议尺寸为640*120，仅控件1-4有banner，控件5没有banner)
 	Banner string `json:"shelf_banner,omitempty"`
 
@@ -19,7 +19,7 @@ type ShelfX struct {
 	Id   int64  `json:"shelf_id,omitempty"`
 	Name string `json:"shelf_name"`
 
-	// 货架招牌图片Url(图片需调用图片上传接口获得图片Url填写至此，否则添加货架失败，
+	// 货架招牌图片URL(图片需调用图片上传接口获得图片URL填写至此，否则添加货架失败，
 	// 建议尺寸为640*120，仅控件1-4有banner，控件5没有banner)
 	Banner string `json:"shelf_banner,omitempty"`
 
@@ -95,7 +95,7 @@ func NewModule5(groupIds []int64, imageBackground string) *Module {
 // 控件 1,3 包含这个结构
 type GroupInfo struct {
 	GroupId int64 `json:"group_id"` // 分组ID, 控件 1,3 的属性
-	// 分组照片(图片需调用图片上传接口获得图片Url填写至此，否则添加货架失败，建议分辨率600*208),
+	// 分组照片(图片需调用图片上传接口获得图片URL填写至此，否则添加货架失败，建议分辨率600*208),
 	// 控件 3 的属性
 	Image  string           `json:"img,omitempty"`
 	Filter *GroupInfoFilter `json:"filter,omitempty"` // 控件 1 的属性
@@ -111,7 +111,7 @@ type GroupInfos struct {
 	// 分组列表, 控件 2,4,5 的属性
 	Groups []Group `json:"groups"`
 
-	// 分组照片(图片需调用图片上传接口获得图片Url填写至此，否则添加货架失败，建议分辨率640*1008),
+	// 分组照片(图片需调用图片上传接口获得图片URL填写至此，否则添加货架失败，建议分辨率640*1008),
 	// 控件 5 的属性
 	ImageBackground string `json:"img_background,omitempty"`
 }
@@ -119,7 +119,7 @@ type GroupInfos struct {
 type Group struct {
 	GroupId int64 `json:"group_id"` // 分组ID, 控件 2,4,5 的属性
 
-	// 分组照片(图片需调用图片上传接口获得图片Url填写至此，否则添加货架失败，
+	// 分组照片(图片需调用图片上传接口获得图片URL填写至此，否则添加货架失败，
 	// 3个分组建议分辨率分别为: 350*350, 244*172, 244*172),
 	// 控件 4 的属性
 	Image string `json:"img,omitempty"`

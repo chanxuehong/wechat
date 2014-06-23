@@ -101,14 +101,14 @@ type Music struct {
 	Music struct {
 		Title        string `json:"title,omitempty"`       // 音乐标题
 		Description  string `json:"description,omitempty"` // 音乐描述
-		MusicUrl     string `json:"musicurl"`              // 音乐链接
-		HQMusicUrl   string `json:"hqmusicurl"`            // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
+		MusicURL     string `json:"musicurl"`              // 音乐链接
+		HQMusicURL   string `json:"hqmusicurl"`            // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
 		ThumbMediaId string `json:"thumb_media_id"`        // 缩略图的媒体id, 通过上传多媒体文件, 得到的id
 	} `json:"music"`
 }
 
 // title, description 可以为 ""
-func NewMusic(to, thumbMediaId, musicUrl, HQMusicUrl, title, description string) *Music {
+func NewMusic(to, thumbMediaId, musicURL, HQMusicURL, title, description string) *Music {
 	msg := Music{
 		commonMsgHead: commonMsgHead{
 			ToUser:  to,
@@ -116,8 +116,8 @@ func NewMusic(to, thumbMediaId, musicUrl, HQMusicUrl, title, description string)
 		},
 	}
 	msg.Music.ThumbMediaId = thumbMediaId
-	msg.Music.MusicUrl = musicUrl
-	msg.Music.HQMusicUrl = HQMusicUrl
+	msg.Music.MusicURL = musicURL
+	msg.Music.HQMusicURL = HQMusicURL
 	msg.Music.Title = title
 	msg.Music.Description = description
 
@@ -130,8 +130,8 @@ func NewMusic(to, thumbMediaId, musicUrl, HQMusicUrl, title, description string)
 type NewsArticle struct {
 	Title       string `json:"title,omitempty"`       // 图文消息标题
 	Description string `json:"description,omitempty"` // 图文消息描述
-	Url         string `json:"url,omitempty"`         // 点击图文消息跳转链接
-	PicUrl      string `json:"picurl,omitempty"`      // 图文消息的图片链接，支持JPG、PNG格式，较好的效果为大图640*320，小图80*80
+	URL         string `json:"url,omitempty"`         // 点击图文消息跳转链接
+	PicURL      string `json:"picurl,omitempty"`      // 图文消息的图片链接，支持JPG、PNG格式，较好的效果为大图640*320，小图80*80
 }
 
 // 图文消息

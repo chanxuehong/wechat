@@ -19,7 +19,7 @@ type SKUInfo struct {
 	SKUId         string `json:"sku_id"`
 	OriginalPrice int    `json:"ori_price"`    // sku原价(单位 : 分)
 	Price         int    `json:"price"`        // sku微信价(单位 : 分, 微信价必须比原价小, 否则添加商品失败)
-	IconURL       string `json:"icon_url"`     // sku iconurl(图片需调用图片上传接口获得图片Url)
+	IconURL       string `json:"icon_url"`     // sku iconurl(图片需调用图片上传接口获得图片URL)
 	ProductCode   string `json:"product_code"` // 商家商品编码
 	Quantity      int    `json:"quantity"`     // sku库存
 }

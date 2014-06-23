@@ -23,7 +23,7 @@ type Request struct {
 	// common message
 	Content      string  `xml:"Content"      json:"Content,omitempty"`      // text, 文本消息内容
 	MediaId      string  `xml:"MediaId"      json:"MediaId,omitempty"`      // image, voice, video 消息媒体id, 可以调用多媒体文件下载接口拉取数据
-	PicUrl       string  `xml:"PicUrl"       json:"PicUrl,omitempty"`       // image, 图片链接
+	PicURL       string  `xml:"PicUrl"       json:"PicUrl,omitempty"`       // image, 图片链接
 	Format       string  `xml:"Format"       json:"Format,omitempty"`       // voice, 语音格式, 如amr, speex等
 	Recognition  string  `xml:"Recognition"  json:"Recognition,omitempty"`  // voice, 语音识别结果, UTF8编码
 	ThumbMediaId string  `xml:"ThumbMediaId" json:"ThumbMediaId,omitempty"` // video, 视频消息缩略图的媒体id, 可以调用多媒体文件下载接口拉取数据
@@ -33,7 +33,7 @@ type Request struct {
 	Label        string  `xml:"Label"        json:"Label,omitempty"`        // location, 地理位置信息
 	Title        string  `xml:"Title"        json:"Title,omitempty"`        // link, 消息标题
 	Description  string  `xml:"Description"  json:"Description,omitempty"`  // link, 消息描述
-	Url          string  `xml:"Url"          json:"Url,omitempty"`          // link, 消息链接
+	URL          string  `xml:"Url"          json:"Url,omitempty"`          // link, 消息链接
 
 	// event message
 	Event     string  `xml:"Event"     json:"Event,omitempty"`     // subscribe, unsubscribe, SCAN, LOCATION, CLICK, VIEW, MASSSENDJOBFINISH
