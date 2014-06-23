@@ -2,7 +2,7 @@ package wechat
 
 import (
 	"errors"
-	"github.com/chanxuehong/wechat/message"
+	"github.com/chanxuehong/wechat/message/custom"
 )
 
 // 发送客服消息功能都一样, 之所以不暴露这个接口是因为怕接收到不合法的参数.
@@ -25,7 +25,7 @@ func (c *Client) msgCustomSend(msg interface{}) (err error) {
 }
 
 // 发送客服消息, 文本.
-func (c *Client) MsgCustomSendText(msg *message.TextResponse) error {
+func (c *Client) MsgCustomSendText(msg *custom.Text) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
@@ -33,7 +33,7 @@ func (c *Client) MsgCustomSendText(msg *message.TextResponse) error {
 }
 
 // 发送客服消息, 图片.
-func (c *Client) MsgCustomSendImage(msg *message.ImageResponse) error {
+func (c *Client) MsgCustomSendImage(msg *custom.Image) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
@@ -41,7 +41,7 @@ func (c *Client) MsgCustomSendImage(msg *message.ImageResponse) error {
 }
 
 // 发送客服消息, 语音.
-func (c *Client) MsgCustomSendVoice(msg *message.VoiceResponse) error {
+func (c *Client) MsgCustomSendVoice(msg *custom.Voice) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
@@ -49,7 +49,7 @@ func (c *Client) MsgCustomSendVoice(msg *message.VoiceResponse) error {
 }
 
 // 发送客服消息, 视频.
-func (c *Client) MsgCustomSendVideo(msg *message.VideoResponse) error {
+func (c *Client) MsgCustomSendVideo(msg *custom.Video) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
@@ -57,7 +57,7 @@ func (c *Client) MsgCustomSendVideo(msg *message.VideoResponse) error {
 }
 
 // 发送客服消息, 音乐.
-func (c *Client) MsgCustomSendMusic(msg *message.MusicResponse) error {
+func (c *Client) MsgCustomSendMusic(msg *custom.Music) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
@@ -65,7 +65,7 @@ func (c *Client) MsgCustomSendMusic(msg *message.MusicResponse) error {
 }
 
 // 发送客服消息, 图文.
-func (c *Client) MsgCustomSendNews(msg *message.NewsResponse) error {
+func (c *Client) MsgCustomSendNews(msg *custom.News) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
