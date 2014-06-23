@@ -1,5 +1,6 @@
 package express
 
+// 邮费模板
 type DeliveryTemplate struct {
 	Id        int64     `json:"Id,omitempty"` // 邮费模板id
 	Name      string    `json:"Name"`         // 邮费模板名称

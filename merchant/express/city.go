@@ -34,7 +34,8 @@ var ChinaProvinceArray = [...]string{
 	"新疆维吾尔自治区",
 }
 
-var ChinaCityMap = map[string][]string{
+// 中国 省级区划 到 地市级区划 的映射
+var ChinaProvinceCityMap = map[string][]string{
 	"北京市": {
 		"北京市",
 	},
