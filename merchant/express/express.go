@@ -11,9 +11,9 @@ type DeliveryTemplate struct {
 
 // 具体运费计算
 type TopFee struct {
-	ExpressType int             `json:"Type"`             // 快递类型ID(参见增加商品/快递列表)
-	Normal      TopFeeNormal    `json:"Normal"`           // 默认邮费计算方法
-	Customs     []*TopFeeCustom `json:"Custom,omitempty"` // 指定地区邮费计算方法
+	ExpressId int             `json:"Type"`             // 快递类型ID(参见增加商品/快递列表)
+	Normal    TopFeeNormal    `json:"Normal"`           // 默认邮费计算方法
+	Customs   []*TopFeeCustom `json:"Custom,omitempty"` // 指定地区邮费计算方法
 }
 
 // 默认邮费计算方法
