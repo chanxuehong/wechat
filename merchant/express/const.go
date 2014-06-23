@@ -1,4 +1,4 @@
-package delivery
+package express
 
 const (
 	// 支付方式(0-买家承担运费, 1-卖家承担运费)

@@ -1,4 +1,4 @@
-package delivery
+package express
 
 // 邮费模板
 type DeliveryTemplate struct {
