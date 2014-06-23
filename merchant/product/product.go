@@ -4,6 +4,103 @@ import (
 	"github.com/chanxuehong/wechat/merchant/express"
 )
 
+/*
+{
+    "product_base": {
+        "category_id": [
+            "537074298"
+        ],
+        "property": [
+            {
+                "id": "1075741879",
+                "vid": "1079749967"
+            },
+            {
+                "id": "1075754127",
+                "vid": "1079795198"
+            },
+            {
+                "id": "1075777334",
+                "vid": "1079837440"
+            }
+        ],
+        "name": "testaddproduct",
+        "sku_info": [
+            {
+                "id": "1075741873",
+                "vid": [
+                    "1079742386",
+                    "1079742363"
+                ]
+            }
+        ],
+        "main_img": "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl2iccsvYbHvnphkyGtnvjD3ulEKogfsiaua49pvLfUS8Ym0GSYjViaLic0FD3vN0V8PILcibEGb2fPfEOmw/0",
+        "img": [
+            "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl2iccsvYbHvnphkyGtnvjD3ulEKogfsiaua49pvLfUS8Ym0GSYjViaLic0FD3vN0V8PILcibEGb2fPfEOmw/0"
+        ],
+        "detail": [
+            {
+                "text": "test first"
+            },
+            {
+                "img": "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl2iccsvYbHvnphkyGtnvjD3ul1UcLcwxrFdwTKYhH9Q5YZoCfX4Ncx655ZK6ibnlibCCErbKQtReySaVA/0"
+            },
+            {
+                "text": "test again"
+            }
+        ],
+        "buy_limit": 10
+    },
+    "sku_list": [
+        {
+            "sku_id": "1075741873:1079742386",
+            "price": 30,
+            "icon_url": "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl28bJj62XgfHPibY3ORKicN1oJ4CcoIr4BMbfA8LqyyjzOZzqrOGz3f5KWq1QGP3fo6TOTSYD3TBQjuw/0",
+            "product_code": "testing",
+            "ori_price": 9000000,
+            "quantity": 800
+        },
+        {
+            "sku_id": "1075741873:1079742363",
+            "price": 30,
+            "icon_url": "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl28bJj62XgfHPibY3ORKicN1oJ4CcoIr4BMbfA8LqyyjzOZzqrOGz3f5KWq1QGP3fo6TOTSYD3TBQjuw/0",
+            "product_code": "testingtesting",
+            "ori_price": 9000000,
+            "quantity": 800
+        }
+    ],
+    "attrext": {
+        "location": {
+            "country": "中国",
+            "province": "广东省",
+            "city": "广州市",
+            "address": "T.I.T创意园"
+        },
+        "isPostFree": 0,
+        "isHasReceipt": 1,
+        "isUnderGuaranty": 0,
+        "isSupportReplace": 0
+    },
+    "delivery_info": {
+        "delivery_type": 0,
+        "template_id": 0,
+        "express": [
+            {
+                "id": 10000027,
+                "price": 100
+            },
+            {
+                "id": 10000028,
+                "price": 100
+            },
+            {
+                "id": 10000029,
+                "price": 100
+            }
+        ]
+    }
+}
+*/
 type Product struct {
 	Id   string `json:"product_id,omitempty"` // 商品id
 	Attr struct {
@@ -22,7 +119,7 @@ type Product struct {
 	DeliveryInfo *express.DeliveryInfo `json:"delivery_info,omitempty"` // 运费信息
 }
 
-// 同一时刻只能设置一个值, 如果两个都设置则只有 Text 有效
+// 同一时刻只能设置一个值, 如果两个都设置则 json.Marshal 的时候只有 Text 有效
 type Detail struct {
 	Text  string `json:"text,omitempty"` // 文字描述
 	Image string `json:"img,omitempty"`  // 图片(图片需调用图片上传接口获得图片Url填写至此，否则无法添加商品)
