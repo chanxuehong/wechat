@@ -150,15 +150,10 @@ func (detail Detail) MarshalJSON() ([]byte, error) {
 }
 
 type Property struct {
-	Id      string `json:"id"`             // 属性id
-	Name    string `json:"name,omitempty"` // 属性name
-	ValueId string `json:"vid"`            // 属性值id
-}
-
-type SKUInfo struct {
-	Id       string   `json:"id"`             // sku属性(SKU列表中id, 支持自定义SKU，格式为"$xxx"，xxx即为显示在客户端中的字符串)
-	Name     string   `json:"name,omitempty"` // sku 名称
-	ValueIds []string `json:"vid"`            // sku值(SKU列表中vid, 如需自定义SKU，格式为"$xxx"，xxx即为显示在客户端中的字符串)
+	Id        string `json:"id"`             // 属性id
+	Name      string `json:"name,omitempty"` // 属性name
+	ValueId   string `json:"vid"`            // 属性值id
+	ValueName string `json:"name,omitempty"` // 属性值name
 }
 
 // 商品的其他属性
@@ -174,6 +169,21 @@ type AttrExt struct {
 	IsHasReceipt     int `json:"isHasReceipt"`     // 是否提供发票(0-否, 1-是)
 	IsUnderGuaranty  int `json:"isUnderGuaranty"`  // 是否保修(0-否, 1-是)
 	IsSupportReplace int `json:"isSupportReplace"` // 是否支持退换货(0-否, 1-是)
+}
+
+type SKUInfo struct {
+	Id       string   `json:"id"`             // sku属性(SKU列表中id, 支持自定义SKU，格式为"$xxx"，xxx即为显示在客户端中的字符串)
+	Name     string   `json:"name,omitempty"` // sku 名称
+	ValueIds []string `json:"vid"`            // sku值(SKU列表中vid, 如需自定义SKU，格式为"$xxx"，xxx即为显示在客户端中的字符串)
+}
+
+type SKUInfoExt struct {
+	Id     string `json:"id"`
+	Name   string `json:"name"`
+	Values []struct {
+		Id   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"value_list"`
 }
 
 type SKU struct {
