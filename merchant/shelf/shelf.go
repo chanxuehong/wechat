@@ -32,23 +32,24 @@ type ShelfX struct {
 type Module struct {
 	EId int `json:"eid"` // 控件id, 标识控件 1,2,3,4,5
 
-	GroupInfo  *GroupInfo  `json:"group_info,omitempty"`  // 分组信息, 控件 1,3   的属性
-	GroupInfos *GroupInfos `json:"group_infos,omitempty"` // 分组信息, 控件 2,4,5 的属性
+	GroupInfo  *groupInfo  `json:"group_info,omitempty"`  // 分组信息, 控件 1,3   的属性
+	GroupInfos *groupInfos `json:"group_infos,omitempty"` // 分组信息, 控件 2,4,5 的属性
 }
 
+// 创建货架控件1
 func NewModule1(groupId int64, count int) *Module {
 	return &Module{
 		EId: 1,
-		GroupInfo: &GroupInfo{
+		GroupInfo: &groupInfo{
 			GroupId: groupId,
-			Filter: &struct {
-				Count int `json:"count"`
-			}{
+			Filter: &groupInfoFilter{
 				Count: count,
 			},
 		},
 	}
 }
+
+// 创建货架控件2
 func NewModule2(groupIds []int64) *Module {
 	groups := make([]Group, len(groupIds))
 	for i := 0; i < len(groupIds); i++ {
@@ -57,28 +58,34 @@ func NewModule2(groupIds []int64) *Module {
 
 	return &Module{
 		EId: 2,
-		GroupInfos: &GroupInfos{
+		GroupInfos: &groupInfos{
 			Groups: groups,
 		},
 	}
 }
+
+// 创建货架控件3
 func NewModule3(groupId int64, image string) *Module {
 	return &Module{
 		EId: 3,
-		GroupInfo: &GroupInfo{
+		GroupInfo: &groupInfo{
 			GroupId: groupId,
 			Image:   image,
 		},
 	}
 }
+
+// 创建货架控件4
 func NewModule4(groups []Group) *Module {
 	return &Module{
 		EId: 4,
-		GroupInfos: &GroupInfos{
+		GroupInfos: &groupInfos{
 			Groups: groups,
 		},
 	}
 }
+
+// 创建货架控件5
 func NewModule5(groupIds []int64, imageBackground string) *Module {
 	groups := make([]Group, len(groupIds))
 	for i := 0; i < len(groupIds); i++ {
@@ -87,7 +94,7 @@ func NewModule5(groupIds []int64, imageBackground string) *Module {
 
 	return &Module{
 		EId: 5,
-		GroupInfos: &GroupInfos{
+		GroupInfos: &groupInfos{
 			Groups:          groups,
 			ImageBackground: imageBackground,
 		},
@@ -95,18 +102,20 @@ func NewModule5(groupIds []int64, imageBackground string) *Module {
 }
 
 // 控件 1,3 包含这个结构
-type GroupInfo struct {
+type groupInfo struct {
 	GroupId int64 `json:"group_id"` // 分组ID, 控件 1,3 的属性
 	// 分组照片(图片需调用图片上传接口获得图片URL填写至此，否则添加货架失败，建议分辨率600*208),
 	// 控件 3 的属性
-	Image  string `json:"img,omitempty"`
-	Filter *struct {
-		Count int `json:"count"` // 该控件展示商品个数, 控件 1 的属性
-	} `json:"filter,omitempty"` // 控件 1 的属性
+	Image  string           `json:"img,omitempty"`
+	Filter *groupInfoFilter `json:"filter,omitempty"` // 控件 1 的属性
+}
+
+type groupInfoFilter struct {
+	Count int `json:"count"` // 该控件展示商品个数, 控件 1 的属性
 }
 
 // 控件 2,4,5 包含这个结构
-type GroupInfos struct {
+type groupInfos struct {
 	// 分组列表, 控件 2,4,5 的属性
 	Groups []Group `json:"groups"`
 
@@ -115,7 +124,6 @@ type GroupInfos struct {
 	ImageBackground string `json:"img_background,omitempty"`
 }
 
-// 控件 2,4,5 的 GroupInfos 包含这个结构
 type Group struct {
 	GroupId int64 `json:"group_id"` // 分组ID, 控件 2,4,5 的属性
 
