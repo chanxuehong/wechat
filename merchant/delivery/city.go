@@ -1,4 +1,4 @@
-package express
+package delivery
 
 var ChinaProvinceArray = [...]string{
 	"北京市",

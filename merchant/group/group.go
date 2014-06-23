@@ -6,77 +6,77 @@ type Group struct {
 }
 type GroupExt struct {
 	Group
-	Products []string `json:"product_list"` // 商品ID集合
+	ProductIds []string `json:"product_list"` // 商品ID集合
 }
 
 // 修改分组商品的请求数据结构
-type ProductModifyRequest struct {
-	GroupId  int64               `json:"group_id"`
-	Products []productModifyUnit `json:"product"`
+type GroupProductModifyRequest struct {
+	GroupId  int64                    `json:"group_id"`
+	Products []groupProductModifyUnit `json:"product"`
 }
 
-type productModifyUnit struct {
+type groupProductModifyUnit struct {
 	ProductId    string `json:"product_id"`
 	ModifyAction int    `json:"mod_action"`
 }
 
-func NewProductModifyRequest(groupId int64,
-	addProducts []string, delProducts []string) *ProductModifyRequest {
+func NewGroupProductModifyRequest(groupId int64,
+	addProducts []string, delProducts []string) *GroupProductModifyRequest {
 
-	r := ProductModifyRequest{
+	r := GroupProductModifyRequest{
 		GroupId: groupId,
 	}
-	r.Products = make([]productModifyUnit, len(addProducts)+len(delProducts))
+	r.Products = make([]groupProductModifyUnit, len(addProducts)+len(delProducts))
 
 	for i := 0; i < len(addProducts); i++ {
 		r.Products[i].ProductId = addProducts[i]
-		r.Products[i].ModifyAction = PRODUCT_MODIFY_ACTION_ADD
+		r.Products[i].ModifyAction = GROUP_PRODUCT_MODIFY_ACTION_ADD
 	}
 
 	for i, j := len(addProducts), 0; j < len(delProducts); i, j = i+1, j+1 {
 		r.Products[i].ProductId = delProducts[j]
-		r.Products[i].ModifyAction = PRODUCT_MODIFY_ACTION_DEL
+		r.Products[i].ModifyAction = GROUP_PRODUCT_MODIFY_ACTION_DEL
 	}
 
 	return &r
 }
 
-func (r *ProductModifyRequest) AddProduct(productId ...string) {
+func (r *GroupProductModifyRequest) AddProduct(productId ...string) {
 	switch {
 	case len(productId) == 1:
 		r.Products = append(r.Products,
-			productModifyUnit{
+			groupProductModifyUnit{
 				ProductId:    productId[0],
-				ModifyAction: PRODUCT_MODIFY_ACTION_ADD,
+				ModifyAction: GROUP_PRODUCT_MODIFY_ACTION_ADD,
 			},
 		)
 
 	case len(productId) > 1:
-		products := make([]productModifyUnit, len(productId))
+		products := make([]groupProductModifyUnit, len(productId))
 		for i := 0; i < len(productId); i++ {
 			products[i].ProductId = productId[i]
-			products[i].ModifyAction = PRODUCT_MODIFY_ACTION_ADD
+			products[i].ModifyAction = GROUP_PRODUCT_MODIFY_ACTION_ADD
 		}
 
 		r.Products = append(r.Products, products...)
 	}
 }
 
-func (r *ProductModifyRequest) DeleteProduct(productId ...string) {
+func (r *GroupProductModifyRequest) DeleteProduct(productId ...string) {
 	switch {
 	case len(productId) == 1:
 		r.Products = append(r.Products,
-			productModifyUnit{
+			groupProductModifyUnit{
 				ProductId:    productId[0],
-				ModifyAction: PRODUCT_MODIFY_ACTION_DEL,
+				ModifyAction: GROUP_PRODUCT_MODIFY_ACTION_DEL,
 			},
 		)
 
 	case len(productId) > 1:
-		products := make([]productModifyUnit, len(productId))
+		products := make([]groupProductModifyUnit, len(productId))
 		for i := 0; i < len(productId); i++ {
 			products[i].ProductId = productId[i]
-			products[i].ModifyAction = PRODUCT_MODIFY_ACTION_DEL
+			products[i].ModifyAction = GROUP_PRODUCT_MODIFY_ACTION_DEL
 		}
 
 		r.Products = append(r.Products, products...)

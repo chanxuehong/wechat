@@ -1,4 +1,4 @@
-package express
+package delivery
 
 const (
 	// 快递ID列表

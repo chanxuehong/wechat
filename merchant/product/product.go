@@ -1,9 +1,5 @@
 package product
 
-import (
-	"github.com/chanxuehong/wechat/merchant/express"
-)
-
 /*
 {
     "product_base": {
@@ -114,9 +110,9 @@ type Product struct {
 		BuyLimit    int            `json:"buy_limit,omitempty"` // 用户商品限购数量
 	} `json:"product_base"` // 基本属性
 
-	AttrExt      *AttrExt              `json:"attrext,omitempty"`       // 商品其他属性
-	SKUInfos     []SKUInfo             `json:"sku_list,omitempty"`      // sku信息列表(可为多个)，每个sku信息串即为一个确定的商品，比如白色的37码的鞋子
-	DeliveryInfo *express.DeliveryInfo `json:"delivery_info,omitempty"` // 运费信息
+	AttrExt      *AttrExt      `json:"attrext,omitempty"`       // 商品其他属性
+	SKUInfos     []SKUInfo     `json:"sku_list,omitempty"`      // sku信息列表(可为多个)，每个sku信息串即为一个确定的商品，比如白色的37码的鞋子
+	DeliveryInfo *DeliveryInfo `json:"delivery_info,omitempty"` // 运费信息
 }
 
 type AttrProperty struct {
