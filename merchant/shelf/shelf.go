@@ -41,7 +41,9 @@ func NewModule1(groupId int64, count int) *Module {
 		EId: 1,
 		GroupInfo: &GroupInfo{
 			GroupId: groupId,
-			Filter: &GroupInfoFilter{
+			Filter: &struct {
+				Count int `json:"count"`
+			}{
 				Count: count,
 			},
 		},
@@ -97,13 +99,10 @@ type GroupInfo struct {
 	GroupId int64 `json:"group_id"` // 分组ID, 控件 1,3 的属性
 	// 分组照片(图片需调用图片上传接口获得图片URL填写至此，否则添加货架失败，建议分辨率600*208),
 	// 控件 3 的属性
-	Image  string           `json:"img,omitempty"`
-	Filter *GroupInfoFilter `json:"filter,omitempty"` // 控件 1 的属性
-}
-
-// 控件1 的 Filter
-type GroupInfoFilter struct {
-	Count int `json:"count"` // 该控件展示商品个数, 控件 1 的属性
+	Image  string `json:"img,omitempty"`
+	Filter *struct {
+		Count int `json:"count"` // 该控件展示商品个数, 控件 1 的属性
+	} `json:"filter,omitempty"` // 控件 1 的属性
 }
 
 // 控件 2,4,5 包含这个结构
@@ -116,6 +115,7 @@ type GroupInfos struct {
 	ImageBackground string `json:"img_background,omitempty"`
 }
 
+// 控件 2,4,5 的 GroupInfos 包含这个结构
 type Group struct {
 	GroupId int64 `json:"group_id"` // 分组ID, 控件 2,4,5 的属性
 

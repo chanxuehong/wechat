@@ -4,7 +4,7 @@ type Order struct {
 	Id           string `json:"order_id"`            // 订单ID
 	Status       int    `json:"order_status"`        // 订单状态
 	TotalPrice   int    `json:"order_total_price"`   // 订单总价格(单位 : 分)
-	CreateTime   int64  `json:"order_create_time"`   // 订单创建时间
+	CreateTime   int64  `json:"order_create_time"`   // 订单创建时间, unixtime
 	ExpressPrice int    `json:"order_express_price"` // 订单运费价格(单位 : 分)
 
 	BuyerOpenId      string `json:"buyer_openid"`      // 买家微信OPENID

@@ -9,9 +9,10 @@ type Express struct {
 
 // 运费信息
 type DeliveryInfo struct {
-	DeliveryType int       `json:"delivery_type"`         // 运费类型(0-使用下面express字段的默认模板, 1-使用template_id代表的邮费模板, 详见邮费模板相关API)
-	TemplateId   int64     `json:"template_id,omitempty"` // 邮费模板ID
+	// 运费类型(0-使用下面express字段的默认模板, 1-使用template_id代表的邮费模板, 详见邮费模板相关API)
+	DeliveryType int       `json:"delivery_type"`
 	Expresses    []Express `json:"express,omitempty"`
+	TemplateId   int64     `json:"template_id,omitempty"` // 邮费模板ID
 }
 
 func NewDeliveryInfoFromExpresses(expresses []Express) *DeliveryInfo {
