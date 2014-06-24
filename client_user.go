@@ -48,7 +48,7 @@ func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
 }
 
 // 查询所有分组
-func (c *Client) UserGroupGet() ([]user.Group, error) {
+func (c *Client) UserGroupGet() ([]*user.Group, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func (c *Client) UserGroupGet() ([]user.Group, error) {
 	_url := clientUserGroupGetURL(token)
 
 	var result struct {
-		Groups []user.Group `json:"groups"`
+		Groups []*user.Group `json:"groups"`
 		Error
 	}
 	if err = c.getJSON(_url, &result); err != nil {
