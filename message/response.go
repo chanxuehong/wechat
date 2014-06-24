@@ -5,10 +5,10 @@ import (
 )
 
 type commonResponseHead struct {
-	ToUser     string `xml:"ToUserName"`   // 接收方帐号(OpenID)
-	FromUser   string `xml:"FromUserName"` // 开发者微信号
-	CreateTime int64  `xml:"CreateTime"`   // 消息创建时间(整型), unixtime
-	MsgType    string `xml:"MsgType"`      // text, image, voice, video, music, news, transfer_customer_service
+	ToUserName   string `xml:"ToUserName"`   // 接收方帐号(OpenID)
+	FromUserName string `xml:"FromUserName"` // 开发者微信号
+	CreateTime   int64  `xml:"CreateTime"`   // 消息创建时间(整型), unixtime
+	MsgType      string `xml:"MsgType"`      // text, image, voice, video, music, news, transfer_customer_service
 }
 
 // text ========================================================================
@@ -22,10 +22,10 @@ type TextResponse struct {
 func NewTextResponse(to, from, content string) *TextResponse {
 	msg := TextResponse{
 		commonResponseHead: commonResponseHead{
-			ToUser:     to,
-			FromUser:   from,
-			CreateTime: time.Now().Unix(),
-			MsgType:    RESP_MSG_TYPE_TEXT,
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      RESP_MSG_TYPE_TEXT,
 		},
 	}
 	msg.Content = content
@@ -46,10 +46,10 @@ type ImageResponse struct {
 func NewImageResponse(to, from, mediaId string) *ImageResponse {
 	msg := ImageResponse{
 		commonResponseHead: commonResponseHead{
-			ToUser:     to,
-			FromUser:   from,
-			CreateTime: time.Now().Unix(),
-			MsgType:    RESP_MSG_TYPE_IMAGE,
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      RESP_MSG_TYPE_IMAGE,
 		},
 	}
 	msg.Image.MediaId = mediaId
@@ -70,10 +70,10 @@ type VoiceResponse struct {
 func NewVoiceResponse(to, from, mediaId string) *VoiceResponse {
 	msg := VoiceResponse{
 		commonResponseHead: commonResponseHead{
-			ToUser:     to,
-			FromUser:   from,
-			CreateTime: time.Now().Unix(),
-			MsgType:    RESP_MSG_TYPE_VOICE,
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      RESP_MSG_TYPE_VOICE,
 		},
 	}
 	msg.Voice.MediaId = mediaId
@@ -97,10 +97,10 @@ type VideoResponse struct {
 func NewVideoResponse(to, from, mediaId, title, description string) *VideoResponse {
 	msg := VideoResponse{
 		commonResponseHead: commonResponseHead{
-			ToUser:     to,
-			FromUser:   from,
-			CreateTime: time.Now().Unix(),
-			MsgType:    RESP_MSG_TYPE_VIDEO,
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      RESP_MSG_TYPE_VIDEO,
 		},
 	}
 	msg.Video.MediaId = mediaId
@@ -128,10 +128,10 @@ type MusicResponse struct {
 func NewMusicResponse(to, from, thumbMediaId, musicURL, HQMusicURL, title, description string) *MusicResponse {
 	msg := MusicResponse{
 		commonResponseHead: commonResponseHead{
-			ToUser:     to,
-			FromUser:   from,
-			CreateTime: time.Now().Unix(),
-			MsgType:    RESP_MSG_TYPE_MUSIC,
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      RESP_MSG_TYPE_MUSIC,
 		},
 	}
 	msg.Music.ThumbMediaId = thumbMediaId
@@ -171,10 +171,10 @@ func NewNewsResponse(to, from string, article ...*NewsResponseArticle) *NewsResp
 
 	msg := NewsResponse{
 		commonResponseHead: commonResponseHead{
-			ToUser:     to,
-			FromUser:   from,
-			CreateTime: time.Now().Unix(),
-			MsgType:    RESP_MSG_TYPE_NEWS,
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      RESP_MSG_TYPE_NEWS,
 		},
 	}
 	msg.ArticleCount = len(article)
@@ -212,10 +212,10 @@ type TransferCustomerServiceResponse struct {
 func NewTransferCustomerServiceResponse(to, from string) *TransferCustomerServiceResponse {
 	return &TransferCustomerServiceResponse{
 		commonResponseHead: commonResponseHead{
-			ToUser:     to,
-			FromUser:   from,
-			CreateTime: time.Now().Unix(),
-			MsgType:    RESP_MSG_TYPE_TRANSFER_CUSTOMER_SERVICE,
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      RESP_MSG_TYPE_TRANSFER_CUSTOMER_SERVICE,
 		},
 	}
 }
