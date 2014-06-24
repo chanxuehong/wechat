@@ -126,7 +126,7 @@ func (c *Client) MerchantGroupProductModify(modifyRequest *group.GroupProductMod
 }
 
 // 获取所有分组
-func (c *Client) MerchantGroupGetAll() ([]*group.Group, error) {
+func (c *Client) MerchantGroupGetAll() ([]group.Group, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
@@ -135,8 +135,9 @@ func (c *Client) MerchantGroupGetAll() ([]*group.Group, error) {
 
 	var result struct {
 		Error
-		GroupsDetail []*group.Group `json:"groups_detail"`
+		GroupsDetail []group.Group `json:"groups_detail"`
 	}
+	result.GroupsDetail = make([]group.Group, 0, 64)
 	if err = c.getJSON(_url, &result); err != nil {
 		return nil, err
 	}

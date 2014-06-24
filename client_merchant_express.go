@@ -134,7 +134,7 @@ func (c *Client) MerchantExpressGetById(templateId int64) (*express.DeliveryTemp
 }
 
 // 获取所有邮费模板
-func (c *Client) MerchantExpressGetAll(templateId int64) ([]*express.DeliveryTemplate, error) {
+func (c *Client) MerchantExpressGetAll(templateId int64) ([]express.DeliveryTemplate, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
@@ -143,8 +143,9 @@ func (c *Client) MerchantExpressGetAll(templateId int64) ([]*express.DeliveryTem
 
 	var result struct {
 		Error
-		TemplatesInfo []*express.DeliveryTemplate `json:"templates_info"`
+		TemplatesInfo []express.DeliveryTemplate `json:"templates_info"`
 	}
+	result.TemplatesInfo = make([]express.DeliveryTemplate, 0, 64)
 	if err = c.getJSON(_url, &result); err != nil {
 		return nil, err
 	}

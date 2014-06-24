@@ -1,7 +1,6 @@
 package wechat
 
 import (
-	//"errors"
 	"github.com/chanxuehong/wechat/merchant/order"
 )
 
@@ -34,10 +33,10 @@ func (c *Client) MerchantOrderGetById(orderId string) (*order.Order, error) {
 }
 
 // 根据订单状态/创建时间获取订单详情
-// @status:    订单状态(不带该字段-全部状态, 2-待发货, 3-已发货, 5-已完成, 8-维权中, )
+// @status:    订单状态(不带该字段 == 0 -全部状态, 2-待发货, 3-已发货, 5-已完成, 8-维权中, )
 // @beginTime: 订单创建时间起始时间(不带该字段 ==0 则不按照时间做筛选)
 // @endTime:   订单创建时间终止时间(不带该字段 ==0 则不按照时间做筛选)
-func (c *Client) MerchantOrderGetByFilter(status int, beginTime, endTime int64) ([]*order.Order, error) {
+func (c *Client) MerchantOrderGetByFilter(status int, beginTime, endTime int64) ([]order.Order, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
@@ -45,7 +44,7 @@ func (c *Client) MerchantOrderGetByFilter(status int, beginTime, endTime int64) 
 	_url := clientMerchantOrderGetByFilterURL(token)
 
 	var request = struct {
-		Status    int   `json:"status"`
+		Status    int   `json:"status,omitempty"`
 		BeginTime int64 `json:"begintime,omitempty"`
 		EndTime   int64 `json:"endtime,omitempty"`
 	}{
@@ -56,8 +55,9 @@ func (c *Client) MerchantOrderGetByFilter(status int, beginTime, endTime int64) 
 
 	var result struct {
 		Error
-		OrderList []*order.Order `json:"order_list"`
+		OrderList []order.Order `json:"order_list"`
 	}
+	result.OrderList = make([]order.Order, 0, 256)
 	if err = c.postJSON(_url, &request, &result); err != nil {
 		return nil, err
 	}

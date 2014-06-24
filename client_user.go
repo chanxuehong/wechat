@@ -48,16 +48,18 @@ func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
 }
 
 // 查询所有分组
-func (c *Client) UserGroupGet() ([]*user.Group, error) {
+func (c *Client) UserGroupGet() ([]user.Group, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
 	}
 	_url := clientUserGroupGetURL(token)
 
-	var result struct {
-		Groups []*user.Group `json:"groups"`
+	var result = struct {
+		Groups []user.Group `json:"groups"`
 		Error
+	}{
+		Groups: make([]user.Group, 0, 64), // GroupCountLimit
 	}
 	if err = c.getJSON(_url, &result); err != nil {
 		return nil, err
@@ -230,6 +232,7 @@ func (c *Client) userGet(beginOpenId string) (*userGetResponse, error) {
 		userGetResponse
 		Error
 	}
+	result.userGetResponse.Data.OpenId = make([]string, 0, user.UserPageCountLimit)
 	if err = c.getJSON(_url, &result); err != nil {
 		return nil, err
 	}

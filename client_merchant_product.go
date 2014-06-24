@@ -133,7 +133,7 @@ func (c *Client) MerchantProductGet(productId string) (*product.Product, error) 
 
 // 获取指定状态的所有商品.
 // 0-所有商品, 1-上架商品, 2-下架商品
-func (c *Client) MerchantProductGetByStatus(status int) ([]*product.Product, error) {
+func (c *Client) MerchantProductGetByStatus(status int) ([]product.Product, error) {
 	switch status {
 	case product.PRODUCT_STATUS_ALL,
 		product.PRODUCT_STATUS_ONSHELF,
@@ -156,8 +156,9 @@ func (c *Client) MerchantProductGetByStatus(status int) ([]*product.Product, err
 
 	var result struct {
 		Error
-		ProductsInfo []*product.Product `json:"products_info"`
+		ProductsInfo []product.Product `json:"products_info"`
 	}
+	result.ProductsInfo = make([]product.Product, 0, 1024)
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return nil, err
 	}

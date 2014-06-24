@@ -88,16 +88,18 @@ func (c *Client) MerchantShelfModify(_shelf *shelf.Shelf) error {
 }
 
 // 获取所有货架
-func (c *Client) MerchantShelfGetAll() ([]*shelf.ShelfX, error) {
+func (c *Client) MerchantShelfGetAll() ([]shelf.ShelfX, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
 	}
 	_url := clientMerchantShelfGetAllURL(token)
 
-	var result struct {
+	var result = struct {
 		Error
-		Shelves []*shelf.ShelfX `json:"shelves"`
+		Shelves []shelf.ShelfX `json:"shelves"`
+	}{
+		Shelves: make([]shelf.ShelfX, 0, 16),
 	}
 	if err = c.getJSON(_url, &result); err != nil {
 		return nil, err
