@@ -16,17 +16,34 @@ type Product struct {
 	} `json:"product_base"` // 基本属性
 
 	AttrExt      *AttrExt      `json:"attrext,omitempty"`       // 商品其他属性
-	SKUInfos     []SKUInfo     `json:"sku_list,omitempty"`      // sku信息列表(可为多个)，每个sku信息串即为一个确定的商品，比如白色的37码的鞋子
+	ProductSKUs  []ProductSKU  `json:"sku_list,omitempty"`      // sku信息列表(可为多个)，每个sku信息串即为一个确定的商品，比如白色的37码的鞋子
 	DeliveryInfo *DeliveryInfo `json:"delivery_info,omitempty"` // 运费信息
 }
 
+// 参考 category/Property
 type AttrProperty struct {
 	Id      string `json:"id"`  // 属性id
 	ValueId string `json:"vid"` // 属性值id
 }
+
+// 参考 category/SKU
 type AttrSKU struct {
 	Id       string   `json:"id"`  // sku属性(SKU列表中id, 支持自定义SKU，格式为"$xxx"，xxx即为显示在客户端中的字符串)
 	ValueIds []string `json:"vid"` // sku值(SKU列表中vid, 如需自定义SKU，格式为"$xxx"，xxx即为显示在客户端中的字符串)
+}
+
+// ProductSKU.Id 的组合个数和 Product.Attr.SKUs 的个数一致
+type ProductSKU struct {
+	// sku信息, 参照上述sku_table的定义;
+	// 格式 : "id1:vid1;id2:vid2"
+	// 规则 : id_info的组合个数必须与sku_table个数一致(若商品无sku信息, 即商品为统一规格，
+	// 则此处赋值为空字符串即可)
+	Id            string `json:"sku_id"`
+	OriginalPrice int    `json:"ori_price"`    // sku原价(单位 : 分)
+	Price         int    `json:"price"`        // sku微信价(单位 : 分, 微信价必须比原价小, 否则添加商品失败)
+	IconURL       string `json:"icon_url"`     // sku iconurl(图片需调用图片上传接口获得图片URL)
+	ProductCode   string `json:"product_code"` // 商家商品编码
+	Quantity      int    `json:"quantity"`     // sku库存
 }
 
 // 同一时刻只能设置一个值, 如果两个都设置则 json.Marshal 的时候只有 Text 有效
@@ -72,17 +89,4 @@ type AttrExt struct {
 	IsHasReceipt     int `json:"isHasReceipt"`     // 是否提供发票(0-否, 1-是)
 	IsUnderGuaranty  int `json:"isUnderGuaranty"`  // 是否保修(0-否, 1-是)
 	IsSupportReplace int `json:"isSupportReplace"` // 是否支持退换货(0-否, 1-是)
-}
-
-type SKUInfo struct {
-	// sku信息, 参照上述sku_table的定义;
-	// 格式 : "id1:vid1;id2:vid2"
-	// 规则 : id_info的组合个数必须与sku_table个数一致(若商品无sku信息, 即商品为统一规格，
-	// 则此处赋值为空字符串即可)
-	SKUId         string `json:"sku_id"`
-	OriginalPrice int    `json:"ori_price"`    // sku原价(单位 : 分)
-	Price         int    `json:"price"`        // sku微信价(单位 : 分, 微信价必须比原价小, 否则添加商品失败)
-	IconURL       string `json:"icon_url"`     // sku iconurl(图片需调用图片上传接口获得图片URL)
-	ProductCode   string `json:"product_code"` // 商家商品编码
-	Quantity      int    `json:"quantity"`     // sku库存
 }
