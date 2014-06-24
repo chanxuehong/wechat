@@ -1,6 +1,6 @@
 # 微信公众平台 golang SDK
 
-Version: 0.7.8
+Version: 0.8.0
 
 NOTE: 在 v1.0.0 之前 API 都有可能微调
 
@@ -13,7 +13,8 @@ NOTE: 在 v1.0.0 之前 API 都有可能微调
 #### 其他部分的实现都是参考微信官方的 API 文档（没有经过现网测试），欢迎大家测试和 fork。
 
 代码还在继续添加中，欢迎大家 push issues。
-联系方式：chanxuehong@gmail.com
+联系方式： chanxuehong@gmail.com
+QQ群：    297489459  
 
 ## 入门
 

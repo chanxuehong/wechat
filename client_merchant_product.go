@@ -8,14 +8,15 @@ import (
 // 增加商品
 func (c *Client) MerchantProductAdd(_product *product.Product) (productId string, err error) {
 	if _product == nil {
-		return "", errors.New("_product == nil")
+		err = errors.New("_product == nil")
+		return
 	}
 
 	_product.Id = "" // 这个时候还没有 product id
 
 	token, err := c.Token()
 	if err != nil {
-		return "", err
+		return
 	}
 	_url := clientMerchantProductAddURL(token)
 
@@ -24,14 +25,16 @@ func (c *Client) MerchantProductAdd(_product *product.Product) (productId string
 		ProductId string `json:"product_id"`
 	}
 	if err = c.postJSON(_url, _product, &result); err != nil {
-		return "", err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return "", &result.Error
+		err = &result.Error
+		return
 	}
 
-	return result.ProductId, nil
+	productId = result.ProductId
+	return
 }
 
 // 删除商品
