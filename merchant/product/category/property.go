@@ -1,4 +1,4 @@
-package product
+package category
 
 // 获取指定分类的所有属性 成功时返回结果的数据结构
 type Property struct {

@@ -1,7 +1,9 @@
 package product
 
 type Product struct {
-	Id   string `json:"product_id,omitempty"` // 商品id
+	Id     string `json:"product_id,omitempty"` // 商品id
+	Status int    `json:"status,omitempty"`     // 商品状态
+
 	Attr struct {
 		Name        string         `json:"name"`                // 商品名称
 		CategoryIds []string       `json:"category_id"`         // 商品分类id，商品分类列表请通过《获取指定分类的所有子分类》获取
@@ -70,4 +72,17 @@ type AttrExt struct {
 	IsHasReceipt     int `json:"isHasReceipt"`     // 是否提供发票(0-否, 1-是)
 	IsUnderGuaranty  int `json:"isUnderGuaranty"`  // 是否保修(0-否, 1-是)
 	IsSupportReplace int `json:"isSupportReplace"` // 是否支持退换货(0-否, 1-是)
+}
+
+type SKUInfo struct {
+	// sku信息, 参照上述sku_table的定义;
+	// 格式 : "id1:vid1;id2:vid2"
+	// 规则 : id_info的组合个数必须与sku_table个数一致(若商品无sku信息, 即商品为统一规格，
+	// 则此处赋值为空字符串即可)
+	SKUId         string `json:"sku_id"`
+	OriginalPrice int    `json:"ori_price"`    // sku原价(单位 : 分)
+	Price         int    `json:"price"`        // sku微信价(单位 : 分, 微信价必须比原价小, 否则添加商品失败)
+	IconURL       string `json:"icon_url"`     // sku iconurl(图片需调用图片上传接口获得图片URL)
+	ProductCode   string `json:"product_code"` // 商家商品编码
+	Quantity      int    `json:"quantity"`     // sku库存
 }
