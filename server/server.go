@@ -64,7 +64,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		bufferUnit := s.getBufferUnitFromPool() // *serverBufferUnit
 		defer s.putBufferUnitToPool(bufferUnit) // important!
 
-		if !CheckSignatureEx(signature, timestamp, nonce, s.setting.Token, bufferUnit.buf) {
+		if !_CheckSignature(signature, timestamp, nonce, s.setting.Token, bufferUnit.buf) {
 			s.setting.InvalidRequestHandler(w, r, errors.New("check signature failed"))
 			return
 		}
@@ -173,7 +173,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		bufferUnit := s.getBufferUnitFromPool() // *serverBufferUnit
 		defer s.putBufferUnitToPool(bufferUnit) // important!
 
-		if !CheckSignatureEx(signature, timestamp, nonce, s.setting.Token, bufferUnit.buf) {
+		if !_CheckSignature(signature, timestamp, nonce, s.setting.Token, bufferUnit.buf) {
 			s.setting.InvalidRequestHandler(w, r, errors.New("check signature failed"))
 			return
 		}

@@ -38,7 +38,7 @@ func CheckSignature(signature, timestamp, nonce, token string) bool {
 
 // 校验消息是否是从微信服务器发送过来的.
 // 使用 buf 能提高一点性能 和 减少一些对 GC 的压力, buf 的长度最好 >=128
-func CheckSignatureEx(signature, timestamp, nonce, token string, buf []byte) bool {
+func _CheckSignature(signature, timestamp, nonce, token string, buf []byte) bool {
 	const hashsumLen = 40 // sha1
 
 	if len(signature) != hashsumLen {
