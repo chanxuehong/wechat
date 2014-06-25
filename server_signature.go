@@ -40,3 +40,31 @@ func CheckSignature(signature, timestamp, nonce, token string) bool {
 	}
 	return false
 }
+
+// 校验消息是否是从微信服务器发送过来的
+//  NOTE: 确保 len(buf) > 40, 否则会 panic
+func CheckSignatureEx(signature, timestamp, nonce, token string, buf []byte) bool {
+	const hashsumLen = 40 // sha1
+	if len(signature) != hashsumLen {
+		return false
+	}
+
+	strArr := sort.StringSlice{token, timestamp, nonce}
+	strArr.Sort()
+
+	buf = buf[:hashsumLen]
+	buf = append(buf, strArr[0]...)
+	buf = append(buf, strArr[1]...)
+	buf = append(buf, strArr[2]...)
+
+	hashsumArray := sha1.Sum(buf[hashsumLen:]) // require go1.2+
+	hashsumHexBytes := buf[:hashsumLen]
+	hex.Encode(hashsumHexBytes, hashsumArray[:])
+
+	// 采用 subtle.ConstantTimeCompare 是防止 计时攻击!
+	// 现在 len(signature) == hashsumLen, 不会 panic
+	if rslt := subtle.ConstantTimeCompare(hashsumHexBytes, []byte(signature)); rslt == 1 {
+		return true
+	}
+	return false
+}

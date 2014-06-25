@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type commonResponseHead struct {
+type ResponseHead struct {
 	ToUserName   string `xml:"ToUserName"`   // 接收方帐号(OpenID)
 	FromUserName string `xml:"FromUserName"` // 开发者微信号
 	CreateTime   int64  `xml:"CreateTime"`   // 消息创建时间(整型), unixtime
@@ -15,13 +15,13 @@ type commonResponseHead struct {
 
 type TextResponse struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	commonResponseHead
+	ResponseHead
 	Content string `xml:"Content"` // 回复的消息内容(换行：在content中能够换行, 微信客户端就支持换行显示)
 }
 
 func NewTextResponse(to, from, content string) *TextResponse {
 	msg := TextResponse{
-		commonResponseHead: commonResponseHead{
+		ResponseHead: ResponseHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
@@ -37,7 +37,7 @@ func NewTextResponse(to, from, content string) *TextResponse {
 
 type ImageResponse struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	commonResponseHead
+	ResponseHead
 	Image struct {
 		MediaId string `xml:"MediaId"` // 通过上传多媒体文件, 得到的id
 	} `xml:"Image"`
@@ -45,7 +45,7 @@ type ImageResponse struct {
 
 func NewImageResponse(to, from, mediaId string) *ImageResponse {
 	msg := ImageResponse{
-		commonResponseHead: commonResponseHead{
+		ResponseHead: ResponseHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
@@ -61,7 +61,7 @@ func NewImageResponse(to, from, mediaId string) *ImageResponse {
 
 type VoiceResponse struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	commonResponseHead
+	ResponseHead
 	Voice struct {
 		MediaId string `xml:"MediaId"` // 通过上传多媒体文件, 得到的id
 	} `xml:"Voice"`
@@ -69,7 +69,7 @@ type VoiceResponse struct {
 
 func NewVoiceResponse(to, from, mediaId string) *VoiceResponse {
 	msg := VoiceResponse{
-		commonResponseHead: commonResponseHead{
+		ResponseHead: ResponseHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
@@ -85,7 +85,7 @@ func NewVoiceResponse(to, from, mediaId string) *VoiceResponse {
 
 type VideoResponse struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	commonResponseHead
+	ResponseHead
 	Video struct {
 		MediaId     string `xml:"MediaId"`               // 通过上传多媒体文件, 得到的id
 		Title       string `xml:"Title,omitempty"`       // 视频消息的标题
@@ -96,7 +96,7 @@ type VideoResponse struct {
 // title, description 可以为 ""
 func NewVideoResponse(to, from, mediaId, title, description string) *VideoResponse {
 	msg := VideoResponse{
-		commonResponseHead: commonResponseHead{
+		ResponseHead: ResponseHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
@@ -114,7 +114,7 @@ func NewVideoResponse(to, from, mediaId, title, description string) *VideoRespon
 
 type MusicResponse struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	commonResponseHead
+	ResponseHead
 	Music struct {
 		Title        string `xml:"Title,omitempty"`       // 音乐标题
 		Description  string `xml:"Description,omitempty"` // 音乐描述
@@ -127,7 +127,7 @@ type MusicResponse struct {
 // title, description 可以为 ""
 func NewMusicResponse(to, from, thumbMediaId, musicURL, HQMusicURL, title, description string) *MusicResponse {
 	msg := MusicResponse{
-		commonResponseHead: commonResponseHead{
+		ResponseHead: ResponseHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
@@ -156,7 +156,7 @@ type NewsResponseArticle struct {
 // 图文消息
 type NewsResponse struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	commonResponseHead
+	ResponseHead
 	ArticleCount int                    `xml:"ArticleCount"`  // 图文消息个数, 限制为10条以内
 	Articles     []*NewsResponseArticle `xml:"Articles>item"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
 }
@@ -170,7 +170,7 @@ func NewNewsResponse(to, from string, article ...*NewsResponseArticle) *NewsResp
 	}
 
 	msg := NewsResponse{
-		commonResponseHead: commonResponseHead{
+		ResponseHead: ResponseHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),
@@ -206,12 +206,12 @@ func (msg *NewsResponse) AppendArticle(article ...*NewsResponseArticle) {
 // 将消息转发到多客服
 type TransferCustomerServiceResponse struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	commonResponseHead
+	ResponseHead
 }
 
 func NewTransferCustomerServiceResponse(to, from string) *TransferCustomerServiceResponse {
 	return &TransferCustomerServiceResponse{
-		commonResponseHead: commonResponseHead{
+		ResponseHead: ResponseHead{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   time.Now().Unix(),

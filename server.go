@@ -13,17 +13,50 @@ import (
 type InvalidRequestHandlerFunc func(http.ResponseWriter, *http.Request, error)
 
 // 目前不能识别的从微信服务器推送过来的消息处理函数
-//  NOTE: *message.Request 这个对象系统会自动池化的, 所以需要这个对象里的数据要深拷贝
-type UnknownRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
+type UnknownRequestHandlerFunc func(w http.ResponseWriter, r *http.Request)
 
 // 正常的从微信服务器推送过来的消息处理函数
-//  NOTE: *message.Request 这个对象系统会自动池化的, 所以需要这个对象里的数据要深拷贝
-type RequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
+type TextRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.TextRequest)
+type ImageRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.ImageRequest)
+type VoiceRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.VoiceRequest)
+type VoiceRecognitionRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.VoiceRecognitionRequest)
+type VideoRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.VideoRequest)
+type LocationRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.LocationRequest)
+type LinkRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.LinkRequest)
+type SubscribeEventHandlerFunc func(http.ResponseWriter, *http.Request, *message.SubscribeEvent)
+type UnsubscribeEventHandlerFunc func(http.ResponseWriter, *http.Request, *message.UnsubscribeEvent)
+type SubscribeByScanEventHandlerFunc func(http.ResponseWriter, *http.Request, *message.SubscribeByScanEvent)
+type ScanEventHandlerFunc func(http.ResponseWriter, *http.Request, *message.ScanEvent)
+type LocationEventHandlerFunc func(http.ResponseWriter, *http.Request, *message.LocationEvent)
+type MenuClickEventHandlerFunc func(http.ResponseWriter, *http.Request, *message.MenuClickEvent)
+type MenuViewEventHandlerFunc func(http.ResponseWriter, *http.Request, *message.MenuViewEvent)
+type MassSendJobFinishEventHandlerFunc func(http.ResponseWriter, *http.Request, *message.MassSendJobFinishEvent)
+type MerchantOrderEventHandlerFunc func(http.ResponseWriter, *http.Request, *message.MerchantOrderEvent)
 
 // 默认的消息处理函数是什么都不做
-func defaultInvalidRequestHandler(w http.ResponseWriter, r *http.Request, err error)                {}
-func defaultUnknownRequestHandler(w http.ResponseWriter, r *http.Request, msgRqst *message.Request) {}
-func defaultRequestHandler(w http.ResponseWriter, r *http.Request, msgRqst *message.Request)        {}
+func defaultInvalidRequestHandler(http.ResponseWriter, *http.Request, error) {}
+func defaultUnknownRequestHandler(http.ResponseWriter, *http.Request)        {}
+
+func defaultTextRequestHandler(http.ResponseWriter, *http.Request, *message.TextRequest)   {}
+func defaultImageRequestHandler(http.ResponseWriter, *http.Request, *message.ImageRequest) {}
+func defaultVoiceRequestHandler(http.ResponseWriter, *http.Request, *message.VoiceRequest) {}
+func defaultVoiceRecognitionRequestHandler(http.ResponseWriter, *http.Request, *message.VoiceRecognitionRequest) {
+}
+func defaultVideoRequestHandler(http.ResponseWriter, *http.Request, *message.VideoRequest)         {}
+func defaultLocationRequestHandler(http.ResponseWriter, *http.Request, *message.LocationRequest)   {}
+func defaultLinkRequestHandler(http.ResponseWriter, *http.Request, *message.LinkRequest)           {}
+func defaultSubscribeEventHandler(http.ResponseWriter, *http.Request, *message.SubscribeEvent)     {}
+func defaultUnsubscribeEventHandler(http.ResponseWriter, *http.Request, *message.UnsubscribeEvent) {}
+func defaultSubscribeByScanEventHandler(http.ResponseWriter, *http.Request, *message.SubscribeByScanEvent) {
+}
+func defaultScanEventHandler(http.ResponseWriter, *http.Request, *message.ScanEvent)           {}
+func defaultLocationEventHandler(http.ResponseWriter, *http.Request, *message.LocationEvent)   {}
+func defaultMenuClickEventHandler(http.ResponseWriter, *http.Request, *message.MenuClickEvent) {}
+func defaultMenuViewEventHandler(http.ResponseWriter, *http.Request, *message.MenuViewEvent)   {}
+func defaultMassSendJobFinishEventHandler(http.ResponseWriter, *http.Request, *message.MassSendJobFinishEvent) {
+}
+func defaultMerchantOrderEventHandler(http.ResponseWriter, *http.Request, *message.MerchantOrderEvent) {
+}
 
 type ServerSetting struct {
 	Token string
@@ -35,22 +68,23 @@ type ServerSetting struct {
 	UnknownRequestHandler UnknownRequestHandlerFunc
 
 	// request handler
-	TextRequestHandler                   RequestHandlerFunc
-	ImageRequestHandler                  RequestHandlerFunc
-	VoiceRequestHandler                  RequestHandlerFunc
-	VoiceRecognitionRequestHandler       RequestHandlerFunc
-	VideoRequestHandler                  RequestHandlerFunc
-	LocationRequestHandler               RequestHandlerFunc
-	LinkRequestHandler                   RequestHandlerFunc
-	SubscribeEventRequestHandler         RequestHandlerFunc
-	SubscribeEventByScanRequestHandler   RequestHandlerFunc
-	UnsubscribeEventRequestHandler       RequestHandlerFunc
-	ScanEventRequestHandler              RequestHandlerFunc
-	LocationEventRequestHandler          RequestHandlerFunc
-	ClickEventRequestHandler             RequestHandlerFunc
-	ViewEventRequestHandler              RequestHandlerFunc
-	MassSendJobFinishEventRequestHandler RequestHandlerFunc
-	MerchantOrderEventRequestHandler     RequestHandlerFunc
+	TextRequestHandler             TextRequestHandlerFunc
+	ImageRequestHandler            ImageRequestHandlerFunc
+	VoiceRequestHandler            VoiceRequestHandlerFunc
+	VoiceRecognitionRequestHandler VoiceRecognitionRequestHandlerFunc
+	VideoRequestHandler            VideoRequestHandlerFunc
+	LocationRequestHandler         LocationRequestHandlerFunc
+	LinkRequestHandler             LinkRequestHandlerFunc
+	// event handler
+	SubscribeEventHandler         SubscribeEventHandlerFunc
+	UnsubscribeEventHandler       UnsubscribeEventHandlerFunc
+	SubscribeByScanEventHandler   SubscribeByScanEventHandlerFunc
+	ScanEventHandler              ScanEventHandlerFunc
+	LocationEventHandler          LocationEventHandlerFunc
+	MenuClickEventHandler         MenuClickEventHandlerFunc
+	MenuViewEventHandler          MenuViewEventHandlerFunc
+	MassSendJobFinishEventHandler MassSendJobFinishEventHandlerFunc
+	MerchantOrderEventHandler     MerchantOrderEventHandlerFunc
 }
 
 // 根据另外一个 ServerSetting 来初始化.
@@ -75,82 +109,84 @@ func (ss *ServerSetting) initialize(setting *ServerSetting) {
 	if setting.TextRequestHandler != nil {
 		ss.TextRequestHandler = setting.TextRequestHandler
 	} else {
-		ss.TextRequestHandler = defaultRequestHandler
+		ss.TextRequestHandler = defaultTextRequestHandler
 	}
 	if setting.ImageRequestHandler != nil {
 		ss.ImageRequestHandler = setting.ImageRequestHandler
 	} else {
-		ss.ImageRequestHandler = defaultRequestHandler
+		ss.ImageRequestHandler = defaultImageRequestHandler
 	}
 	if setting.VoiceRequestHandler != nil {
 		ss.VoiceRequestHandler = setting.VoiceRequestHandler
 	} else {
-		ss.VoiceRequestHandler = defaultRequestHandler
+		ss.VoiceRequestHandler = defaultVoiceRequestHandler
 	}
 	if setting.VoiceRecognitionRequestHandler != nil {
 		ss.VoiceRecognitionRequestHandler = setting.VoiceRecognitionRequestHandler
 	} else {
-		ss.VoiceRecognitionRequestHandler = defaultRequestHandler
+		ss.VoiceRecognitionRequestHandler = defaultVoiceRecognitionRequestHandler
 	}
 	if setting.VideoRequestHandler != nil {
 		ss.VideoRequestHandler = setting.VideoRequestHandler
 	} else {
-		ss.VideoRequestHandler = defaultRequestHandler
+		ss.VideoRequestHandler = defaultVideoRequestHandler
 	}
 	if setting.LocationRequestHandler != nil {
 		ss.LocationRequestHandler = setting.LocationRequestHandler
 	} else {
-		ss.LocationRequestHandler = defaultRequestHandler
+		ss.LocationRequestHandler = defaultLocationRequestHandler
 	}
 	if setting.LinkRequestHandler != nil {
 		ss.LinkRequestHandler = setting.LinkRequestHandler
 	} else {
-		ss.LinkRequestHandler = defaultRequestHandler
+		ss.LinkRequestHandler = defaultLinkRequestHandler
 	}
-	if setting.SubscribeEventRequestHandler != nil {
-		ss.SubscribeEventRequestHandler = setting.SubscribeEventRequestHandler
+
+	// event handler
+	if setting.SubscribeEventHandler != nil {
+		ss.SubscribeEventHandler = setting.SubscribeEventHandler
 	} else {
-		ss.SubscribeEventRequestHandler = defaultRequestHandler
+		ss.SubscribeEventHandler = defaultSubscribeEventHandler
 	}
-	if setting.SubscribeEventByScanRequestHandler != nil {
-		ss.SubscribeEventByScanRequestHandler = setting.SubscribeEventByScanRequestHandler
+	if setting.UnsubscribeEventHandler != nil {
+		ss.UnsubscribeEventHandler = setting.UnsubscribeEventHandler
 	} else {
-		ss.SubscribeEventByScanRequestHandler = defaultRequestHandler
+		ss.UnsubscribeEventHandler = defaultUnsubscribeEventHandler
 	}
-	if setting.UnsubscribeEventRequestHandler != nil {
-		ss.UnsubscribeEventRequestHandler = setting.UnsubscribeEventRequestHandler
+	if setting.SubscribeByScanEventHandler != nil {
+		ss.SubscribeByScanEventHandler = setting.SubscribeByScanEventHandler
 	} else {
-		ss.UnsubscribeEventRequestHandler = defaultRequestHandler
+		ss.SubscribeByScanEventHandler = defaultSubscribeByScanEventHandler
 	}
-	if setting.ScanEventRequestHandler != nil {
-		ss.ScanEventRequestHandler = setting.ScanEventRequestHandler
+	if setting.ScanEventHandler != nil {
+		ss.ScanEventHandler = setting.ScanEventHandler
 	} else {
-		ss.ScanEventRequestHandler = defaultRequestHandler
+		ss.ScanEventHandler = defaultScanEventHandler
 	}
-	if setting.LocationEventRequestHandler != nil {
-		ss.LocationEventRequestHandler = setting.LocationEventRequestHandler
+	if setting.LocationEventHandler != nil {
+		ss.LocationEventHandler = setting.LocationEventHandler
 	} else {
-		ss.LocationEventRequestHandler = defaultRequestHandler
+		ss.LocationEventHandler = defaultLocationEventHandler
 	}
-	if setting.ClickEventRequestHandler != nil {
-		ss.ClickEventRequestHandler = setting.ClickEventRequestHandler
+	if setting.MenuClickEventHandler != nil {
+		ss.MenuClickEventHandler = setting.MenuClickEventHandler
 	} else {
-		ss.ClickEventRequestHandler = defaultRequestHandler
+		ss.MenuClickEventHandler = defaultMenuClickEventHandler
 	}
-	if setting.ViewEventRequestHandler != nil {
-		ss.ViewEventRequestHandler = setting.ViewEventRequestHandler
+	if setting.MenuViewEventHandler != nil {
+		ss.MenuViewEventHandler = setting.MenuViewEventHandler
 	} else {
-		ss.ViewEventRequestHandler = defaultRequestHandler
+		ss.MenuViewEventHandler = defaultMenuViewEventHandler
 	}
-	if setting.MassSendJobFinishEventRequestHandler != nil {
-		ss.MassSendJobFinishEventRequestHandler = setting.MassSendJobFinishEventRequestHandler
+	if setting.MassSendJobFinishEventHandler != nil {
+		ss.MassSendJobFinishEventHandler = setting.MassSendJobFinishEventHandler
 	} else {
-		ss.MassSendJobFinishEventRequestHandler = defaultRequestHandler
+		ss.MassSendJobFinishEventHandler = defaultMassSendJobFinishEventHandler
 	}
-	if setting.MerchantOrderEventRequestHandler != nil {
-		ss.MerchantOrderEventRequestHandler = setting.MerchantOrderEventRequestHandler
+	if setting.MerchantOrderEventHandler != nil {
+		ss.MerchantOrderEventHandler = setting.MerchantOrderEventHandler
 	} else {
-		ss.MerchantOrderEventRequestHandler = defaultRequestHandler
+		ss.MerchantOrderEventHandler = defaultMerchantOrderEventHandler
 	}
 }
 
@@ -163,7 +199,7 @@ type Server struct {
 	// 对于微信服务器推送过来的请求, 基本都是中间处理下就丢弃, 所以可以缓存起来.
 	//  NOTE: require go1.3+ , 如果你的环境不满足这个条件, 可以自己实现一个简单的 Pool,
 	//        see github.com/chanxuehong/util/pool 或者直接用 sync.Pool.patch 目录下的文件;
-	messageRequestPool *sync.Pool
+	bufferUnitPool *sync.Pool
 }
 
 func NewServer(setting *ServerSetting) *Server {
@@ -173,8 +209,8 @@ func NewServer(setting *ServerSetting) *Server {
 
 	var srv Server
 	srv.setting.initialize(setting)
-	srv.messageRequestPool = &sync.Pool{
-		New: serverNewMessageRequest,
+	srv.bufferUnitPool = &sync.Pool{
+		New: newServerBufferUnit,
 	}
 
 	return &srv
@@ -205,14 +241,15 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if !CheckSignature(signature, timestamp, nonce, s.setting.Token) {
+		bufferUnit := s.getBufferUnitFromPool() // *serverBufferUnit
+		defer s.putBufferUnitToPool(bufferUnit) // important!
+
+		if !CheckSignatureEx(signature, timestamp, nonce, s.setting.Token, bufferUnit.buf) {
 			s.setting.InvalidRequestHandler(w, r, errors.New("check signature failed"))
 			return
 		}
 
-		msgRqst := s.getMessageRequestFromPool() // *message.Request
-		defer s.putMessageRequestToPool(msgRqst) // important!
-
+		msgRqst := &bufferUnit.msgRequest
 		if err = xml.NewDecoder(r.Body).Decode(msgRqst); err != nil {
 			s.setting.InvalidRequestHandler(w, r, err)
 			return
@@ -221,64 +258,64 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// request router, 可一个根据自己的实际业务调整顺序!
 		switch msgRqst.MsgType {
 		case message.RQST_MSG_TYPE_TEXT:
-			s.setting.TextRequestHandler(w, r, msgRqst)
+			s.setting.TextRequestHandler(w, r, msgRqst.TextRequest())
 
 		case message.RQST_MSG_TYPE_EVENT:
 			// event router
 			switch msgRqst.Event {
 			case message.RQST_EVENT_TYPE_CLICK:
-				s.setting.ClickEventRequestHandler(w, r, msgRqst)
+				s.setting.MenuClickEventHandler(w, r, msgRqst.MenuClickEvent())
 
 			case message.RQST_EVENT_TYPE_VIEW:
-				s.setting.ViewEventRequestHandler(w, r, msgRqst)
+				s.setting.MenuViewEventHandler(w, r, msgRqst.MenuViewEvent())
 
 			case message.RQST_EVENT_TYPE_LOCATION:
-				s.setting.LocationEventRequestHandler(w, r, msgRqst)
+				s.setting.LocationEventHandler(w, r, msgRqst.LocationEvent())
 
 			case message.RQST_EVENT_TYPE_MERCHANTORDER:
-				s.setting.MerchantOrderEventRequestHandler(w, r, msgRqst)
+				s.setting.MerchantOrderEventHandler(w, r, msgRqst.MerchantOrderEvent())
 
 			case message.RQST_EVENT_TYPE_SUBSCRIBE:
 				if msgRqst.Ticket == "" { // 普通订阅
-					s.setting.SubscribeEventRequestHandler(w, r, msgRqst)
+					s.setting.SubscribeEventHandler(w, r, msgRqst.SubscribeEvent())
 				} else { // 扫描二维码订阅
-					s.setting.SubscribeEventByScanRequestHandler(w, r, msgRqst)
+					s.setting.SubscribeByScanEventHandler(w, r, msgRqst.SubscribeByScanEvent())
 				}
 
 			case message.RQST_EVENT_TYPE_UNSUBSCRIBE:
-				s.setting.UnsubscribeEventRequestHandler(w, r, msgRqst)
+				s.setting.UnsubscribeEventHandler(w, r, msgRqst.UnsubscribeEvent())
 
 			case message.RQST_EVENT_TYPE_SCAN:
-				s.setting.ScanEventRequestHandler(w, r, msgRqst)
+				s.setting.ScanEventHandler(w, r, msgRqst.ScanEvent())
 
 			case message.RQST_EVENT_TYPE_MASSSENDJOBFINISH:
-				s.setting.MassSendJobFinishEventRequestHandler(w, r, msgRqst)
+				s.setting.MassSendJobFinishEventHandler(w, r, msgRqst.MassSendJobFinishEvent())
 
 			default: // unknown event
-				s.setting.UnknownRequestHandler(w, r, msgRqst)
+				s.setting.UnknownRequestHandler(w, r)
 			}
 
 		case message.RQST_MSG_TYPE_LINK:
-			s.setting.LinkRequestHandler(w, r, msgRqst)
+			s.setting.LinkRequestHandler(w, r, msgRqst.LinkRequest())
 
 		case message.RQST_MSG_TYPE_VOICE:
 			if msgRqst.Recognition == "" { // 普通的语音请求
-				s.setting.VoiceRequestHandler(w, r, msgRqst)
+				s.setting.VoiceRequestHandler(w, r, msgRqst.VoiceRequest())
 			} else { // 语音识别请求
-				s.setting.VoiceRecognitionRequestHandler(w, r, msgRqst)
+				s.setting.VoiceRecognitionRequestHandler(w, r, msgRqst.VoiceRecognitionRequest())
 			}
 
 		case message.RQST_MSG_TYPE_LOCATION:
-			s.setting.LocationRequestHandler(w, r, msgRqst)
+			s.setting.LocationRequestHandler(w, r, msgRqst.LocationRequest())
 
 		case message.RQST_MSG_TYPE_IMAGE:
-			s.setting.ImageRequestHandler(w, r, msgRqst)
+			s.setting.ImageRequestHandler(w, r, msgRqst.ImageRequest())
 
 		case message.RQST_MSG_TYPE_VIDEO:
-			s.setting.VideoRequestHandler(w, r, msgRqst)
+			s.setting.VideoRequestHandler(w, r, msgRqst.VideoRequest())
 
 		default: // unknown request message type
-			s.setting.UnknownRequestHandler(w, r, msgRqst)
+			s.setting.UnknownRequestHandler(w, r)
 		}
 
 	case "GET": // 首次验证 ======================================================
