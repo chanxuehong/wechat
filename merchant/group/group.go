@@ -5,7 +5,7 @@ type Group struct {
 	Name string `json:"group_name"`
 }
 
-type GroupExt struct {
+type GroupEx struct {
 	Group
 	ProductIds []string `json:"product_list"` // 商品ID集合
 }

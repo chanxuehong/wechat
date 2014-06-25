@@ -1,6 +1,6 @@
 package custom
 
-type commonMsgHead struct {
+type CommonHead struct {
 	ToUser  string `json:"touser"`  // 接收方帐号(OpenID)
 	MsgType string `json:"msgtype"` // text, image, voice, video, music, news
 }
@@ -8,7 +8,8 @@ type commonMsgHead struct {
 // text ========================================================================
 
 type Text struct {
-	commonMsgHead
+	CommonHead
+
 	Text struct {
 		Content string `json:"content"` // 回复的消息内容(换行：在content中能够换行, 微信客户端就支持换行显示)
 	} `json:"text"`
@@ -16,7 +17,7 @@ type Text struct {
 
 func NewText(to, content string) *Text {
 	msg := Text{
-		commonMsgHead: commonMsgHead{
+		CommonHead: CommonHead{
 			ToUser:  to,
 			MsgType: MSG_TYPE_TEXT,
 		},
@@ -29,7 +30,8 @@ func NewText(to, content string) *Text {
 // image =======================================================================
 
 type Image struct {
-	commonMsgHead
+	CommonHead
+
 	Image struct {
 		MediaId string `json:"media_id"` // 通过上传多媒体文件, 得到的id
 	} `json:"image"`
@@ -37,7 +39,7 @@ type Image struct {
 
 func NewImage(to, mediaId string) *Image {
 	msg := Image{
-		commonMsgHead: commonMsgHead{
+		CommonHead: CommonHead{
 			ToUser:  to,
 			MsgType: MSG_TYPE_IMAGE,
 		},
@@ -50,7 +52,8 @@ func NewImage(to, mediaId string) *Image {
 // voice =======================================================================
 
 type Voice struct {
-	commonMsgHead
+	CommonHead
+
 	Voice struct {
 		MediaId string `json:"media_id"` // 通过上传多媒体文件, 得到的id
 	} `json:"voice"`
@@ -58,7 +61,7 @@ type Voice struct {
 
 func NewVoice(to, mediaId string) *Voice {
 	msg := Voice{
-		commonMsgHead: commonMsgHead{
+		CommonHead: CommonHead{
 			ToUser:  to,
 			MsgType: MSG_TYPE_VOICE,
 		},
@@ -71,7 +74,8 @@ func NewVoice(to, mediaId string) *Voice {
 // video =======================================================================
 
 type Video struct {
-	commonMsgHead
+	CommonHead
+
 	Video struct {
 		MediaId     string `json:"media_id"`              // 通过上传多媒体文件, 得到的id
 		Title       string `json:"title,omitempty"`       // 视频消息的标题
@@ -82,7 +86,7 @@ type Video struct {
 // title, description 可以为 ""
 func NewVideo(to, mediaId, title, description string) *Video {
 	msg := Video{
-		commonMsgHead: commonMsgHead{
+		CommonHead: CommonHead{
 			ToUser:  to,
 			MsgType: MSG_TYPE_VIDEO,
 		},
@@ -97,7 +101,8 @@ func NewVideo(to, mediaId, title, description string) *Video {
 // music =======================================================================
 
 type Music struct {
-	commonMsgHead
+	CommonHead
+
 	Music struct {
 		Title        string `json:"title,omitempty"`       // 音乐标题
 		Description  string `json:"description,omitempty"` // 音乐描述
@@ -110,7 +115,7 @@ type Music struct {
 // title, description 可以为 ""
 func NewMusic(to, thumbMediaId, musicURL, HQMusicURL, title, description string) *Music {
 	msg := Music{
-		commonMsgHead: commonMsgHead{
+		CommonHead: CommonHead{
 			ToUser:  to,
 			MsgType: MSG_TYPE_MUSIC,
 		},
@@ -136,7 +141,8 @@ type NewsArticle struct {
 
 // 图文消息
 type News struct {
-	commonMsgHead
+	CommonHead
+
 	News struct {
 		Articles []*NewsArticle `json:"articles"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
 	} `json:"news"`
@@ -151,7 +157,7 @@ func NewNews(to string, article ...*NewsArticle) *News {
 	}
 
 	msg := News{
-		commonMsgHead: commonMsgHead{
+		CommonHead: CommonHead{
 			ToUser:  to,
 			MsgType: MSG_TYPE_NEWS,
 		},

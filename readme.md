@@ -1,10 +1,10 @@
 # 微信公众平台 golang SDK
 
-Version: 0.8.0
+Version: 0.8.2
 
 NOTE: 在 v1.0.0 之前 API 都有可能微调
 
-#### 要求 go1.3+，如果你的环境是 go1.3 以下的，可以用 sync.Pool.patch 目录下的文件覆盖 wechat 下的文件
+#### 要求 go1.3+，如果你的环境是 go1.3 以下的，可以参考 github.com/chanxuehong/util/pool 来修改 client.Client 和 server.Server
 
 ## 简介
 
@@ -18,7 +18,7 @@ QQ群：    297489459
 
 ## 入门
 
-wechat 主要分为 Client 和 Server 两个部分，Client 和 Server 都是并发安全的。
+主要分为 Client 和 Server 两个部分，Client 和 Server 都是并发安全的。
 
 Client 实现的是主动发送请求的功能，比如发送客服消息，群发消息，创建自定义菜单......
 Client 是并发安全的，在你的应用中一般只用常驻一个 Client 对象就可以了。
@@ -26,7 +26,7 @@ Client 是并发安全的，在你的应用中一般只用常驻一个 Client �
 Server 实现的是处理被动接收的消息的功能，微信服务器推送过来的普通消息 和 事件推送消息都是 Server 处理的。
 Server 实现了 http.Handler 接口，所以一般的应用就是实例化一个 Server 的实例，然后注册到特定的 pattern 上：
 ```Go
-server := wechat.NewServer(setting)
+server := server.NewServer(setting)
 http.Handle("/path", server)
 ```
 
@@ -34,7 +34,9 @@ http.Handle("/path", server)
 
 通过执行下列语句就可以完成安装
 
-	go get github.com/chanxuehong/wechat
+	go get github.com/chanxuehong/wechat/client
+	go get github.com/chanxuehong/wechat/server
+	go get github.com/chanxuehong/wechat/sns
 
 ## 示例
 
@@ -44,23 +46,23 @@ http.Handle("/path", server)
 package main
 
 import (
-	"github.com/chanxuehong/wechat"
-	"github.com/chanxuehong/wechat/message"
+	"github.com/chanxuehong/wechat/server"
+	"github.com/chanxuehong/wechat/message/request"
 	"net/http"
 )
 
 // 处理用户发送过来的 文本消息
-func TextRequestHandler(w http.ResponseWriter, r *http.Request, rqst *message.Request) {
+func TextRequestHandler(w http.ResponseWriter, r *http.Request, rqst *request.Text) {
 	//TODO: 添加你的代码
 }
 
 func main() {
-	setting := wechat.ServerSetting{
+	setting := server.ServerSetting{
 		Token:              "yourToken",
 		TextRequestHandler: TextRequestHandler,
 	}
 
-	wechatServer := wechat.NewServer(&setting)
+	wechatServer := server.NewServer(&setting)
 	http.Handle("/path", wechatServer)
 
 	http.ListenAndServe(":80", nil) // 启动接收微信数据服务器
@@ -68,17 +70,7 @@ func main() {
 ```
 
 #### 自定义处理函数
-在 wechat.ServerSetting 里可以设置自定义的处理函数, 如果不设置则默认什么都不操作。
-
-处理函数的定义可以使用下面的形式。
-```Go
-// 非法的请求（包括不是微信服务器发送过来的和签名认证不通过的）处理函数
-type InvalidRequestHandlerFunc func(http.ResponseWriter, *http.Request, error)
-// 目前 SDK 不能识别的请求处理函数
-type UnknownRequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
-// 正常的从微信服务器推送过来的请求处理函数，都可以自定义。SDK提供了下面的自定义点：
-type RequestHandlerFunc func(http.ResponseWriter, *http.Request, *message.Request)
-```
+在 server.ServerSetting 里可以设置自定义的处理函数, 如果不设置则默认什么都不操作。
 
 ### Client示例：创建一个临时的二维码
 
@@ -87,11 +79,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/chanxuehong/wechat"
+	"github.com/chanxuehong/wechat/client"
 )
 
 func main() {
-	c := wechat.NewClient("appid", "appsecret", nil)
+	c := client.NewClient("appid", "appsecret", nil)
 
 	qrcode, err := c.QRCodeCreate(100, 1000)
 	if err != nil {
@@ -111,12 +103,12 @@ func main() {
 package main
 
 import (
-	"github.com/chanxuehong/wechat"
+	"github.com/chanxuehong/wechat/sns"
 	"net/http"
 )
 
 // 一个应用只用一个全局变量
-var oauth2Config = wechat.NewOAuth2Config("appid", "appsecret", "redirectURL", "scope0", "scope1")
+var oauth2Config = sns.NewOAuth2Config("appid", "appsecret", "redirectURL", "scope0", "scope1")
 
 // 引导用户到认证页面认证
 func landing(w http.ResponseWriter, r *http.Request) {
@@ -142,7 +134,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	if code := r.FormValue("code"); code != "" { // 授权
 
-		client := wechat.SNSClient{
+		client := sns.SNSClient{
 			OAuth2Config: oauth2Config,
 		}
 		token, err := client.Exchange(code)
