@@ -1,20 +1,22 @@
 # 微信公众平台 golang SDK
 
+#### 要求 go1.3+，如果你的环境是 go1.3 以下的，可以参考 github.com/chanxuehong/util/pool 来修改 client.Client 和 server.Server
+
 Version: 0.8.2
 
 NOTE: 在 v1.0.0 之前 API 都有可能微调
 
-#### 要求 go1.3+，如果你的环境是 go1.3 以下的，可以参考 github.com/chanxuehong/util/pool 来修改 client.Client 和 server.Server
+代码还在继续添加中，欢迎大家 push issues
+
+联系方式： chanxuehong@gmail.com
+
+QQ群：    297489459
 
 ## 简介
 
 目前完全实现的功能是被动消息的接收和处理（因为我的公众平台只有这个基本接口，订阅号、没有认证）；
 
 #### 其他部分的实现都是参考微信官方的 API 文档（没有经过现网测试），欢迎大家测试和 fork。
-
-代码还在继续添加中，欢迎大家 push issues。
-联系方式： chanxuehong@gmail.com
-QQ群：    297489459  
 
 ## 入门
 
@@ -34,9 +36,7 @@ http.Handle("/path", server)
 
 通过执行下列语句就可以完成安装
 
-	go get github.com/chanxuehong/wechat/client
-	go get github.com/chanxuehong/wechat/server
-	go get github.com/chanxuehong/wechat/sns
+	go get -u github.com/chanxuehong/wechat/...
 
 ## 示例
 
