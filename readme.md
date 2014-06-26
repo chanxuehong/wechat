@@ -33,10 +33,18 @@ http.Handle("/path", server)
 ```
 
 ## 安装
-
 通过执行下列语句就可以完成安装
 
 	go get -u github.com/chanxuehong/wechat/...
+
+## 文档
+通过上面步骤下载下来后，可以在shell(windows 下面是 cmd) 里运行
+	godoc -http=:80
+	
+然后在浏览器里地址栏输入 
+	http://localhost:8080/
+	
+即可查看文档
 
 ## 示例
 
