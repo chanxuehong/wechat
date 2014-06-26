@@ -46,8 +46,8 @@ http.Handle("/path", server)
 package main
 
 import (
-	"github.com/chanxuehong/wechat/server"
 	"github.com/chanxuehong/wechat/message/request"
+	wechat "github.com/chanxuehong/wechat/server"
 	"net/http"
 )
 
@@ -57,12 +57,12 @@ func TextRequestHandler(w http.ResponseWriter, r *http.Request, rqst *request.Te
 }
 
 func main() {
-	setting := server.ServerSetting{
+	setting := wechat.ServerSetting{
 		Token:              "yourToken",
 		TextRequestHandler: TextRequestHandler,
 	}
 
-	wechatServer := server.NewServer(&setting)
+	wechatServer := wechat.NewServer(&setting)
 	http.Handle("/path", wechatServer)
 
 	http.ListenAndServe(":80", nil) // 启动接收微信数据服务器
@@ -79,11 +79,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/chanxuehong/wechat/client"
+	wechat "github.com/chanxuehong/wechat/client"
 )
 
 func main() {
-	c := client.NewClient("appid", "appsecret", nil)
+	c := wechat.NewClient("appid", "appsecret", nil)
 
 	qrcode, err := c.QRCodeCreate(100, 1000)
 	if err != nil {
@@ -134,7 +134,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	if code := r.FormValue("code"); code != "" { // 授权
 
-		client := sns.SNSClient{
+		client := sns.Client{
 			OAuth2Config: oauth2Config,
 		}
 		token, err := client.Exchange(code)
