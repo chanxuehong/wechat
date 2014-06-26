@@ -40,7 +40,7 @@ http.Handle("/path", server)
 ## 文档
 通过上面步骤下载下来后，可以在shell(windows 下面是 cmd) 里运行
 
-	godoc -http=:80
+	godoc -http=:8080
 	
 然后在浏览器里地址栏输入 
 
