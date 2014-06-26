@@ -85,7 +85,7 @@ import (
 func main() {
 	c := wechat.NewClient("appid", "appsecret", nil)
 
-	qrcode, err := c.QRCodeCreate(100, 1000)
+	qrcode, err := c.QRCodeTemporaryCreate(100, 1000)
 	if err != nil {
 		fmt.Println(err)
 		return
