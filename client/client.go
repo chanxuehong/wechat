@@ -30,7 +30,7 @@ type Client struct {
 
 	//  NOTE: require go1.3+ , 如果你的环境不满足这个条件, 可以自己实现一个简单的 Pool,
 	//        see github.com/chanxuehong/util/pool
-	bufferPool *sync.Pool // 缓存的是 *bytes.Buffer
+	bufferPool sync.Pool // 缓存的是 *bytes.Buffer
 
 	httpClient *http.Client // 可以根据自己的需要定制 http.Client
 }
@@ -42,7 +42,7 @@ func NewClient(appid, appsecret string, httpClient *http.Client) *Client {
 		appid:                     appid,
 		appsecret:                 appsecret,
 		resetRefreshTokenTickChan: make(chan time.Duration), // 同步 channel
-		bufferPool: &sync.Pool{
+		bufferPool: sync.Pool{
 			New: newBuffer,
 		},
 	}
@@ -62,31 +62,26 @@ func NewClient(appid, appsecret string, httpClient *http.Client) *Client {
 // Client 通用的 json post 请求
 func (c *Client) postJSON(_url string, request interface{}, response interface{}) (err error) {
 	buf := c.getBufferFromPool()
-	// defer c.putBufferToPool(buf) // buf 要快速迭代, 所以不用 defer, 尽量提前释放
+	defer c.putBufferToPool(buf)
 
 	if err = json.NewEncoder(buf).Encode(request); err != nil {
-		c.putBufferToPool(buf) //
 		return
 	}
 
 	resp, err := c.httpClient.Post(_url, "application/json; charset=utf-8", buf)
-	c.putBufferToPool(buf) //
 	if err != nil {
 		return
 	}
-	// defer resp.Body.Close() // 逻辑简单, 不用 defer
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		resp.Body.Close() //
 		return fmt.Errorf("http.Status: %s", resp.Status)
 	}
 
 	if err = json.NewDecoder(resp.Body).Decode(response); err != nil {
-		resp.Body.Close() //
 		return
 	}
 
-	resp.Body.Close() //
 	return
 }
 
@@ -96,18 +91,15 @@ func (c *Client) getJSON(_url string, response interface{}) (err error) {
 	if err != nil {
 		return
 	}
-	// defer resp.Body.Close() // 逻辑简单, 不用 defer
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		resp.Body.Close() //
 		return fmt.Errorf("http.Status: %s", resp.Status)
 	}
 
 	if err = json.NewDecoder(resp.Body).Decode(response); err != nil {
-		resp.Body.Close() //
 		return
 	}
 
-	resp.Body.Close() //
 	return
 }

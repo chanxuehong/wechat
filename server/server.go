@@ -5,21 +5,20 @@ import (
 	"errors"
 	"github.com/chanxuehong/wechat/message/request"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"sync"
 )
 
 // 对于微信服务器推送过来的消息或者事件, 公众号服务程序就相当于服务器.
-// 被动回复和处理各种事件功能都封装在这个结构里; Server 并发安全.
-//  NOTE: 必须调用 NewServer() 创建对象!
+// 被动回复和处理各种事件功能都封装在这个结构里.
+// Server 并发安全.
 type Server struct {
 	setting ServerSetting
 
 	// 对于微信服务器推送过来的请求, 处理过程中有些中间状态比较大的变量, 所以可以缓存起来.
 	//  NOTE: require go1.3+ , 如果你的环境不满足这个条件, 可以自己实现一个简单的 Pool,
 	//        see github.com/chanxuehong/util/pool
-	bufferUnitPool *sync.Pool
+	bufferUnitPool sync.Pool
 }
 
 func NewServer(setting *ServerSetting) *Server {
@@ -29,7 +28,7 @@ func NewServer(setting *ServerSetting) *Server {
 
 	var srv Server
 	srv.setting.initialize(setting)
-	srv.bufferUnitPool = &sync.Pool{
+	srv.bufferUnitPool = sync.Pool{
 		New: newBufferUnit,
 	}
 
@@ -61,22 +60,22 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		bufferUnit := s.getBufferUnitFromPool() // *serverBufferUnit
+		bufferUnit := s.getBufferUnitFromPool() // *bufferUnit
 		defer s.putBufferUnitToPool(bufferUnit) // important!
 
-		if !_CheckSignature(signature, timestamp, nonce, s.setting.Token, bufferUnit.buf) {
+		if !checkSignature(signature, timestamp, nonce, s.setting.Token, bufferUnit.signatureBuf[:]) {
 			s.setting.InvalidRequestHandler(w, r, errors.New("check signature failed"))
 			return
 		}
 
-		requestBody, err := ioutil.ReadAll(r.Body)
-		if err != nil {
+		if _, err = io.Copy(bufferUnit.msgBuf, r.Body); err != nil {
 			s.setting.InvalidRequestHandler(w, r, err)
 			return
 		}
 
-		msgRqst := &bufferUnit.msgRequest
-		if err = xml.Unmarshal(requestBody, msgRqst); err != nil {
+		msgRqstBody := bufferUnit.msgBuf.Bytes()
+		msgRqst := &bufferUnit.msgRequest // & 不能丢
+		if err = xml.Unmarshal(msgRqstBody, msgRqst); err != nil {
 			s.setting.InvalidRequestHandler(w, r, err)
 			return
 		}
@@ -118,7 +117,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				s.setting.MassSendJobFinishEventHandler(w, r, msgRqst.MassSendJobFinishEvent())
 
 			default: // unknown event
-				s.setting.UnknownRequestHandler(w, r, requestBody)
+				msgRqstBodyCopy := make([]byte, len(msgRqstBody))
+				copy(msgRqstBodyCopy, msgRqstBody)
+				s.setting.UnknownRequestHandler(w, r, msgRqstBodyCopy)
 			}
 
 		case request.MSG_TYPE_LINK:
@@ -141,7 +142,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			s.setting.VideoRequestHandler(w, r, msgRqst.Video())
 
 		default: // unknown request message type
-			s.setting.UnknownRequestHandler(w, r, requestBody)
+			msgRqstBodyCopy := make([]byte, len(msgRqstBody))
+			copy(msgRqstBodyCopy, msgRqstBody)
+			s.setting.UnknownRequestHandler(w, r, msgRqstBodyCopy)
 		}
 
 	case "GET": // 首次验证 ======================================================
@@ -170,10 +173,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		bufferUnit := s.getBufferUnitFromPool() // *serverBufferUnit
+		bufferUnit := s.getBufferUnitFromPool() // *bufferUnit
 		defer s.putBufferUnitToPool(bufferUnit) // important!
 
-		if !_CheckSignature(signature, timestamp, nonce, s.setting.Token, bufferUnit.buf) {
+		if !checkSignature(signature, timestamp, nonce, s.setting.Token, bufferUnit.signatureBuf[:]) {
 			s.setting.InvalidRequestHandler(w, r, errors.New("check signature failed"))
 			return
 		}

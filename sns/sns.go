@@ -1,5 +1,3 @@
-// refer code.google.com/p/goauth2/oauth
-
 package sns
 
 import (
@@ -10,6 +8,8 @@ import (
 	"strings"
 	"time"
 )
+
+// refer code.google.com/p/goauth2/oauth
 
 // OAuth2Config is the configuration of an OAuth consumer.
 type OAuth2Config struct {
@@ -28,25 +28,13 @@ type OAuth2Config struct {
 	// RedirectURL is the URL to which the user will be returned after
 	// granting (or denying) access.
 	RedirectURL string
-
-	// Optional, "online" (default) or "offline", no refresh token if "online"
-	AccessType string
-
-	// ApprovalPrompt indicates whether the user should be
-	// re-prompted for consent. If set to "auto" (default) the
-	// user will be prompted only if they haven't previously
-	// granted consent and the code can only be exchanged for an
-	// access token.
-	// If set to "force" the user will always be prompted, and the
-	// code can be exchanged for a refresh token.
-	ApprovalPrompt string
 }
 
 func NewOAuth2Config(appid, appsecret, redirectURL string, scope ...string) *OAuth2Config {
 	return &OAuth2Config{
 		ClientId:     appid,
 		ClientSecret: appsecret,
-		Scope:        strings.Join(scope, " "),
+		Scope:        strings.Join(scope, "\x20"),
 		RedirectURL:  redirectURL,
 	}
 }
@@ -54,7 +42,7 @@ func NewOAuth2Config(appid, appsecret, redirectURL string, scope ...string) *OAu
 // AuthCodeURL returns a URL that the end-user should be redirected to,
 // so that they may obtain an authorization code.
 func (c *OAuth2Config) AuthCodeURL(state string) string {
-	return snsOAuth2AuthURL(c.ClientId, c.RedirectURL, c.Scope, state)
+	return oauth2AuthURL(c.ClientId, c.RedirectURL, c.Scope, state)
 }
 
 // OAuth2Token contains an end-user's tokens.
@@ -64,9 +52,9 @@ type OAuth2Token struct {
 	RefreshToken string
 	Expiry       int64 // unixtime; If zero the token has no (known) expiry time.
 
-	// wechat extra
-	OpenId string
-	Scope  string
+	// 微信扩展
+	OpenId string   // 用户唯一标识，请注意，在未关注公众号时，用户访问公众号的网页，也会产生一个用户和公众号唯一的OpenID
+	Scopes []string // 用户授权的作用域
 }
 
 func (t *OAuth2Token) Expired() bool {
@@ -76,7 +64,7 @@ func (t *OAuth2Token) Expired() bool {
 	return time.Now().Unix() > t.Expiry
 }
 
-type SNSClient struct {
+type Client struct {
 	*OAuth2Config
 	*OAuth2Token
 
@@ -84,7 +72,7 @@ type SNSClient struct {
 	HttpClient *http.Client
 }
 
-func (c *SNSClient) httpClient() *http.Client {
+func (c *Client) httpClient() *http.Client {
 	if c.HttpClient != nil {
 		return c.HttpClient
 	}
@@ -92,7 +80,7 @@ func (c *SNSClient) httpClient() *http.Client {
 }
 
 // 通过code换取网页授权access_token
-func (c *SNSClient) Exchange(code string) (*OAuth2Token, error) {
+func (c *Client) Exchange(code string) (*OAuth2Token, error) {
 	if len(code) == 0 {
 		return nil, errors.New(`code == ""`)
 	}
@@ -100,13 +88,13 @@ func (c *SNSClient) Exchange(code string) (*OAuth2Token, error) {
 		return nil, errors.New("no OAuth2Config supplied")
 	}
 
-	// If the SNSClient has a token, preserve existing refresh token.
+	// If the Client has a token, preserve existing refresh token.
 	tok := c.OAuth2Token
 	if tok == nil {
 		tok = new(OAuth2Token)
 	}
 
-	_url := snsOAuth2TokenURL(c.ClientId, c.ClientSecret, code)
+	_url := oauth2TokenURL(c.ClientId, c.ClientSecret, code)
 	resp, err := c.httpClient().Get(_url)
 	if err != nil {
 		return nil, err
@@ -140,6 +128,7 @@ func (c *SNSClient) Exchange(code string) (*OAuth2Token, error) {
 	if len(result.RefreshToken) > 0 {
 		tok.RefreshToken = result.RefreshToken
 	}
+
 	switch {
 	case result.ExpiresIn > 10: // 正常情况下远大于 10
 		// 考虑到网络延时，提前 10 秒过期
@@ -151,15 +140,16 @@ func (c *SNSClient) Exchange(code string) (*OAuth2Token, error) {
 	default:
 		return nil, fmt.Errorf("token ExpiresIn: %d < 0", result.ExpiresIn)
 	}
+
 	tok.OpenId = result.OpenId
-	tok.Scope = result.Scope
+	tok.Scopes = strings.Split(result.Scope, ",")
 
 	c.OAuth2Token = tok
 	return tok, nil
 }
 
 // 刷新access_token（如果需要）
-func (c *SNSClient) Refresh() error {
+func (c *Client) Refresh() error {
 	if c.OAuth2Config == nil {
 		return errors.New("no OAuth2Config supplied")
 	}
@@ -170,7 +160,7 @@ func (c *SNSClient) Refresh() error {
 		return errors.New("no Refresh Token")
 	}
 
-	_url := snsOAuth2RefreshTokenURL(c.ClientId, c.RefreshToken)
+	_url := oauth2RefreshTokenURL(c.ClientId, c.RefreshToken)
 	resp, err := c.httpClient().Get(_url)
 	if err != nil {
 		return err
@@ -199,30 +189,33 @@ func (c *SNSClient) Refresh() error {
 		return &result.Error
 	}
 
-	c.OAuth2Token.AccessToken = result.AccessToken
+	c.AccessToken = result.AccessToken
 	// Don't overwrite `RefreshToken` with an empty value
 	if len(result.RefreshToken) > 0 {
-		c.OAuth2Token.RefreshToken = result.RefreshToken
+		c.RefreshToken = result.RefreshToken
 	}
+
 	switch {
 	case result.ExpiresIn > 10: // 正常情况下远大于 10
 		// 考虑到网络延时，提前 10 秒过期
-		c.OAuth2Token.Expiry = time.Now().Unix() + result.ExpiresIn - 10
+		c.Expiry = time.Now().Unix() + result.ExpiresIn - 10
 	case result.ExpiresIn > 0:
-		c.OAuth2Token.Expiry = time.Now().Unix() + result.ExpiresIn
+		c.Expiry = time.Now().Unix() + result.ExpiresIn
 	case result.ExpiresIn == 0:
-		c.OAuth2Token.Expiry = 0
+		c.Expiry = 0
 	default:
 		return fmt.Errorf("token ExpiresIn: %d < 0", result.ExpiresIn)
 	}
-	c.OAuth2Token.OpenId = result.OpenId
-	c.OAuth2Token.Scope = result.Scope
+
+	c.OpenId = result.OpenId
+	c.Scopes = strings.Split(result.Scope, ",")
+
 	return nil
 }
 
 // 拉取用户信息(需scope为 snsapi_userinfo).
 //  lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
-func (c *SNSClient) UserInfo(openid, lang string) (*UserInfo, error) {
+func (c *Client) UserInfo(openid, lang string) (*UserInfo, error) {
 	if len(openid) == 0 {
 		return nil, errors.New(`openid == ""`)
 	}
@@ -245,7 +238,7 @@ func (c *SNSClient) UserInfo(openid, lang string) (*UserInfo, error) {
 		}
 	}
 
-	_url := snsUserInfoURL(c.AccessToken, openid, lang)
+	_url := userInfoURL(c.AccessToken, openid, lang)
 	resp, err := c.httpClient().Get(_url)
 	if err != nil {
 		return nil, err
