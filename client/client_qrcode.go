@@ -8,18 +8,19 @@ import (
 	"math"
 	"net/http"
 	"os"
+	"time"
 )
 
 // 创建临时二维码
-func (c *Client) QRCodeCreate(sceneId int, expireSeconds int) (*qrcode.QRCode, error) {
+func (c *Client) QRCodeTemporaryCreate(sceneId int, expireSeconds int) (*qrcode.TemporaryQRCode, error) {
 	if sceneId == 0 {
 		return nil, errors.New("sceneId 应该是个32位非0整型")
 	}
 	if sceneId < math.MinInt32 || sceneId > math.MaxUint32 { // 包括了 int32, uint32
 		return nil, errors.New("sceneId 应该是个32位非0整型")
 	}
-	if expireSeconds <= 0 || expireSeconds > qrcode.QRCodeExpireSecondsLimit {
-		return nil, fmt.Errorf("expireSeconds 应该在 (0,%d] 之间", qrcode.QRCodeExpireSecondsLimit)
+	if expireSeconds <= 0 || expireSeconds > qrcode.TemporaryQRCodeExpireSecondsLimit {
+		return nil, fmt.Errorf("expireSeconds 应该在 (0,%d] 之间", qrcode.TemporaryQRCodeExpireSecondsLimit)
 	}
 
 	token, err := c.Token()
@@ -43,7 +44,8 @@ func (c *Client) QRCodeCreate(sceneId int, expireSeconds int) (*qrcode.QRCode, e
 	request.ActionInfo.Scene.SceneId = sceneId
 
 	var result struct {
-		qrcode.QRCode
+		Ticket        string `json:"ticket"`
+		ExpireSeconds int64  `json:"expire_seconds"`
 		Error
 	}
 	if err = c.postJSON(_url, &request, &result); err != nil {
@@ -53,14 +55,19 @@ func (c *Client) QRCodeCreate(sceneId int, expireSeconds int) (*qrcode.QRCode, e
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}
-	result.QRCode.SceneId = sceneId
-	return &result.QRCode, nil
+
+	var ret qrcode.TemporaryQRCode
+	ret.SceneId = sceneId
+	ret.Ticket = result.Ticket
+	ret.Expiry = time.Now().Unix() + result.ExpireSeconds
+
+	return &ret, nil
 }
 
 // 创建永久二维码
-func (c *Client) QRCodeLimitCreate(sceneId int) (*qrcode.QRCode, error) {
-	if sceneId <= 0 || sceneId > qrcode.QRCodeLimitSceneIdLimit {
-		return nil, fmt.Errorf("sceneId 应该在 (0,%d] 之间", qrcode.QRCodeLimitSceneIdLimit)
+func (c *Client) QRCodePermanentCreate(sceneId int) (*qrcode.PermanentQRCode, error) {
+	if sceneId <= 0 || sceneId > qrcode.PermanentQRCodeSceneIdLimit {
+		return nil, fmt.Errorf("sceneId 应该在 (0,%d] 之间", qrcode.PermanentQRCodeSceneIdLimit)
 	}
 
 	token, err := c.Token()
@@ -82,7 +89,7 @@ func (c *Client) QRCodeLimitCreate(sceneId int) (*qrcode.QRCode, error) {
 	request.ActionInfo.Scene.SceneId = sceneId
 
 	var result struct {
-		qrcode.QRCode
+		qrcode.PermanentQRCode
 		Error
 	}
 	if err = c.postJSON(_url, &request, &result); err != nil {
@@ -92,9 +99,8 @@ func (c *Client) QRCodeLimitCreate(sceneId int) (*qrcode.QRCode, error) {
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}
-	result.QRCode.SceneId = sceneId
-	result.QRCode.ExpireSeconds = 0 // 强制为 0
-	return &result.QRCode, nil
+	result.PermanentQRCode.SceneId = sceneId
+	return &result.PermanentQRCode, nil
 }
 
 // 根据 qrcode ticket 得到 qrcode 图片的 url
@@ -118,11 +124,13 @@ func QRCodeDownload(ticket string, writer io.Writer) error {
 	}
 	defer resp.Body.Close()
 
+	// ticket正确情况下，http 返回码是200，是一张图片，可以直接展示或者下载。
 	if resp.StatusCode == http.StatusOK {
 		_, err = io.Copy(writer, resp.Body)
 		return err
 	}
 
+	// 错误情况下（如ticket非法）返回HTTP错误码404。
 	return fmt.Errorf("qrcode with ticket %s not found", ticket)
 }
 

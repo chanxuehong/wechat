@@ -1,8 +1,8 @@
 package qrcode
 
 const (
-	// 临时二维码最大过期时间是 1800 秒
-	QRCodeExpireSecondsLimit = 1800
-	// 永久二维码数量限制
-	QRCodeLimitSceneIdLimit = 100000
+	// 临时二维码 expire seconds 限制
+	TemporaryQRCodeExpireSecondsLimit = 1800
+	// 永久二维码 scene id 限制
+	PermanentQRCodeSceneIdLimit = 100000
 )
