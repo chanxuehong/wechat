@@ -145,7 +145,7 @@ func TestProductMarshal(t *testing.T) {
 			Quantity:      800,
 		},
 	}
-	_product.DeliveryInfo = NewDeliveryInfoFromExpresses([]Express{
+	_product.SetDeliveryInfoWithExpresses([]Express{
 		{
 			Id:    10000027,
 			Price: 100,
