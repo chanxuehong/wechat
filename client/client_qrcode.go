@@ -5,19 +5,15 @@ import (
 	"fmt"
 	"github.com/chanxuehong/wechat/qrcode"
 	"io"
-	"math"
 	"net/http"
 	"os"
 	"time"
 )
 
 // 创建临时二维码
-func (c *Client) QRCodeTemporaryCreate(sceneId int, expireSeconds int) (*qrcode.TemporaryQRCode, error) {
+func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (*qrcode.TemporaryQRCode, error) {
 	if sceneId == 0 {
-		return nil, errors.New("sceneId 应该是个32位非0整型")
-	}
-	if sceneId < math.MinInt32 || sceneId > math.MaxUint32 { // 包括了 int32, uint32
-		return nil, errors.New("sceneId 应该是个32位非0整型")
+		return nil, errors.New("sceneId 应该是个32位非0整数")
 	}
 	if expireSeconds <= 0 || expireSeconds > qrcode.TemporaryQRCodeExpireSecondsLimit {
 		return nil, fmt.Errorf("expireSeconds 应该在 (0,%d] 之间", qrcode.TemporaryQRCodeExpireSecondsLimit)
@@ -34,7 +30,7 @@ func (c *Client) QRCodeTemporaryCreate(sceneId int, expireSeconds int) (*qrcode.
 		ActionName    string `json:"action_name"`
 		ActionInfo    struct {
 			Scene struct {
-				SceneId int `json:"scene_id"`
+				SceneId uint32 `json:"scene_id"`
 			} `json:"scene"`
 		} `json:"action_info"`
 	}
@@ -65,8 +61,8 @@ func (c *Client) QRCodeTemporaryCreate(sceneId int, expireSeconds int) (*qrcode.
 }
 
 // 创建永久二维码
-func (c *Client) QRCodePermanentCreate(sceneId int) (*qrcode.PermanentQRCode, error) {
-	if sceneId <= 0 || sceneId > qrcode.PermanentQRCodeSceneIdLimit {
+func (c *Client) QRCodePermanentCreate(sceneId uint32) (*qrcode.PermanentQRCode, error) {
+	if sceneId == 0 || sceneId > qrcode.PermanentQRCodeSceneIdLimit {
 		return nil, fmt.Errorf("sceneId 应该在 (0,%d] 之间", qrcode.PermanentQRCodeSceneIdLimit)
 	}
 
@@ -80,7 +76,7 @@ func (c *Client) QRCodePermanentCreate(sceneId int) (*qrcode.PermanentQRCode, er
 		ActionName string `json:"action_name"`
 		ActionInfo struct {
 			Scene struct {
-				SceneId int `json:"scene_id"`
+				SceneId uint32 `json:"scene_id"`
 			} `json:"scene"`
 		} `json:"action_info"`
 	}

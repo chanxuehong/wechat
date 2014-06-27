@@ -1,5 +1,11 @@
 package request
 
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
+
 type CommonHead struct {
 	ToUserName   string `xml:"ToUserName"   json:"ToUserName"`   // 开发者微信号
 	FromUserName string `xml:"FromUserName" json:"FromUserName"` // 发送方帐号(一个OpenID)
@@ -255,6 +261,23 @@ type SubscribeByScanEvent struct {
 	Ticket   string `json:"Ticket"`   // 二维码的ticket，可用来换取二维码图片
 }
 
+// 获取二维码参数
+func (event *SubscribeByScanEvent) SceneId() (id uint32, err error) {
+	const prefix = "qrscene_"
+
+	if !strings.HasPrefix(event.EventKey, prefix) {
+		err = fmt.Errorf("EventKey(%s) 应该以 %s 为前缀", event.EventKey, prefix)
+		return
+	}
+
+	id64, err := strconv.ParseUint(event.EventKey[len(prefix):], 10, 32)
+	if err != nil {
+		return
+	}
+	id = uint32(id64)
+	return
+}
+
 func (msg *Request) SubscribeByScanEvent() *SubscribeByScanEvent {
 	var r SubscribeByScanEvent
 	r.CommonHead = msg.CommonHead
@@ -272,6 +295,16 @@ type ScanEvent struct {
 	Event    string `json:"Event"`    // 事件类型，SCAN
 	EventKey string `json:"EventKey"` // 事件KEY值，是一个32位无符号整数，即创建二维码时的二维码scene_id
 	Ticket   string `json:"Ticket"`   // 二维码的ticket，可用来换取二维码图片
+}
+
+// 获取二维码参数
+func (event *ScanEvent) SceneId() (id uint32, err error) {
+	id64, err := strconv.ParseUint(event.EventKey, 10, 32)
+	if err != nil {
+		return
+	}
+	id = uint32(id64)
+	return
 }
 
 func (msg *Request) ScanEvent() *ScanEvent {
