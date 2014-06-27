@@ -87,17 +87,40 @@ func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) 
 		return nil, fmt.Errorf("http.Status: %s", resp.Status)
 	}
 
-	var result struct {
-		media.UploadResponse
-		Error
+	switch mediaType {
+	case media.MEDIA_TYPE_THUMB: // 返回的是 thumb_media_id 而不是 media_id
+		var result struct {
+			MediaType string `json:"type"`
+			MediaId   string `json:"thumb_media_id"`
+			CreatedAt int64  `json:"created_at"`
+			Error
+		}
+		if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+			return nil, err
+		}
+		if result.ErrCode != 0 {
+			return nil, &result.Error
+		}
+
+		var resp media.UploadResponse
+		resp.MediaType = result.MediaType
+		resp.MediaId = result.MediaId
+		resp.CreatedAt = result.CreatedAt
+		return &resp, nil
+
+	default:
+		var result struct {
+			media.UploadResponse
+			Error
+		}
+		if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+			return nil, err
+		}
+		if result.ErrCode != 0 {
+			return nil, &result.Error
+		}
+		return &result.UploadResponse, nil
 	}
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, err
-	}
-	if result.ErrCode != 0 {
-		return nil, &result.Error
-	}
-	return &result.UploadResponse, nil
 }
 
 // 下载多媒体文件.
