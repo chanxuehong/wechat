@@ -2,7 +2,7 @@
 
 #### 要求 go1.3+，如果你的环境是 go1.3 以下的，可以参考 github.com/chanxuehong/util/pool 来修改 client.Client 和 server.Server，或者直接用 sync.pool.patch 里的文件覆盖。
 
-Version: 0.8.2
+Version: 0.8.3
 
 NOTE: 在 v1.0.0 之前 API 都有可能微调
 
