@@ -135,8 +135,8 @@ func NewMusic(to, thumbMediaId, musicURL, HQMusicURL, title, description string)
 type NewsArticle struct {
 	Title       string `json:"title,omitempty"`       // 图文消息标题
 	Description string `json:"description,omitempty"` // 图文消息描述
-	URL         string `json:"url,omitempty"`         // 点击图文消息跳转链接
 	PicURL      string `json:"picurl,omitempty"`      // 图文消息的图片链接，支持JPG、PNG格式，较好的效果为大图640*320，小图80*80
+	URL         string `json:"url,omitempty"`         // 点击图文消息跳转链接
 }
 
 // 图文消息
@@ -144,7 +144,7 @@ type News struct {
 	CommonHead
 
 	News struct {
-		Articles []*NewsArticle `json:"articles"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
+		Articles []*NewsArticle `json:"articles,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
 	} `json:"news"`
 }
 

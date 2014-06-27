@@ -12,13 +12,13 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 	// 测试文本消息===============================================================
 
 	msgBytes = []byte(`<xml>
- <ToUserName><![CDATA[toUser]]></ToUserName>
- <FromUserName><![CDATA[fromUser]]></FromUserName> 
- <CreateTime>1348831860</CreateTime>
- <MsgType><![CDATA[text]]></MsgType>
- <Content><![CDATA[this is a test]]></Content>
- <MsgId>1234567890123456</MsgId>
- </xml>`)
+		<ToUserName><![CDATA[toUser]]></ToUserName>
+		<FromUserName><![CDATA[fromUser]]></FromUserName> 
+		<CreateTime>1348831860</CreateTime>
+		<MsgType><![CDATA[text]]></MsgType>
+		<Content><![CDATA[this is a test]]></Content>
+		<MsgId>1234567890123456</MsgId>
+	</xml>`)
 
 	req.Zero()
 	if err := xml.Unmarshal(msgBytes, &req); err != nil {
@@ -60,14 +60,14 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 	// 测试图片消息===============================================================
 
 	msgBytes = []byte(`<xml>
- <ToUserName><![CDATA[toUser]]></ToUserName>
- <FromUserName><![CDATA[fromUser]]></FromUserName>
- <CreateTime>1348831860</CreateTime>
- <MsgType><![CDATA[image]]></MsgType>
- <PicUrl><![CDATA[this is a url]]></PicUrl>
- <MediaId><![CDATA[media_id]]></MediaId>
- <MsgId>1234567890123456</MsgId>
- </xml>`)
+		<ToUserName><![CDATA[toUser]]></ToUserName>
+		<FromUserName><![CDATA[fromUser]]></FromUserName>
+		<CreateTime>1348831860</CreateTime>
+		<MsgType><![CDATA[image]]></MsgType>
+		<PicUrl><![CDATA[this is a url]]></PicUrl>
+		<MediaId><![CDATA[media_id]]></MediaId>
+		<MsgId>1234567890123456</MsgId>
+	</xml>`)
 
 	req.Zero()
 	if err := xml.Unmarshal(msgBytes, &req); err != nil {
@@ -111,14 +111,14 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 	// 测试语音消息===============================================================
 
 	msgBytes = []byte(`<xml>
-<ToUserName><![CDATA[toUser]]></ToUserName>
-<FromUserName><![CDATA[fromUser]]></FromUserName>
-<CreateTime>1357290913</CreateTime>
-<MsgType><![CDATA[voice]]></MsgType>
-<MediaId><![CDATA[media_id]]></MediaId>
-<Format><![CDATA[Format]]></Format>
-<MsgId>1234567890123456</MsgId>
-</xml>`)
+		<ToUserName><![CDATA[toUser]]></ToUserName>
+		<FromUserName><![CDATA[fromUser]]></FromUserName>
+		<CreateTime>1357290913</CreateTime>
+		<MsgType><![CDATA[voice]]></MsgType>
+		<MediaId><![CDATA[media_id]]></MediaId>
+		<Format><![CDATA[Format]]></Format>
+		<MsgId>1234567890123456</MsgId>
+	</xml>`)
 
 	req.Zero()
 	if err := xml.Unmarshal(msgBytes, &req); err != nil {
@@ -162,15 +162,15 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 	// 测试语音识别结果消息=========================================================
 
 	msgBytes = []byte(`<xml>
-<ToUserName><![CDATA[toUser]]></ToUserName>
-<FromUserName><![CDATA[fromUser]]></FromUserName>
-<CreateTime>1357290913</CreateTime>
-<MsgType><![CDATA[voice]]></MsgType>
-<MediaId><![CDATA[media_id]]></MediaId>
-<Format><![CDATA[Format]]></Format>
-<Recognition><![CDATA[腾讯微信团队]]></Recognition>
-<MsgId>1234567890123456</MsgId>
-</xml>`)
+		<ToUserName><![CDATA[toUser]]></ToUserName>
+		<FromUserName><![CDATA[fromUser]]></FromUserName>
+		<CreateTime>1357290913</CreateTime>
+		<MsgType><![CDATA[voice]]></MsgType>
+		<MediaId><![CDATA[media_id]]></MediaId>
+		<Format><![CDATA[Format]]></Format>
+		<Recognition><![CDATA[腾讯微信团队]]></Recognition>
+		<MsgId>1234567890123456</MsgId>
+	</xml>`)
 
 	req.Zero()
 	if err := xml.Unmarshal(msgBytes, &req); err != nil {
@@ -216,14 +216,14 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 	// 测试视频消息===============================================================
 
 	msgBytes = []byte(`<xml>
-<ToUserName><![CDATA[toUser]]></ToUserName>
-<FromUserName><![CDATA[fromUser]]></FromUserName>
-<CreateTime>1357290913</CreateTime>
-<MsgType><![CDATA[video]]></MsgType>
-<MediaId><![CDATA[media_id]]></MediaId>
-<ThumbMediaId><![CDATA[thumb_media_id]]></ThumbMediaId>
-<MsgId>1234567890123456</MsgId>
-</xml>`)
+		<ToUserName><![CDATA[toUser]]></ToUserName>
+		<FromUserName><![CDATA[fromUser]]></FromUserName>
+		<CreateTime>1357290913</CreateTime>
+		<MsgType><![CDATA[video]]></MsgType>
+		<MediaId><![CDATA[media_id]]></MediaId>
+		<ThumbMediaId><![CDATA[thumb_media_id]]></ThumbMediaId>
+		<MsgId>1234567890123456</MsgId>
+	</xml>`)
 
 	req.Zero()
 	if err := xml.Unmarshal(msgBytes, &req); err != nil {
@@ -267,16 +267,16 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 	// 测试地理位置消息============================================================
 
 	msgBytes = []byte(`<xml>
-<ToUserName><![CDATA[toUser]]></ToUserName>
-<FromUserName><![CDATA[fromUser]]></FromUserName>
-<CreateTime>1351776360</CreateTime>
-<MsgType><![CDATA[location]]></MsgType>
-<Location_X>23.134525</Location_X>
-<Location_Y>113.358805</Location_Y>
-<Scale>20</Scale>
-<Label><![CDATA[位置信息]]></Label>
-<MsgId>1234567890123456</MsgId>
-</xml>`)
+		<ToUserName><![CDATA[toUser]]></ToUserName>
+		<FromUserName><![CDATA[fromUser]]></FromUserName>
+		<CreateTime>1351776360</CreateTime>
+		<MsgType><![CDATA[location]]></MsgType>
+		<Location_X>23.134525</Location_X>
+		<Location_Y>113.358805</Location_Y>
+		<Scale>20</Scale>
+		<Label><![CDATA[位置信息]]></Label>
+		<MsgId>1234567890123456</MsgId>
+	</xml>`)
 
 	req.Zero()
 	if err := xml.Unmarshal(msgBytes, &req); err != nil {
@@ -324,15 +324,15 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 	// 测试链接消息===============================================================
 
 	msgBytes = []byte(`<xml>
-<ToUserName><![CDATA[toUser]]></ToUserName>
-<FromUserName><![CDATA[fromUser]]></FromUserName>
-<CreateTime>1351776360</CreateTime>
-<MsgType><![CDATA[link]]></MsgType>
-<Title><![CDATA[公众平台官网链接]]></Title>
-<Description><![CDATA[公众平台官网链接]]></Description>
-<Url><![CDATA[url]]></Url>
-<MsgId>1234567890123456</MsgId>
-</xml>`)
+		<ToUserName><![CDATA[toUser]]></ToUserName>
+		<FromUserName><![CDATA[fromUser]]></FromUserName>
+		<CreateTime>1351776360</CreateTime>
+		<MsgType><![CDATA[link]]></MsgType>
+		<Title><![CDATA[公众平台官网链接]]></Title>
+		<Description><![CDATA[公众平台官网链接]]></Description>
+		<Url><![CDATA[url]]></Url>
+		<MsgId>1234567890123456</MsgId>
+	</xml>`)
 
 	req.Zero()
 	if err := xml.Unmarshal(msgBytes, &req); err != nil {
@@ -378,12 +378,12 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 	// 测试关注事件消息===============================================================
 
 	msgBytes = []byte(`<xml>
-<ToUserName><![CDATA[toUser]]></ToUserName>
-<FromUserName><![CDATA[FromUser]]></FromUserName>
-<CreateTime>123456789</CreateTime>
-<MsgType><![CDATA[event]]></MsgType>
-<Event><![CDATA[subscribe]]></Event>
-</xml>`)
+		<ToUserName><![CDATA[toUser]]></ToUserName>
+		<FromUserName><![CDATA[FromUser]]></FromUserName>
+		<CreateTime>123456789</CreateTime>
+		<MsgType><![CDATA[event]]></MsgType>
+		<Event><![CDATA[subscribe]]></Event>
+	</xml>`)
 
 	req.Zero()
 	if err := xml.Unmarshal(msgBytes, &req); err != nil {
@@ -423,12 +423,12 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 	// 测试取消关注事件============================================================
 
 	msgBytes = []byte(`<xml>
-<ToUserName><![CDATA[toUser]]></ToUserName>
-<FromUserName><![CDATA[FromUser]]></FromUserName>
-<CreateTime>123456789</CreateTime>
-<MsgType><![CDATA[event]]></MsgType>
-<Event><![CDATA[unsubscribe]]></Event>
-</xml>`)
+		<ToUserName><![CDATA[toUser]]></ToUserName>
+		<FromUserName><![CDATA[FromUser]]></FromUserName>
+		<CreateTime>123456789</CreateTime>
+		<MsgType><![CDATA[event]]></MsgType>
+		<Event><![CDATA[unsubscribe]]></Event>
+	</xml>`)
 
 	req.Zero()
 	if err := xml.Unmarshal(msgBytes, &req); err != nil {
@@ -468,13 +468,13 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 	// 扫描带参数二维码事件, 用户未关注时，进行关注后的事件推送============================
 
 	msgBytes = []byte(`<xml><ToUserName><![CDATA[toUser]]></ToUserName>
-<FromUserName><![CDATA[FromUser]]></FromUserName>
-<CreateTime>123456789</CreateTime>
-<MsgType><![CDATA[event]]></MsgType>
-<Event><![CDATA[subscribe]]></Event>
-<EventKey><![CDATA[qrscene_123123]]></EventKey>
-<Ticket><![CDATA[TICKET]]></Ticket>
-</xml>`)
+		<FromUserName><![CDATA[FromUser]]></FromUserName>
+		<CreateTime>123456789</CreateTime>
+		<MsgType><![CDATA[event]]></MsgType>
+		<Event><![CDATA[subscribe]]></Event>
+		<EventKey><![CDATA[qrscene_123123]]></EventKey>
+		<Ticket><![CDATA[TICKET]]></Ticket>
+	</xml>`)
 
 	req.Zero()
 	if err := xml.Unmarshal(msgBytes, &req); err != nil {
@@ -518,14 +518,14 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 	// 扫描带参数二维码事件, 用户已关注时的事件推送=====================================
 
 	msgBytes = []byte(`<xml>
-<ToUserName><![CDATA[toUser]]></ToUserName>
-<FromUserName><![CDATA[FromUser]]></FromUserName>
-<CreateTime>123456789</CreateTime>
-<MsgType><![CDATA[event]]></MsgType>
-<Event><![CDATA[SCAN]]></Event>
-<EventKey><![CDATA[SCENE_VALUE]]></EventKey>
-<Ticket><![CDATA[TICKET]]></Ticket>
-</xml>`)
+		<ToUserName><![CDATA[toUser]]></ToUserName>
+		<FromUserName><![CDATA[FromUser]]></FromUserName>
+		<CreateTime>123456789</CreateTime>
+		<MsgType><![CDATA[event]]></MsgType>
+		<Event><![CDATA[SCAN]]></Event>
+		<EventKey><![CDATA[SCENE_VALUE]]></EventKey>
+		<Ticket><![CDATA[TICKET]]></Ticket>
+	</xml>`)
 
 	req.Zero()
 	if err := xml.Unmarshal(msgBytes, &req); err != nil {
@@ -569,15 +569,15 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 	// 上报地理位置事件============================================================
 
 	msgBytes = []byte(`<xml>
-<ToUserName><![CDATA[toUser]]></ToUserName>
-<FromUserName><![CDATA[fromUser]]></FromUserName>
-<CreateTime>123456789</CreateTime>
-<MsgType><![CDATA[event]]></MsgType>
-<Event><![CDATA[LOCATION]]></Event>
-<Latitude>23.137465</Latitude>
-<Longitude>113.352425</Longitude>
-<Precision>119.385045</Precision>
-</xml>`)
+		<ToUserName><![CDATA[toUser]]></ToUserName>
+		<FromUserName><![CDATA[fromUser]]></FromUserName>
+		<CreateTime>123456789</CreateTime>
+		<MsgType><![CDATA[event]]></MsgType>
+		<Event><![CDATA[LOCATION]]></Event>
+		<Latitude>23.137465</Latitude>
+		<Longitude>113.352425</Longitude>
+		<Precision>119.385045</Precision>
+	</xml>`)
 
 	req.Zero()
 	if err := xml.Unmarshal(msgBytes, &req); err != nil {
@@ -623,13 +623,13 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 	// 点击菜单拉取消息时的事件推送===================================================
 
 	msgBytes = []byte(`<xml>
-<ToUserName><![CDATA[toUser]]></ToUserName>
-<FromUserName><![CDATA[FromUser]]></FromUserName>
-<CreateTime>123456789</CreateTime>
-<MsgType><![CDATA[event]]></MsgType>
-<Event><![CDATA[CLICK]]></Event>
-<EventKey><![CDATA[EVENTKEY]]></EventKey>
-</xml>`)
+		<ToUserName><![CDATA[toUser]]></ToUserName>
+		<FromUserName><![CDATA[FromUser]]></FromUserName>
+		<CreateTime>123456789</CreateTime>
+		<MsgType><![CDATA[event]]></MsgType>
+		<Event><![CDATA[CLICK]]></Event>
+		<EventKey><![CDATA[EVENTKEY]]></EventKey>
+	</xml>`)
 
 	req.Zero()
 	if err := xml.Unmarshal(msgBytes, &req); err != nil {
@@ -671,13 +671,13 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 	// 点击菜单跳转链接时的事件推送===================================================
 
 	msgBytes = []byte(`<xml>
-<ToUserName><![CDATA[toUser]]></ToUserName>
-<FromUserName><![CDATA[FromUser]]></FromUserName>
-<CreateTime>123456789</CreateTime>
-<MsgType><![CDATA[event]]></MsgType>
-<Event><![CDATA[VIEW]]></Event>
-<EventKey><![CDATA[www.qq.com]]></EventKey>
-</xml>`)
+		<ToUserName><![CDATA[toUser]]></ToUserName>
+		<FromUserName><![CDATA[FromUser]]></FromUserName>
+		<CreateTime>123456789</CreateTime>
+		<MsgType><![CDATA[event]]></MsgType>
+		<Event><![CDATA[VIEW]]></Event>
+		<EventKey><![CDATA[www.qq.com]]></EventKey>
+	</xml>`)
 
 	req.Zero()
 	if err := xml.Unmarshal(msgBytes, &req); err != nil {
@@ -719,18 +719,18 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 	// 高级群发消息，事件推送群发结果=================================================
 
 	msgBytes = []byte(`<xml>
-<ToUserName><![CDATA[gh_3e8adccde292]]></ToUserName>
-<FromUserName><![CDATA[oR5Gjjl_eiZoUpGozMo7dbBJ362A]]></FromUserName>
-<CreateTime>1394524295</CreateTime>
-<MsgType><![CDATA[event]]></MsgType>
-<Event><![CDATA[MASSSENDJOBFINISH]]></Event>
-<MsgID>1988</MsgID>
-<Status><![CDATA[sendsuccess]]></Status>
-<TotalCount>100</TotalCount>
-<FilterCount>80</FilterCount>
-<SentCount>75</SentCount>
-<ErrorCount>5</ErrorCount>
-</xml>`)
+		<ToUserName><![CDATA[gh_3e8adccde292]]></ToUserName>
+		<FromUserName><![CDATA[oR5Gjjl_eiZoUpGozMo7dbBJ362A]]></FromUserName>
+		<CreateTime>1394524295</CreateTime>
+		<MsgType><![CDATA[event]]></MsgType>
+		<Event><![CDATA[MASSSENDJOBFINISH]]></Event>
+		<MsgID>1988</MsgID>
+		<Status><![CDATA[sendsuccess]]></Status>
+		<TotalCount>100</TotalCount>
+		<FilterCount>80</FilterCount>
+		<SentCount>75</SentCount>
+		<ErrorCount>5</ErrorCount>
+	</xml>`)
 
 	req.Zero()
 	if err := xml.Unmarshal(msgBytes, &req); err != nil {
@@ -782,16 +782,16 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 	// 微信小店, 订单付款通知=======================================================
 
 	msgBytes = []byte(`<xml>
-<ToUserName><![CDATA[weixin_media1]]></ToUserName>
-<FromUserName><![CDATA[oDF3iYyVlek46AyTBbMRVV8VZVlI]]></FromUserName>
-<CreateTime>1398144192</CreateTime>
-<MsgType><![CDATA[event]]></MsgType>
-<Event><![CDATA[merchant_order]]></Event>
-<OrderId><![CDATA[test_order_id]]></OrderId>
-<OrderStatus>2</OrderStatus>
-<ProductId><![CDATA[test_product_id]]></ProductId>
-<SkuInfo><![CDATA[10001:1000012;10002:100021]]></SkuInfo>
-</xml>`)
+		<ToUserName><![CDATA[weixin_media1]]></ToUserName>
+		<FromUserName><![CDATA[oDF3iYyVlek46AyTBbMRVV8VZVlI]]></FromUserName>
+		<CreateTime>1398144192</CreateTime>
+		<MsgType><![CDATA[event]]></MsgType>
+		<Event><![CDATA[merchant_order]]></Event>
+		<OrderId><![CDATA[test_order_id]]></OrderId>
+		<OrderStatus>2</OrderStatus>
+		<ProductId><![CDATA[test_product_id]]></ProductId>
+		<SkuInfo><![CDATA[10001:1000012;10002:100021]]></SkuInfo>
+	</xml>`)
 
 	req.Zero()
 	if err := xml.Unmarshal(msgBytes, &req); err != nil {

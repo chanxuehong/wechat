@@ -163,8 +163,8 @@ type News struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
 
-	ArticleCount int            `xml:"ArticleCount"`  // 图文消息个数, 限制为10条以内
-	Articles     []*NewsArticle `xml:"Articles>item"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
+	ArticleCount int            `xml:"ArticleCount"`            // 图文消息个数, 限制为10条以内
+	Articles     []*NewsArticle `xml:"Articles>item,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
 }
 
 // NOTE: 如果图文消息数量大于微信的限制, 则把多余的截除.
@@ -201,9 +201,11 @@ func (msg *News) AppendArticle(article ...*NewsArticle) {
 			article = article[:n]
 		}
 		msg.Articles = append(msg.Articles, article...)
+		msg.ArticleCount = len(msg.Articles)
 	case n == 0:
 	default: // n < 0
 		msg.Articles = msg.Articles[:NewsArticleCountLimit]
+		msg.ArticleCount = NewsArticleCountLimit
 	}
 }
 

@@ -2,7 +2,7 @@ package massbyopenids
 
 type CommonHead struct {
 	// ToUser 的个数不能超过 ToUserCountLimit
-	ToUser  []string `json:"touser"`
+	ToUser  []string `json:"touser,omitempty"`
 	MsgType string   `json:"msgtype"`
 }
 
