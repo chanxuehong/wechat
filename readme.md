@@ -173,3 +173,8 @@ func main() {
 	// 为 http 添加路由处理，然后在运行 http service
 }
 ```
+
+## LICENSE
+
+beego is licensed under the Apache Licence, Version 2.0
+(http://www.apache.org/licenses/LICENSE-2.0.html).
