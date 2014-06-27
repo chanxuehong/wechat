@@ -7,13 +7,13 @@ type Group struct {
 
 type GroupEx struct {
 	Group
-	ProductIds []string `json:"product_list"` // 商品ID集合
+	ProductIds []string `json:"product_list,omitempty"` // 商品ID集合
 }
 
 // 修改分组商品的请求数据结构
 type GroupProductModifyRequest struct {
 	GroupId  int64                    `json:"group_id"`
-	Products []groupProductModifyUnit `json:"product"`
+	Products []groupProductModifyUnit `json:"product,omitempty"`
 }
 
 type groupProductModifyUnit struct {

@@ -7,5 +7,5 @@ type Property struct {
 	Values []struct {
 		Id   string `json:"id"`   // 属性值id
 		Name string `json:"name"` // 属性值name
-	} `json:"property_value"`
+	} `json:"property_value,omitempty"`
 }

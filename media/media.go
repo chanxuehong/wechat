@@ -29,7 +29,7 @@ type NewsArticle struct {
 // 上传图文消息
 type News struct {
 	// Article 的个数不能超过 NewsArticleCountLimit
-	Articles []*NewsArticle `json:"articles"` // 图文消息，一个图文消息支持1到10条图文
+	Articles []*NewsArticle `json:"articles,omitempty"` // 图文消息，一个图文消息支持1到10条图文
 }
 
 // 如果总的按钮数超过限制, 则截除多余的.

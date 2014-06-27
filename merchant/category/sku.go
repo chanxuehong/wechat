@@ -7,5 +7,5 @@ type SKU struct {
 	Values []struct {
 		Id   string `json:"id"`
 		Name string `json:"name"`
-	} `json:"value_list"`
+	} `json:"value_list,omitempty"`
 }

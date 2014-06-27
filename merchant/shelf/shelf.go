@@ -117,7 +117,7 @@ type groupInfoFilter struct {
 // 控件 2,4,5 包含这个结构
 type groupInfos struct {
 	// 分组列表, 控件 2,4,5 的属性
-	Groups []Group `json:"groups"`
+	Groups []Group `json:"groups,omitempty"`
 
 	// 分组照片(图片需调用图片上传接口获得图片URL填写至此，否则添加货架失败，建议分辨率640*1008),
 	// 控件 5 的属性

@@ -11,11 +11,21 @@ type RecordGetRequest struct {
 
 // 一条聊天记录
 type Record struct {
-	Worker   string `json:"worker"`   // 客服账号
-	OpenId   string `json:"openid"`   // 用户的标识，对当前公众号唯一
-	OperCode int    `json:"opercode"` // 操作ID（会话状态），具体说明见下文
-	Time     int64  `json:"time"`     // 操作时间，UNIX时间戳
-	Text     string `json:"text"`     // 聊天记录
+	Worker string `json:"worker"` // 客服账号
+	OpenId string `json:"openid"` // 用户的标识，对当前公众号唯一
+
+	// 操作ID（会话状态），具体说明见下文
+	// 1000	 创建未接入会话
+	// 1001	 接入会话
+	// 1002	 主动发起会话
+	// 1004	 关闭会话
+	// 1005	 抢接会话
+	// 2001	 公众号收到消息
+	// 2002	 客服发送消息
+	// 2003	 客服收到消息
+	OperCode int    `json:"opercode"`
+	Time     int64  `json:"time"` // 操作时间，UNIX时间戳
+	Text     string `json:"text"` // 聊天记录
 }
 
 /*
