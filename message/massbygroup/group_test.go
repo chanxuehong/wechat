@@ -26,11 +26,11 @@ func TestMarshalAndNewFunc(t *testing.T) {
 
 	b, err := json.Marshal(text)
 	if err != nil {
-		t.Errorf("json.Marshal(%#v):\nError: %s\n", text, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", text, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#v):\nhave %#s\nwant %#s\n", text, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", text, b, want)
 		}
 	}
 
@@ -50,11 +50,11 @@ func TestMarshalAndNewFunc(t *testing.T) {
 
 	b, err = json.Marshal(image)
 	if err != nil {
-		t.Errorf("json.Marshal(%#v):\nError: %s\n", image, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", image, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#v):\nhave %#s\nwant %#s\n", image, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", image, b, want)
 		}
 	}
 
@@ -74,11 +74,11 @@ func TestMarshalAndNewFunc(t *testing.T) {
 
 	b, err = json.Marshal(voice)
 	if err != nil {
-		t.Errorf("json.Marshal(%#v):\nError: %s\n", voice, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", voice, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#v):\nhave %#s\nwant %#s\n", voice, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", voice, b, want)
 		}
 	}
 
@@ -98,11 +98,11 @@ func TestMarshalAndNewFunc(t *testing.T) {
 
 	b, err = json.Marshal(video)
 	if err != nil {
-		t.Errorf("json.Marshal(%#v):\nError: %s\n", video, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", video, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#v):\nhave %#s\nwant %#s\n", video, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", video, b, want)
 		}
 	}
 
@@ -122,11 +122,11 @@ func TestMarshalAndNewFunc(t *testing.T) {
 
 	b, err = json.Marshal(news)
 	if err != nil {
-		t.Errorf("json.Marshal(%#v):\nError: %s\n", news, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", news, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#v):\nhave %#s\nwant %#s\n", news, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", news, b, want)
 		}
 	}
 }

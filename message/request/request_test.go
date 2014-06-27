@@ -36,7 +36,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 			Content: "this is a test",
 		}
 		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, req, expectReq)
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
 			expect := Text{
 				CommonHead: CommonHead{
@@ -52,7 +52,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 
 			text := req.Text()
 			if *text != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, text, expect)
+				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, text, expect)
 			}
 		}
 	}
@@ -86,7 +86,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 			PicURL:  "this is a url",
 		}
 		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, req, expectReq)
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
 			expect := Image{
 				CommonHead: CommonHead{
@@ -103,7 +103,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 
 			image := req.Image()
 			if *image != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, image, expect)
+				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, image, expect)
 			}
 		}
 	}
@@ -137,7 +137,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 			Format:  "Format",
 		}
 		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, req, expectReq)
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
 			expect := Voice{
 				CommonHead: CommonHead{
@@ -154,7 +154,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 
 			voice := req.Voice()
 			if *voice != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, voice, expect)
+				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, voice, expect)
 			}
 		}
 	}
@@ -190,7 +190,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 			Recognition: "腾讯微信团队",
 		}
 		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, req, expectReq)
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
 			expect := VoiceRecognition{
 				CommonHead: CommonHead{
@@ -208,7 +208,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 
 			voiceRecognition := req.VoiceRecognition()
 			if *voiceRecognition != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, voiceRecognition, expect)
+				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, voiceRecognition, expect)
 			}
 		}
 	}
@@ -242,7 +242,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 			ThumbMediaId: "thumb_media_id",
 		}
 		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, req, expectReq)
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
 			expect := Video{
 				CommonHead: CommonHead{
@@ -259,7 +259,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 
 			video := req.Video()
 			if *video != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, video, expect)
+				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, video, expect)
 			}
 		}
 	}
@@ -297,7 +297,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 			Label:      "位置信息",
 		}
 		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, req, expectReq)
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
 			expect := Location{
 				CommonHead: CommonHead{
@@ -316,7 +316,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 
 			location := req.Location()
 			if *location != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, location, expect)
+				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, location, expect)
 			}
 		}
 	}
@@ -352,7 +352,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 			URL:         "url",
 		}
 		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, req, expectReq)
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
 			expect := Link{
 				CommonHead: CommonHead{
@@ -370,7 +370,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 
 			link := req.Link()
 			if *link != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, link, expect)
+				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, link, expect)
 			}
 		}
 	}
@@ -400,7 +400,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 			Event: EVENT_TYPE_SUBSCRIBE,
 		}
 		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, req, expectReq)
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
 			expect := SubscribeEvent{
 				CommonHead: CommonHead{
@@ -415,7 +415,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 
 			SubscribeEvent := req.SubscribeEvent()
 			if *SubscribeEvent != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, SubscribeEvent, expect)
+				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, SubscribeEvent, expect)
 			}
 		}
 	}
@@ -445,7 +445,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 			Event: EVENT_TYPE_UNSUBSCRIBE,
 		}
 		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, req, expectReq)
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
 			expect := UnsubscribeEvent{
 				CommonHead: CommonHead{
@@ -460,7 +460,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 
 			UnsubscribeEvent := req.UnsubscribeEvent()
 			if *UnsubscribeEvent != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, UnsubscribeEvent, expect)
+				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, UnsubscribeEvent, expect)
 			}
 		}
 	}
@@ -493,7 +493,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 			Ticket:   "TICKET",
 		}
 		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, req, expectReq)
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
 			expect := SubscribeByScanEvent{
 				CommonHead: CommonHead{
@@ -510,7 +510,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 
 			SubscribeByScanEvent := req.SubscribeByScanEvent()
 			if *SubscribeByScanEvent != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, SubscribeByScanEvent, expect)
+				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, SubscribeByScanEvent, expect)
 			}
 		}
 	}
@@ -544,7 +544,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 			Ticket:   "TICKET",
 		}
 		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, req, expectReq)
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
 			expect := ScanEvent{
 				CommonHead: CommonHead{
@@ -561,7 +561,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 
 			ScanEvent := req.ScanEvent()
 			if *ScanEvent != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, ScanEvent, expect)
+				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, ScanEvent, expect)
 			}
 		}
 	}
@@ -597,7 +597,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 			Precision: 119.385045, // 最后一位是 5 才能精确表示
 		}
 		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, req, expectReq)
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
 			expect := LocationEvent{
 				CommonHead: CommonHead{
@@ -615,7 +615,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 
 			LocationEvent := req.LocationEvent()
 			if *LocationEvent != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, LocationEvent, expect)
+				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, LocationEvent, expect)
 			}
 		}
 	}
@@ -647,7 +647,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 			EventKey: "EVENTKEY",
 		}
 		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, req, expectReq)
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
 			expect := MenuClickEvent{
 				CommonHead: CommonHead{
@@ -663,7 +663,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 
 			MenuClickEvent := req.MenuClickEvent()
 			if *MenuClickEvent != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, MenuClickEvent, expect)
+				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, MenuClickEvent, expect)
 			}
 		}
 	}
@@ -695,7 +695,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 			EventKey: "www.qq.com",
 		}
 		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, req, expectReq)
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
 			expect := MenuViewEvent{
 				CommonHead: CommonHead{
@@ -711,7 +711,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 
 			MenuViewEvent := req.MenuViewEvent()
 			if *MenuViewEvent != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, MenuViewEvent, expect)
+				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, MenuViewEvent, expect)
 			}
 		}
 	}
@@ -753,7 +753,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 			ErrorCount:  5,
 		}
 		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, req, expectReq)
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
 			expect := MassSendJobFinishEvent{
 				CommonHead: CommonHead{
@@ -774,7 +774,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 
 			MassSendJobFinishEvent := req.MassSendJobFinishEvent()
 			if *MassSendJobFinishEvent != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, MassSendJobFinishEvent, expect)
+				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, MassSendJobFinishEvent, expect)
 			}
 		}
 	}
@@ -812,7 +812,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 			SkuInfo:     "10001:1000012;10002:100021",
 		}
 		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, req, expectReq)
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
 			expect := MerchantOrderEvent{
 				CommonHead: CommonHead{
@@ -831,7 +831,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 
 			MerchantOrderEvent := req.MerchantOrderEvent()
 			if *MerchantOrderEvent != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#v\nwant %#v\n", msgBytes, MerchantOrderEvent, expect)
+				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, MerchantOrderEvent, expect)
 			}
 		}
 	}

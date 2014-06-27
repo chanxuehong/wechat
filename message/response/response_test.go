@@ -25,11 +25,11 @@ func TestMarshalAndNewFunc(t *testing.T) {
 
 	b, err := xml.Marshal(text)
 	if err != nil {
-		t.Errorf("xml.Marshal(%#v):\nError: %s\n", text, err)
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", text, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("xml.Marshal(%#v):\nhave %#s\nwant %#s\n", text, b, want)
+			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", text, b, want)
 		}
 	}
 
@@ -50,11 +50,11 @@ func TestMarshalAndNewFunc(t *testing.T) {
 
 	b, err = xml.Marshal(image)
 	if err != nil {
-		t.Errorf("xml.Marshal(%#v):\nError: %s\n", image, err)
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", image, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("xml.Marshal(%#v):\nhave %#s\nwant %#s\n", image, b, want)
+			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", image, b, want)
 		}
 	}
 
@@ -75,11 +75,11 @@ func TestMarshalAndNewFunc(t *testing.T) {
 
 	b, err = xml.Marshal(voice)
 	if err != nil {
-		t.Errorf("xml.Marshal(%#v):\nError: %s\n", voice, err)
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", voice, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("xml.Marshal(%#v):\nhave %#s\nwant %#s\n", voice, b, want)
+			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", voice, b, want)
 		}
 	}
 
@@ -102,11 +102,11 @@ func TestMarshalAndNewFunc(t *testing.T) {
 
 	b, err = xml.Marshal(video)
 	if err != nil {
-		t.Errorf("xml.Marshal(%#v):\nError: %s\n", video, err)
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", video, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("xml.Marshal(%#v):\nhave %#s\nwant %#s\n", video, b, want)
+			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", video, b, want)
 		}
 	}
 
@@ -131,11 +131,11 @@ func TestMarshalAndNewFunc(t *testing.T) {
 
 	b, err = xml.Marshal(music)
 	if err != nil {
-		t.Errorf("xml.Marshal(%#v):\nError: %s\n", music, err)
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", music, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("xml.Marshal(%#v):\nhave %#s\nwant %#s\n", music, b, want)
+			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", music, b, want)
 		}
 	}
 
@@ -157,11 +157,11 @@ func TestMarshalAndNewFunc(t *testing.T) {
 
 	b, err = xml.Marshal(news)
 	if err != nil {
-		t.Errorf("xml.Marshal(%#v):\nError: %s\n", news, err)
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", news, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("xml.Marshal(%#v):\nhave %#s\nwant %#s\n", news, b, want)
+			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", news, b, want)
 		}
 	}
 
@@ -191,11 +191,11 @@ func TestMarshalAndNewFunc(t *testing.T) {
 
 	b, err = xml.Marshal(news)
 	if err != nil {
-		t.Errorf("xml.Marshal(%#v):\nError: %s\n", news, err)
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", news, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("xml.Marshal(%#v):\nhave %#s\nwant %#s\n", news, b, want)
+			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", news, b, want)
 		}
 	}
 
@@ -231,11 +231,32 @@ func TestMarshalAndNewFunc(t *testing.T) {
 
 	b, err = xml.Marshal(news)
 	if err != nil {
-		t.Errorf("xml.Marshal(%#v):\nError: %s\n", news, err)
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", news, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("xml.Marshal(%#v):\nhave %#s\nwant %#s\n", news, b, want)
+			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", news, b, want)
+		}
+	}
+
+	// 测试将消息转发到多客服=======================================================
+	expectBytes = []byte(`<xml>
+		<ToUserName>touser</ToUserName>
+		<FromUserName>fromuser</FromUserName>
+		<CreateTime>1399197672</CreateTime>
+		<MsgType>transfer_customer_service</MsgType>
+	</xml>`)
+
+	transToCS := NewTransferCustomerService("touser", "fromuser")
+	transToCS.CreateTime = 1399197672
+
+	b, err = xml.Marshal(transToCS)
+	if err != nil {
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", transToCS, err)
+	} else {
+		want := util.TrimSpace(expectBytes)
+		if !bytes.Equal(b, want) {
+			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", transToCS, b, want)
 		}
 	}
 }
