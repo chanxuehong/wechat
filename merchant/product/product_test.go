@@ -54,18 +54,6 @@ func TestProductMarshal(t *testing.T) {
 			],
 			"buy_limit":10
 		},
-		"attrext":{
-			"location":{
-				"country":"中国",
-				"province":"广东省",
-				"city":"广州市",
-				"address":"T.I.T创意园"
-			},
-			"isPostFree":0,
-			"isHasReceipt":1,
-			"isUnderGuaranty":0,
-			"isSupportReplace":0
-		},
 		"sku_list":[
 			{
 				"sku_id":"1075741873:1079742386",
@@ -84,6 +72,18 @@ func TestProductMarshal(t *testing.T) {
 				"quantity":800
 			}
 		],
+		"attrext":{
+			"location":{
+				"country":"中国",
+				"province":"广东省",
+				"city":"广州市",
+				"address":"T.I.T创意园"
+			},
+			"isPostFree":0,
+			"isHasReceipt":1,
+			"isUnderGuaranty":0,
+			"isSupportReplace":0
+		},
 		"delivery_info":{
 			"delivery_type":0,
 			"express":[
@@ -145,7 +145,7 @@ func TestProductMarshal(t *testing.T) {
 			Quantity:      800,
 		},
 	}
-	_product.SetDeliveryInfoWithExpresses([]Express{
+	_product.DeliveryInfo = NewDeliveryInfoWithExpresses([]Express{
 		{
 			Id:    10000027,
 			Price: 100,

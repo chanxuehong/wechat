@@ -16,3 +16,39 @@ type Location struct {
 	City     string `json:"city"`     // 城市(详见《地区列表》说明)
 	Address  string `json:"address"`  // 地址
 }
+
+// 设置是否 包邮, true--包邮, false--不包邮
+func (attr *AttrExt) SetPostFree(b bool) {
+	if b {
+		attr.IsPostFree = 1
+	} else {
+		attr.IsPostFree = 0
+	}
+}
+
+// 设置是否 提供发票, true--提供发票, false--不提供发票
+func (attr *AttrExt) SetHasReceipt(b bool) {
+	if b {
+		attr.IsHasReceipt = 1
+	} else {
+		attr.IsHasReceipt = 0
+	}
+}
+
+// 设置是否保修, true--保修, false--不保修
+func (attr *AttrExt) SetUnderGuaranty(b bool) {
+	if b {
+		attr.IsUnderGuaranty = 1
+	} else {
+		attr.IsUnderGuaranty = 0
+	}
+}
+
+// 设置是否支持退货, true--支持退货, false--不支持退货
+func (attr *AttrExt) SetSupportReplace(b bool) {
+	if b {
+		attr.IsSupportReplace = 1
+	} else {
+		attr.IsSupportReplace = 0
+	}
+}
