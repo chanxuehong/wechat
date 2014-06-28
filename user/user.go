@@ -7,7 +7,7 @@ package user
 
 // 分组
 type Group struct {
-	Id        int    `json:"id"`    // 分组id，由微信分配
+	Id        int64  `json:"id"`    // 分组id，由微信分配
 	Name      string `json:"name"`  // 分组名字，UTF8编码
 	UserCount int    `json:"count"` // 分组内用户数量
 }

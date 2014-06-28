@@ -7,10 +7,10 @@ package category
 
 // 获取指定分类的所有属性 成功时返回结果的数据结构
 type Property struct {
-	Id     string `json:"id"`   // 属性id
+	Id     string `json:"id"`   // 属性id, int64?
 	Name   string `json:"name"` // 属性name
 	Values []struct {
-		Id   string `json:"id"`   // 属性值id
+		Id   string `json:"id"`   // 属性值id, int64?
 		Name string `json:"name"` // 属性值name
 	} `json:"property_value,omitempty"`
 }

@@ -33,7 +33,7 @@ func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
 
 	var result struct {
 		Group struct {
-			Id   int    `json:"id"`
+			Id   int64  `json:"id"`
 			Name string `json:"name"`
 		} `json:"group"`
 		Error
@@ -77,7 +77,7 @@ func (c *Client) UserGroupGet() ([]user.Group, error) {
 }
 
 // 修改分组名
-func (c *Client) UserGroupRename(groupid int, name string) (err error) {
+func (c *Client) UserGroupRename(groupid int64, name string) (err error) {
 	if len(name) == 0 {
 		return errors.New(`name == ""`)
 	}
@@ -90,7 +90,7 @@ func (c *Client) UserGroupRename(groupid int, name string) (err error) {
 
 	var request struct {
 		Group struct {
-			Id   int    `json:"id"`
+			Id   int64  `json:"id"`
 			Name string `json:"name"`
 		} `json:"group"`
 	}
@@ -110,7 +110,7 @@ func (c *Client) UserGroupRename(groupid int, name string) (err error) {
 }
 
 // 查询用户所在分组
-func (c *Client) UserInWhichGroup(openid string) (groupid int, err error) {
+func (c *Client) UserInWhichGroup(openid string) (groupid int64, err error) {
 	if len(openid) == 0 {
 		err = errors.New(`openid == ""`)
 		return
@@ -127,7 +127,7 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int, err error) {
 	}{OpenId: openid}
 
 	var result struct {
-		GroupId int `json:"groupid"`
+		GroupId int64 `json:"groupid"`
 		Error
 	}
 	if err = c.postJSON(_url, &request, &result); err != nil {
@@ -144,7 +144,7 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int, err error) {
 }
 
 // 移动用户分组
-func (c *Client) UserMoveToGroup(openid string, toGroupId int) (err error) {
+func (c *Client) UserMoveToGroup(openid string, toGroupId int64) (err error) {
 	if len(openid) == 0 {
 		return errors.New(`openid == ""`)
 	}
@@ -157,7 +157,7 @@ func (c *Client) UserMoveToGroup(openid string, toGroupId int) (err error) {
 
 	var request = struct {
 		OpenId    string `json:"openid"`
-		ToGroupId int    `json:"to_groupid"`
+		ToGroupId int64  `json:"to_groupid"`
 	}{
 		OpenId:    openid,
 		ToGroupId: toGroupId,

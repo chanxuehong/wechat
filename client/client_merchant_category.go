@@ -11,7 +11,7 @@ import (
 
 // 获取指定分类的所有子分类.
 // @categoryId: 大分类ID(根节点分类id为1)
-func (c *Client) MerchantCategoryGetSub(categoryId int) ([]category.Category, error) {
+func (c *Client) MerchantCategoryGetSub(categoryId int64) ([]category.Category, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
@@ -19,7 +19,7 @@ func (c *Client) MerchantCategoryGetSub(categoryId int) ([]category.Category, er
 	_url := merchantCategoryGetSubURL(token)
 
 	var request = struct {
-		CategoryId int `json:"cate_id"`
+		CategoryId int64 `json:"cate_id"`
 	}{
 		CategoryId: categoryId,
 	}
@@ -41,7 +41,7 @@ func (c *Client) MerchantCategoryGetSub(categoryId int) ([]category.Category, er
 }
 
 // 获取指定子分类的所有SKU
-func (c *Client) MerchantCategoryGetSKU(categoryId int) ([]category.SKU, error) {
+func (c *Client) MerchantCategoryGetSKU(categoryId int64) ([]category.SKU, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (c *Client) MerchantCategoryGetSKU(categoryId int) ([]category.SKU, error) 
 	_url := merchantCategoryGetSKUURL(token)
 
 	var request = struct {
-		CategoryId int `json:"cate_id"`
+		CategoryId int64 `json:"cate_id"`
 	}{
 		CategoryId: categoryId,
 	}
@@ -71,7 +71,7 @@ func (c *Client) MerchantCategoryGetSKU(categoryId int) ([]category.SKU, error) 
 }
 
 // 获取指定分类的所有属性
-func (c *Client) MerchantCategoryGetProperty(categoryId int) ([]category.Property, error) {
+func (c *Client) MerchantCategoryGetProperty(categoryId int64) ([]category.Property, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
@@ -79,7 +79,7 @@ func (c *Client) MerchantCategoryGetProperty(categoryId int) ([]category.Propert
 	_url := merchantCategoryGetPropertyURL(token)
 
 	var request = struct {
-		CategoryId int `json:"cate_id"`
+		CategoryId int64 `json:"cate_id"`
 	}{
 		CategoryId: categoryId,
 	}
