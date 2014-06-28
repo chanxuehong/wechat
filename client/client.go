@@ -13,22 +13,34 @@ import (
 	"time"
 )
 
+// 对于分布式应用, 最好把 access token 放在一个独立的服务器上, TokenService 就是这个服务器的接口;
+// 只不过功能更多, 包括自动刷新 access token, 所以客户端如无必要请不要调用 TokenRefresh().
+type TokenService interface {
+	Token() (token string, err error)        // 从服务器获取 access token
+	TokenRefresh() (token string, err error) // 请求服务器刷新 access token
+}
+
 // 相对于微信服务器, 主动请求的功能模块都相当于是 Client;
 // 这个结构就是封装所有这些请求功能, 并发安全.
-//  NOTE: 必须调用 NewClient() 创建对象!
 type Client struct {
+	tokenService TokenService
+
+	// 下面的 appid, appsecret, currentToken 和 resetRefreshTokenTickChan 4个字段
+	// 是用于实现 TokenService 接口用的;
+	// 正常情况下要么用上面的 tokenService 字段, 要么用下面 4 个字段自己实现.
+
 	appid, appsecret string
 
 	// 当前的 access token.
-	// 由于 token 会过期, 另起一个 goroutine tokenService() 定期更新;
+	// 由于 token 会过期, 另起一个 goroutine _TokenService() 定期更新;
 	currentToken struct {
 		rwmutex sync.RWMutex
 		token   string
 		err     error // 获取或更新 access token 的时候可能会出错, 错误保存在这里
 	}
 
-	// goroutine tokenService() 里有个定时器, 每次触发都会更新 access token,
-	// 同时 goroutine tokenService() 监听这个 resetRefreshTokenTickChan,
+	// goroutine _TokenService() 里有个定时器, 每次触发都会更新 access token,
+	// 同时 goroutine _TokenService() 监听这个 resetRefreshTokenTickChan,
 	// 如果有新的数据, 则重置定时器, 定时时间为 resetRefreshTokenTickChan 传过来的数据;
 	// 主要用于用户手动更新 access token 的情况, see Client.TokenRefresh().
 	resetRefreshTokenTickChan chan time.Duration
@@ -43,7 +55,7 @@ type Client struct {
 // It will default to http.DefaultClient if httpClient == nil.
 //  see wechat.CommonHttpClient and wechat.MediaHttpClient
 func NewClient(appid, appsecret string, httpClient *http.Client) *Client {
-	c := &Client{
+	c := Client{
 		appid:                     appid,
 		appsecret:                 appsecret,
 		resetRefreshTokenTickChan: make(chan time.Duration), // 同步 channel
@@ -58,10 +70,33 @@ func NewClient(appid, appsecret string, httpClient *http.Client) *Client {
 		c.httpClient = httpClient
 	}
 
-	go c.tokenService() // 定时更新 c.token
-	c.TokenRefresh()    // *同步*获取 access token
+	go c._TokenService() // 定时更新 c.token
+	c.TokenRefresh()     // *同步*获取 access token
 
-	return c
+	return &c
+}
+
+// It will default to http.DefaultClient if httpClient == nil.
+//  see wechat.CommonHttpClient and wechat.MediaHttpClient
+func NewClientEx(tokenService TokenService, httpClient *http.Client) *Client {
+	if tokenService == nil {
+		panic("tokenService == nil")
+	}
+
+	c := Client{
+		tokenService: tokenService,
+		bufferPool: sync.Pool{
+			New: newBuffer,
+		},
+	}
+
+	if httpClient == nil {
+		c.httpClient = http.DefaultClient
+	} else {
+		c.httpClient = httpClient
+	}
+
+	return &c
 }
 
 // Client 通用的 json post 请求

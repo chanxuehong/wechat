@@ -12,14 +12,18 @@ import (
 
 // 获取 access token.
 func (c *Client) Token() (token string, err error) {
-	c.currentToken.rwmutex.RLock()
-	token = c.currentToken.token
-	err = c.currentToken.err
-	c.currentToken.rwmutex.RUnlock()
-	return
+	if c.tokenService != nil {
+		return c.tokenService.Token()
+	} else {
+		c.currentToken.rwmutex.RLock()
+		token = c.currentToken.token
+		err = c.currentToken.err
+		c.currentToken.rwmutex.RUnlock()
+		return
+	}
 }
 
-// see Client.TokenRefresh() and Client.tokenService()
+// see Client.TokenRefresh() and Client._TokenService()
 func (c *Client) update(token string, err error) {
 	c.currentToken.rwmutex.Lock()
 	c.currentToken.token = token
@@ -27,37 +31,42 @@ func (c *Client) update(token string, err error) {
 	c.currentToken.rwmutex.Unlock()
 }
 
-// 从微信服务器获取新的 access token, 并保存到本地.
+// 从微信服务器获取新的 access token.
 //  NOTE: 正常情况下无需调用该函数, 请使用 Client.Token() 获取 access token.
 func (c *Client) TokenRefresh() (token string, err error) {
-	resp, err := c.getNewToken()
-	switch {
-	case err != nil:
-		c.update("", err)
-		return
-	case resp.ExpiresIn > 10: // 正常情况
-		c.update(resp.Token, nil)
-		token = resp.Token
-		// 通知 goroutine tokenService() 重置定时器
-		// 考虑到网络延时, 提前 10 秒过期
-		c.resetRefreshTokenTickChan <- time.Duration(resp.ExpiresIn-10) * time.Second
-		return
-	case resp.ExpiresIn > 0: // (0, 10], 正常情况下不会出现
-		c.update(resp.Token, nil)
-		token = resp.Token
-		// 通知 goroutine tokenService() 重置定时器
-		c.resetRefreshTokenTickChan <- time.Duration(resp.ExpiresIn) * time.Second
-		return
-	default: // resp.ExpiresIn <= 0, 正常情况下不会出现
-		err = fmt.Errorf("access token 过期时间应该是正整数, 现在 ==%d", resp.ExpiresIn)
-		c.update("", err)
-		return
+	if c.tokenService != nil {
+		return c.tokenService.TokenRefresh()
+	} else {
+		var resp *tokenResponse
+		resp, err = c.getNewToken()
+		switch {
+		case err != nil:
+			c.update("", err)
+			return
+		case resp.ExpiresIn > 10: // 正常情况
+			c.update(resp.Token, nil)
+			token = resp.Token
+			// 通知 goroutine _TokenService() 重置定时器
+			// 考虑到网络延时, 提前 10 秒过期
+			c.resetRefreshTokenTickChan <- time.Duration(resp.ExpiresIn-10) * time.Second
+			return
+		case resp.ExpiresIn > 0: // (0, 10], 正常情况下不会出现
+			c.update(resp.Token, nil)
+			token = resp.Token
+			// 通知 goroutine _TokenService() 重置定时器
+			c.resetRefreshTokenTickChan <- time.Duration(resp.ExpiresIn) * time.Second
+			return
+		default: // resp.ExpiresIn <= 0, 正常情况下不会出现
+			err = fmt.Errorf("access token 过期时间应该是正整数, 现在 ==%d", resp.ExpiresIn)
+			c.update("", err)
+			return
+		}
 	}
 }
 
 // 负责定时更新 access token.
 //  NOTE: 使用这种复杂的实现是减少 time.Now() 的调用, 不然每次都要比较 time.Now().
-func (c *Client) tokenService() {
+func (c *Client) _TokenService() {
 	const defaultTickDuration = time.Minute // 设置 44 秒以上就不会超过限制(2000次/日 的限制)
 
 	// 当前定时器的时间间隔, 正常情况下等于当前的 access token 的过期时间减去 10 秒;
