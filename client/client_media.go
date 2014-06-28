@@ -33,9 +33,9 @@ func (c *Client) MediaUploadFromFile(mediaType, filePath string) (*media.UploadR
 //  NOTE:
 //  1. 媒体文件在后台保存时间为3天，即3天后 media_id 失效。
 //  2. 返回的 media_id 是可复用的;
-//  3. 图片（image）: 256K，支持JPG格式
-//  4. 语音（voice）：256K，播放长度不超过60s，支持AMR\MP3格式
-//  5. 视频（video）：1MB，支持MP4格式
+//  3. 图片（image）: 1M，支持JPG格式
+//  4. 语音（voice）：2M，播放长度不超过60s，支持AMR\MP3格式
+//  5. 视频（video）：10MB，支持MP4格式
 //  6. 缩略图（thumb）：64KB，支持JPG格式
 func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) (*media.UploadResponse, error) {
 	switch mediaType {
@@ -162,7 +162,7 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 	}
 
 	contentType, _, _ := mime.ParseMediaType(resp.Header.Get("Content-Type"))
-	if contentType != "text/plain" { // 如果下载失败返回的是 Content-Type: text/plain, 下载成功是其他的 Content-Type
+	if contentType != "text/plain" && contentType != "application/json" {
 		_, err = io.Copy(writer, resp.Body)
 		return err
 	}

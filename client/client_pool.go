@@ -10,7 +10,7 @@ import (
 )
 
 func newBuffer() interface{} {
-	return bytes.NewBuffer(make([]byte, 1<<20)) // 默认 1MB
+	return bytes.NewBuffer(make([]byte, 2<<20)) // 默认 2MB
 }
 
 func (c *Client) getBufferFromPool() *bytes.Buffer {
