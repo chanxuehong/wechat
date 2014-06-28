@@ -74,6 +74,7 @@ type Client struct {
 	*OAuth2Token
 
 	// It will default to http.DefaultClient if nil.
+	// see CommonHttpClient and MediaHttpClient
 	HttpClient *http.Client
 }
 
