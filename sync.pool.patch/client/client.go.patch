@@ -67,8 +67,14 @@ func NewClient(appid, appsecret string, httpClient *http.Client) *Client {
 		c.httpClient = httpClient
 	}
 
-	go c._TokenService() // 定时更新 c.token
-	c.TokenRefresh()     // *同步*获取 access token
+	tk, err := c.getNewToken()
+	if err != nil {
+		c.update("", err)
+		go c._TokenService(time.Minute) // 一分钟后尝试
+	} else {
+		c.update(tk.Token, nil)
+		go c._TokenService(time.Duration(tk.ExpiresIn) * time.Second)
+	}
 
 	return &c
 }

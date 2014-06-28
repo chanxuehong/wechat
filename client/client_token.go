@@ -7,6 +7,7 @@ package client
 
 import (
 	"fmt"
+	"runtime"
 	"time"
 )
 
@@ -39,88 +40,49 @@ func (c *Client) TokenRefresh() (token string, err error) {
 	} else {
 		var resp *tokenResponse
 		resp, err = c.getNewToken()
-		switch {
-		case err != nil:
+		if err != nil {
 			c.update("", err)
-			return
-		case resp.ExpiresIn > 10: // 正常情况
-			c.update(resp.Token, nil)
-			token = resp.Token
-			// 通知 goroutine _TokenService() 重置定时器
-			// 考虑到网络延时, 提前 10 秒过期
-			c.resetRefreshTokenTickChan <- time.Duration(resp.ExpiresIn-10) * time.Second
-			return
-		case resp.ExpiresIn > 0: // (0, 10], 正常情况下不会出现
-			c.update(resp.Token, nil)
-			token = resp.Token
-			// 通知 goroutine _TokenService() 重置定时器
-			c.resetRefreshTokenTickChan <- time.Duration(resp.ExpiresIn) * time.Second
-			return
-		default: // resp.ExpiresIn <= 0, 正常情况下不会出现
-			err = fmt.Errorf("access token 过期时间应该是正整数, 现在 ==%d", resp.ExpiresIn)
-			c.update("", err)
+			c.resetRefreshTokenTickChan <- time.Minute
 			return
 		}
+
+		c.update(resp.Token, nil)
+		token = resp.Token
+		c.resetRefreshTokenTickChan <- time.Duration(resp.ExpiresIn) * time.Second
+		return
 	}
 }
 
 // 负责定时更新 access token.
 //  NOTE: 使用这种复杂的实现是减少 time.Now() 的调用, 不然每次都要比较 time.Now().
-func (c *Client) _TokenService() {
+func (c *Client) _TokenService(tickDuration time.Duration) {
 	const defaultTickDuration = time.Minute // 设置 44 秒以上就不会超过限制(2000次/日 的限制)
 
-	// 当前定时器的时间间隔, 正常情况下等于当前的 access token 的过期时间减去 10 秒;
-	// 异常情况下就要尝试不断的获取, 时间间隔就是 defaultTickDuration.
-	currentTickDuration := defaultTickDuration
-	var tk *time.Ticker
-
-NewTickDuration:
+	tk := time.NewTicker(tickDuration)
 	for {
-		tk = time.NewTicker(currentTickDuration)
-		for {
-			select {
-			case currentTickDuration = <-c.resetRefreshTokenTickChan: // 在别的地方成功获取了 access token, 重置定时器.
-				tk.Stop()
-				break NewTickDuration
+		select {
+		case newTickDuration := <-c.resetRefreshTokenTickChan:
+			tk.Stop()
+			go c._TokenService(newTickDuration)
+			runtime.Goexit()
 
-			case <-tk.C:
-				resp, err := c.getNewToken()
-				switch {
-				case err != nil:
-					c.update("", err)
-					// 出错则重置到 defaultTickDuration
-					if currentTickDuration != defaultTickDuration { // 这个判断的目的是避免重置定时器开销
-						tk.Stop()
-						currentTickDuration = defaultTickDuration
-						break NewTickDuration
-					}
-				case resp.ExpiresIn > 10: // 正常情况
-					c.update(resp.Token, nil)
-					// 根据返回的过期时间来重新设置定时器
-					// 设置新的 currentTickDuration, 考虑到网络延时, 提前 10 秒过期
-					nextTickDuration := time.Duration(resp.ExpiresIn-10) * time.Second
-					if currentTickDuration != nextTickDuration { // 这个判断的目的是避免重置定时器开销
-						tk.Stop()
-						currentTickDuration = nextTickDuration
-						break NewTickDuration
-					}
-				case resp.ExpiresIn > 0: // (0, 10], 正常情况下不会出现
-					c.update(resp.Token, nil)
-					// 根据返回的过期时间来重新设置定时器
-					nextTickDuration := time.Duration(resp.ExpiresIn) * time.Second
-					if currentTickDuration != nextTickDuration { // 这个判断的目的是避免重置定时器开销
-						tk.Stop()
-						currentTickDuration = nextTickDuration
-						break NewTickDuration
-					}
-				default: // resp.ExpiresIn <= 0, 正常情况下不会出现
-					c.update("", fmt.Errorf("access token 过期时间应该是正整数, 现在 ==%d", resp.ExpiresIn))
-					// 出错则重置到 defaultTickDuration
-					if currentTickDuration != defaultTickDuration { // 这个判断的目的是避免重置定时器开销
-						tk.Stop()
-						currentTickDuration = defaultTickDuration
-						break NewTickDuration
-					}
+		case <-tk.C:
+			resp, err := c.getNewToken()
+			if err != nil {
+				c.update("", err)
+				// 出错则重置到 defaultTickDuration
+				if tickDuration != defaultTickDuration {
+					tk.Stop()
+					go c._TokenService(defaultTickDuration)
+					runtime.Goexit()
+				}
+			} else {
+				c.update(resp.Token, nil)
+				newTickDuration := time.Duration(resp.ExpiresIn) * time.Second
+				if tickDuration != newTickDuration {
+					tk.Stop()
+					go c._TokenService(newTickDuration)
+					runtime.Goexit()
 				}
 			}
 		}
@@ -147,5 +109,16 @@ func (c *Client) getNewToken() (*tokenResponse, error) {
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}
-	return &result.tokenResponse, nil
+
+	switch {
+	case result.ExpiresIn > 10:
+		result.ExpiresIn -= 10 // 考虑到网络延时, 提前 10 秒过期
+		return &result.tokenResponse, nil
+
+	case result.ExpiresIn > 0: // (0, 10], 正常情况下不会出现
+		return &result.tokenResponse, nil
+
+	default: // result.ExpiresIn <= 0, 正常情况下不会出现
+		return nil, fmt.Errorf("expires_in 应该是正整数, 现在 ==%d", result.ExpiresIn)
+	}
 }
