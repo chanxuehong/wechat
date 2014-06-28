@@ -265,7 +265,28 @@ func (iter *userGetIterator) HasNext() bool {
 	if !iter.nextPageCalled {
 		return iter.userGetResponse.GetCount > 0
 	}
-	return iter.userGetResponse.NextOpenId != ""
+
+	// 跟文档的描述貌似有点不一样, 即使后续没有用户, 貌似 next_openid 还是不为空!
+	// 所以增加了一个判断 iter.userGetResponse.GetCount == user.UserPageCountLimit
+	//
+	// 200	OK
+	// Connection: keep-alive
+	// Date: Sat, 28 Jun 2014 07:00:10 GMT
+	// Server: nginx/1.4.4
+	// Content-Type: application/json; encoding=utf-8
+	// Content-Length: 117
+	// {
+	//     "total": 1,
+	//     "count": 1,
+	//     "data": {
+	//         "openid": [
+	//             "os-IKuHd9pJ6xsn4mS7GyL4HxqI4"
+	//         ]
+	//     },
+	//     "next_openid": "os-IKuHd9pJ6xsn4mS7GyL4HxqI4"
+	// }
+	return iter.userGetResponse.GetCount == user.UserPageCountLimit &&
+		len(iter.userGetResponse.NextOpenId) != 0
 }
 func (iter *userGetIterator) NextPage() ([]string, error) {
 	// 第一次调用 NextPage(), 因为在创建这个对象的时候已经获取了数据, 所以直接返回.
