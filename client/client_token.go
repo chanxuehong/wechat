@@ -7,7 +7,6 @@ package client
 
 import (
 	"fmt"
-	"runtime"
 	"time"
 )
 
@@ -59,12 +58,12 @@ func (c *Client) _TokenService(tickDuration time.Duration) {
 	const defaultTickDuration = time.Minute // 设置 44 秒以上就不会超过限制(2000次/日 的限制)
 
 	tk := time.NewTicker(tickDuration)
+	defer tk.Stop()
 	for {
 		select {
 		case newTickDuration := <-c.resetRefreshTokenTickChan:
-			tk.Stop()
 			go c._TokenService(newTickDuration)
-			runtime.Goexit()
+			return // 终止当前的 goroutine
 
 		case <-tk.C:
 			resp, err := c.getNewToken()
@@ -72,17 +71,15 @@ func (c *Client) _TokenService(tickDuration time.Duration) {
 				c.update("", err)
 				// 出错则重置到 defaultTickDuration
 				if tickDuration != defaultTickDuration {
-					tk.Stop()
 					go c._TokenService(defaultTickDuration)
-					runtime.Goexit()
+					return // 终止当前的 goroutine
 				}
 			} else {
 				c.update(resp.Token, nil)
 				newTickDuration := time.Duration(resp.ExpiresIn) * time.Second
 				if tickDuration != newTickDuration {
-					tk.Stop()
 					go c._TokenService(newTickDuration)
-					runtime.Goexit()
+					return // 终止当前的 goroutine
 				}
 			}
 		}
