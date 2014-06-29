@@ -10,3 +10,9 @@ const (
 	Language_zh_TW = "zh_TW"
 	Language_en    = "en"
 )
+
+const (
+	SEX_UNKNOWN = 0
+	SEX_MALE    = 1
+	SEX_FEMALE  = 2
+)

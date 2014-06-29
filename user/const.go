@@ -8,7 +8,15 @@ package user
 const (
 	GroupCountLimit    = 500
 	UserPageCountLimit = 10000
-	Language_zh_CN     = "zh_CN"
-	Language_zh_TW     = "zh_TW"
-	Language_en        = "en"
+)
+const (
+	Language_zh_CN = "zh_CN"
+	Language_zh_TW = "zh_TW"
+	Language_en    = "en"
+)
+
+const (
+	SEX_UNKNOWN = 0
+	SEX_MALE    = 1
+	SEX_FEMALE  = 2
 )
