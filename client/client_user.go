@@ -187,7 +187,8 @@ func (c *Client) UserInfo(openid string, lang string) (*user.UserInfo, error) {
 		lang = user.Language_zh_CN
 	case user.Language_zh_CN, user.Language_zh_TW, user.Language_en:
 	default:
-		return nil, errors.New(`lang 必须是 "", zh_CN, zh_TW, en 之一`)
+		return nil, fmt.Errorf("lang 必须是 \"\",%s,%s,%s 其中之一",
+			user.Language_zh_CN, user.Language_zh_TW, user.Language_en)
 	}
 
 	token, err := c.Token()

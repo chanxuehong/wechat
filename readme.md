@@ -147,15 +147,19 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		client := sns.Client{
 			OAuth2Config: oauth2Config,
 		}
-		token, err := client.Exchange(code)
+		info, err := client.Exchange(code)
 		if err != nil {
 			// ...
 			return
 		}
 
-		// 这里把 token 根据 token.OpenId 缓存起来，以后可以直接用
+		// 这里把 info 根据 info.OpenId 缓存起来，以后可以直接用
 
-		userinfo, err := client.UserInfo(token.OpenId, "zh_CN")
+		client1 := sns.Client{
+			OAuth2Config: oauth2Config,
+			OAuth2Info:   info,
+		}
+		userinfo, err := client1.UserInfo("zh_CN")
 		if err != nil {
 			// ...
 			return

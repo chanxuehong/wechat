@@ -47,6 +47,6 @@ var MediaHttpClient = &http.Client{
 		}).Dial,
 		TLSHandshakeTimeout: 5 * time.Second, // TLS 握手超时设置为 5 秒
 	},
-	// 因为目前微信支持最大的文件是 1M, 请求超时时间保守设置为 100 秒
-	Timeout: 100 * time.Second,
+	// 因为目前微信支持最大的文件是 10MB, 请求超时时间保守设置为 100 秒
+	Timeout: 300 * time.Second,
 }

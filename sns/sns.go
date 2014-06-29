@@ -14,24 +14,18 @@ import (
 	"time"
 )
 
-// refer code.google.com/p/goauth2/oauth
-
-// OAuth2Config is the configuration of an OAuth consumer.
+// oauth2 相关配置, 一般全局只用保存一个变量
 type OAuth2Config struct {
-	// ClientId is the OAuth client identifier used when communicating with
-	// the configured OAuth provider.
-	ClientId string
+	ClientId     string // appid
+	ClientSecret string // appsecret
 
-	// ClientSecret is the OAuth client secret used when communicating with
-	// the configured OAuth provider.
-	ClientSecret string
-
-	// Scope identifies the level of access being requested. Multiple scope
-	// values should be provided as a space-delimited string.
+	// 应用授权作用域，拥有多个作用域用逗号（,）分隔;
+	// 网页应用目前仅填写snsapi_login即可.
 	Scope string
 
-	// RedirectURL is the URL to which the user will be returned after
-	// granting (or denying) access.
+	// 用户授权后跳转的目的地址
+	// 用户授权后跳转到 RedirectURL?code=CODE&state=STATE
+	// 用户禁止授权跳转到 RedirectURL?state=STATE
 	RedirectURL string
 }
 
@@ -39,39 +33,39 @@ func NewOAuth2Config(appid, appsecret, redirectURL string, scope ...string) *OAu
 	return &OAuth2Config{
 		ClientId:     appid,
 		ClientSecret: appsecret,
-		Scope:        strings.Join(scope, "\x20"),
+		Scope:        strings.Join(scope, ","),
 		RedirectURL:  redirectURL,
 	}
 }
 
-// AuthCodeURL returns a URL that the end-user should be redirected to,
-// so that they may obtain an authorization code.
-func (c *OAuth2Config) AuthCodeURL(state string) string {
-	return oauth2AuthURL(c.ClientId, c.RedirectURL, c.Scope, state)
+// 请求用户授权时跳转的地址.
+func (cfg *OAuth2Config) AuthCodeURL(state string) string {
+	return oauth2AuthURL(cfg.ClientId, cfg.RedirectURL, cfg.Scope, state)
 }
 
-// OAuth2Token contains an end-user's tokens.
-// This is the data you must store to persist authentication.
-type OAuth2Token struct {
+// OAuth2 用户授权信息; 每个用户对应一个这样的结构, 应该缓存起来.
+type OAuth2Info struct {
 	AccessToken  string
 	RefreshToken string
 	Expiry       int64 // unixtime; If zero the token has no (known) expiry time.
 
-	// 微信扩展
-	OpenId string   // 用户唯一标识，请注意，在未关注公众号时，用户访问公众号的网页，也会产生一个用户和公众号唯一的OpenID
+	// 用户唯一标识，请注意，在未关注公众号时，用户访问公众号的网页，
+	// 也会产生一个用户和公众号唯一的OpenID
+	OpenId string
 	Scopes []string // 用户授权的作用域
 }
 
-func (t *OAuth2Token) Expired() bool {
-	if t.Expiry == 0 {
+// 判断授权的 access token 是否过期
+func (info *OAuth2Info) AccessTokenExpired() bool {
+	if info.Expiry == 0 {
 		return false
 	}
-	return time.Now().Unix() > t.Expiry
+	return time.Now().Unix() > info.Expiry
 }
 
 type Client struct {
 	*OAuth2Config
-	*OAuth2Token
+	*OAuth2Info
 
 	// It will default to http.DefaultClient if nil.
 	// see CommonHttpClient and MediaHttpClient
@@ -85,8 +79,17 @@ func (c *Client) httpClient() *http.Client {
 	return http.DefaultClient
 }
 
+// 交换 token 和 刷新 token 成功时返回的收据结构
+type tokenResponse struct {
+	AccessToken  string `json:"access_token"`  // 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同
+	RefreshToken string `json:"refresh_token"` // 用户刷新access_token
+	ExpiresIn    int64  `json:"expires_in"`    // access_token接口调用凭证超时时间，单位（秒）
+	OpenId       string `json:"openid"`        // 用户唯一标识，请注意，在未关注公众号时，用户访问公众号的网页，也会产生一个用户和公众号唯一的OpenID
+	Scope        string `json:"scope"`         // 用户授权的作用域，使用逗号（,）分隔
+}
+
 // 通过code换取网页授权access_token
-func (c *Client) Exchange(code string) (*OAuth2Token, error) {
+func (c *Client) Exchange(code string) (*OAuth2Info, error) {
 	if len(code) == 0 {
 		return nil, errors.New(`code == ""`)
 	}
@@ -95,12 +98,12 @@ func (c *Client) Exchange(code string) (*OAuth2Token, error) {
 	}
 
 	// If the Client has a token, preserve existing refresh token.
-	tok := c.OAuth2Token
+	tok := c.OAuth2Info
 	if tok == nil {
-		tok = new(OAuth2Token)
+		tok = new(OAuth2Info)
 	}
 
-	_url := oauth2TokenURL(c.ClientId, c.ClientSecret, code)
+	_url := oauth2ExchangeTokenURL(c.ClientId, c.ClientSecret, code)
 	resp, err := c.httpClient().Get(_url)
 	if err != nil {
 		return nil, err
@@ -111,16 +114,9 @@ func (c *Client) Exchange(code string) (*OAuth2Token, error) {
 		return nil, fmt.Errorf("http.Status: %s", resp.Status)
 	}
 
-	type tokenResponse struct {
-		AccessToken  string `json:"access_token"`  // 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同
-		RefreshToken string `json:"refresh_token"` // 用户刷新access_token
-		ExpiresIn    int64  `json:"expires_in"`    // access_token接口调用凭证超时时间，单位（秒）
-		OpenId       string `json:"openid"`        // 用户唯一标识，请注意，在未关注公众号时，用户访问公众号的网页，也会产生一个用户和公众号唯一的OpenID
-		Scope        string `json:"scope"`         // 用户授权的作用域，使用逗号（,）分隔
-	}
 	var result struct {
-		tokenResponse
 		Error
+		tokenResponse
 	}
 	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
@@ -134,35 +130,36 @@ func (c *Client) Exchange(code string) (*OAuth2Token, error) {
 	if len(result.RefreshToken) > 0 {
 		tok.RefreshToken = result.RefreshToken
 	}
-
-	switch {
-	case result.ExpiresIn > 10: // 正常情况下远大于 10
-		// 考虑到网络延时，提前 10 秒过期
-		tok.Expiry = time.Now().Unix() + result.ExpiresIn - 10
-	case result.ExpiresIn > 0:
-		tok.Expiry = time.Now().Unix() + result.ExpiresIn
-	case result.ExpiresIn == 0:
-		tok.Expiry = 0
-	default:
-		return nil, fmt.Errorf("token ExpiresIn: %d < 0", result.ExpiresIn)
-	}
-
 	tok.OpenId = result.OpenId
 	tok.Scopes = strings.Split(result.Scope, ",")
 
-	c.OAuth2Token = tok
+	switch {
+	case result.ExpiresIn > 10: // 正常情况下远大于 10
+		tok.Expiry = time.Now().Unix() + result.ExpiresIn - 10 // 考虑到网络延时，提前 10 秒过期
+
+	case result.ExpiresIn > 0:
+		tok.Expiry = time.Now().Unix() + result.ExpiresIn
+
+	case result.ExpiresIn == 0:
+		tok.Expiry = 0
+
+	default:
+		return nil, fmt.Errorf("token ExpiresIn(==%d) < 0", result.ExpiresIn)
+	}
+
+	c.OAuth2Info = tok
 	return tok, nil
 }
 
 // 刷新access_token（如果需要）
-func (c *Client) Refresh() error {
+func (c *Client) TokenRefresh() error {
 	if c.OAuth2Config == nil {
 		return errors.New("no OAuth2Config supplied")
 	}
-	if c.OAuth2Token == nil {
-		return errors.New("no OAuth2Token supplied")
+	if c.OAuth2Info == nil {
+		return errors.New("no OAuth2Info supplied")
 	}
-	if c.RefreshToken == "" {
+	if len(c.RefreshToken) == 0 {
 		return errors.New("no Refresh Token")
 	}
 
@@ -177,16 +174,9 @@ func (c *Client) Refresh() error {
 		return fmt.Errorf("http.Status: %s", resp.Status)
 	}
 
-	type tokenResponse struct {
-		AccessToken  string `json:"access_token"`  // 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同
-		RefreshToken string `json:"refresh_token"` // 用户刷新access_token
-		ExpiresIn    int64  `json:"expires_in"`    // access_token接口调用凭证超时时间，单位（秒）
-		OpenId       string `json:"openid"`        // 用户唯一标识，请注意，在未关注公众号时，用户访问公众号的网页，也会产生一个用户和公众号唯一的OpenID
-		Scope        string `json:"scope"`         // 用户授权的作用域，使用逗号（,）分隔
-	}
 	var result struct {
-		tokenResponse
 		Error
+		tokenResponse
 	}
 	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return err
@@ -200,51 +190,89 @@ func (c *Client) Refresh() error {
 	if len(result.RefreshToken) > 0 {
 		c.RefreshToken = result.RefreshToken
 	}
+	c.OpenId = result.OpenId
+	c.Scopes = strings.Split(result.Scope, ",")
 
 	switch {
 	case result.ExpiresIn > 10: // 正常情况下远大于 10
-		// 考虑到网络延时，提前 10 秒过期
-		c.Expiry = time.Now().Unix() + result.ExpiresIn - 10
+		c.Expiry = time.Now().Unix() + result.ExpiresIn - 10 // 考虑到网络延时，提前 10 秒过期
+
 	case result.ExpiresIn > 0:
 		c.Expiry = time.Now().Unix() + result.ExpiresIn
+
 	case result.ExpiresIn == 0:
 		c.Expiry = 0
-	default:
-		return fmt.Errorf("token ExpiresIn: %d < 0", result.ExpiresIn)
-	}
 
-	c.OpenId = result.OpenId
-	c.Scopes = strings.Split(result.Scope, ",")
+	default:
+		return fmt.Errorf("token ExpiresIn(==%d) < 0", result.ExpiresIn)
+	}
 
 	return nil
 }
 
+func (c *Client) CheckAccessTokenValid() (bool, error) {
+	if c.OAuth2Info == nil {
+		return false, errors.New("no OAuth2Info supplied")
+	}
+	if len(c.AccessToken) == 0 {
+		return false, errors.New("no Access Token")
+	}
+	if len(c.OpenId) == 0 {
+		return false, errors.New(`no OpenId`)
+	}
+
+	_url := checkAccessTokenValidURL(c.AccessToken, c.OpenId)
+	resp, err := c.httpClient().Get(_url)
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return false, fmt.Errorf("http.Status: %s", resp.Status)
+	}
+
+	var result Error
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return false, err
+	}
+
+	if result.ErrCode != 0 {
+		return false, nil
+	}
+	return true, nil
+}
+
 // 拉取用户信息(需scope为 snsapi_userinfo).
 //  lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
-func (c *Client) UserInfo(openid, lang string) (*UserInfo, error) {
-	if len(openid) == 0 {
-		return nil, errors.New(`openid == ""`)
-	}
+func (c *Client) UserInfo(lang string) (*UserInfo, error) {
 	switch lang {
 	case "":
 		lang = Language_zh_CN
 	case Language_zh_CN, Language_zh_TW, Language_en:
 	default:
-		return nil, errors.New(`lang 必须是 "", zh_CN, zh_TW, en 之一`)
+		return nil, fmt.Errorf("lang 必须是 \"\",%s,%s,%s 其中之一",
+			Language_zh_CN, Language_zh_TW, Language_en)
 	}
 
-	if c.OAuth2Token == nil {
-		return nil, errors.New("no OAuth2Token supplied")
+	if c.OAuth2Info == nil {
+		return nil, errors.New("no OAuth2Info supplied")
+	}
+	if len(c.AccessToken) == 0 {
+		return nil, errors.New("no Access Token")
+	}
+	if len(c.OpenId) == 0 {
+		return nil, errors.New(`no OpenId`)
 	}
 
-	// Refresh the OAuth2Token if it has expired.
-	if c.Expired() {
-		if err := c.Refresh(); err != nil {
+	// Refresh the OAuth2Info if it has expired.
+	if c.AccessTokenExpired() {
+		if err := c.TokenRefresh(); err != nil {
 			return nil, err
 		}
 	}
 
-	_url := userInfoURL(c.AccessToken, openid, lang)
+	_url := userInfoURL(c.AccessToken, c.OpenId, lang)
 	resp, err := c.httpClient().Get(_url)
 	if err != nil {
 		return nil, err

@@ -25,7 +25,7 @@ func oauth2AuthURL(appid, redirectURL, scope, state string) string {
 
 // https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&secret=SECRET
 // &code=CODE&grant_type=authorization_code
-func oauth2TokenURL(appid, appsecret, code string) string {
+func oauth2ExchangeTokenURL(appid, appsecret, code string) string {
 	return "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" +
 		appid +
 		"&secret=" +
@@ -44,10 +44,18 @@ func oauth2RefreshTokenURL(appid, refreshToken string) string {
 		refreshToken
 }
 
+// https://api.weixin.qq.com/sns/auth?access_token=ACCESS_TOKEN&openid=OPENID
+func checkAccessTokenValidURL(token, openid string) string {
+	return "https://api.weixin.qq.com/sns/auth?access_token=" +
+		token +
+		"&openid=" +
+		openid
+}
+
 // https://api.weixin.qq.com/sns/userinfo?access_token=ACCESS_TOKEN&openid=OPENID&lang=zh_CN
-func userInfoURL(accessToken, openid, lang string) string {
+func userInfoURL(token, openid, lang string) string {
 	return "https://api.weixin.qq.com/sns/userinfo?access_token=" +
-		accessToken +
+		token +
 		"&openid=" +
 		openid +
 		"&lang=" +
