@@ -79,12 +79,12 @@ type Request struct {
 	SkuInfo     string `xml:"SkuInfo"`
 }
 
-var _zeroRequest Request
+var _zero_request Request
 
 // 因为 Request 结构体比较大, 每次都申请比较不划算, 并且这个结构体一般都是过度,
 // 不会常驻内存, 所以建议用对象池技术; 用对象池最好都要每次都 清零, 以防旧数据干扰.
 func (msg *Request) Zero() *Request {
-	*msg = _zeroRequest
+	*msg = _zero_request
 	return msg
 }
 
