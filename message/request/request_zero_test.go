@@ -9,32 +9,35 @@ import (
 	"testing"
 )
 
-var _test_request Request
-
 func TestRequestZero(t *testing.T) {
-	_test_request.ToUserName = "touser"
+	var req Request
+	req.ToUserName = "touser"
 
-	if _test_request == _zero_request {
-		t.Error("_test_request must not be zero")
+	if req == _zero_request {
+		t.Error("req must not be zero")
 		return
 	}
 
-	_test_request.Zero()
-	if _test_request.ToUserName != "" {
-		t.Error("_test_request must be zero")
+	req.Zero()
+	if req.ToUserName != "" {
+		t.Error("req must be zero")
 		return
 	}
 }
+
 func BenchmarkRequestZero(b *testing.B) {
+	var req Request
 	for i := 0; i < b.N; i++ {
-		_test_request.Zero()
+		req.Zero()
 	}
 }
 func BenchmarkRequest_Zero(b *testing.B) {
+	var req Request
 	for i := 0; i < b.N; i++ {
-		_test_request._Zero()
+		req._Zero()
 	}
 }
+
 func (msg *Request) _Zero() *Request {
 	msg.CommonHead.ToUserName = ""
 	msg.CommonHead.FromUserName = ""
