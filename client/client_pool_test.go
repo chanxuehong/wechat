@@ -10,20 +10,29 @@ import (
 	"testing"
 )
 
-func BenchmarkGetBufferFromPool(b *testing.B) {
+var _test_client_pool_client = func() *Client {
 	clt := NewClient("appid", "secret", nil)
-	// 先分配一个对象
+
+	// 预热
 	buf := clt.getBufferFromPool()
 	clt.putBufferToPool(buf)
 
+	return clt
+}()
+
+func BenchmarkGetBufferFromPool(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		buf := clt.getBufferFromPool()
-		clt.putBufferToPool(buf)
+		func() {
+			buf := _test_client_pool_client.getBufferFromPool()
+			defer _test_client_pool_client.putBufferToPool(buf)
+		}()
 	}
 }
 
 func BenchmarkGetBufferFromNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = bytes.NewBuffer(make([]byte, 2<<20)) // 默认 2MB
+		func() {
+			_ = bytes.NewBuffer(make([]byte, 2<<20)) // 默认 2MB
+		}()
 	}
 }

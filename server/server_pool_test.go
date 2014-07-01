@@ -11,22 +11,30 @@ import (
 	"testing"
 )
 
-func BenchmarkGetBufferUnitFromPool(b *testing.B) {
+var _test_server_pool_server = func() *Server {
 	srv := NewServer(&ServerSetting{})
 	// 先分配一个对象
 	unit := srv.getBufferUnitFromPool()
 	srv.putBufferUnitToPool(unit)
 
+	return srv
+}()
+
+func BenchmarkGetBufferUnitFromPool(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		unit := srv.getBufferUnitFromPool()
-		srv.putBufferUnitToPool(unit)
+		func() {
+			unit := _test_server_pool_server.getBufferUnitFromPool()
+			defer _test_server_pool_server.putBufferUnitToPool(unit)
+		}()
 	}
 }
 
 func BenchmarkGetBufferUnitFromNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = bytes.NewBuffer(make([]byte, 1024))
-		_ = new(request.Request)
-		_ = make([]byte, 256)
+		func() {
+			_ = bytes.NewBuffer(make([]byte, 512))
+			_ = new(request.Request)
+			_ = make([]byte, 128)
+		}()
 	}
 }
