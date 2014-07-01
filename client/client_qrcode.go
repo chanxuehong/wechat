@@ -135,6 +135,32 @@ func QRCodeDownload(ticket string, writer io.Writer) error {
 	return fmt.Errorf("qrcode with ticket %s not found", ticket)
 }
 
+// 通过 ticket 换取二维码到 writer
+func (c *Client) QRCodeDownload(ticket string, writer io.Writer) error {
+	if len(ticket) == 0 {
+		return errors.New(`ticket == ""`)
+	}
+	if writer == nil {
+		return errors.New("writer == nil")
+	}
+
+	_url := qrcodeURL(ticket)
+	resp, err := c.httpClient.Get(_url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// ticket正确情况下，http 返回码是200，是一张图片，可以直接展示或者下载。
+	if resp.StatusCode == http.StatusOK {
+		_, err = io.Copy(writer, resp.Body)
+		return err
+	}
+
+	// 错误情况下（如ticket非法）返回HTTP错误码404。
+	return fmt.Errorf("qrcode with ticket %s not found", ticket)
+}
+
 // 通过 ticket 换取二维码到文件 filePath
 func QRCodeDownloadToFile(ticket, filePath string) error {
 	file, err := os.Create(filePath)
@@ -144,4 +170,15 @@ func QRCodeDownloadToFile(ticket, filePath string) error {
 	defer file.Close()
 
 	return QRCodeDownload(ticket, file)
+}
+
+// 通过 ticket 换取二维码到文件 filePath
+func (c *Client) QRCodeDownloadToFile(ticket, filePath string) error {
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return c.QRCodeDownload(ticket, file)
 }
