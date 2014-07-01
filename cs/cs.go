@@ -28,9 +28,9 @@ type Record struct {
 	// 2001	 公众号收到消息
 	// 2002	 客服发送消息
 	// 2003	 客服收到消息
-	OperCode int    `json:"opercode"`
-	Time     int64  `json:"time"` // 操作时间，UNIX时间戳
-	Text     string `json:"text"` // 聊天记录
+	OperateCode int    `json:"opercode"`
+	Time        int64  `json:"time"` // 操作时间，UNIX时间戳
+	Text        string `json:"text"` // 聊天记录
 }
 
 /*

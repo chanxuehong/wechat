@@ -22,13 +22,13 @@ type UploadResponse struct {
 
 // 上传图文消息里的 item
 type NewsArticle struct {
-	ThumbMediaId     string `json:"thumb_media_id"`               // 图文消息缩略图的media_id，可以在基础支持-上传多媒体文件接口中获得
-	Author           string `json:"author,omitempty"`             // 图文消息的作者
-	Title            string `json:"title"`                        // 图文消息的标题
-	ContentSourceURL string `json:"content_source_url,omitempty"` // 在图文消息页面点击“阅读原文”后的页面
-	Content          string `json:"content"`                      // 图文消息页面的内容，支持HTML标签
-	Digest           string `json:"digest,omitempty"`             // 图文消息的描述
-	ShowCoverPic     string `json:"show_cover_pic,omitempty"`     // 是否显示封面，1为显示，0为不显示
+	ThumbMediaId     string `json:"thumb_media_id"`                  // 图文消息缩略图的media_id，可以在基础支持-上传多媒体文件接口中获得
+	Author           string `json:"author,omitempty"`                // 图文消息的作者
+	Title            string `json:"title"`                           // 图文消息的标题
+	ContentSourceURL string `json:"content_source_url,omitempty"`    // 在图文消息页面点击“阅读原文”后的页面
+	Content          string `json:"content"`                         // 图文消息页面的内容，支持HTML标签
+	Digest           string `json:"digest,omitempty"`                // 图文消息的描述
+	ShowCoverPic     int    `json:"show_cover_pic,string,omitempty"` // 是否显示封面，1为显示，0为不显示
 }
 
 // 上传图文消息
