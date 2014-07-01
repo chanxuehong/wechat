@@ -36,7 +36,7 @@ type Record struct {
 /*
 聊天记录遍历器
 
-	iter, err := Client.CSRecordIterator(request)
+	iter, err := Client.CustomServiceRecordIterator(request)
 	if err != nil {
 		...
 	}

@@ -40,38 +40,36 @@ func (c *Client) CustomServiceRecordGet(request *customservice.RecordGetRequest)
 
 // 该结构实现了 github.com/chanxuehong/wechat/customservice.RecordIterator 接口
 type csRecordIterator struct {
-	recordGetRequest  *customservice.RecordGetRequest // 对于 NextPage() 表示当前的 request
-	recordGetResponse []customservice.Record          // 对于 HasNext() 表示上一次的 response
+	recordGetRequest  *customservice.RecordGetRequest // 上一次查询的 request
+	recordGetResponse []customservice.Record          // 上一次查询的 response
 
 	wechatClient   *Client // 关联的微信 Client
 	nextPageCalled bool    // NextPage() 是否调用过
 }
 
 func (iter *csRecordIterator) HasNext() bool {
-	// 第一批数据不需要通过 NextPage() 来获取, 因为在创建这个对象的时候就获取了;
-	// 后续的数据都要通过 NextPage() 来获取.
+	// 第一批数据不需要通过 NextPage() 来获取, 在创建这个对象的时候就获取了;
 	if !iter.nextPageCalled {
 		return len(iter.recordGetResponse) > 0
 	}
-	// 如果当前读取的数据等于 PageSize, 则有可能还有数据; 否则肯定是没有数据了.
+	// 如果上一次读取的数据等于 PageSize, 则*有可能*还有数据; 否则肯定是没有数据了.
 	return len(iter.recordGetResponse) == iter.recordGetRequest.PageSize
 }
 func (iter *csRecordIterator) NextPage() ([]customservice.Record, error) {
 	// 第一次调用 NextPage(), 因为在创建这个对象的时候已经获取了数据, 所以直接返回.
 	if !iter.nextPageCalled {
 		iter.nextPageCalled = true
-		iter.recordGetRequest.PageIndex++ // 为下一页准备数据
 		return iter.recordGetResponse, nil
 	}
 
 	// 不是第一次调用的都要从服务器拉取数据
+	iter.recordGetRequest.PageIndex++
 	resp, err := iter.wechatClient.CustomServiceRecordGet(iter.recordGetRequest)
 	if err != nil {
 		return nil, err
 	}
 
-	iter.recordGetResponse = resp     // 覆盖老数据
-	iter.recordGetRequest.PageIndex++ // 为下一页准备数据
+	iter.recordGetResponse = resp
 	return resp, nil
 }
 
