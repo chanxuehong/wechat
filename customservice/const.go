@@ -3,7 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package cs
+package customservice
 
 const (
 	RecordPageSizeLimit = 1000 // 客户聊天记录每页最多拉取1000条

@@ -154,7 +154,7 @@ func userGetURL(accesstoken, nextOpenId string) string {
 }
 
 // https://api.weixin.qq.com/cgi-bin/customservice/getrecord?access_token=ACCESS_TOKEN
-func csrecordGetURL(accesstoken string) string {
+func customServiceRecordGetURL(accesstoken string) string {
 	return "https://api.weixin.qq.com/cgi-bin/customservice/getrecord?access_token=" +
 		accesstoken
 }

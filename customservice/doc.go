@@ -4,4 +4,4 @@
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
 // 客户服务相关数据结构
-package cs
+package customservice

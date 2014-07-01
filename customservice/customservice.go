@@ -3,7 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package cs
+package customservice
 
 // 获取客服聊天记录 请求消息结构
 type RecordGetRequest struct {

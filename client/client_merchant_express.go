@@ -11,7 +11,7 @@ import (
 )
 
 // 增加邮费模板
-func (c *Client) MerchantExpressAdd(template *express.DeliveryTemplate) (templateId int64, err error) {
+func (c *Client) MerchantExpressDeliveryTemplateAdd(template *express.DeliveryTemplate) (templateId int64, err error) {
 	if template == nil {
 		err = errors.New("template == nil")
 		return
@@ -49,7 +49,7 @@ func (c *Client) MerchantExpressAdd(template *express.DeliveryTemplate) (templat
 }
 
 // 删除邮费模板
-func (c *Client) MerchantExpressDelete(templateId int64) error {
+func (c *Client) MerchantExpressDeliveryTemplateDelete(templateId int64) error {
 	token, err := c.Token()
 	if err != nil {
 		return err
@@ -76,7 +76,7 @@ func (c *Client) MerchantExpressDelete(templateId int64) error {
 
 // 修改邮费模板
 //  NOTE: 需要指定 template.Id 字段
-func (c *Client) MerchantExpressUpdate(template *express.DeliveryTemplate) error {
+func (c *Client) MerchantExpressDeliveryTemplateUpdate(template *express.DeliveryTemplate) error {
 	if template == nil {
 		return errors.New("template == nil")
 	}
@@ -110,7 +110,7 @@ func (c *Client) MerchantExpressUpdate(template *express.DeliveryTemplate) error
 }
 
 // 获取指定ID的邮费模板
-func (c *Client) MerchantExpressGetById(templateId int64) (*express.DeliveryTemplate, error) {
+func (c *Client) MerchantExpressDeliveryTemplateGetById(templateId int64) (*express.DeliveryTemplate, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
@@ -139,7 +139,7 @@ func (c *Client) MerchantExpressGetById(templateId int64) (*express.DeliveryTemp
 }
 
 // 获取所有邮费模板
-func (c *Client) MerchantExpressGetAll() ([]express.DeliveryTemplate, error) {
+func (c *Client) MerchantExpressDeliveryTemplateGetAll() ([]express.DeliveryTemplate, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
