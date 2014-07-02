@@ -20,21 +20,33 @@ import (
 
 // 上传多媒体图片
 func (c *Client) MediaUploadImageFromFile(_filepath string) (*media.UploadResponse, error) {
+	if _filepath == "" {
+		return nil, errors.New(`_filepath == ""`)
+	}
 	return c.mediaUploadFromFile(media.MEDIA_TYPE_IMAGE, _filepath)
 }
 
 // 上传多媒体缩略图
 func (c *Client) MediaUploadThumbFromFile(_filepath string) (*media.UploadResponse, error) {
+	if _filepath == "" {
+		return nil, errors.New(`_filepath == ""`)
+	}
 	return c.mediaUploadFromFile(media.MEDIA_TYPE_THUMB, _filepath)
 }
 
 // 上传多媒体语音
 func (c *Client) MediaUploadVoiceFromFile(_filepath string) (*media.UploadResponse, error) {
+	if _filepath == "" {
+		return nil, errors.New(`_filepath == ""`)
+	}
 	return c.mediaUploadFromFile(media.MEDIA_TYPE_VOICE, _filepath)
 }
 
 // 上传多媒体视频
 func (c *Client) MediaUploadVideoFromFile(_filepath string) (*media.UploadResponse, error) {
+	if _filepath == "" {
+		return nil, errors.New(`_filepath == ""`)
+	}
 	return c.mediaUploadFromFile(media.MEDIA_TYPE_VIDEO, _filepath)
 }
 
@@ -168,13 +180,20 @@ func (c *Client) mediaUpload(mediaType, filename string, mediaReader io.Reader) 
 // 下载多媒体文件.
 //  NOTE: 视频文件不支持下载.
 func (c *Client) MediaDownloadToFile(mediaId, _filepath string) error {
+	if mediaId == "" {
+		return errors.New(`mediaId == ""`)
+	}
+	if _filepath == "" {
+		return errors.New(`_filepath == ""`)
+	}
+
 	file, err := os.Create(_filepath)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	return c.MediaDownload(mediaId, file)
+	return c._MediaDownload(mediaId, file)
 }
 
 // 下载多媒体文件.
@@ -186,7 +205,11 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 	if writer == nil {
 		return errors.New("writer == nil")
 	}
+	return c._MediaDownload(mediaId, writer)
+}
 
+// 下载多媒体文件.
+func (c *Client) _MediaDownload(mediaId string, writer io.Writer) error {
 	token, err := c.Token()
 	if err != nil {
 		return err
@@ -210,7 +233,6 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 	}
 
 	// 返回的是错误信息
-
 	var result Error
 	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return err
@@ -248,7 +270,7 @@ func (c *Client) MediaCreateNews(news *media.News) (*media.UploadResponse, error
 //  NOTE: title, description 可以为空
 func (c *Client) MediaCreateVideo(mediaId, title, description string) (*media.UploadResponse, error) {
 	if mediaId == "" {
-		return nil, errors.New("mediaId == nil")
+		return nil, errors.New(`mediaId == ""`)
 	}
 
 	token, err := c.Token()
