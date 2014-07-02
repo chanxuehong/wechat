@@ -6,23 +6,9 @@
 package client
 
 import (
-	"bytes"
-	"crypto/md5"
-	"io/ioutil"
 	"testing"
 	"time"
 )
-
-func fileMd5(filepath string) ([]byte, error) {
-	// 因为文件不大, 一次性读入内存
-	b, err := ioutil.ReadFile(filepath)
-	if err != nil {
-		return nil, err
-	}
-
-	sum := md5.Sum(b)
-	return sum[:], nil
-}
 
 func TestQRCodePermanentCreateAndDownload(t *testing.T) {
 	qrcode, err := _test_client.QRCodePermanentCreate(100)
@@ -53,18 +39,13 @@ func TestQRCodePermanentCreateAndDownload(t *testing.T) {
 		return
 	}
 
-	sum0, err := fileMd5("testdata/permanent0.jpg")
+	isEqual, err := fileEqual("testdata/permanent0.jpg", "testdata/permanent1.jpg")
 	if err != nil {
-		t.Error("计算 testdata/permanent0.jpg 的 md5 值出错,", err)
-		return
-	}
-	sum1, err := fileMd5("testdata/permanent1.jpg")
-	if err != nil {
-		t.Error("计算 testdata/permanent1.jpg 的 md5 值出错,", err)
+		t.Error(err)
 		return
 	}
 
-	if !bytes.Equal(sum0, sum1) {
+	if !isEqual {
 		t.Error("两次下载的二维码不一样")
 		return
 	}
@@ -82,7 +63,7 @@ func TestQRCodeTemporaryCreateAndDownload(t *testing.T) {
 		return
 	}
 
-	if qrcode.SceneId != 1000000 || qrcode.Ticket == "" || qrcode.Expiry < time.Now().Unix() {
+	if qrcode.SceneId != 1000000 || qrcode.Ticket == "" || qrcode.Expiry != 100+time.Now().Unix() {
 		t.Error(`返回的 qrcode 不合法`)
 		return
 	}
@@ -99,18 +80,13 @@ func TestQRCodeTemporaryCreateAndDownload(t *testing.T) {
 		return
 	}
 
-	sum0, err := fileMd5("testdata/temporary0.jpg")
+	isEqual, err := fileEqual("testdata/temporary0.jpg", "testdata/temporary1.jpg")
 	if err != nil {
-		t.Error("计算 testdata/temporary0.jpg 的 md5 值出错,", err)
-		return
-	}
-	sum1, err := fileMd5("testdata/temporary1.jpg")
-	if err != nil {
-		t.Error("计算 testdata/temporary1.jpg 的 md5 值出错,", err)
+		t.Error(err)
 		return
 	}
 
-	if !bytes.Equal(sum0, sum1) {
+	if !isEqual {
 		t.Error("两次下载的二维码不一样")
 		return
 	}

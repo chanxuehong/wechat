@@ -5,6 +5,11 @@
 
 package client
 
+import (
+	"bytes"
+	"io/ioutil"
+)
+
 var _test_client = func() *Client {
 	// 填入正确的 appid, appsecret
 	clt := NewClient("appid", "appsecret", nil)
@@ -15,3 +20,18 @@ var _test_client = func() *Client {
 
 	return clt
 }()
+
+// 比较两个文件是否相等
+func fileEqual(filepath1, filepath2 string) (bool, error) {
+	// 因为文件不大, 一次性读入内存
+	b1, err := ioutil.ReadFile(filepath1)
+	if err != nil {
+		return false, err
+	}
+	b2, err := ioutil.ReadFile(filepath2)
+	if err != nil {
+		return false, err
+	}
+
+	return bytes.Equal(b1, b2), nil
+}
