@@ -32,9 +32,9 @@ func BenchmarkGetBufferUnitFromPool(b *testing.B) {
 func BenchmarkGetBufferUnitFromNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		func() {
-			_ = bytes.NewBuffer(make([]byte, 512))
-			_ = new(request.Request)
-			_ = make([]byte, 128)
+			_ = bytes.NewBuffer(make([]byte, 512)) // server 平均收到消息的估计大小
+			_ = request.Request{}
+			_ = make([]byte, 128) // checkSignature 内申请切片平均估计大小
 		}()
 	}
 }
