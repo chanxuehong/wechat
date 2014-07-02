@@ -78,13 +78,13 @@ func mediaDownloadURL(accesstoken string, mediaid string) string {
 }
 
 // https://api.weixin.qq.com/cgi-bin/media/uploadnews?access_token=ACCESS_TOKEN
-func mediaUploadNewsURL(accesstoken string) string {
+func mediaCreateNewsURL(accesstoken string) string {
 	return "https://api.weixin.qq.com/cgi-bin/media/uploadnews?access_token=" +
 		accesstoken
 }
 
 // https://file.api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token=ACCESS_TOKEN
-func mediaUploadVideoURL(accesstoken string) string {
+func mediaCreateVideoURL(accesstoken string) string {
 	return "https://file.api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token=" +
 		accesstoken
 }

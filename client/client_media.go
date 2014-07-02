@@ -18,41 +18,83 @@ import (
 	"path/filepath"
 )
 
-// 上传多媒体文件, MediaUpload 的一个简单封装
-func (c *Client) MediaUploadFromFile(mediaType, filePath string) (*media.UploadResponse, error) {
-	file, err := os.Open(filePath)
+// 上传多媒体图片
+func (c *Client) MediaUploadImageFromFile(_filepath string) (*media.UploadResponse, error) {
+	return c.mediaUploadFromFile(media.MEDIA_TYPE_IMAGE, _filepath)
+}
+
+// 上传多媒体缩略图
+func (c *Client) MediaUploadThumbFromFile(_filepath string) (*media.UploadResponse, error) {
+	return c.mediaUploadFromFile(media.MEDIA_TYPE_THUMB, _filepath)
+}
+
+// 上传多媒体语音
+func (c *Client) MediaUploadVoiceFromFile(_filepath string) (*media.UploadResponse, error) {
+	return c.mediaUploadFromFile(media.MEDIA_TYPE_VOICE, _filepath)
+}
+
+// 上传多媒体视频
+func (c *Client) MediaUploadVideoFromFile(_filepath string) (*media.UploadResponse, error) {
+	return c.mediaUploadFromFile(media.MEDIA_TYPE_VIDEO, _filepath)
+}
+
+// 上传多媒体
+func (c *Client) mediaUploadFromFile(mediaType, _filepath string) (*media.UploadResponse, error) {
+	file, err := os.Open(_filepath)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	return c.MediaUpload(mediaType, filepath.Base(filePath), file)
+	return c.mediaUpload(mediaType, filepath.Base(_filepath), file)
 }
 
-// 上传多媒体文件.
-//  NOTE:
-//  1. 媒体文件在后台保存时间为3天，即3天后 media_id 失效。
-//  2. 返回的 media_id 是可复用的;
-//  3. 图片（image）: 1M，支持JPG格式
-//  4. 语音（voice）：2M，播放长度不超过60s，支持AMR\MP3格式
-//  5. 视频（video）：10MB，支持MP4格式
-//  6. 缩略图（thumb）：64KB，支持JPG格式
-func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) (*media.UploadResponse, error) {
-	switch mediaType {
-	case media.MEDIA_TYPE_IMAGE,
-		media.MEDIA_TYPE_VOICE,
-		media.MEDIA_TYPE_VIDEO,
-		media.MEDIA_TYPE_THUMB:
-	default:
-		return nil, errors.New("错误的 mediaType")
-	}
+// 上传多媒体图片
+func (c *Client) MediaUploadImage(filename string, mediaReader io.Reader) (*media.UploadResponse, error) {
 	if filename == "" {
 		return nil, errors.New(`filename == ""`)
 	}
 	if mediaReader == nil {
 		return nil, errors.New("mediaReader == nil")
 	}
+	return c.mediaUpload(media.MEDIA_TYPE_IMAGE, filename, mediaReader)
+}
 
+// 上传多媒体缩略图
+func (c *Client) MediaUploadThumb(filename string, mediaReader io.Reader) (*media.UploadResponse, error) {
+	if filename == "" {
+		return nil, errors.New(`filename == ""`)
+	}
+	if mediaReader == nil {
+		return nil, errors.New("mediaReader == nil")
+	}
+	return c.mediaUpload(media.MEDIA_TYPE_THUMB, filename, mediaReader)
+}
+
+// 上传多媒体语音
+func (c *Client) MediaUploadVoice(filename string, mediaReader io.Reader) (*media.UploadResponse, error) {
+	if filename == "" {
+		return nil, errors.New(`filename == ""`)
+	}
+	if mediaReader == nil {
+		return nil, errors.New("mediaReader == nil")
+	}
+	return c.mediaUpload(media.MEDIA_TYPE_VOICE, filename, mediaReader)
+}
+
+// 上传多媒体视频
+func (c *Client) MediaUploadVideo(filename string, mediaReader io.Reader) (*media.UploadResponse, error) {
+	if filename == "" {
+		return nil, errors.New(`filename == ""`)
+	}
+	if mediaReader == nil {
+		return nil, errors.New("mediaReader == nil")
+	}
+	return c.mediaUpload(media.MEDIA_TYPE_VIDEO, filename, mediaReader)
+}
+
+// 上传多媒体
+func (c *Client) mediaUpload(mediaType, filename string, mediaReader io.Reader) (*media.UploadResponse, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
@@ -125,8 +167,8 @@ func (c *Client) MediaUpload(mediaType, filename string, mediaReader io.Reader) 
 
 // 下载多媒体文件.
 //  NOTE: 视频文件不支持下载.
-func (c *Client) MediaDownloadToFile(mediaId, filePath string) error {
-	file, err := os.Create(filePath)
+func (c *Client) MediaDownloadToFile(mediaId, _filepath string) error {
+	file, err := os.Create(_filepath)
 	if err != nil {
 		return err
 	}
@@ -149,8 +191,8 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 	if err != nil {
 		return err
 	}
-
 	_url := mediaDownloadURL(token, mediaId)
+
 	resp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return err
@@ -176,8 +218,8 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 	return &result
 }
 
-// 上传图文消息素材
-func (c *Client) MediaUploadNews(news *media.News) (*media.UploadResponse, error) {
+// 根据上传的缩略图媒体创建图文消息素材
+func (c *Client) MediaCreateNews(news *media.News) (*media.UploadResponse, error) {
 	if news == nil {
 		return nil, errors.New("news == nil")
 	}
@@ -186,7 +228,7 @@ func (c *Client) MediaUploadNews(news *media.News) (*media.UploadResponse, error
 	if err != nil {
 		return nil, err
 	}
-	_url := mediaUploadNewsURL(token)
+	_url := mediaCreateNewsURL(token)
 
 	var result struct {
 		media.UploadResponse
@@ -202,23 +244,34 @@ func (c *Client) MediaUploadNews(news *media.News) (*media.UploadResponse, error
 	return &result.UploadResponse, nil
 }
 
-// 上传视频消息
-func (c *Client) MediaUploadVideo(video *media.Video) (*media.UploadResponse, error) {
-	if video == nil {
-		return nil, errors.New("video == nil")
+// 根据上传的视频文件 media_id 创建视频媒体, 群发视频消息应该用这个函数得到的 media_id.
+//  NOTE: title, description 可以为空
+func (c *Client) MediaCreateVideo(mediaId, title, description string) (*media.UploadResponse, error) {
+	if mediaId == "" {
+		return nil, errors.New("mediaId == nil")
 	}
 
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
 	}
-	_url := mediaUploadVideoURL(token)
+	_url := mediaCreateVideoURL(token)
+
+	var request = struct {
+		MediaId     string `json:"media_id"`
+		Title       string `json:"title,omitempty"`
+		Description string `json:"description,omitempty"`
+	}{
+		MediaId:     mediaId,
+		Title:       title,
+		Description: description,
+	}
 
 	var result struct {
 		media.UploadResponse
 		Error
 	}
-	if err = c.postJSON(_url, video, &result); err != nil {
+	if err = c.postJSON(_url, &request, &result); err != nil {
 		return nil, err
 	}
 

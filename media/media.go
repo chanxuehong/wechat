@@ -54,10 +54,3 @@ func (news *News) AppendArticle(article ...*NewsArticle) {
 		news.Articles = news.Articles[:NewsArticleCountLimit]
 	}
 }
-
-// 上传视频消息
-type Video struct {
-	MediaId     string `json:"media_id"` // 此处media_id需通过基础支持中的上传下载多媒体文件来得到
-	Title       string `json:"title,omitempty"`
-	Description string `json:"description,omitempty"`
-}

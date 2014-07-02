@@ -11,7 +11,7 @@ import (
 )
 
 func TestMediaUploadImageFromFileAndDownload(t *testing.T) {
-	resp, err := _test_client.MediaUploadFromFile(media.MEDIA_TYPE_IMAGE, "testdata/upload_image.jpg")
+	resp, err := _test_client.MediaUploadImageFromFile("testdata/upload_image.jpg")
 	if err != nil {
 		t.Error("上传图片失败,", err)
 		return
@@ -48,7 +48,7 @@ func TestMediaUploadImageFromFileAndDownload(t *testing.T) {
 }
 
 func TestMediaUploadThumbFromFileAndDownload(t *testing.T) {
-	resp, err := _test_client.MediaUploadFromFile(media.MEDIA_TYPE_THUMB, "testdata/upload_thumb.jpg")
+	resp, err := _test_client.MediaUploadThumbFromFile("testdata/upload_thumb.jpg")
 	if err != nil {
 		t.Error("上传缩略图失败,", err)
 		return
@@ -85,7 +85,7 @@ func TestMediaUploadThumbFromFileAndDownload(t *testing.T) {
 }
 
 func TestMediaUploadVoiceFromFileAndDownload(t *testing.T) {
-	resp, err := _test_client.MediaUploadFromFile(media.MEDIA_TYPE_VOICE, "testdata/upload_voice.amr")
+	resp, err := _test_client.MediaUploadVoiceFromFile("testdata/upload_voice.amr")
 	if err != nil {
 		t.Error("上传语音失败,", err)
 		return
@@ -123,7 +123,7 @@ func TestMediaUploadVoiceFromFileAndDownload(t *testing.T) {
 
 // 视频文件不能下载
 func TestMediaUploadVideoFromFile(t *testing.T) {
-	resp, err := _test_client.MediaUploadFromFile(media.MEDIA_TYPE_VIDEO, "testdata/upload_video.mp4")
+	resp, err := _test_client.MediaUploadVideoFromFile("testdata/upload_video.mp4")
 	if err != nil {
 		t.Error("上传视频媒体失败,", err)
 		return
