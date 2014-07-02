@@ -107,7 +107,7 @@ func (c *Client) MerchantGroupRename(groupId int64, newName string) error {
 }
 
 // 修改分组商品
-func (c *Client) MerchantGroupProductModify(modifyRequest *group.GroupProductModifyRequest) error {
+func (c *Client) MerchantGroupModifyProduct(modifyRequest *group.GroupModifyProductRequest) error {
 	if modifyRequest == nil {
 		return errors.New("modifyRequest == nil")
 	}

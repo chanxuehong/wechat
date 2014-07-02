@@ -136,17 +136,24 @@ func (c *Client) MerchantProductGet(productId string) (*product.Product, error) 
 	return &result.ProductInfo, nil
 }
 
+// 获取所有商品，包括上架商品 和 下架商品
+func (c *Client) MerchantProductGetAll() ([]product.Product, error) {
+	return c.merchantProductGetByStatus(0)
+}
+
+// 获取所有上架商品
+func (c *Client) MerchantProductGetAllOnShelf() ([]product.Product, error) {
+	return c.merchantProductGetByStatus(1)
+}
+
+// 获取所有下架商品
+func (c *Client) MerchantProductGetAllOffShelf() ([]product.Product, error) {
+	return c.merchantProductGetByStatus(2)
+}
+
 // 获取指定状态的所有商品.
 // 0-所有商品, 1-上架商品, 2-下架商品
-func (c *Client) MerchantProductGetByStatus(status int) ([]product.Product, error) {
-	switch status {
-	case product.PRODUCT_STATUS_ALL,
-		product.PRODUCT_STATUS_ONSHELF,
-		product.PRODUCT_STATUS_OFFSHELF:
-	default:
-		return nil, errors.New("invalid status")
-	}
-
+func (c *Client) merchantProductGetByStatus(status int) ([]product.Product, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err

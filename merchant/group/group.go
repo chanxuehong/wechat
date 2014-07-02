@@ -16,23 +16,23 @@ type GroupEx struct {
 }
 
 // 修改分组商品的请求数据结构
-type GroupProductModifyRequest struct {
+type GroupModifyProductRequest struct {
 	GroupId  int64                    `json:"group_id"`
-	Products []groupProductModifyUnit `json:"product,omitempty"`
+	Products []groupModifyProductUnit `json:"product,omitempty"`
 }
 
-type groupProductModifyUnit struct {
+type groupModifyProductUnit struct {
 	ProductId    string `json:"product_id"`
 	ModifyAction int    `json:"mod_action"`
 }
 
-func NewGroupProductModifyRequest(groupId int64,
-	addProducts []string, delProducts []string) *GroupProductModifyRequest {
+func NewGroupModifyProductRequest(groupId int64,
+	addProducts []string, delProducts []string) *GroupModifyProductRequest {
 
-	r := GroupProductModifyRequest{
+	r := GroupModifyProductRequest{
 		GroupId: groupId,
 	}
-	r.Products = make([]groupProductModifyUnit, len(addProducts)+len(delProducts))
+	r.Products = make([]groupModifyProductUnit, len(addProducts)+len(delProducts))
 
 	for i := 0; i < len(addProducts); i++ {
 		r.Products[i].ProductId = addProducts[i]
@@ -47,18 +47,18 @@ func NewGroupProductModifyRequest(groupId int64,
 	return &r
 }
 
-func (r *GroupProductModifyRequest) AddProduct(productId ...string) {
+func (r *GroupModifyProductRequest) AddProduct(productId ...string) {
 	switch {
 	case len(productId) == 1:
 		r.Products = append(r.Products,
-			groupProductModifyUnit{
+			groupModifyProductUnit{
 				ProductId:    productId[0],
 				ModifyAction: GROUP_PRODUCT_MODIFY_ACTION_ADD,
 			},
 		)
 
 	case len(productId) > 1:
-		products := make([]groupProductModifyUnit, len(productId))
+		products := make([]groupModifyProductUnit, len(productId))
 		for i := 0; i < len(productId); i++ {
 			products[i].ProductId = productId[i]
 			products[i].ModifyAction = GROUP_PRODUCT_MODIFY_ACTION_ADD
@@ -68,18 +68,18 @@ func (r *GroupProductModifyRequest) AddProduct(productId ...string) {
 	}
 }
 
-func (r *GroupProductModifyRequest) DeleteProduct(productId ...string) {
+func (r *GroupModifyProductRequest) DeleteProduct(productId ...string) {
 	switch {
 	case len(productId) == 1:
 		r.Products = append(r.Products,
-			groupProductModifyUnit{
+			groupModifyProductUnit{
 				ProductId:    productId[0],
 				ModifyAction: GROUP_PRODUCT_MODIFY_ACTION_DEL,
 			},
 		)
 
 	case len(productId) > 1:
-		products := make([]groupProductModifyUnit, len(productId))
+		products := make([]groupModifyProductUnit, len(productId))
 		for i := 0; i < len(productId); i++ {
 			products[i].ProductId = productId[i]
 			products[i].ModifyAction = GROUP_PRODUCT_MODIFY_ACTION_DEL
