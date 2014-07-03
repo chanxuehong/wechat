@@ -60,7 +60,8 @@ func main() {
 	}
 	wechatServer := server.NewServer(&setting) // 并发安全，一般一个应用只用一个实例即可
 
-	http.Handle("你的公众号回调URL", wechatServer) // 绑定到回调URL上
+	// 比如你在公众平台后台注册的回调地址是 http://abc.xxx.com/weixin，那么可以这样注册
+	http.Handle("/weixin", wechatServer) // 绑定到回调URL上
 
 	http.ListenAndServe(":80", nil)
 }
