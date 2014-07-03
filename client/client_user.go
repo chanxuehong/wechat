@@ -111,11 +111,6 @@ func (c *Client) UserGroupRename(groupid int64, name string) (err error) {
 
 // 查询用户所在分组
 func (c *Client) UserInWhichGroup(openid string) (groupid int64, err error) {
-	if len(openid) == 0 {
-		err = errors.New(`openid == ""`)
-		return
-	}
-
 	token, err := c.Token()
 	if err != nil {
 		return
@@ -145,10 +140,6 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int64, err error) {
 
 // 移动用户分组
 func (c *Client) UserMoveToGroup(openid string, toGroupId int64) (err error) {
-	if len(openid) == 0 {
-		return errors.New(`openid == ""`)
-	}
-
 	token, err := c.Token()
 	if err != nil {
 		return
@@ -178,10 +169,6 @@ func (c *Client) UserMoveToGroup(openid string, toGroupId int64) (err error) {
 // 获取用户基本信息.
 //  lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
 func (c *Client) UserInfo(openid string, lang string) (*user.UserInfo, error) {
-	if len(openid) == 0 {
-		return nil, errors.New(`openid == ""`)
-	}
-
 	switch lang {
 	case "":
 		lang = user.Language_zh_CN

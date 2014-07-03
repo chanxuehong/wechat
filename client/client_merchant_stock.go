@@ -5,27 +5,11 @@
 
 package client
 
-import (
-	"errors"
-)
-
 // 增加库存
 // @productId: 商品ID;
 // @skuInfo:   sku信息,格式"id1:vid1;id2:vid2",如商品为统一规格，则此处赋值为空字符串即可;
 // @quantity:  增加的库存数量.
-func (c *Client) MerchantStockAdd(productId string, skuInfo string,
-	quantity int) error {
-
-	if productId == "" {
-		return errors.New(`productId == ""`)
-	}
-	if skuInfo == "" {
-		return errors.New(`skuInfo == ""`)
-	}
-	if quantity <= 0 {
-		return errors.New(`quantity <= 0`)
-	}
-
+func (c *Client) MerchantStockAdd(productId string, skuInfo string, quantity int) error {
 	token, err := c.Token()
 	if err != nil {
 		return err
@@ -58,19 +42,7 @@ func (c *Client) MerchantStockAdd(productId string, skuInfo string,
 // @productId: 商品ID;
 // @skuInfo:   sku信息,格式"id1:vid1;id2:vid2",如商品为统一规格，则此处赋值为空字符串即可;
 // @quantity:  增加的库存数量.
-func (c *Client) MerchantStockReduce(productId string, skuInfo string,
-	quantity int) error {
-
-	if productId == "" {
-		return errors.New(`productId == ""`)
-	}
-	if skuInfo == "" {
-		return errors.New(`skuInfo == ""`)
-	}
-	if quantity <= 0 {
-		return errors.New(`quantity <= 0`)
-	}
-
+func (c *Client) MerchantStockReduce(productId string, skuInfo string, quantity int) error {
 	token, err := c.Token()
 	if err != nil {
 		return err

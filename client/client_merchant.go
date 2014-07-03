@@ -27,7 +27,6 @@ func (c *Client) MerchantUploadImageFromFile(filePath string) (imageURL string, 
 	return c.MerchantUploadImage(filepath.Base(filePath), file)
 }
 
-// 上传图片
 func (c *Client) MerchantUploadImage(filename string, imageReader io.Reader) (imageURL string, err error) {
 	if filename == "" {
 		err = errors.New(`filename == ""`)
@@ -37,7 +36,11 @@ func (c *Client) MerchantUploadImage(filename string, imageReader io.Reader) (im
 		err = errors.New("imageReader == nil")
 		return
 	}
+	return c.merchantUploadImage(filename, imageReader)
+}
 
+// 上传图片
+func (c *Client) merchantUploadImage(filename string, imageReader io.Reader) (imageURL string, err error) {
 	token, err := c.Token()
 	if err != nil {
 		return

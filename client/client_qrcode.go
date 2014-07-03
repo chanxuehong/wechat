@@ -17,13 +17,6 @@ import (
 
 // 创建临时二维码
 func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (*qrcode.TemporaryQRCode, error) {
-	if sceneId == 0 {
-		return nil, errors.New("sceneId 应该是个32位非0整数")
-	}
-	if expireSeconds <= 0 || expireSeconds > qrcode.TemporaryQRCodeExpireSecondsLimit {
-		return nil, fmt.Errorf("expireSeconds 应该在 (0,%d] 之间", qrcode.TemporaryQRCodeExpireSecondsLimit)
-	}
-
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
@@ -67,10 +60,6 @@ func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (*qrco
 
 // 创建永久二维码
 func (c *Client) QRCodePermanentCreate(sceneId uint32) (*qrcode.PermanentQRCode, error) {
-	if sceneId == 0 || sceneId > qrcode.PermanentQRCodeSceneIdLimit {
-		return nil, fmt.Errorf("sceneId 应该在 (0,%d] 之间", qrcode.PermanentQRCodeSceneIdLimit)
-	}
-
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
@@ -111,9 +100,6 @@ func QRCodeURL(ticket string) string {
 
 // 通过 ticket 换取二维码到 writer
 func QRCodeDownload(ticket string, writer io.Writer) error {
-	if len(ticket) == 0 {
-		return errors.New(`ticket == ""`)
-	}
 	if writer == nil {
 		return errors.New("writer == nil")
 	}
@@ -137,9 +123,6 @@ func QRCodeDownload(ticket string, writer io.Writer) error {
 
 // 通过 ticket 换取二维码到 writer
 func (c *Client) QRCodeDownload(ticket string, writer io.Writer) error {
-	if len(ticket) == 0 {
-		return errors.New(`ticket == ""`)
-	}
 	if writer == nil {
 		return errors.New("writer == nil")
 	}

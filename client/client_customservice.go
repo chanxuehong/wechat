@@ -75,7 +75,7 @@ func (iter *csRecordIterator) NextPage() ([]customservice.Record, error) {
 
 // 聊天记录遍历器
 func (c *Client) CustomServiceRecordIterator(queryRequest *customservice.RecordGetRequest) (customservice.RecordIterator, error) {
-	// CSRecordGet 会做参数检查, 这里就不用了
+	// CustomServiceRecordGet 会做参数检查
 	resp, err := c.CustomServiceRecordGet(queryRequest)
 	if err != nil {
 		return nil, err

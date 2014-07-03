@@ -105,10 +105,6 @@ func (c *Client) MerchantProductUpdate(_product *product.Product) error {
 
 // 查询商品
 func (c *Client) MerchantProductGet(productId string) (*product.Product, error) {
-	if productId == "" {
-		return nil, errors.New(`productId == ""`)
-	}
-
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
@@ -185,15 +181,6 @@ func (c *Client) merchantProductGetByStatus(status int) ([]product.Product, erro
 // 修改商品状态.
 // status: 商品上下架标识(0-下架, 1-上架)
 func (c *Client) merchantProductModifyStatus(productId string, status int) error {
-	if productId == "" {
-		return errors.New(`productId == ""`)
-	}
-	switch status {
-	case 0, 1:
-	default:
-		return errors.New("invalid status")
-	}
-
 	token, err := c.Token()
 	if err != nil {
 		return err

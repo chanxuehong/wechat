@@ -90,9 +90,6 @@ type tokenResponse struct {
 
 // 通过code换取网页授权access_token
 func (c *Client) Exchange(code string) (*OAuth2Info, error) {
-	if len(code) == 0 {
-		return nil, errors.New(`code == ""`)
-	}
 	if c.OAuth2Config == nil {
 		return nil, errors.New("no OAuth2Config supplied")
 	}
