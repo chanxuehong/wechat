@@ -16,13 +16,13 @@ QQ群：     297489459
 wechat 包主要分为三个部分，Client、Server 和 sns。
 
 Client 主要实现的是“主动”请求功能，如发送客服消息，群发消息，创建菜单，创建二维码等等，
-详见 https://github.com/chanxuehong/wechat/blob/master/client/readme.md；
+详见 https://github.com/chanxuehong/wechat/blob/master/client/readme.md
 
 Server 主要实现的是“被动”接收消息和处理功能，如被动接收文本消息及回复，被动接收语音消息及回复等等，
-详见 https://github.com/chanxuehong/wechat/blob/master/server/readme.md；
+详见 https://github.com/chanxuehong/wechat/blob/master/server/readme.md
 
 sns    主要实现的是网页授权获取用户基本信息功能，即微信扫描网页上的二维码实现 OAuth2 授权登录和获取用户信息，
-详见 https://github.com/chanxuehong/wechat/blob/master/sns/readme.md；
+详见 https://github.com/chanxuehong/wechat/blob/master/sns/readme.md
 
 ## 安装
 通过执行下列语句就可以完成安装
