@@ -29,9 +29,10 @@ func NewServer(setting *ServerSetting) *Server {
 		panic("setting == nil")
 	}
 
-	var srv Server
+	srv := Server{
+		bufferUnitPool: pool.New(newBufferUnit, 64), // 常数 64 可以根据实际业务修改
+	}
 	srv.setting.initialize(setting)
-	srv.bufferUnitPool = pool.New(newBufferUnit, 64) // 常数 64 可以根据实际业务修改
 
 	return &srv
 }

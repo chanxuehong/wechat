@@ -11,11 +11,11 @@ import (
 )
 
 // 非法请求的处理函数.
-// @err: 具体的错误信息
+//  @err: 具体的错误信息
 type InvalidRequestHandlerFunc func(w http.ResponseWriter, r *http.Request, err error)
 
 // 未知消息类型的消息处理函数.
-// @msg: 接收到的消息体
+//  @msg: 接收到的消息体
 type UnknownRequestHandlerFunc func(w http.ResponseWriter, r *http.Request, msg []byte)
 
 // 正常的消息处理函数

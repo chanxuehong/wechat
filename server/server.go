@@ -31,11 +31,12 @@ func NewServer(setting *ServerSetting) *Server {
 		panic("setting == nil")
 	}
 
-	var srv Server
-	srv.setting.initialize(setting)
-	srv.bufferUnitPool = sync.Pool{
-		New: newBufferUnit,
+	srv := Server{
+		bufferUnitPool: sync.Pool{
+			New: newBufferUnit,
+		},
 	}
+	srv.setting.initialize(setting)
 
 	return &srv
 }
