@@ -13,7 +13,7 @@ import (
 // 创建自定义菜单.
 //  NOTE: 创建自定义菜单后，由于微信客户端缓存，需要24小时微信客户端才会展现出来。
 //  建议测试时可以尝试取消关注公众账号后再次关注，则可以看到创建后的效果。
-func (c *Client) MenuCreate(_menu *menu.Menu) (err error) {
+func (c *Client) MenuCreate(_menu menu.Menu) (err error) {
 	if _menu == nil {
 		return errors.New("_menu == nil")
 	}
@@ -24,8 +24,14 @@ func (c *Client) MenuCreate(_menu *menu.Menu) (err error) {
 	}
 	_url := menuCreateURL(token)
 
+	var request = struct {
+		menu.Menu `json:"button,omitempty"`
+	}{
+		Menu: _menu,
+	}
+
 	var result Error
-	if err = c.postJSON(_url, _menu, &result); err != nil {
+	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
 
@@ -55,7 +61,7 @@ func (c *Client) MenuDelete() error {
 }
 
 // 获取自定义菜单
-func (c *Client) MenuGet() (*menu.Menu, error) {
+func (c *Client) MenuGet() (menu.Menu, error) {
 	token, err := c.Token()
 	if err != nil {
 		return nil, err
@@ -63,9 +69,13 @@ func (c *Client) MenuGet() (*menu.Menu, error) {
 	_url := menuGetURL(token)
 
 	var result struct {
-		Menu menu.Menu `json:"menu"`
+		Menu struct {
+			menu.Menu `json:"button"`
+		} `json:"menu"`
 		Error
 	}
+	result.Menu.Menu = make(menu.Menu, 0, menu.MenuButtonCountLimit)
+
 	if err = c.getJSON(_url, &result); err != nil {
 		return nil, err
 	}
@@ -73,5 +83,5 @@ func (c *Client) MenuGet() (*menu.Menu, error) {
 	if result.ErrCode != 0 {
 		return nil, &result.Error
 	}
-	return &result.Menu, nil
+	return result.Menu.Menu, nil
 }

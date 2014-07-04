@@ -48,39 +48,20 @@ func TestMenuMarshal(t *testing.T) {
 		]
 	}`)
 
-	menuButton0 := MenuButton{
-		Name: "今日歌曲",
-		Type: MENUBUTTON_TYPE_CLICK,
-		Key:  "V1001_TODAY_MUSIC",
-	}
-	menuButton1 := MenuButton{
-		Name: "歌手简介",
-		Type: MENUBUTTON_TYPE_CLICK,
-		Key:  "V1001_TODAY_SINGER",
-	}
-	menuButton2 := MenuButton{
-		Name: "菜单",
-		SubButton: []*MenuButton{
-			&MenuButton{
-				Name: "搜索",
-				Type: MENUBUTTON_TYPE_VIEW,
-				URL:  "http://www.soso.com/",
-			},
-			&MenuButton{
-				Name: "视频",
-				Type: MENUBUTTON_TYPE_VIEW,
-				URL:  "http://v.qq.com/",
-			},
-			&MenuButton{
-				Name: "赞一下我们",
-				Type: MENUBUTTON_TYPE_CLICK,
-				Key:  "V1001_GOOD",
-			},
-		},
-	}
+	button0 := NewClickButton("今日歌曲", "V1001_TODAY_MUSIC")
+	button1 := NewClickButton("歌手简介", "V1001_TODAY_SINGER")
+	button2 := NewSubMenuButton("菜单", nil)
+	button2.SubMenu = append(button2.SubMenu, NewViewButton("搜索", "http://www.soso.com/"))
+	button2.SubMenu = append(button2.SubMenu, NewViewButton("视频", "http://v.qq.com/"))
+	button2.SubMenu = append(button2.SubMenu, NewClickButton("赞一下我们", "V1001_GOOD"))
 
-	var _menu Menu
-	_menu.AppendButton(&menuButton0, &menuButton1, &menuButton2)
+	var _menu struct {
+		Menu `json:"button"`
+	}
+	_menu.Menu = make([]*Button, 3)
+	_menu.Menu[0] = button0
+	_menu.Menu[1] = button1
+	_menu.Menu[2] = button2
 
 	b, err := json.Marshal(_menu)
 	if err != nil {
@@ -134,88 +115,55 @@ func TestMenuUnmarshal(t *testing.T) {
 		]
 	}`)
 
-	var _menu Menu
+	var _menu struct {
+		Menu `json:"button"`
+	}
 	if err := json.Unmarshal(src, &_menu); err != nil {
 		t.Errorf("unmarshal(%#q):\nError: %s\n", src, err)
 	} else {
-		expectMenu := Menu{
-			Button: []*MenuButton{
-				&MenuButton{
-					Name: "今日歌曲",
-					Type: MENUBUTTON_TYPE_CLICK,
-					Key:  "V1001_TODAY_MUSIC",
-				},
-				&MenuButton{
-					Name: "歌手简介",
-					Type: MENUBUTTON_TYPE_CLICK,
-					Key:  "V1001_TODAY_SINGER",
-				},
-				&MenuButton{
-					Name: "菜单",
-					SubButton: []*MenuButton{
-						&MenuButton{
-							Name: "搜索",
-							Type: MENUBUTTON_TYPE_VIEW,
-							URL:  "http://www.soso.com/",
-						},
-						&MenuButton{
-							Name: "视频",
-							Type: MENUBUTTON_TYPE_VIEW,
-							URL:  "http://v.qq.com/",
-						},
-						&MenuButton{
-							Name: "赞一下我们",
-							Type: MENUBUTTON_TYPE_CLICK,
-							Key:  "V1001_GOOD",
-						},
-					},
-				},
-			},
+		button0 := NewClickButton("今日歌曲", "V1001_TODAY_MUSIC")
+		button1 := NewClickButton("歌手简介", "V1001_TODAY_SINGER")
+		button2 := NewSubMenuButton("菜单", nil)
+		button2.SubMenu = append(button2.SubMenu, NewViewButton("搜索", "http://www.soso.com/"))
+		button2.SubMenu = append(button2.SubMenu, NewViewButton("视频", "http://v.qq.com/"))
+		button2.SubMenu = append(button2.SubMenu, NewClickButton("赞一下我们", "V1001_GOOD"))
+
+		var _menu1 struct {
+			Menu `json:"button"`
 		}
+		_menu1.Menu = make([]*Button, 3)
+		_menu1.Menu[0] = button0
+		_menu1.Menu[1] = button1
+		_menu1.Menu[2] = button2
 
-		isEqual := func(src, to Menu) bool {
-			if len(_menu.Button) != 3 {
-				return false
-			}
-			if len(_menu.Button[2].SubButton) != 3 {
-				return false
-			}
-
-			if _menu.Button[0].Name != expectMenu.Button[0].Name ||
-				_menu.Button[0].Type != expectMenu.Button[0].Type ||
-				_menu.Button[0].Key != expectMenu.Button[0].Key {
-				return false
-			}
-			if _menu.Button[1].Name != expectMenu.Button[1].Name ||
-				_menu.Button[1].Type != expectMenu.Button[1].Type ||
-				_menu.Button[1].Key != expectMenu.Button[1].Key {
-				return false
-			}
-
-			if _menu.Button[2].Name != expectMenu.Button[2].Name {
-				return false
-			}
-			if _menu.Button[2].SubButton[0].Name != expectMenu.Button[2].SubButton[0].Name ||
-				_menu.Button[2].SubButton[0].Type != expectMenu.Button[2].SubButton[0].Type ||
-				_menu.Button[2].SubButton[0].URL != expectMenu.Button[2].SubButton[0].URL {
-				return false
-			}
-			if _menu.Button[2].SubButton[1].Name != expectMenu.Button[2].SubButton[1].Name ||
-				_menu.Button[2].SubButton[1].Type != expectMenu.Button[2].SubButton[1].Type ||
-				_menu.Button[2].SubButton[1].URL != expectMenu.Button[2].SubButton[1].URL {
-				return false
-			}
-			if _menu.Button[2].SubButton[2].Name != expectMenu.Button[2].SubButton[2].Name ||
-				_menu.Button[2].SubButton[2].Type != expectMenu.Button[2].SubButton[2].Type ||
-				_menu.Button[2].SubButton[2].Key != expectMenu.Button[2].SubButton[2].Key {
-				return false
-			}
-
-			return true
-		}(_menu, expectMenu)
-
-		if !isEqual {
-			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", src, _menu, expectMenu)
+		if !menuEqual(_menu1.Menu, _menu.Menu) {
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", src, _menu, _menu1)
 		}
 	}
+}
+
+func menuEqual(src, to Menu) bool {
+	if len(src) != len(to) {
+		return false
+	}
+	for i := 0; i < len(src); i++ {
+		if src[i].Name != to[i].Name {
+			return false
+		}
+		if src[i].Type != to[i].Type {
+			return false
+		}
+		if src[i].Key != to[i].Key {
+			return false
+		}
+		if src[i].URL != to[i].URL {
+			return false
+		}
+
+		if !menuEqual(src[i].SubMenu, to[i].SubMenu) {
+			return false
+		}
+	}
+
+	return true
 }

@@ -6,12 +6,16 @@
 package menu
 
 const (
-	// 目前自定义菜单最多包括3个一级菜单，每个一级菜单最多包含5个二级菜单。
-	MenuButtonCountLimit    = 3
-	SubMenuButtonCountLimit = 5
+	MenuButtonCountLimit    = 3 // 一级菜单最多包含 3 个按钮
+	SubMenuButtonCountLimit = 5 // 二级菜单最多包含 5 个按钮
 )
 
 const (
-	MENUBUTTON_TYPE_CLICK = "click"
-	MENUBUTTON_TYPE_VIEW  = "view"
+	ButtonKeyLenLimit = 128 // 菜单KEY值不能超过128字节
+	ButtonURLLenLimit = 256 // 网页链接不能超过256字节
+)
+
+const (
+	BUTTON_TYPE_CLICK = "click"
+	BUTTON_TYPE_VIEW  = "view"
 )
