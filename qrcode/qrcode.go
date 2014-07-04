@@ -13,7 +13,7 @@ type PermanentQRCode struct {
 
 // 临时二维码
 type TemporaryQRCode struct {
-	SceneId uint32 `json:"scene_id"` // 场景值ID, 32位非0整型
-	Ticket  string `json:"ticket"`   // 获取的二维码ticket，凭借此ticket可以在有效时间内换取二维码。
-	Expiry  int64  `json:"expiry"`   // 过期时间, unixtime
+	SceneId   uint32 `json:"scene_id"`   // 场景值ID, 32位非0整型
+	Ticket    string `json:"ticket"`     // 获取的二维码ticket，凭借此ticket可以在有效时间内换取二维码。
+	ExpiresAt int64  `json:"expires_at"` // 过期时间, unixtime
 }

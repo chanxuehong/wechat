@@ -53,7 +53,7 @@ func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (*qrco
 	var ret qrcode.TemporaryQRCode
 	ret.SceneId = sceneId
 	ret.Ticket = result.Ticket
-	ret.Expiry = time.Now().Unix() + result.ExpireSeconds
+	ret.ExpiresAt = time.Now().Unix() + result.ExpireSeconds
 
 	return &ret, nil
 }
