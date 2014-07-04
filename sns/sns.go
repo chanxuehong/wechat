@@ -47,7 +47,7 @@ func (cfg *OAuth2Config) AuthCodeURL(state string) string {
 type OAuth2Info struct {
 	AccessToken  string
 	RefreshToken string
-	Expiry       int64 // unixtime; If zero the token has no (known) expiry time.
+	ExpiresAt    int64 // unixtime; If zero the token has no (known) expiry time.
 
 	// 用户唯一标识，请注意，在未关注公众号时，用户访问公众号的网页，
 	// 也会产生一个用户和公众号唯一的OpenID
@@ -57,10 +57,10 @@ type OAuth2Info struct {
 
 // 判断授权的 access token 是否过期
 func (info *OAuth2Info) AccessTokenExpired() bool {
-	if info.Expiry == 0 {
+	if info.ExpiresAt == 0 {
 		return false
 	}
-	return time.Now().Unix() > info.Expiry
+	return time.Now().Unix() > info.ExpiresAt
 }
 
 type Client struct {
@@ -132,13 +132,13 @@ func (c *Client) Exchange(code string) (*OAuth2Info, error) {
 
 	switch {
 	case result.ExpiresIn > 10: // 正常情况下远大于 10
-		tok.Expiry = time.Now().Unix() + result.ExpiresIn - 10 // 考虑到网络延时，提前 10 秒过期
+		tok.ExpiresAt = time.Now().Unix() + result.ExpiresIn - 10 // 考虑到网络延时，提前 10 秒过期
 
 	case result.ExpiresIn > 0:
-		tok.Expiry = time.Now().Unix() + result.ExpiresIn
+		tok.ExpiresAt = time.Now().Unix() + result.ExpiresIn
 
 	case result.ExpiresIn == 0:
-		tok.Expiry = 0
+		tok.ExpiresAt = 0
 
 	default:
 		return nil, fmt.Errorf("token ExpiresIn(==%d) < 0", result.ExpiresIn)
@@ -192,13 +192,13 @@ func (c *Client) TokenRefresh() error {
 
 	switch {
 	case result.ExpiresIn > 10: // 正常情况下远大于 10
-		c.Expiry = time.Now().Unix() + result.ExpiresIn - 10 // 考虑到网络延时，提前 10 秒过期
+		c.ExpiresAt = time.Now().Unix() + result.ExpiresIn - 10 // 考虑到网络延时，提前 10 秒过期
 
 	case result.ExpiresIn > 0:
-		c.Expiry = time.Now().Unix() + result.ExpiresIn
+		c.ExpiresAt = time.Now().Unix() + result.ExpiresIn
 
 	case result.ExpiresIn == 0:
-		c.Expiry = 0
+		c.ExpiresAt = 0
 
 	default:
 		return fmt.Errorf("token ExpiresIn(==%d) < 0", result.ExpiresIn)

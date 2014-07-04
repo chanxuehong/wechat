@@ -23,8 +23,8 @@ func (c *Client) Token() (token string, err error) {
 	}
 }
 
-// see Client.TokenRefresh() and Client._TokenService()
-func (c *Client) update(token string, err error) {
+// see Client.TokenRefresh() and Client.tokenAutoUpdate()
+func (c *Client) updateCurrentToken(token string, err error) {
 	c.currentToken.rwmutex.Lock()
 	c.currentToken.token = token
 	c.currentToken.err = err
@@ -40,12 +40,12 @@ func (c *Client) TokenRefresh() (token string, err error) {
 		var resp *tokenResponse
 		resp, err = c.getNewToken()
 		if err != nil {
-			c.update("", err)
+			c.updateCurrentToken("", err)
 			c.resetRefreshTokenTickChan <- time.Minute
 			return
 		}
 
-		c.update(resp.Token, nil)
+		c.updateCurrentToken(resp.Token, nil)
 		token = resp.Token
 		c.resetRefreshTokenTickChan <- time.Duration(resp.ExpiresIn) * time.Second
 		return
@@ -54,7 +54,7 @@ func (c *Client) TokenRefresh() (token string, err error) {
 
 // 负责定时更新 access token.
 //  NOTE: 使用这种复杂的实现是减少 time.Now() 的调用, 不然每次都要比较 time.Now().
-func (c *Client) _TokenService(tickDuration time.Duration) {
+func (c *Client) tokenAutoUpdate(tickDuration time.Duration) {
 	const defaultTickDuration = time.Minute // 设置 44 秒以上就不会超过限制(2000次/日 的限制)
 
 	tk := time.NewTicker(tickDuration)
@@ -62,23 +62,23 @@ func (c *Client) _TokenService(tickDuration time.Duration) {
 	for {
 		select {
 		case newTickDuration := <-c.resetRefreshTokenTickChan:
-			go c._TokenService(newTickDuration)
+			go c.tokenAutoUpdate(newTickDuration)
 			return // 终止当前的 goroutine
 
 		case <-tk.C:
 			resp, err := c.getNewToken()
 			if err != nil {
-				c.update("", err)
+				c.updateCurrentToken("", err)
 				// 出错则重置到 defaultTickDuration
 				if tickDuration != defaultTickDuration {
-					go c._TokenService(defaultTickDuration)
+					go c.tokenAutoUpdate(defaultTickDuration)
 					return // 终止当前的 goroutine
 				}
 			} else {
-				c.update(resp.Token, nil)
+				c.updateCurrentToken(resp.Token, nil)
 				newTickDuration := time.Duration(resp.ExpiresIn) * time.Second
 				if tickDuration != newTickDuration {
-					go c._TokenService(newTickDuration)
+					go c.tokenAutoUpdate(newTickDuration)
 					return // 终止当前的 goroutine
 				}
 			}
