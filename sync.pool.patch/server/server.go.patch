@@ -20,6 +20,7 @@ import (
 type Server struct {
 	setting ServerSetting
 
+	// 对于微信服务器推送过来的请求, 处理过程中有些中间状态比较大的变量, 所以可以缓存起来.
 	bufferUnitPool *pool.Pool
 }
 
@@ -30,7 +31,7 @@ func NewServer(setting *ServerSetting) *Server {
 
 	var srv Server
 	srv.setting.initialize(setting)
-	srv.bufferUnitPool = pool.New(newBufferUnit, 256) // 常数 256 可以根据自己的并发数修改
+	srv.bufferUnitPool = pool.New(newBufferUnit, 64) // 常数 64 可以根据实际业务修改
 
 	return &srv
 }
