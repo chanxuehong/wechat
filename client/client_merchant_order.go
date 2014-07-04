@@ -9,6 +9,7 @@ import (
 	"github.com/chanxuehong/wechat/merchant/order"
 )
 
+// 根据订单id获取订单详情
 func (c *Client) MerchantOrderGetById(orderId string) (*order.Order, error) {
 	token, err := c.Token()
 	if err != nil {
@@ -38,9 +39,9 @@ func (c *Client) MerchantOrderGetById(orderId string) (*order.Order, error) {
 }
 
 // 根据订单状态/创建时间获取订单详情
-// @status:    订单状态(不带该字段 == 0 -全部状态, 2-待发货, 3-已发货, 5-已完成, 8-维权中, )
-// @beginTime: 订单创建时间起始时间(不带该字段 ==0 则不按照时间做筛选)
-// @endTime:   订单创建时间终止时间(不带该字段 ==0 则不按照时间做筛选)
+//  @status:    订单状态(不带该字段 == 0 -全部状态, 2-待发货, 3-已发货, 5-已完成, 8-维权中)
+//  @beginTime: 订单创建时间起始时间(不带该字段 ==0 则不按照时间做筛选)
+//  @endTime:   订单创建时间终止时间(不带该字段 ==0 则不按照时间做筛选)
 func (c *Client) MerchantOrderGetByFilter(status int, beginTime, endTime int64) ([]order.Order, error) {
 	token, err := c.Token()
 	if err != nil {
@@ -75,9 +76,9 @@ func (c *Client) MerchantOrderGetByFilter(status int, beginTime, endTime int64) 
 }
 
 // 设置订单发货信息.
-// @orderId:         订单ID;
-// @deliveryCompany: 物流公司ID(参考《物流公司ID》)
-// @deliveryTrackNo: 运单ID
+//  @orderId:         订单ID;
+//  @deliveryCompany: 物流公司ID(参考《物流公司ID》)
+//  @deliveryTrackNo: 运单ID
 func (c *Client) MerchantOrderSetDelivery(orderId, deliveryCompany, deliveryTrackNo string) error {
 	token, err := c.Token()
 	if err != nil {

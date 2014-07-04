@@ -144,9 +144,9 @@ func (c *Client) QRCodeDownload(ticket string, writer io.Writer) error {
 	return fmt.Errorf("qrcode with ticket %s not found", ticket)
 }
 
-// 通过 ticket 换取二维码到文件 filePath
-func QRCodeDownloadToFile(ticket, filePath string) error {
-	file, err := os.Create(filePath)
+// 通过 ticket 换取二维码到文件 _filepath
+func QRCodeDownloadToFile(ticket, _filepath string) error {
+	file, err := os.Create(_filepath)
 	if err != nil {
 		return err
 	}
@@ -155,9 +155,9 @@ func QRCodeDownloadToFile(ticket, filePath string) error {
 	return QRCodeDownload(ticket, file)
 }
 
-// 通过 ticket 换取二维码到文件 filePath
-func (c *Client) QRCodeDownloadToFile(ticket, filePath string) error {
-	file, err := os.Create(filePath)
+// 通过 ticket 换取二维码到文件 _filepath
+func (c *Client) QRCodeDownloadToFile(ticket, _filepath string) error {
+	file, err := os.Create(_filepath)
 	if err != nil {
 		return err
 	}

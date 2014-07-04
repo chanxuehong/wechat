@@ -11,6 +11,7 @@ import (
 )
 
 // 增加商品
+//  NOTE: 无需指定 Id 和 Status 字段
 func (c *Client) MerchantProductAdd(_product *product.Product) (productId string, err error) {
 	if _product == nil {
 		err = errors.New("_product == nil")
@@ -18,6 +19,7 @@ func (c *Client) MerchantProductAdd(_product *product.Product) (productId string
 	}
 
 	_product.Id = "" // 这个时候还没有 product id
+	_product.Status = 0
 
 	token, err := c.Token()
 	if err != nil {

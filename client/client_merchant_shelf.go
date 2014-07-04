@@ -11,6 +11,7 @@ import (
 )
 
 // 增加货架
+//  NOTE: 无需指定 Id 字段
 func (c *Client) MerchantShelfAdd(_shelf *shelf.Shelf) (shelfId int64, err error) {
 	if _shelf == nil {
 		err = errors.New("_shelf == nil")

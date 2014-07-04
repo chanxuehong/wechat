@@ -24,7 +24,7 @@ var DefaultTransport RoundTripper = &Transport{
 }
 */
 
-// 一般的请求
+// 一般请求的 http.Client
 var CommonHttpClient = &http.Client{
 	Transport: &http.Transport{
 		Proxy: http.ProxyFromEnvironment,
@@ -37,7 +37,7 @@ var CommonHttpClient = &http.Client{
 	Timeout: 15 * time.Second, // 请求超时时间设置为 15 秒
 }
 
-// 多媒体上传下载请求
+// 多媒体上传下载请求的 http.Client
 var MediaHttpClient = &http.Client{
 	Transport: &http.Transport{
 		Proxy: http.ProxyFromEnvironment,

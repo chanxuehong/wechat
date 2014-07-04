@@ -10,7 +10,7 @@ import (
 )
 
 // 获取指定分类的所有子分类.
-// @categoryId: 大分类ID(根节点分类id为1)
+//  @categoryId: 大分类ID(根节点分类id为1)
 func (c *Client) MerchantCategoryGetSub(categoryId int64) ([]category.Category, error) {
 	token, err := c.Token()
 	if err != nil {

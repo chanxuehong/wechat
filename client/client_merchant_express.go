@@ -11,6 +11,7 @@ import (
 )
 
 // 增加邮费模板
+//  NOTE: 无需指定 Id 字段
 func (c *Client) MerchantExpressAddDeliveryTemplate(template *express.DeliveryTemplate) (templateId int64, err error) {
 	if template == nil {
 		err = errors.New("template == nil")

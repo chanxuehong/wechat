@@ -17,14 +17,14 @@ import (
 )
 
 // 上传图片
-func (c *Client) MerchantUploadImageFromFile(filePath string) (imageURL string, err error) {
-	file, err := os.Open(filePath)
+func (c *Client) MerchantUploadImageFromFile(_filepath string) (imageURL string, err error) {
+	file, err := os.Open(_filepath)
 	if err != nil {
 		return
 	}
 	defer file.Close()
 
-	return c.MerchantUploadImage(filepath.Base(filePath), file)
+	return c.MerchantUploadImage(filepath.Base(_filepath), file)
 }
 
 func (c *Client) MerchantUploadImage(filename string, imageReader io.Reader) (imageURL string, err error) {

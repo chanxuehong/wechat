@@ -11,6 +11,7 @@ import (
 )
 
 // 增加分组
+//  NOTE: 无需指定 Id 字段
 func (c *Client) MerchantGroupAdd(_group *group.GroupEx) (groupId int64, err error) {
 	if _group == nil {
 		err = errors.New("_group == nil")
