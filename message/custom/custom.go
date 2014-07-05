@@ -5,6 +5,11 @@
 
 package custom
 
+import (
+	"errors"
+	"fmt"
+)
+
 type CommonHead struct {
 	ToUser  string `json:"touser"`  // 接收方帐号(OpenID)
 	MsgType string `json:"msgtype"` // text, image, voice, video, music, news
@@ -164,4 +169,18 @@ func NewNews(to string, articles []*NewsArticle) *News {
 	msg.News.Articles = articles
 
 	return &msg
+}
+
+// 检查 News 是否有效，有效返回 nil，否则返回错误信息
+func (n *News) CheckValid() (err error) {
+	articleNum := len(n.News.Articles)
+	if articleNum == 0 {
+		err = errors.New("图文消息是空的")
+		return
+	}
+	if articleNum > NewsArticleCountLimit {
+		err = fmt.Errorf("图文消息的文章个数不能超过 %d, 现在为 %d", NewsArticleCountLimit, articleNum)
+		return
+	}
+	return
 }

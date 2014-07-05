@@ -220,6 +220,10 @@ func (c *Client) mediaDownload(mediaId string, writer io.Writer) error {
 
 // 根据上传的缩略图媒体创建图文消息素材
 func (c *Client) MediaCreateNews(news media.News) (resp *media.UploadResponse, err error) {
+	if err = news.CheckValid(); err != nil {
+		return
+	}
+
 	token, err := c.Token()
 	if err != nil {
 		return

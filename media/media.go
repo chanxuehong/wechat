@@ -5,6 +5,11 @@
 
 package media
 
+import (
+	"errors"
+	"fmt"
+)
+
 // 上传媒体成功时的回复报文
 type UploadResponse struct {
 	// 媒体文件类型，分别有图片（image）、语音（voice）、视频（video）和
@@ -34,4 +39,18 @@ type NewsArticle struct {
 // 图文消息
 type News struct {
 	Articles []*NewsArticle `json:"articles,omitempty"` // 图文消息，一个图文消息支持1到10条图文
+}
+
+// 检查 News 是否有效，有效返回 nil，否则返回错误信息
+func (n News) CheckValid() (err error) {
+	articleNum := len(n.Articles)
+	if articleNum == 0 {
+		err = errors.New("图文消息是空的")
+		return
+	}
+	if articleNum > NewsArticleCountLimit {
+		err = fmt.Errorf("图文消息的文章个数不能超过 %d, 现在为 %d", NewsArticleCountLimit, articleNum)
+		return
+	}
+	return
 }

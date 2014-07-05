@@ -5,9 +5,28 @@
 
 package massbyopenid
 
+import (
+	"errors"
+	"fmt"
+)
+
 type CommonHead struct {
 	ToUser  []string `json:"touser,omitempty"` // 长度不能超过 ToUserCountLimit
 	MsgType string   `json:"msgtype"`
+}
+
+// 检查 CommonHead 是否有效，有效返回 nil，否则返回错误信息
+func (head *CommonHead) CheckValid() (err error) {
+	touserNum := len(head.ToUser)
+	if touserNum == 0 {
+		err = errors.New("用户列表是空的")
+		return
+	}
+	if touserNum > ToUserCountLimit {
+		err = fmt.Errorf("用户列表的长度不能超过 %d, 现在为 %d", ToUserCountLimit, touserNum)
+		return
+	}
+	return
 }
 
 // text ========================================================================

@@ -32,7 +32,7 @@ func messageMassSendByGroupURL(accesstoken string) string {
 }
 
 // https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token=ACCESS_TOKEN
-func messageMassSendByOpenIdsURL(accesstoken string) string {
+func messageMassSendByOpenIdURL(accesstoken string) string {
 	return "https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token=" +
 		accesstoken
 }

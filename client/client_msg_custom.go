@@ -74,5 +74,8 @@ func (c *Client) MsgCustomSendNews(msg *custom.News) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
+	if err := msg.CheckValid(); err != nil {
+		return err
+	}
 	return c.msgCustomSend(msg)
 }
