@@ -51,17 +51,14 @@ func TestMenuMarshal(t *testing.T) {
 	button0 := NewClickButton("今日歌曲", "V1001_TODAY_MUSIC")
 	button1 := NewClickButton("歌手简介", "V1001_TODAY_SINGER")
 	button2 := NewSubMenuButton("菜单", nil)
-	button2.SubMenu = append(button2.SubMenu, NewViewButton("搜索", "http://www.soso.com/"))
-	button2.SubMenu = append(button2.SubMenu, NewViewButton("视频", "http://v.qq.com/"))
-	button2.SubMenu = append(button2.SubMenu, NewClickButton("赞一下我们", "V1001_GOOD"))
+	button2.SubButtons = append(button2.SubButtons, NewViewButton("搜索", "http://www.soso.com/"))
+	button2.SubButtons = append(button2.SubButtons, NewViewButton("视频", "http://v.qq.com/"))
+	button2.SubButtons = append(button2.SubButtons, NewClickButton("赞一下我们", "V1001_GOOD"))
 
-	var _menu struct {
-		Menu `json:"button"`
-	}
-	_menu.Menu = make([]*Button, 3)
-	_menu.Menu[0] = button0
-	_menu.Menu[1] = button1
-	_menu.Menu[2] = button2
+	var _menu Menu
+	_menu.Buttons = append(_menu.Buttons, button0)
+	_menu.Buttons = append(_menu.Buttons, button1)
+	_menu.Buttons = append(_menu.Buttons, button2)
 
 	b, err := json.Marshal(_menu)
 	if err != nil {
@@ -115,34 +112,29 @@ func TestMenuUnmarshal(t *testing.T) {
 		]
 	}`)
 
-	var _menu struct {
-		Menu `json:"button"`
-	}
+	var _menu Menu
 	if err := json.Unmarshal(src, &_menu); err != nil {
 		t.Errorf("unmarshal(%#q):\nError: %s\n", src, err)
 	} else {
 		button0 := NewClickButton("今日歌曲", "V1001_TODAY_MUSIC")
 		button1 := NewClickButton("歌手简介", "V1001_TODAY_SINGER")
 		button2 := NewSubMenuButton("菜单", nil)
-		button2.SubMenu = append(button2.SubMenu, NewViewButton("搜索", "http://www.soso.com/"))
-		button2.SubMenu = append(button2.SubMenu, NewViewButton("视频", "http://v.qq.com/"))
-		button2.SubMenu = append(button2.SubMenu, NewClickButton("赞一下我们", "V1001_GOOD"))
+		button2.SubButtons = append(button2.SubButtons, NewViewButton("搜索", "http://www.soso.com/"))
+		button2.SubButtons = append(button2.SubButtons, NewViewButton("视频", "http://v.qq.com/"))
+		button2.SubButtons = append(button2.SubButtons, NewClickButton("赞一下我们", "V1001_GOOD"))
 
-		var _menu1 struct {
-			Menu `json:"button"`
-		}
-		_menu1.Menu = make([]*Button, 3)
-		_menu1.Menu[0] = button0
-		_menu1.Menu[1] = button1
-		_menu1.Menu[2] = button2
+		var _menu1 Menu
+		_menu1.Buttons = append(_menu1.Buttons, button0)
+		_menu1.Buttons = append(_menu1.Buttons, button1)
+		_menu1.Buttons = append(_menu1.Buttons, button2)
 
-		if !menuEqual(_menu1.Menu, _menu.Menu) {
+		if !menuEqual(_menu1.Buttons, _menu.Buttons) {
 			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", src, _menu, _menu1)
 		}
 	}
 }
 
-func menuEqual(src, to Menu) bool {
+func menuEqual(src, to []*Button) bool {
 	if len(src) != len(to) {
 		return false
 	}
@@ -160,7 +152,7 @@ func menuEqual(src, to Menu) bool {
 			return false
 		}
 
-		if !menuEqual(src[i].SubMenu, to[i].SubMenu) {
+		if !menuEqual(src[i].SubButtons, to[i].SubButtons) {
 			return false
 		}
 	}

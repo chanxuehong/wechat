@@ -3,30 +3,11 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package massbyopenids
+package massbyopenid
 
 type CommonHead struct {
-	// ToUser 的个数不能超过 ToUserCountLimit
-	ToUser  []string `json:"touser,omitempty"`
+	ToUser  []string `json:"touser,omitempty"` // 长度不能超过 ToUserCountLimit
 	MsgType string   `json:"msgtype"`
-}
-
-// 如果总的按钮数超过限制, 则截除多余的.
-func (msg *CommonHead) AppendUser(touser ...string) {
-	if len(touser) <= 0 {
-		return
-	}
-
-	switch n := ToUserCountLimit - len(msg.ToUser); {
-	case n > 0:
-		if len(touser) > n {
-			touser = touser[:n]
-		}
-		msg.ToUser = append(msg.ToUser, touser...)
-	case n == 0:
-	default: // n < 0
-		msg.ToUser = msg.ToUser[:ToUserCountLimit]
-	}
 }
 
 // text ========================================================================
@@ -40,12 +21,6 @@ type Text struct {
 }
 
 func NewText(touser []string, content string) *Text {
-	if len(touser) > ToUserCountLimit {
-		touser = touser[:ToUserCountLimit]
-	} else if touser == nil {
-		touser = make([]string, 0, 16)
-	}
-
 	var msg Text
 	msg.ToUser = touser
 	msg.MsgType = MSG_TYPE_TEXT
@@ -65,12 +40,6 @@ type Image struct {
 }
 
 func NewImage(touser []string, mediaId string) *Image {
-	if len(touser) > ToUserCountLimit {
-		touser = touser[:ToUserCountLimit]
-	} else if touser == nil {
-		touser = make([]string, 0, 16)
-	}
-
 	var msg Image
 	msg.ToUser = touser
 	msg.MsgType = MSG_TYPE_IMAGE
@@ -90,12 +59,6 @@ type Voice struct {
 }
 
 func NewVoice(touser []string, mediaId string) *Voice {
-	if len(touser) > ToUserCountLimit {
-		touser = touser[:ToUserCountLimit]
-	} else if touser == nil {
-		touser = make([]string, 0, 16)
-	}
-
 	var msg Voice
 	msg.ToUser = touser
 	msg.MsgType = MSG_TYPE_VOICE
@@ -116,13 +79,8 @@ type Video struct {
 	} `json:"video"`
 }
 
+// title, description 可以为空
 func NewVideo(touser []string, mediaId, title, description string) *Video {
-	if len(touser) > ToUserCountLimit {
-		touser = touser[:ToUserCountLimit]
-	} else if touser == nil {
-		touser = make([]string, 0, 16)
-	}
-
 	var msg Video
 	msg.ToUser = touser
 	msg.MsgType = MSG_TYPE_VIDEO
@@ -144,12 +102,6 @@ type News struct {
 }
 
 func NewNews(touser []string, mediaId string) *News {
-	if len(touser) > ToUserCountLimit {
-		touser = touser[:ToUserCountLimit]
-	} else if touser == nil {
-		touser = make([]string, 0, 16)
-	}
-
 	var msg News
 	msg.ToUser = touser
 	msg.MsgType = MSG_TYPE_NEWS

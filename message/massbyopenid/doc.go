@@ -3,14 +3,5 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package massbyopenids
-
-const ToUserCountLimit = 10000
-
-const (
-	MSG_TYPE_TEXT  = "text"
-	MSG_TYPE_IMAGE = "image"
-	MSG_TYPE_VOICE = "voice"
-	MSG_TYPE_VIDEO = "video"
-	MSG_TYPE_NEWS  = "mpnews"
-)
+// 定义根据用户列表群发消息的消息数据结构
+package massbyopenid

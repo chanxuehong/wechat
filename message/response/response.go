@@ -163,7 +163,8 @@ type NewsArticle struct {
 	URL         string `xml:"Url,omitempty"`         // 点击图文消息跳转链接
 }
 
-// 图文消息
+// 图文消息.
+//  NOTE: Articles 赋值的同时也要更改 ArticleCount 字段, 建议用 NewNews() 和 News.AppendArticle()
 type News struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
@@ -172,12 +173,10 @@ type News struct {
 	Articles     []*NewsArticle `xml:"Articles>item,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
 }
 
-// NOTE: 如果图文消息数量大于微信的限制, 则把多余的截除.
-func NewNews(to, from string, article ...*NewsArticle) *News {
-	if len(article) > NewsArticleCountLimit {
-		article = article[:NewsArticleCountLimit]
-	} else if article == nil {
-		article = make([]*NewsArticle, 0, NewsArticleCountLimit)
+// NOTE: articles 的长度不能超过 NewsArticleCountLimit
+func NewNews(to, from string, articles []*NewsArticle) *News {
+	if articles == nil {
+		articles = make([]*NewsArticle, 0, NewsArticleCountLimit)
 	}
 
 	msg := News{
@@ -188,29 +187,17 @@ func NewNews(to, from string, article ...*NewsArticle) *News {
 			MsgType:      MSG_TYPE_NEWS,
 		},
 	}
-	msg.ArticleCount = len(article)
-	msg.Articles = article
+	msg.ArticleCount = len(articles)
+	msg.Articles = articles
 
 	return &msg
 }
 
-// NOTE: 如果总的按钮数超过限制, 则截除多余的.
+// NOTE: 请确保 News.Articles 的长度不要超过 NewsArticleCountLimit
 func (msg *News) AppendArticle(article ...*NewsArticle) {
-	if len(article) <= 0 {
-		return
-	}
-
-	switch n := NewsArticleCountLimit - len(msg.Articles); {
-	case n > 0:
-		if len(article) > n {
-			article = article[:n]
-		}
+	if len(article) > 0 {
 		msg.Articles = append(msg.Articles, article...)
 		msg.ArticleCount = len(msg.Articles)
-	case n == 0:
-	default: // n < 0
-		msg.Articles = msg.Articles[:NewsArticleCountLimit]
-		msg.ArticleCount = NewsArticleCountLimit
 	}
 }
 

@@ -36,18 +36,18 @@ type Record struct {
 /*
 聊天记录遍历器
 
-	iter, err := Client.CustomServiceRecordIterator(request)
+iter, err := Client.CustomServiceRecordIterator(request)
+if err != nil {
+	...
+}
+
+for iter.HasNext() {
+	records, err := iter.NextPage()
 	if err != nil {
 		...
 	}
-
-	for iter.HasNext() {
-		records, err := iter.NextPage()
-		if err != nil {
-			...
-		}
-		...
-	}
+	...
+}
 */
 type RecordIterator interface {
 	HasNext() bool

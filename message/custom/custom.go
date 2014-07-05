@@ -153,39 +153,15 @@ type News struct {
 	} `json:"news"`
 }
 
-// NOTE: 如果图文消息数量大于微信的限制, 则把多余的截除.
-func NewNews(to string, article ...*NewsArticle) *News {
-	if len(article) > NewsArticleCountLimit {
-		article = article[:NewsArticleCountLimit]
-	} else if article == nil {
-		article = make([]*NewsArticle, 0, NewsArticleCountLimit)
-	}
-
+// NOTE: articles 的长度不能超过 NewsArticleCountLimit
+func NewNews(to string, articles []*NewsArticle) *News {
 	msg := News{
 		CommonHead: CommonHead{
 			ToUser:  to,
 			MsgType: MSG_TYPE_NEWS,
 		},
 	}
-	msg.News.Articles = article
+	msg.News.Articles = articles
 
 	return &msg
-}
-
-// NOTE: 如果总的按钮数超过限制, 则截除多余的.
-func (msg *News) AppendArticle(article ...*NewsArticle) {
-	if len(article) <= 0 {
-		return
-	}
-
-	switch n := NewsArticleCountLimit - len(msg.News.Articles); {
-	case n > 0:
-		if len(article) > n {
-			article = article[:n]
-		}
-		msg.News.Articles = append(msg.News.Articles, article...)
-	case n == 0:
-	default: // n < 0
-		msg.News.Articles = msg.News.Articles[:NewsArticleCountLimit]
-	}
 }

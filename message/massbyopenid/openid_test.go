@@ -3,7 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package massbyopenids
+package massbyopenid
 
 import (
 	"bytes"
@@ -29,7 +29,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 	}`)
 
 	text := NewText([]string{"oR5Gjjl_eiZoUpGozMo7dbBJ362A"}, "hello from boxer.")
-	text.AppendUser("oR5Gjjo5rXlMUocSEXKT7Q5RQ63Q")
+	text.ToUser = append(text.ToUser, "oR5Gjjo5rXlMUocSEXKT7Q5RQ63Q")
 
 	b, err := json.Marshal(text)
 	if err != nil {
@@ -55,7 +55,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 	}`)
 
 	image := NewImage([]string{"OPENID1"}, "BTgN0opcW3Y5zV_ZebbsD3NFKRWf6cb7OPswPi9Q83fOJHK2P67dzxn11Cp7THat")
-	image.AppendUser("OPENID2")
+	image.ToUser = append(image.ToUser, "OPENID2")
 
 	b, err = json.Marshal(image)
 	if err != nil {
@@ -81,7 +81,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 	}`)
 
 	voice := NewVoice([]string{"OPENID1"}, "mLxl6paC7z2Tl-NJT64yzJve8T9c8u9K2x-Ai6Ujd4lIH9IBuF6-2r66mamn_gIT")
-	voice.AppendUser("OPENID2")
+	voice.ToUser = append(voice.ToUser, "OPENID2")
 
 	b, err = json.Marshal(voice)
 	if err != nil {

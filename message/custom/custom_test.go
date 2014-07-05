@@ -145,7 +145,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		"news":{}
 	}`)
 
-	news := NewNews("toUser")
+	news := NewNews("toUser", nil)
 
 	b, err = json.Marshal(news)
 	if err != nil {
@@ -173,12 +173,15 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	news.AppendArticle(&NewsArticle{
-		Title:       "title1",
-		Description: "description1",
-		PicURL:      "picurl",
-		URL:         "url",
-	})
+	news.News.Articles = append(
+		news.News.Articles,
+		&NewsArticle{
+			Title:       "title1",
+			Description: "description1",
+			PicURL:      "picurl",
+			URL:         "url",
+		},
+	)
 
 	b, err = json.Marshal(news)
 	if err != nil {
@@ -212,12 +215,15 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	news.AppendArticle(&NewsArticle{
-		Title:       "title",
-		Description: "description",
-		PicURL:      "picurl",
-		URL:         "url",
-	})
+	news.News.Articles = append(
+		news.News.Articles,
+		&NewsArticle{
+			Title:       "title",
+			Description: "description",
+			PicURL:      "picurl",
+			URL:         "url",
+		},
+	)
 
 	b, err = json.Marshal(news)
 	if err != nil {

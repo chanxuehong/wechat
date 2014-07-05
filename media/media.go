@@ -20,7 +20,7 @@ type UploadResponse struct {
 	CreatedAt int64 `json:"created_at"`
 }
 
-// 上传图文消息里的 item
+// 图文消息里的 Article
 type NewsArticle struct {
 	ThumbMediaId     string `json:"thumb_media_id"`                  // 图文消息缩略图的media_id，可以在基础支持-上传多媒体文件接口中获得
 	Author           string `json:"author,omitempty"`                // 图文消息的作者
@@ -31,26 +31,7 @@ type NewsArticle struct {
 	ShowCoverPic     int    `json:"show_cover_pic,string,omitempty"` // 是否显示封面，1为显示，0为不显示
 }
 
-// 上传图文消息
+// 图文消息
 type News struct {
-	// Article 的个数不能超过 NewsArticleCountLimit
 	Articles []*NewsArticle `json:"articles,omitempty"` // 图文消息，一个图文消息支持1到10条图文
-}
-
-// 如果总的按钮数超过限制, 则截除多余的.
-func (news *News) AppendArticle(article ...*NewsArticle) {
-	if len(article) <= 0 {
-		return
-	}
-
-	switch n := NewsArticleCountLimit - len(news.Articles); {
-	case n > 0:
-		if len(article) > n {
-			article = article[:n]
-		}
-		news.Articles = append(news.Articles, article...)
-	case n == 0:
-	default: // n < 0
-		news.Articles = news.Articles[:NewsArticleCountLimit]
-	}
 }

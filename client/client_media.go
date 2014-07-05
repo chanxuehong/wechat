@@ -219,14 +219,10 @@ func (c *Client) mediaDownload(mediaId string, writer io.Writer) error {
 }
 
 // 根据上传的缩略图媒体创建图文消息素材
-func (c *Client) MediaCreateNews(news *media.News) (*media.UploadResponse, error) {
-	if news == nil {
-		return nil, errors.New("news == nil")
-	}
-
+func (c *Client) MediaCreateNews(news media.News) (resp *media.UploadResponse, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := mediaCreateNewsURL(token)
 
@@ -235,13 +231,16 @@ func (c *Client) MediaCreateNews(news *media.News) (*media.UploadResponse, error
 		Error
 	}
 	if err = c.postJSON(_url, news, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
-	return &result.UploadResponse, nil
+
+	resp = &result.UploadResponse
+	return
 }
 
 // 根据上传的视频文件 media_id 创建视频媒体, 群发视频消息应该用这个函数得到的 media_id.

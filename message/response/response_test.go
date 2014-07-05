@@ -157,7 +157,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		</Articles>
 	</xml>`)
 
-	news := NewNews("toUser", "fromUser")
+	news := NewNews("toUser", "fromUser", nil)
 	news.CreateTime = 12345678
 
 	b, err = xml.Marshal(news)

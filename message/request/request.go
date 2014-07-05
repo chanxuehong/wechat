@@ -20,7 +20,7 @@ type CommonHead struct {
 
 // 包括了所有从微信服务器推送过来的消息类型
 type Request struct {
-	XMLName struct{} `xml:"xml"`
+	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
 
 	// fuck weixin, MsgId != MsgID
@@ -275,11 +275,11 @@ func (event *SubscribeByScanEvent) SceneId() (id uint32, err error) {
 		return
 	}
 
-	id64, err := strconv.ParseUint(event.EventKey[len(prefix):], 10, 32)
+	idUint64, err := strconv.ParseUint(event.EventKey[len(prefix):], 10, 32)
 	if err != nil {
 		return
 	}
-	id = uint32(id64)
+	id = uint32(idUint64)
 	return
 }
 
@@ -304,11 +304,11 @@ type ScanEvent struct {
 
 // 获取二维码参数
 func (event *ScanEvent) SceneId() (id uint32, err error) {
-	id64, err := strconv.ParseUint(event.EventKey, 10, 32)
+	idUint64, err := strconv.ParseUint(event.EventKey, 10, 32)
 	if err != nil {
 		return
 	}
-	id = uint32(id64)
+	id = uint32(idUint64)
 	return
 }
 

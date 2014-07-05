@@ -6,7 +6,6 @@
 package client
 
 import (
-	"errors"
 	"github.com/chanxuehong/wechat/menu"
 )
 
@@ -14,24 +13,14 @@ import (
 //  NOTE: 创建自定义菜单后，由于微信客户端缓存，需要24小时微信客户端才会展现出来。
 //  建议测试时可以尝试取消关注公众账号后再次关注，则可以看到创建后的效果。
 func (c *Client) MenuCreate(_menu menu.Menu) (err error) {
-	if _menu == nil {
-		return errors.New("_menu == nil")
-	}
-
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
 	_url := menuCreateURL(token)
 
-	var request = struct {
-		menu.Menu `json:"button,omitempty"`
-	}{
-		Menu: _menu,
-	}
-
 	var result Error
-	if err = c.postJSON(_url, request, &result); err != nil {
+	if err = c.postJSON(_url, _menu, &result); err != nil {
 		return
 	}
 
@@ -42,46 +31,44 @@ func (c *Client) MenuCreate(_menu menu.Menu) (err error) {
 }
 
 // 删除自定义菜单
-func (c *Client) MenuDelete() error {
+func (c *Client) MenuDelete() (err error) {
 	token, err := c.Token()
 	if err != nil {
-		return err
+		return
 	}
 	_url := menuDeleteURL(token)
 
 	var result Error
 	if err = c.getJSON(_url, &result); err != nil {
-		return err
+		return
 	}
 
 	if result.ErrCode != 0 {
 		return &result
 	}
-	return nil
+	return
 }
 
 // 获取自定义菜单
-func (c *Client) MenuGet() (menu.Menu, error) {
+func (c *Client) MenuGet() (_menu menu.Menu, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := menuGetURL(token)
 
 	var result struct {
-		Menu struct {
-			menu.Menu `json:"button"`
-		} `json:"menu"`
+		Menu menu.Menu `json:"menu"`
 		Error
 	}
-	result.Menu.Menu = make(menu.Menu, 0, menu.MenuButtonCountLimit)
-
 	if err = c.getJSON(_url, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
-	return result.Menu.Menu, nil
+	_menu = result.Menu
+	return
 }
