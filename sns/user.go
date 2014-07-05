@@ -19,8 +19,8 @@ type UserInfo struct {
 	Province string `json:"province"`   // 用户个人资料填写的省份
 	Country  string `json:"country"`    // 国家，如中国为CN
 
-	// 用户头像，最后一个数值代表正方形头像大小（有0、46、64、96、132数值可选，
-	// 0代表640*640正方形头像），用户没有头像时该项为空
+	// 用户头像，最后一个数值代表正方形头像大小（有0、46、64、96、132数值可选，0代表640*640正方形头像），
+	// 用户没有头像时该项为空
 	HeadImageURL string `json:"headimgurl,omitempty"`
 
 	// 用户特权信息，json 数组，如微信沃卡用户为（chinaunicom）
@@ -30,7 +30,8 @@ type UserInfo struct {
 	UnionId string `json:"unionid"`
 }
 
-// 获取用户图像的大小，单位像素
+// 获取用户图像的大小
+//  @headImageURL: 用户头像URL，最后一个数值代表正方形头像大小（有0、46、64、96、132数值可选，0代表640*640正方形头像）
 //  NOTE: 请确保 headImageURL 不为空
 func HeadImageSize(headImageURL string) (size int, err error) {
 	index := strings.LastIndex(headImageURL, "/")

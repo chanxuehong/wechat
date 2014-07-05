@@ -35,7 +35,8 @@ type UserInfo struct {
 	SubscribeTime int64 `json:"subscribe_time"`
 }
 
-// 获取用户图像的大小，单位像素
+// 获取用户图像的大小
+//  @headImageURL: 用户头像URL，最后一个数值代表正方形头像大小（有0、46、64、96、132数值可选，0代表640*640正方形头像）
 //  NOTE: 请确保 headImageURL 不为空
 func HeadImageSize(headImageURL string) (size int, err error) {
 	index := strings.LastIndex(headImageURL, "/")
