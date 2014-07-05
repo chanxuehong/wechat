@@ -28,7 +28,7 @@ func (c *Client) MerchantCategoryGetSub(categoryId int64) (categories []category
 		Error
 		Categories []category.Category `json:"cate_list"`
 	}
-	result.Categories = make([]category.Category, 0, 64)
+	result.Categories = make([]category.Category, 0, 16)
 
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
@@ -61,7 +61,7 @@ func (c *Client) MerchantCategoryGetSKU(categoryId int64) (skus []category.SKU, 
 		Error
 		SKUs []category.SKU `json:"sku_table"`
 	}
-	result.SKUs = make([]category.SKU, 0, 64)
+	result.SKUs = make([]category.SKU, 0, 16)
 
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
@@ -94,7 +94,7 @@ func (c *Client) MerchantCategoryGetProperty(categoryId int64) (properties []cat
 		Error
 		Properties []category.Property `json:"properties"`
 	}
-	result.Properties = make([]category.Property, 0, 64)
+	result.Properties = make([]category.Property, 0, 16)
 
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return

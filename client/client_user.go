@@ -66,7 +66,7 @@ func (c *Client) UserGroupGet() (groups []user.Group, err error) {
 		Groups []user.Group `json:"groups"`
 		Error
 	}{
-		Groups: make([]user.Group, 0, 64),
+		Groups: make([]user.Group, 0, 16),
 	}
 
 	if err = c.getJSON(_url, &result); err != nil {

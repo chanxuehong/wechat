@@ -171,7 +171,7 @@ func (c *Client) merchantProductGetByStatus(status int) (products []product.Prod
 		Error
 		ProductsInfo []product.Product `json:"products_info"`
 	}
-	result.ProductsInfo = make([]product.Product, 0, 1024)
+	result.ProductsInfo = make([]product.Product, 0, 64)
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}

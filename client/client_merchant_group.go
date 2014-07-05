@@ -143,7 +143,7 @@ func (c *Client) MerchantGroupGetAll() (groups []group.Group, err error) {
 		Error
 		GroupsDetail []group.Group `json:"groups_detail"`
 	}
-	result.GroupsDetail = make([]group.Group, 0, 64)
+	result.GroupsDetail = make([]group.Group, 0, 16)
 
 	if err = c.getJSON(_url, &result); err != nil {
 		return
