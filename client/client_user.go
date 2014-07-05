@@ -12,14 +12,15 @@ import (
 )
 
 // 创建分组
-func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
+func (c *Client) UserGroupCreate(name string) (_group *user.Group, err error) {
 	if len(name) == 0 {
-		return nil, errors.New(`name == ""`)
+		err = errors.New(`name == ""`)
+		return
 	}
 
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := userGroupCreateURL(token)
 
@@ -28,7 +29,6 @@ func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
 			Name string `json:"name"`
 		} `json:"group"`
 	}
-
 	request.Group.Name = name
 
 	var result struct {
@@ -39,24 +39,26 @@ func (c *Client) UserGroupCreate(name string) (*user.Group, error) {
 		Error
 	}
 	if err = c.postJSON(_url, &request, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
-	var group user.Group
-	group.Id = result.Group.Id
-	group.Name = result.Group.Name
-	return &group, nil
+	_group = &user.Group{
+		Id:   result.Group.Id,
+		Name: result.Group.Name,
+	}
+	return
 }
 
 // 查询所有分组
-func (c *Client) UserGroupGet() ([]user.Group, error) {
+func (c *Client) UserGroupGet() (groups []user.Group, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := userGroupGetURL(token)
 
@@ -64,16 +66,20 @@ func (c *Client) UserGroupGet() ([]user.Group, error) {
 		Groups []user.Group `json:"groups"`
 		Error
 	}{
-		Groups: make([]user.Group, 0, 64), // GroupCountLimit
+		Groups: make([]user.Group, 0, 64),
 	}
+
 	if err = c.getJSON(_url, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
-	return result.Groups, nil
+
+	groups = result.Groups
+	return
 }
 
 // 修改分组名
@@ -119,7 +125,9 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int64, err error) {
 
 	var request = struct {
 		OpenId string `json:"openid"`
-	}{OpenId: openid}
+	}{
+		OpenId: openid,
+	}
 
 	var result struct {
 		GroupId int64 `json:"groupid"`
@@ -168,19 +176,20 @@ func (c *Client) UserMoveToGroup(openid string, toGroupId int64) (err error) {
 
 // 获取用户基本信息.
 //  lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
-func (c *Client) UserInfo(openid string, lang string) (*user.UserInfo, error) {
+func (c *Client) UserInfo(openid string, lang string) (userinfo *user.UserInfo, err error) {
 	switch lang {
 	case "":
 		lang = user.Language_zh_CN
 	case user.Language_zh_CN, user.Language_zh_TW, user.Language_en:
 	default:
-		return nil, fmt.Errorf("lang 必须是 \"\",%s,%s,%s 其中之一",
+		err = fmt.Errorf("lang 必须是 \"\",%s,%s,%s 其中之一",
 			user.Language_zh_CN, user.Language_zh_TW, user.Language_en)
+		return
 	}
 
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := userInfoURL(token, openid, lang)
 
@@ -190,16 +199,20 @@ func (c *Client) UserInfo(openid string, lang string) (*user.UserInfo, error) {
 		Error
 	}
 	if err = c.getJSON(_url, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 	if result.Subscribe == 0 {
-		return nil, fmt.Errorf("该用户 %s 没有订阅这个公众号", openid)
+		err = fmt.Errorf("该用户 %s 没有订阅这个公众号", openid)
+		return
 	}
-	return &result.UserInfo, nil
+
+	userinfo = &result.UserInfo
+	return
 }
 
 // 获取关注者返回的数据结构
@@ -214,10 +227,10 @@ type userGetResponse struct {
 }
 
 // 获取关注者列表, 如果 beginOpenId == "" 则表示从头遍历
-func (c *Client) userGet(beginOpenId string) (*userGetResponse, error) {
+func (c *Client) userGet(beginOpenId string) (resp *userGetResponse, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := userGetURL(token, beginOpenId)
 
@@ -225,15 +238,19 @@ func (c *Client) userGet(beginOpenId string) (*userGetResponse, error) {
 		userGetResponse
 		Error
 	}
-	result.userGetResponse.Data.OpenId = make([]string, 0, user.UserPageCountLimit)
+	result.userGetResponse.Data.OpenId = make([]string, 0, 256)
+
 	if err = c.getJSON(_url, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
-	return &result.userGetResponse, nil
+
+	resp = &result.userGetResponse
+	return
 }
 
 // 该结构实现了 user.UserIterator 接口
@@ -247,6 +264,7 @@ type userGetIterator struct {
 func (iter *userGetIterator) Total() int {
 	return iter.userGetResponse.TotalCount
 }
+
 func (iter *userGetIterator) HasNext() bool {
 	// 第一批数据不需要通过 NextPage() 来获取, 因为在创建这个对象的时候就获取了;
 	// 后续的数据都要通过 NextPage() 来获取, 所以要通过上一次的 NextOpenId 来判断了.
@@ -276,31 +294,35 @@ func (iter *userGetIterator) HasNext() bool {
 	return iter.userGetResponse.GetCount == user.UserPageCountLimit &&
 		len(iter.userGetResponse.NextOpenId) != 0
 }
-func (iter *userGetIterator) NextPage() ([]string, error) {
+func (iter *userGetIterator) NextPage() (openids []string, err error) {
 	// 第一次调用 NextPage(), 因为在创建这个对象的时候已经获取了数据, 所以直接返回.
 	if !iter.nextPageCalled {
 		iter.nextPageCalled = true
-		return iter.userGetResponse.Data.OpenId, nil
+		openids = iter.userGetResponse.Data.OpenId
+		return
 	}
 
 	// 不是第一次调用的都要从服务器拉取数据
 	resp, err := iter.wechatClient.userGet(iter.userGetResponse.NextOpenId)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	iter.userGetResponse = resp // 覆盖老数据
-	return resp.Data.OpenId, nil
+	openids = resp.Data.OpenId
+	return
 }
 
 // 关注用户遍历器, 如果 beginOpenId == "" 则表示从头遍历
-func (c *Client) UserIterator(beginOpenId string) (user.UserIterator, error) {
+func (c *Client) UserIterator(beginOpenId string) (iter user.UserIterator, err error) {
 	resp, err := c.userGet(beginOpenId)
 	if err != nil {
-		return nil, err
+		return
 	}
-	var iter userGetIterator
-	iter.userGetResponse = resp
-	iter.wechatClient = c
-	return &iter, nil
+
+	iter = &userGetIterator{
+		userGetResponse: resp,
+		wechatClient:    c,
+	}
+	return
 }

@@ -26,19 +26,19 @@ type Server struct {
 	bufferUnitPool sync.Pool
 }
 
-func NewServer(setting *ServerSetting) *Server {
+func NewServer(setting *ServerSetting) (srv *Server) {
 	if setting == nil {
 		panic("setting == nil")
 	}
 
-	srv := Server{
+	srv = &Server{
 		bufferUnitPool: sync.Pool{
 			New: newBufferUnit,
 		},
 	}
 	srv.setting.initialize(setting)
 
-	return &srv
+	return
 }
 
 // Server 实现 http.Handler 接口

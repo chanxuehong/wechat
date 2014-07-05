@@ -23,11 +23,11 @@ func newBufferUnit() interface{} {
 	}
 }
 
-func (s *Server) getBufferUnitFromPool() *bufferUnit {
-	unit := s.bufferUnitPool.Get().(*bufferUnit)
+func (s *Server) getBufferUnitFromPool() (unit *bufferUnit) {
+	unit = s.bufferUnitPool.Get().(*bufferUnit)
 	unit.msgBuf.Reset()    // important!
 	unit.msgRequest.Zero() // important!
-	return unit
+	return
 }
 
 func (s *Server) putBufferUnitToPool(unit *bufferUnit) {

@@ -11,10 +11,10 @@ import (
 
 // 获取指定分类的所有子分类.
 //  @categoryId: 大分类ID(根节点分类id为1)
-func (c *Client) MerchantCategoryGetSub(categoryId int64) ([]category.Category, error) {
+func (c *Client) MerchantCategoryGetSub(categoryId int64) (categories []category.Category, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := merchantCategoryGetSubURL(token)
 
@@ -29,22 +29,25 @@ func (c *Client) MerchantCategoryGetSub(categoryId int64) ([]category.Category, 
 		Categories []category.Category `json:"cate_list"`
 	}
 	result.Categories = make([]category.Category, 0, 64)
+
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
-	return result.Categories, nil
+	categories = result.Categories
+	return
 }
 
 // 获取指定子分类的所有SKU
-func (c *Client) MerchantCategoryGetSKU(categoryId int64) ([]category.SKU, error) {
+func (c *Client) MerchantCategoryGetSKU(categoryId int64) (skus []category.SKU, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := merchantCategoryGetSKUURL(token)
 
@@ -58,23 +61,26 @@ func (c *Client) MerchantCategoryGetSKU(categoryId int64) ([]category.SKU, error
 		Error
 		SKUs []category.SKU `json:"sku_table"`
 	}
-	result.SKUs = make([]category.SKU, 0, 256)
+	result.SKUs = make([]category.SKU, 0, 64)
+
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
-	return result.SKUs, nil
+	skus = result.SKUs
+	return
 }
 
 // 获取指定分类的所有属性
-func (c *Client) MerchantCategoryGetProperty(categoryId int64) ([]category.Property, error) {
+func (c *Client) MerchantCategoryGetProperty(categoryId int64) (properties []category.Property, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := merchantCategoryGetPropertyURL(token)
 
@@ -89,13 +95,16 @@ func (c *Client) MerchantCategoryGetProperty(categoryId int64) ([]category.Prope
 		Properties []category.Property `json:"properties"`
 	}
 	result.Properties = make([]category.Property, 0, 64)
+
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
-	return result.Properties, nil
+	properties = result.Properties
+	return
 }

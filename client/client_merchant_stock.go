@@ -9,10 +9,10 @@ package client
 //  @productId: 商品ID;
 //  @skuInfo:   sku信息,格式"id1:vid1;id2:vid2",如商品为统一规格，则此处赋值为空字符串即可;
 //  @quantity:  增加的库存数量.
-func (c *Client) MerchantStockAdd(productId string, skuInfo string, quantity int) error {
+func (c *Client) MerchantStockAdd(productId string, skuInfo string, quantity int) (err error) {
 	token, err := c.Token()
 	if err != nil {
-		return err
+		return
 	}
 	_url := merchantStockAddURL(token)
 
@@ -28,24 +28,24 @@ func (c *Client) MerchantStockAdd(productId string, skuInfo string, quantity int
 
 	var result Error
 	if err = c.postJSON(_url, &request, &result); err != nil {
-		return err
+		return
 	}
 
 	if result.ErrCode != 0 {
 		return &result
 	}
 
-	return nil
+	return
 }
 
 // 减少库存
 //  @productId: 商品ID;
 //  @skuInfo:   sku信息,格式"id1:vid1;id2:vid2",如商品为统一规格，则此处赋值为空字符串即可;
 //  @quantity:  增加的库存数量.
-func (c *Client) MerchantStockReduce(productId string, skuInfo string, quantity int) error {
+func (c *Client) MerchantStockReduce(productId string, skuInfo string, quantity int) (err error) {
 	token, err := c.Token()
 	if err != nil {
-		return err
+		return
 	}
 	_url := merchantStockReduceURL(token)
 
@@ -61,12 +61,12 @@ func (c *Client) MerchantStockReduce(productId string, skuInfo string, quantity 
 
 	var result Error
 	if err = c.postJSON(_url, &request, &result); err != nil {
-		return err
+		return
 	}
 
 	if result.ErrCode != 0 {
 		return &result
 	}
 
-	return nil
+	return
 }

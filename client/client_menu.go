@@ -69,6 +69,7 @@ func (c *Client) MenuGet() (_menu menu.Menu, err error) {
 		err = &result.Error
 		return
 	}
+
 	_menu = result.Menu
 	return
 }

@@ -18,7 +18,7 @@ func (c *Client) MerchantShelfAdd(_shelf *shelf.Shelf) (shelfId int64, err error
 		return
 	}
 
-	_shelf.Id = 0
+	_shelf.Id = 0 // 无需指定 Id 字段
 
 	token, err := c.Token()
 	if err != nil {
@@ -44,10 +44,10 @@ func (c *Client) MerchantShelfAdd(_shelf *shelf.Shelf) (shelfId int64, err error
 }
 
 // 删除货架
-func (c *Client) MerchantShelfDelete(shelfId int64) error {
+func (c *Client) MerchantShelfDelete(shelfId int64) (err error) {
 	token, err := c.Token()
 	if err != nil {
-		return err
+		return
 	}
 	_url := merchantShelfDeleteURL(token)
 
@@ -59,45 +59,45 @@ func (c *Client) MerchantShelfDelete(shelfId int64) error {
 
 	var result Error
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return err
+		return
 	}
 
 	if result.ErrCode != 0 {
 		return &result
 	}
 
-	return nil
+	return
 }
 
 // 修改货架
-func (c *Client) MerchantShelfModify(_shelf *shelf.Shelf) error {
+func (c *Client) MerchantShelfModify(_shelf *shelf.Shelf) (err error) {
 	if _shelf == nil {
 		return errors.New("_shelf == nil")
 	}
 
 	token, err := c.Token()
 	if err != nil {
-		return err
+		return
 	}
 	_url := merchantShelfModifyURL(token)
 
 	var result Error
 	if err = c.postJSON(_url, _shelf, &result); err != nil {
-		return err
+		return
 	}
 
 	if result.ErrCode != 0 {
 		return &result
 	}
 
-	return nil
+	return
 }
 
 // 获取所有货架
-func (c *Client) MerchantShelfGetAll() ([]shelf.ShelfX, error) {
+func (c *Client) MerchantShelfGetAll() (shelves []shelf.ShelfX, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := merchantShelfGetAllURL(token)
 
@@ -107,22 +107,25 @@ func (c *Client) MerchantShelfGetAll() ([]shelf.ShelfX, error) {
 	}{
 		Shelves: make([]shelf.ShelfX, 0, 16),
 	}
+
 	if err = c.getJSON(_url, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
-	return result.Shelves, nil
+	shelves = result.Shelves
+	return
 }
 
 // 根据货架ID获取货架信息
-func (c *Client) MerchantShelfGetById(shelfId int64) (*shelf.ShelfX, error) {
+func (c *Client) MerchantShelfGetById(shelfId int64) (_shelf *shelf.ShelfX, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := merchantShelfGetByIdURL(token)
 
@@ -137,12 +140,14 @@ func (c *Client) MerchantShelfGetById(shelfId int64) (*shelf.ShelfX, error) {
 		shelf.ShelfX
 	}
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
-	return &result.ShelfX, nil
+	_shelf = &result.ShelfX
+	return
 }

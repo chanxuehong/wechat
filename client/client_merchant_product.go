@@ -18,7 +18,8 @@ func (c *Client) MerchantProductAdd(_product *product.Product) (productId string
 		return
 	}
 
-	_product.Id = "" // 这个时候还没有 product id
+	// 无需指定 Id 和 Status 字段
+	_product.Id = ""
 	_product.Status = 0
 
 	token, err := c.Token()
@@ -45,14 +46,14 @@ func (c *Client) MerchantProductAdd(_product *product.Product) (productId string
 }
 
 // 删除商品
-func (c *Client) MerchantProductDelete(productId string) error {
+func (c *Client) MerchantProductDelete(productId string) (err error) {
 	if productId == "" {
 		return errors.New(`productId == ""`)
 	}
 
 	token, err := c.Token()
 	if err != nil {
-		return err
+		return
 	}
 	_url := merchantProductDeleteURL(token)
 
@@ -64,14 +65,14 @@ func (c *Client) MerchantProductDelete(productId string) error {
 
 	var result Error
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return err
+		return
 	}
 
 	if result.ErrCode != 0 {
 		return &result
 	}
 
-	return nil
+	return
 }
 
 // 修改商品
@@ -79,7 +80,7 @@ func (c *Client) MerchantProductDelete(productId string) error {
 //  1. 需要指定 _product.Id 字段
 //  2. 从未上架的商品所有信息均可修改，否则商品的名称(name)、商品分类(category)、
 //  商品属性(property)这三个字段*不可修改*。
-func (c *Client) MerchantProductUpdate(_product *product.Product) error {
+func (c *Client) MerchantProductUpdate(_product *product.Product) (err error) {
 	if _product == nil {
 		return errors.New("_product == nil")
 	}
@@ -89,27 +90,27 @@ func (c *Client) MerchantProductUpdate(_product *product.Product) error {
 
 	token, err := c.Token()
 	if err != nil {
-		return err
+		return
 	}
 	_url := merchantProductUpdateURL(token)
 
 	var result Error
 	if err = c.postJSON(_url, _product, &result); err != nil {
-		return err
+		return
 	}
 
 	if result.ErrCode != 0 {
 		return &result
 	}
 
-	return nil
+	return
 }
 
 // 查询商品
-func (c *Client) MerchantProductGet(productId string) (*product.Product, error) {
+func (c *Client) MerchantProductGet(productId string) (_product *product.Product, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := merchantProductGetURL(token)
 
@@ -124,14 +125,16 @@ func (c *Client) MerchantProductGet(productId string) (*product.Product, error) 
 		ProductInfo product.Product `json:"product_info"`
 	}
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
-	return &result.ProductInfo, nil
+	_product = &result.ProductInfo
+	return
 }
 
 // 获取所有商品，包括上架商品 和 下架商品
@@ -151,10 +154,10 @@ func (c *Client) MerchantProductGetAllOffShelf() ([]product.Product, error) {
 
 // 获取指定状态的所有商品.
 // 0-所有商品, 1-上架商品, 2-下架商品
-func (c *Client) merchantProductGetByStatus(status int) ([]product.Product, error) {
+func (c *Client) merchantProductGetByStatus(status int) (products []product.Product, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := merchantProductGetByStatusURL(token)
 
@@ -170,22 +173,24 @@ func (c *Client) merchantProductGetByStatus(status int) ([]product.Product, erro
 	}
 	result.ProductsInfo = make([]product.Product, 0, 1024)
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
-	return result.ProductsInfo, nil
+	products = result.ProductsInfo
+	return
 }
 
 // 修改商品状态.
 // status: 商品上下架标识(0-下架, 1-上架)
-func (c *Client) merchantProductModifyStatus(productId string, status int) error {
+func (c *Client) merchantProductModifyStatus(productId string, status int) (err error) {
 	token, err := c.Token()
 	if err != nil {
-		return err
+		return
 	}
 	_url := merchantProductModifyStatusURL(token)
 
@@ -199,14 +204,14 @@ func (c *Client) merchantProductModifyStatus(productId string, status int) error
 
 	var result Error
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return err
+		return
 	}
 
 	if result.ErrCode != 0 {
 		return &result
 	}
 
-	return nil
+	return
 }
 
 // 修改商品到上架状态

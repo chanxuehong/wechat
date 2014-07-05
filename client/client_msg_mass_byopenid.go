@@ -10,30 +10,6 @@ import (
 	"github.com/chanxuehong/wechat/message/massbyopenid"
 )
 
-// 根据 OpenId列表 群发消息, 之所以不暴露这个接口是因为怕接收到不合法的参数.
-func (c *Client) msgMassSendByOpenId(msg interface{}) (msgid int64, err error) {
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := messageMassSendByOpenIdURL(token)
-
-	var result struct {
-		Error
-		MsgId int64 `json:"msg_id"`
-	}
-	if err = c.postJSON(_url, msg, &result); err != nil {
-		return
-	}
-
-	if result.ErrCode != 0 {
-		err = &result.Error
-		return
-	}
-	msgid = result.MsgId
-	return
-}
-
 // 根据用户列表群发文本消息.
 func (c *Client) MsgMassSendTextByOpenId(msg *massbyopenid.Text) (msgid int64, err error) {
 	if msg == nil {
@@ -77,4 +53,28 @@ func (c *Client) MsgMassSendNewsByOpenId(msg *massbyopenid.News) (msgid int64, e
 		return
 	}
 	return c.msgMassSendByOpenId(msg)
+}
+
+// 根据 OpenId列表 群发消息, 之所以不暴露这个接口是因为怕接收到不合法的参数.
+func (c *Client) msgMassSendByOpenId(msg interface{}) (msgid int64, err error) {
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := messageMassSendByOpenIdURL(token)
+
+	var result struct {
+		Error
+		MsgId int64 `json:"msg_id"`
+	}
+	if err = c.postJSON(_url, msg, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != 0 {
+		err = &result.Error
+		return
+	}
+	msgid = result.MsgId
+	return
 }

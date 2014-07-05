@@ -89,9 +89,10 @@ type tokenResponse struct {
 }
 
 // 通过code换取网页授权access_token
-func (c *Client) Exchange(code string) (*OAuth2Info, error) {
+func (c *Client) Exchange(code string) (info *OAuth2Info, err error) {
 	if c.OAuth2Config == nil {
-		return nil, errors.New("no OAuth2Config supplied")
+		err = errors.New("no OAuth2Config supplied")
+		return
 	}
 
 	// If the Client has a token, preserve existing refresh token.
@@ -103,12 +104,13 @@ func (c *Client) Exchange(code string) (*OAuth2Info, error) {
 	_url := oauth2ExchangeTokenURL(c.ClientId, c.ClientSecret, code)
 	resp, err := c.httpClient().Get(_url)
 	if err != nil {
-		return nil, err
+		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("http.Status: %s", resp.Status)
+		err = fmt.Errorf("http.Status: %s", resp.Status)
+		return
 	}
 
 	var result struct {
@@ -116,10 +118,11 @@ func (c *Client) Exchange(code string) (*OAuth2Info, error) {
 		tokenResponse
 	}
 	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, err
+		return
 	}
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
 	tok.AccessToken = result.AccessToken
@@ -141,15 +144,17 @@ func (c *Client) Exchange(code string) (*OAuth2Info, error) {
 		tok.ExpiresAt = 0
 
 	default:
-		return nil, fmt.Errorf("token ExpiresIn(==%d) < 0", result.ExpiresIn)
+		err = fmt.Errorf("token ExpiresIn(==%d) < 0", result.ExpiresIn)
+		return
 	}
 
 	c.OAuth2Info = tok
-	return tok, nil
+	info = tok
+	return
 }
 
 // 刷新access_token（如果需要）
-func (c *Client) TokenRefresh() error {
+func (c *Client) TokenRefresh() (err error) {
 	if c.OAuth2Config == nil {
 		return errors.New("no OAuth2Config supplied")
 	}
@@ -163,7 +168,7 @@ func (c *Client) TokenRefresh() error {
 	_url := oauth2RefreshTokenURL(c.ClientId, c.RefreshToken)
 	resp, err := c.httpClient().Get(_url)
 	if err != nil {
-		return err
+		return
 	}
 	defer resp.Body.Close()
 
@@ -176,7 +181,7 @@ func (c *Client) TokenRefresh() error {
 		tokenResponse
 	}
 	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return err
+		return
 	}
 	if result.ErrCode != 0 {
 		return &result.Error
@@ -204,80 +209,92 @@ func (c *Client) TokenRefresh() error {
 		return fmt.Errorf("token ExpiresIn(==%d) < 0", result.ExpiresIn)
 	}
 
-	return nil
+	return
 }
 
-func (c *Client) CheckAccessTokenValid() (bool, error) {
+func (c *Client) CheckAccessTokenValid() (valid bool, err error) {
 	if c.OAuth2Info == nil {
-		return false, errors.New("no OAuth2Info supplied")
+		err = errors.New("no OAuth2Info supplied")
+		return
 	}
 	if len(c.AccessToken) == 0 {
-		return false, errors.New("no Access Token")
+		err = errors.New("no Access Token")
+		return
 	}
 	if len(c.OpenId) == 0 {
-		return false, errors.New(`no OpenId`)
+		err = errors.New(`no OpenId`)
+		return
 	}
 
 	_url := checkAccessTokenValidURL(c.AccessToken, c.OpenId)
 	resp, err := c.httpClient().Get(_url)
 	if err != nil {
-		return false, err
+		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return false, fmt.Errorf("http.Status: %s", resp.Status)
+		err = fmt.Errorf("http.Status: %s", resp.Status)
+		return
 	}
 
 	var result Error
 	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return false, err
+		return
 	}
 
+	// 出错则表示无效
 	if result.ErrCode != 0 {
-		return false, nil
+		return
 	}
-	return true, nil
+
+	valid = true
+	return
 }
 
 // 拉取用户信息(需scope为 snsapi_userinfo).
 //  lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
-func (c *Client) UserInfo(lang string) (*UserInfo, error) {
+func (c *Client) UserInfo(lang string) (info *UserInfo, err error) {
 	switch lang {
 	case "":
 		lang = Language_zh_CN
 	case Language_zh_CN, Language_zh_TW, Language_en:
 	default:
-		return nil, fmt.Errorf("lang 必须是 \"\",%s,%s,%s 其中之一",
+		err = fmt.Errorf("lang 必须是 \"\",%s,%s,%s 其中之一",
 			Language_zh_CN, Language_zh_TW, Language_en)
+		return
 	}
 
 	if c.OAuth2Info == nil {
-		return nil, errors.New("no OAuth2Info supplied")
+		err = errors.New("no OAuth2Info supplied")
+		return
 	}
 	if len(c.AccessToken) == 0 {
-		return nil, errors.New("no Access Token")
+		err = errors.New("no Access Token")
+		return
 	}
 	if len(c.OpenId) == 0 {
-		return nil, errors.New(`no OpenId`)
+		err = errors.New(`no OpenId`)
+		return
 	}
 
 	// Refresh the OAuth2Info if it has expired.
 	if c.AccessTokenExpired() {
-		if err := c.TokenRefresh(); err != nil {
-			return nil, err
+		if err = c.TokenRefresh(); err != nil {
+			return
 		}
 	}
 
 	_url := userInfoURL(c.AccessToken, c.OpenId, lang)
 	resp, err := c.httpClient().Get(_url)
 	if err != nil {
-		return nil, err
+		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("http.Status: %s", resp.Status)
+		err = fmt.Errorf("http.Status: %s", resp.Status)
+		return
 	}
 
 	var result struct {
@@ -285,11 +302,14 @@ func (c *Client) UserInfo(lang string) (*UserInfo, error) {
 		Error
 	}
 	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
-	return &result.UserInfo, nil
+
+	info = &result.UserInfo
+	return
 }

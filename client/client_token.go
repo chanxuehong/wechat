@@ -57,15 +57,15 @@ func (c *Client) TokenRefresh() (token string, err error) {
 func (c *Client) tokenAutoUpdate(tickDuration time.Duration) {
 	const defaultTickDuration = time.Minute // 设置 44 秒以上就不会超过限制(2000次/日 的限制)
 
-	tk := time.NewTicker(tickDuration)
-	defer tk.Stop()
+	ticker := time.NewTicker(tickDuration)
+	defer ticker.Stop()
 	for {
 		select {
 		case newTickDuration := <-c.resetRefreshTokenTickChan:
 			go c.tokenAutoUpdate(newTickDuration)
 			return // 终止当前的 goroutine
 
-		case <-tk.C:
+		case <-ticker.C:
 			resp, err := c.getNewToken()
 			if err != nil {
 				c.updateCurrentToken("", err)
@@ -93,29 +93,33 @@ type tokenResponse struct {
 }
 
 // 从微信服务器获取新的 access_token
-func (c *Client) getNewToken() (*tokenResponse, error) {
+func (c *Client) getNewToken() (resp *tokenResponse, err error) {
 	_url := tokenGetURL(c.appid, c.appsecret)
 	var result struct {
 		tokenResponse
 		Error
 	}
-	if err := c.getJSON(_url, &result); err != nil {
-		return nil, err
+	if err = c.getJSON(_url, &result); err != nil {
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
 	switch {
 	case result.ExpiresIn > 10:
 		result.ExpiresIn -= 10 // 考虑到网络延时, 提前 10 秒过期
-		return &result.tokenResponse, nil
+		resp = &result.tokenResponse
+		return
 
 	case result.ExpiresIn > 0: // (0, 10], 正常情况下不会出现
-		return &result.tokenResponse, nil
+		resp = &result.tokenResponse
+		return
 
 	default: // result.ExpiresIn <= 0, 正常情况下不会出现
-		return nil, fmt.Errorf("expires_in 应该是正整数, 现在 ==%d", result.ExpiresIn)
+		err = fmt.Errorf("expires_in 应该是正整数, 现在 ==%d", result.ExpiresIn)
+		return
 	}
 }

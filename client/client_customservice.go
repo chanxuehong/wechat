@@ -11,31 +11,40 @@ import (
 )
 
 // 获取客服聊天记录
-func (c *Client) CustomServiceRecordGet(request *customservice.RecordGetRequest) ([]customservice.Record, error) {
+func (c *Client) CustomServiceRecordGet(request *customservice.RecordGetRequest) (records []customservice.Record, err error) {
 	if request == nil {
-		return nil, errors.New("request == nil")
+		err = errors.New("request == nil")
+		return
 	}
 
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := customServiceRecordGetURL(token)
 
-	var result = struct {
+	var result struct {
 		RecordList []customservice.Record `json:"recordlist"`
 		Error
-	}{
-		RecordList: make([]customservice.Record, 0, customservice.RecordPageSizeLimit),
 	}
+	// 预分配一定的容量
+	if size := request.PageSize; size >= 64 {
+		result.RecordList = make([]customservice.Record, 0, 64)
+	} else {
+		result.RecordList = make([]customservice.Record, 0, size)
+	}
+
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
-	return result.RecordList, nil
+
+	records = result.RecordList
+	return
 }
 
 // 该结构实现了 github.com/chanxuehong/wechat/customservice.RecordIterator 接口
@@ -55,34 +64,37 @@ func (iter *csRecordIterator) HasNext() bool {
 	// 如果上一次读取的数据等于 PageSize, 则*有可能*还有数据; 否则肯定是没有数据了.
 	return len(iter.recordGetResponse) == iter.recordGetRequest.PageSize
 }
-func (iter *csRecordIterator) NextPage() ([]customservice.Record, error) {
+
+func (iter *csRecordIterator) NextPage() (records []customservice.Record, err error) {
 	// 第一次调用 NextPage(), 因为在创建这个对象的时候已经获取了数据, 所以直接返回.
 	if !iter.nextPageCalled {
 		iter.nextPageCalled = true
-		return iter.recordGetResponse, nil
+		records = iter.recordGetResponse
+		return
 	}
 
 	// 不是第一次调用的都要从服务器拉取数据
 	iter.recordGetRequest.PageIndex++
-	resp, err := iter.wechatClient.CustomServiceRecordGet(iter.recordGetRequest)
+	records, err = iter.wechatClient.CustomServiceRecordGet(iter.recordGetRequest)
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	iter.recordGetResponse = resp
-	return resp, nil
+	iter.recordGetResponse = records
+	return
 }
 
 // 聊天记录遍历器
-func (c *Client) CustomServiceRecordIterator(queryRequest *customservice.RecordGetRequest) (customservice.RecordIterator, error) {
-	// CustomServiceRecordGet 会做参数检查
-	resp, err := c.CustomServiceRecordGet(queryRequest)
+func (c *Client) CustomServiceRecordIterator(request *customservice.RecordGetRequest) (iter customservice.RecordIterator, err error) {
+	resp, err := c.CustomServiceRecordGet(request)
 	if err != nil {
-		return nil, err
+		return
 	}
-	var iter csRecordIterator
-	iter.recordGetRequest = queryRequest
-	iter.recordGetResponse = resp
-	iter.wechatClient = c
-	return &iter, nil
+
+	iter = &csRecordIterator{
+		recordGetRequest:  request,
+		recordGetResponse: resp,
+		wechatClient:      c,
+	}
+	return
 }

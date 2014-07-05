@@ -50,10 +50,10 @@ func (c *Client) MerchantExpressAddDeliveryTemplate(template *express.DeliveryTe
 }
 
 // 删除邮费模板
-func (c *Client) MerchantExpressDeleteDeliveryTemplate(templateId int64) error {
+func (c *Client) MerchantExpressDeleteDeliveryTemplate(templateId int64) (err error) {
 	token, err := c.Token()
 	if err != nil {
-		return err
+		return
 	}
 	_url := merchantExpressDeleteURL(token)
 
@@ -65,26 +65,26 @@ func (c *Client) MerchantExpressDeleteDeliveryTemplate(templateId int64) error {
 
 	var result Error
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return err
+		return
 	}
 
 	if result.ErrCode != 0 {
 		return &result
 	}
 
-	return nil
+	return
 }
 
 // 修改邮费模板
 //  NOTE: 需要指定 template.Id 字段
-func (c *Client) MerchantExpressUpdateDeliveryTemplate(template *express.DeliveryTemplate) error {
+func (c *Client) MerchantExpressUpdateDeliveryTemplate(template *express.DeliveryTemplate) (err error) {
 	if template == nil {
 		return errors.New("template == nil")
 	}
 
 	token, err := c.Token()
 	if err != nil {
-		return err
+		return
 	}
 	_url := merchantExpressUpdateURL(token)
 
@@ -100,21 +100,21 @@ func (c *Client) MerchantExpressUpdateDeliveryTemplate(template *express.Deliver
 
 	var result Error
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return err
+		return
 	}
 
 	if result.ErrCode != 0 {
 		return &result
 	}
 
-	return nil
+	return
 }
 
 // 获取指定ID的邮费模板
-func (c *Client) MerchantExpressGetDeliveryTemplateById(templateId int64) (*express.DeliveryTemplate, error) {
+func (c *Client) MerchantExpressGetDeliveryTemplateById(templateId int64) (dt *express.DeliveryTemplate, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := merchantExpressGetByIdURL(token)
 
@@ -129,21 +129,23 @@ func (c *Client) MerchantExpressGetDeliveryTemplateById(templateId int64) (*expr
 		TemplateInfo express.DeliveryTemplate `json:"template_info"`
 	}
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
-	return &result.TemplateInfo, nil
+	dt = &result.TemplateInfo
+	return
 }
 
 // 获取所有邮费模板
-func (c *Client) MerchantExpressGetAllDeliveryTemplate() ([]express.DeliveryTemplate, error) {
+func (c *Client) MerchantExpressGetAllDeliveryTemplate() (dts []express.DeliveryTemplate, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := merchantExpressGetAllURL(token)
 
@@ -151,14 +153,17 @@ func (c *Client) MerchantExpressGetAllDeliveryTemplate() ([]express.DeliveryTemp
 		Error
 		TemplatesInfo []express.DeliveryTemplate `json:"templates_info"`
 	}
-	result.TemplatesInfo = make([]express.DeliveryTemplate, 0, 64)
+	result.TemplatesInfo = make([]express.DeliveryTemplate, 0, 16)
+
 	if err = c.getJSON(_url, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
-	return result.TemplatesInfo, nil
+	dts = result.TemplatesInfo
+	return
 }

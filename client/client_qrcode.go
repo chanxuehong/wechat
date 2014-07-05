@@ -16,10 +16,10 @@ import (
 )
 
 // 创建临时二维码
-func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (*qrcode.TemporaryQRCode, error) {
+func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (_qrcode *qrcode.TemporaryQRCode, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := qrcodeCreateURL(token)
 
@@ -32,7 +32,6 @@ func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (*qrco
 			} `json:"scene"`
 		} `json:"action_info"`
 	}
-
 	request.ExpireSeconds = expireSeconds
 	request.ActionName = "QR_SCENE"
 	request.ActionInfo.Scene.SceneId = sceneId
@@ -43,26 +42,27 @@ func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (*qrco
 		Error
 	}
 	if err = c.postJSON(_url, &request, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
-	var ret qrcode.TemporaryQRCode
-	ret.SceneId = sceneId
-	ret.Ticket = result.Ticket
-	ret.ExpiresAt = time.Now().Unix() + result.ExpireSeconds
-
-	return &ret, nil
+	_qrcode = &qrcode.TemporaryQRCode{
+		SceneId:   sceneId,
+		Ticket:    result.Ticket,
+		ExpiresAt: time.Now().Unix() + result.ExpireSeconds,
+	}
+	return
 }
 
 // 创建永久二维码
-func (c *Client) QRCodePermanentCreate(sceneId uint32) (*qrcode.PermanentQRCode, error) {
+func (c *Client) QRCodePermanentCreate(sceneId uint32) (_qrcode *qrcode.PermanentQRCode, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := qrcodeCreateURL(token)
 
@@ -74,7 +74,6 @@ func (c *Client) QRCodePermanentCreate(sceneId uint32) (*qrcode.PermanentQRCode,
 			} `json:"scene"`
 		} `json:"action_info"`
 	}
-
 	request.ActionName = "QR_LIMIT_SCENE"
 	request.ActionInfo.Scene.SceneId = sceneId
 
@@ -83,14 +82,17 @@ func (c *Client) QRCodePermanentCreate(sceneId uint32) (*qrcode.PermanentQRCode,
 		Error
 	}
 	if err = c.postJSON(_url, &request, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 	result.PermanentQRCode.SceneId = sceneId
-	return &result.PermanentQRCode, nil
+
+	_qrcode = &result.PermanentQRCode
+	return
 }
 
 // 根据 qrcode ticket 得到 qrcode 图片的 url
@@ -99,7 +101,7 @@ func QRCodeURL(ticket string) string {
 }
 
 // 通过 ticket 换取二维码到 writer
-func QRCodeDownload(ticket string, writer io.Writer) error {
+func QRCodeDownload(ticket string, writer io.Writer) (err error) {
 	if writer == nil {
 		return errors.New("writer == nil")
 	}
@@ -107,14 +109,14 @@ func QRCodeDownload(ticket string, writer io.Writer) error {
 	_url := qrcodeURL(ticket)
 	resp, err := http.Get(_url)
 	if err != nil {
-		return err
+		return
 	}
 	defer resp.Body.Close()
 
 	// ticket正确情况下，http 返回码是200，是一张图片，可以直接展示或者下载。
 	if resp.StatusCode == http.StatusOK {
 		_, err = io.Copy(writer, resp.Body)
-		return err
+		return
 	}
 
 	// 错误情况下（如ticket非法）返回HTTP错误码404。
@@ -122,7 +124,7 @@ func QRCodeDownload(ticket string, writer io.Writer) error {
 }
 
 // 通过 ticket 换取二维码到 writer
-func (c *Client) QRCodeDownload(ticket string, writer io.Writer) error {
+func (c *Client) QRCodeDownload(ticket string, writer io.Writer) (err error) {
 	if writer == nil {
 		return errors.New("writer == nil")
 	}
@@ -130,14 +132,14 @@ func (c *Client) QRCodeDownload(ticket string, writer io.Writer) error {
 	_url := qrcodeURL(ticket)
 	resp, err := c.httpClient.Get(_url)
 	if err != nil {
-		return err
+		return
 	}
 	defer resp.Body.Close()
 
 	// ticket正确情况下，http 返回码是200，是一张图片，可以直接展示或者下载。
 	if resp.StatusCode == http.StatusOK {
 		_, err = io.Copy(writer, resp.Body)
-		return err
+		return
 	}
 
 	// 错误情况下（如ticket非法）返回HTTP错误码404。
@@ -145,10 +147,10 @@ func (c *Client) QRCodeDownload(ticket string, writer io.Writer) error {
 }
 
 // 通过 ticket 换取二维码到文件 _filepath
-func QRCodeDownloadToFile(ticket, _filepath string) error {
+func QRCodeDownloadToFile(ticket, _filepath string) (err error) {
 	file, err := os.Create(_filepath)
 	if err != nil {
-		return err
+		return
 	}
 	defer file.Close()
 
@@ -156,10 +158,10 @@ func QRCodeDownloadToFile(ticket, _filepath string) error {
 }
 
 // 通过 ticket 换取二维码到文件 _filepath
-func (c *Client) QRCodeDownloadToFile(ticket, _filepath string) error {
+func (c *Client) QRCodeDownloadToFile(ticket, _filepath string) (err error) {
 	file, err := os.Create(_filepath)
 	if err != nil {
-		return err
+		return
 	}
 	defer file.Close()
 

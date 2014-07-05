@@ -16,10 +16,11 @@ func (c *Client) MsgMassDelete(msgid int64) (err error) {
 	}
 	_url := messageMassDeleteURL(token)
 
-	var request struct {
+	var request = struct {
 		MsgId int64 `json:"msgid"`
+	}{
+		MsgId: msgid,
 	}
-	request.MsgId = msgid
 
 	var result Error
 	if err = c.postJSON(_url, request, &result); err != nil {

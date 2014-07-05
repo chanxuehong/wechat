@@ -10,10 +10,10 @@ import (
 )
 
 // 根据订单id获取订单详情
-func (c *Client) MerchantOrderGetById(orderId string) (*order.Order, error) {
+func (c *Client) MerchantOrderGetById(orderId string) (_order *order.Order, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := merchantOrderGetByIdURL(token)
 
@@ -28,24 +28,26 @@ func (c *Client) MerchantOrderGetById(orderId string) (*order.Order, error) {
 		Order order.Order `json:"order"`
 	}
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
-	return &result.Order, nil
+	_order = &result.Order
+	return
 }
 
 // 根据订单状态/创建时间获取订单详情
-//  @status:    订单状态(不带该字段 == 0 -全部状态, 2-待发货, 3-已发货, 5-已完成, 8-维权中)
-//  @beginTime: 订单创建时间起始时间(不带该字段 ==0 则不按照时间做筛选)
-//  @endTime:   订单创建时间终止时间(不带该字段 ==0 则不按照时间做筛选)
-func (c *Client) MerchantOrderGetByFilter(status int, beginTime, endTime int64) ([]order.Order, error) {
+//  @status:    订单状态, 不带该字段(==0) -全部状态, 2-待发货, 3-已发货, 5-已完成, 8-维权中
+//  @beginTime: 订单创建时间起始时间, 不带该字段(==0) 则不按照时间做筛选
+//  @endTime:   订单创建时间终止时间, 不带该字段(==0) 则不按照时间做筛选
+func (c *Client) MerchantOrderGetByFilter(status int, beginTime, endTime int64) (orders []order.Order, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := merchantOrderGetByFilterURL(token)
 
@@ -63,26 +65,29 @@ func (c *Client) MerchantOrderGetByFilter(status int, beginTime, endTime int64) 
 		Error
 		OrderList []order.Order `json:"order_list"`
 	}
-	result.OrderList = make([]order.Order, 0, 256)
+	result.OrderList = make([]order.Order, 0, 64)
+
 	if err = c.postJSON(_url, &request, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
-	return result.OrderList, nil
+	orders = result.OrderList
+	return
 }
 
 // 设置订单发货信息.
 //  @orderId:         订单ID;
 //  @deliveryCompany: 物流公司ID(参考《物流公司ID》)
 //  @deliveryTrackNo: 运单ID
-func (c *Client) MerchantOrderSetDelivery(orderId, deliveryCompany, deliveryTrackNo string) error {
+func (c *Client) MerchantOrderSetDelivery(orderId, deliveryCompany, deliveryTrackNo string) (err error) {
 	token, err := c.Token()
 	if err != nil {
-		return err
+		return
 	}
 	_url := merchantOrderSetDeliveryURL(token)
 
@@ -98,21 +103,21 @@ func (c *Client) MerchantOrderSetDelivery(orderId, deliveryCompany, deliveryTrac
 
 	var result Error
 	if err = c.postJSON(_url, &request, &result); err != nil {
-		return err
+		return
 	}
 
 	if result.ErrCode != 0 {
 		return &result
 	}
 
-	return nil
+	return
 }
 
 // 关闭订单
-func (c *Client) MerchantOrderClose(orderId string) error {
+func (c *Client) MerchantOrderClose(orderId string) (err error) {
 	token, err := c.Token()
 	if err != nil {
-		return err
+		return
 	}
 	_url := merchantOrderCloseURL(token)
 
@@ -124,12 +129,12 @@ func (c *Client) MerchantOrderClose(orderId string) error {
 
 	var result Error
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return err
+		return
 	}
 
 	if result.ErrCode != 0 {
 		return &result
 	}
 
-	return nil
+	return
 }

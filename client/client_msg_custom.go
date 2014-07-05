@@ -70,12 +70,12 @@ func (c *Client) MsgCustomSendMusic(msg *custom.Music) error {
 }
 
 // 发送客服消息, 图文.
-func (c *Client) MsgCustomSendNews(msg *custom.News) error {
+func (c *Client) MsgCustomSendNews(msg *custom.News) (err error) {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	if err := msg.CheckValid(); err != nil {
-		return err
+	if err = msg.CheckValid(); err != nil {
+		return
 	}
 	return c.msgCustomSend(msg)
 }

@@ -37,24 +37,25 @@ type Detail struct {
 
 // 实现 json.Marshaler.
 // text 和 image 同一时刻只 marshal 一个, 优先 marshal text.
-func (detail Detail) MarshalJSON() ([]byte, error) {
+func (detail Detail) MarshalJSON() (result []byte, err error) {
 	if len(detail.Text) > 0 {
-		ret := make([]byte, 0, 11+len(detail.Text))
-		ret = append(ret, `{"text":"`...)
-		ret = append(ret, detail.Text...)
-		ret = append(ret, `"}`...)
+		result = make([]byte, 0, 11+len(detail.Text))
+		result = append(result, `{"text":"`...)
+		result = append(result, detail.Text...)
+		result = append(result, `"}`...)
 
-		return ret, nil
+		return
 	}
 
 	if len(detail.Image) > 0 {
-		ret := make([]byte, 0, 10+len(detail.Image))
-		ret = append(ret, `{"img":"`...)
-		ret = append(ret, detail.Image...)
-		ret = append(ret, `"}`...)
+		result = make([]byte, 0, 10+len(detail.Image))
+		result = append(result, `{"img":"`...)
+		result = append(result, detail.Image...)
+		result = append(result, `"}`...)
 
-		return ret, nil
+		return
 	}
 
-	return []byte(`{"text":""}`), nil
+	result = []byte(`{"text":""}`)
+	return
 }

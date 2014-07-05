@@ -18,7 +18,7 @@ func (c *Client) MerchantGroupAdd(_group *group.GroupEx) (groupId int64, err err
 		return
 	}
 
-	_group.Id = 0
+	_group.Id = 0 // 无需指定 Id 字段
 
 	token, err := c.Token()
 	if err != nil {
@@ -50,10 +50,10 @@ func (c *Client) MerchantGroupAdd(_group *group.GroupEx) (groupId int64, err err
 }
 
 // 删除分组
-func (c *Client) MerchantGroupDelete(groupId int64) error {
+func (c *Client) MerchantGroupDelete(groupId int64) (err error) {
 	token, err := c.Token()
 	if err != nil {
-		return err
+		return
 	}
 	_url := merchantGroupDeleteURL(token)
 
@@ -65,25 +65,25 @@ func (c *Client) MerchantGroupDelete(groupId int64) error {
 
 	var result Error
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return err
+		return
 	}
 
 	if result.ErrCode != 0 {
 		return &result
 	}
 
-	return nil
+	return
 }
 
 // 修改分组名称
-func (c *Client) MerchantGroupRename(groupId int64, newName string) error {
+func (c *Client) MerchantGroupRename(groupId int64, newName string) (err error) {
 	if newName == "" {
 		return errors.New(`newName == ""`)
 	}
 
 	token, err := c.Token()
 	if err != nil {
-		return err
+		return
 	}
 	_url := merchantGroupPropertyModifyURL(token)
 
@@ -97,45 +97,45 @@ func (c *Client) MerchantGroupRename(groupId int64, newName string) error {
 
 	var result Error
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return err
+		return
 	}
 
 	if result.ErrCode != 0 {
 		return &result
 	}
 
-	return nil
+	return
 }
 
 // 修改分组商品
-func (c *Client) MerchantGroupModifyProduct(modifyRequest *group.GroupModifyProductRequest) error {
+func (c *Client) MerchantGroupModifyProduct(modifyRequest *group.GroupModifyProductRequest) (err error) {
 	if modifyRequest == nil {
 		return errors.New("modifyRequest == nil")
 	}
 
 	token, err := c.Token()
 	if err != nil {
-		return err
+		return
 	}
 	_url := merchantGroupProductModifyURL(token)
 
 	var result Error
 	if err = c.postJSON(_url, modifyRequest, &result); err != nil {
-		return err
+		return
 	}
 
 	if result.ErrCode != 0 {
 		return &result
 	}
 
-	return nil
+	return
 }
 
 // 获取所有分组
-func (c *Client) MerchantGroupGetAll() ([]group.Group, error) {
+func (c *Client) MerchantGroupGetAll() (groups []group.Group, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := merchantGroupGetAllURL(token)
 
@@ -144,22 +144,25 @@ func (c *Client) MerchantGroupGetAll() ([]group.Group, error) {
 		GroupsDetail []group.Group `json:"groups_detail"`
 	}
 	result.GroupsDetail = make([]group.Group, 0, 64)
+
 	if err = c.getJSON(_url, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
-	return result.GroupsDetail, nil
+	groups = result.GroupsDetail
+	return
 }
 
 // 根据分组ID获取分组信息
-func (c *Client) MerchantGroupGetById(groupId int64) (*group.GroupEx, error) {
+func (c *Client) MerchantGroupGetById(groupId int64) (_group *group.GroupEx, err error) {
 	token, err := c.Token()
 	if err != nil {
-		return nil, err
+		return
 	}
 	_url := merchantGroupGetByIdURL(token)
 
@@ -174,12 +177,14 @@ func (c *Client) MerchantGroupGetById(groupId int64) (*group.GroupEx, error) {
 		GroupDetail group.GroupEx `json:"group_detail"`
 	}
 	if err = c.postJSON(_url, request, &result); err != nil {
-		return nil, err
+		return
 	}
 
 	if result.ErrCode != 0 {
-		return nil, &result.Error
+		err = &result.Error
+		return
 	}
 
-	return &result.GroupDetail, nil
+	_group = &result.GroupDetail
+	return
 }
