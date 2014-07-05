@@ -33,22 +33,20 @@ type Record struct {
 	Text        string `json:"text"` // 聊天记录
 }
 
-/*
-聊天记录遍历器
-
-iter, err := Client.CustomServiceRecordIterator(request)
-if err != nil {
-	...
-}
-
-for iter.HasNext() {
-	records, err := iter.NextPage()
-	if err != nil {
-		...
-	}
-	...
-}
-*/
+// 聊天记录遍历器
+//
+//  iter, err := Client.CustomServiceRecordIterator(request)
+//  if err != nil {
+//      // TODO: 增加你的代码
+//  }
+//
+//  for iter.HasNext() {
+//      records, err := iter.NextPage()
+//      if err != nil {
+//          // TODO: 增加你的代码
+//      }
+//      // TODO: 增加你的代码
+//  }
 type RecordIterator interface {
 	HasNext() bool
 	NextPage() (records []Record, err error)

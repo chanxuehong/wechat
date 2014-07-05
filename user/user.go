@@ -64,22 +64,20 @@ func HeadImageSize(headImageURL string) (size int, err error) {
 	return
 }
 
-/*
-关注者列表的遍历器.
-
-iter, err := Client.UserIterator("beginOpenId")
-if err != nil {
-	...
-}
-
-for iter.HasNext() {
-	openids, err := iter.NextPage()
-	if err != nil {
-		...
-	}
-	...
-}
-*/
+// 关注者列表的遍历器
+//
+//  iter, err := Client.UserIterator("beginOpenId")
+//  if err != nil {
+//      // TODO: 增加你的代码
+//  }
+//
+//  for iter.HasNext() {
+//      openids, err := iter.NextPage()
+//      if err != nil {
+//          // TODO: 增加你的代码
+//      }
+//      // TODO: 增加你的代码
+//  }
 type UserIterator interface {
 	HasNext() bool
 	NextPage() (openids []string, err error)
