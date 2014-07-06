@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// oauth2 相关配置, 一般全局只用保存一个变量
+// oauth2 相关配置 ( 一般全局只用保存一个变量 )
 type OAuth2Config struct {
 	ClientId     string // appid
 	ClientSecret string // appsecret
@@ -39,15 +39,18 @@ func NewOAuth2Config(appid, appsecret, redirectURL string, scope ...string) *OAu
 }
 
 // 请求用户授权时跳转的地址.
+//  这里的格式为:
+//  https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&redirect_uri=REDIRECT_URI&response_type=code&scope=SCOPE&state=STATE#wechat_redirect
 func (cfg *OAuth2Config) AuthCodeURL(state string) string {
 	return oauth2AuthURL(cfg.ClientId, cfg.RedirectURL, cfg.Scope, state)
 }
 
-// OAuth2 用户授权信息; 每个用户对应一个这样的结构, 应该缓存起来.
-type OAuth2Info struct {
+// 通过code换取网页授权access_token 和 刷新 access_token 返回的数据结构.
+//  NOTE: 每个用户对应一个这样的结构, 应该缓存起来, 一般缓存在 session 中.
+type OAuth2Token struct {
 	AccessToken  string
 	RefreshToken string
-	ExpiresAt    int64 // unixtime; If zero the token has no (known) expiry time.
+	ExpiresAt    int64 // unixtime; 如果等于 0 则表示不过期或者不知道具体过期时间.
 
 	// 用户唯一标识，请注意，在未关注公众号时，用户访问公众号的网页，
 	// 也会产生一个用户和公众号唯一的OpenID
@@ -56,16 +59,18 @@ type OAuth2Info struct {
 }
 
 // 判断授权的 access token 是否过期
-func (info *OAuth2Info) AccessTokenExpired() bool {
-	if info.ExpiresAt == 0 {
+func (token *OAuth2Token) AccessTokenExpired() bool {
+	if token.ExpiresAt == 0 {
 		return false
 	}
-	return time.Now().Unix() > info.ExpiresAt
+	return time.Now().Unix() > token.ExpiresAt
 }
 
+// OAuth2Token 字段正常情况下要从缓存中获取，因为是用户相关，一般都是存储在 session 中。
+// 每次请求结束都要从这个字段获取最新的 OAuth2Token 再存入 session 中。
 type Client struct {
 	*OAuth2Config
-	*OAuth2Info
+	*OAuth2Token
 
 	// It will default to http.DefaultClient if nil.
 	// see CommonHttpClient and MediaHttpClient
@@ -89,16 +94,17 @@ type tokenResponse struct {
 }
 
 // 通过code换取网页授权access_token
-func (c *Client) Exchange(code string) (info *OAuth2Info, err error) {
+//  NOTE: 如果成功 c.OAuth2Token 字段也会得到更新, 后续操作不需要重新赋值.
+func (c *Client) Exchange(code string) (token *OAuth2Token, err error) {
 	if c.OAuth2Config == nil {
 		err = errors.New("no OAuth2Config supplied")
 		return
 	}
 
 	// If the Client has a token, preserve existing refresh token.
-	tok := c.OAuth2Info
+	tok := c.OAuth2Token
 	if tok == nil {
-		tok = new(OAuth2Info)
+		tok = new(OAuth2Token)
 	}
 
 	_url := oauth2ExchangeTokenURL(c.ClientId, c.ClientSecret, code)
@@ -125,14 +131,6 @@ func (c *Client) Exchange(code string) (info *OAuth2Info, err error) {
 		return
 	}
 
-	tok.AccessToken = result.AccessToken
-	// Don't overwrite `RefreshToken` with an empty value
-	if len(result.RefreshToken) > 0 {
-		tok.RefreshToken = result.RefreshToken
-	}
-	tok.OpenId = result.OpenId
-	tok.Scopes = strings.Split(result.Scope, ",")
-
 	switch {
 	case result.ExpiresIn > 10: // 正常情况下远大于 10
 		tok.ExpiresAt = time.Now().Unix() + result.ExpiresIn - 10 // 考虑到网络延时，提前 10 秒过期
@@ -148,18 +146,27 @@ func (c *Client) Exchange(code string) (info *OAuth2Info, err error) {
 		return
 	}
 
-	c.OAuth2Info = tok
-	info = tok
+	tok.AccessToken = result.AccessToken
+	// Don't overwrite `RefreshToken` with an empty value
+	if len(result.RefreshToken) > 0 {
+		tok.RefreshToken = result.RefreshToken
+	}
+	tok.OpenId = result.OpenId
+	tok.Scopes = strings.Split(result.Scope, ",")
+
+	c.OAuth2Token = tok
+	token = tok
 	return
 }
 
 // 刷新access_token（如果需要）
+//  NOTE: 如果成功则会更新 c.OAuth2Token 字段.
 func (c *Client) TokenRefresh() (err error) {
 	if c.OAuth2Config == nil {
 		return errors.New("no OAuth2Config supplied")
 	}
-	if c.OAuth2Info == nil {
-		return errors.New("no OAuth2Info supplied")
+	if c.OAuth2Token == nil {
+		return errors.New("no OAuth2Token supplied")
 	}
 	if len(c.RefreshToken) == 0 {
 		return errors.New("no Refresh Token")
@@ -183,17 +190,10 @@ func (c *Client) TokenRefresh() (err error) {
 	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return
 	}
+
 	if result.ErrCode != 0 {
 		return &result.Error
 	}
-
-	c.AccessToken = result.AccessToken
-	// Don't overwrite `RefreshToken` with an empty value
-	if len(result.RefreshToken) > 0 {
-		c.RefreshToken = result.RefreshToken
-	}
-	c.OpenId = result.OpenId
-	c.Scopes = strings.Split(result.Scope, ",")
 
 	switch {
 	case result.ExpiresIn > 10: // 正常情况下远大于 10
@@ -209,12 +209,21 @@ func (c *Client) TokenRefresh() (err error) {
 		return fmt.Errorf("token ExpiresIn(==%d) < 0", result.ExpiresIn)
 	}
 
+	c.AccessToken = result.AccessToken
+	// Don't overwrite `RefreshToken` with an empty value
+	if len(result.RefreshToken) > 0 {
+		c.RefreshToken = result.RefreshToken
+	}
+	c.OpenId = result.OpenId
+	c.Scopes = strings.Split(result.Scope, ",")
+
 	return
 }
 
+// 检查 access_token 是否有效
 func (c *Client) CheckAccessTokenValid() (valid bool, err error) {
-	if c.OAuth2Info == nil {
-		err = errors.New("no OAuth2Info supplied")
+	if c.OAuth2Token == nil {
+		err = errors.New("no OAuth2Token supplied")
 		return
 	}
 	if len(c.AccessToken) == 0 {
@@ -252,7 +261,7 @@ func (c *Client) CheckAccessTokenValid() (valid bool, err error) {
 	return
 }
 
-// 拉取用户信息(需scope为 snsapi_userinfo).
+// 获取用户信息(需scope为 snsapi_userinfo).
 //  lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
 func (c *Client) UserInfo(lang string) (info *UserInfo, err error) {
 	switch lang {
@@ -265,8 +274,8 @@ func (c *Client) UserInfo(lang string) (info *UserInfo, err error) {
 		return
 	}
 
-	if c.OAuth2Info == nil {
-		err = errors.New("no OAuth2Info supplied")
+	if c.OAuth2Token == nil {
+		err = errors.New("no OAuth2Token supplied")
 		return
 	}
 	if len(c.AccessToken) == 0 {
@@ -278,7 +287,7 @@ func (c *Client) UserInfo(lang string) (info *UserInfo, err error) {
 		return
 	}
 
-	// Refresh the OAuth2Info if it has expired.
+	// Refresh the OAuth2Token if it has expired.
 	if c.AccessTokenExpired() {
 		if err = c.TokenRefresh(); err != nil {
 			return

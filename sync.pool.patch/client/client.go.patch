@@ -53,8 +53,8 @@ type Client struct {
 // 创建一个新的 Client, 一般用于单进程环境.
 //  如果 httpClient == nil 则默认用 http.DefaultClient，
 //  这个参数可以参考 CommonHttpClient 和 MediaHttpClient。
-func NewClient(appid, appsecret string, httpClient *http.Client) *Client {
-	c := Client{
+func NewClient(appid, appsecret string, httpClient *http.Client) (clt *Client) {
+	clt = &Client{
 		appid:                     appid,
 		appsecret:                 appsecret,
 		resetRefreshTokenTickChan: make(chan time.Duration), // 同步 channel
@@ -62,43 +62,43 @@ func NewClient(appid, appsecret string, httpClient *http.Client) *Client {
 	}
 
 	if httpClient == nil {
-		c.httpClient = http.DefaultClient
+		clt.httpClient = http.DefaultClient
 	} else {
-		c.httpClient = httpClient
+		clt.httpClient = httpClient
 	}
 
-	tk, err := c.getNewToken()
+	tk, err := clt.getNewToken()
 	if err != nil {
-		c.updateCurrentToken("", err)
-		go c.tokenAutoUpdate(time.Minute) // 一分钟后尝试
+		clt.updateCurrentToken("", err)
+		go clt.tokenAutoUpdate(time.Minute) // 一分钟后尝试
 	} else {
-		c.updateCurrentToken(tk.Token, nil)
-		go c.tokenAutoUpdate(time.Duration(tk.ExpiresIn) * time.Second)
+		clt.updateCurrentToken(tk.Token, nil)
+		go clt.tokenAutoUpdate(time.Duration(tk.ExpiresIn) * time.Second)
 	}
 
-	return &c
+	return
 }
 
 // 创建一个新的 Client, 一般用于分布式环境.
 //  如果 httpClient == nil 则默认用 http.DefaultClient，
 //  这个参数可以参考 CommonHttpClient 和 MediaHttpClient。
-func NewClientEx(tokenService TokenService, httpClient *http.Client) *Client {
+func NewClientEx(tokenService TokenService, httpClient *http.Client) (clt *Client) {
 	if tokenService == nil {
 		panic("tokenService == nil")
 	}
 
-	c := Client{
+	clt = &Client{
 		tokenService: tokenService,
 		bufferPool:   pool.New(newBuffer, 16), // 常数 16 可以根据实际业务更改
 	}
 
 	if httpClient == nil {
-		c.httpClient = http.DefaultClient
+		clt.httpClient = http.DefaultClient
 	} else {
-		c.httpClient = httpClient
+		clt.httpClient = httpClient
 	}
 
-	return &c
+	return
 }
 
 // Client 通用的 json post 请求

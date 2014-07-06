@@ -24,17 +24,17 @@ type Server struct {
 	bufferUnitPool *pool.Pool
 }
 
-func NewServer(setting *ServerSetting) *Server {
+func NewServer(setting *ServerSetting) (srv *Server) {
 	if setting == nil {
 		panic("setting == nil")
 	}
 
-	srv := Server{
+	srv = &Server{
 		bufferUnitPool: pool.New(newBufferUnit, 64), // 常数 64 可以根据实际业务修改
 	}
 	srv.setting.initialize(setting)
 
-	return &srv
+	return
 }
 
 // Server 实现 http.Handler 接口
