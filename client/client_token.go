@@ -57,29 +57,30 @@ func (c *Client) TokenRefresh() (token string, err error) {
 func (c *Client) tokenAutoUpdate(tickDuration time.Duration) {
 	const defaultTickDuration = time.Minute // 设置 44 秒以上就不会超过限制(2000次/日 的限制)
 
+NEW_TICK_DURATION:
 	ticker := time.NewTicker(tickDuration)
-	defer ticker.Stop()
 	for {
 		select {
-		case newTickDuration := <-c.resetRefreshTokenTickChan:
-			go c.tokenAutoUpdate(newTickDuration)
-			return // 终止当前的 goroutine
+		case tickDuration = <-c.resetRefreshTokenTickChan:
+			ticker.Stop()
+			goto NEW_TICK_DURATION
 
 		case <-ticker.C:
 			resp, err := c.getNewToken()
 			if err != nil {
 				c.updateCurrentToken("", err)
-				// 出错则重置到 defaultTickDuration
-				if tickDuration != defaultTickDuration {
-					go c.tokenAutoUpdate(defaultTickDuration)
-					return // 终止当前的 goroutine
+				if tickDuration != defaultTickDuration { // 出错则重置到 defaultTickDuration
+					ticker.Stop()
+					tickDuration = defaultTickDuration
+					goto NEW_TICK_DURATION
 				}
 			} else {
 				c.updateCurrentToken(resp.Token, nil)
 				newTickDuration := time.Duration(resp.ExpiresIn) * time.Second
 				if tickDuration != newTickDuration {
-					go c.tokenAutoUpdate(newTickDuration)
-					return // 终止当前的 goroutine
+					ticker.Stop()
+					tickDuration = newTickDuration
+					goto NEW_TICK_DURATION
 				}
 			}
 		}
