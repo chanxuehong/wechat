@@ -53,7 +53,7 @@ type Client struct {
 
 // 创建一个新的 Client, 一般用于单进程环境.
 //  如果 httpClient == nil 则默认用 http.DefaultClient，
-//  这个参数可以参考 CommonHttpClient 和 MediaHttpClient。
+//  这个参数可以参考 ../CommonHttpClient 和 ../MediaHttpClient。
 func NewClient(appid, appsecret string, httpClient *http.Client) (clt *Client) {
 	clt = &Client{
 		appid:                     appid,
@@ -84,7 +84,7 @@ func NewClient(appid, appsecret string, httpClient *http.Client) (clt *Client) {
 
 // 创建一个新的 Client, 一般用于分布式环境.
 //  如果 httpClient == nil 则默认用 http.DefaultClient，
-//  这个参数可以参考 CommonHttpClient 和 MediaHttpClient。
+//  这个参数可以参考 ../CommonHttpClient 和 ../MediaHttpClient。
 func NewClientEx(tokenService TokenService, httpClient *http.Client) (clt *Client) {
 	if tokenService == nil {
 		panic("tokenService == nil")

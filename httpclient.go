@@ -3,7 +3,9 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package client
+// 今天才发现这个也要求 go1.3+, 如果你的环境不满足, 自己实现一个吧.
+
+package wechat
 
 import (
 	"net"
