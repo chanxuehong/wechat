@@ -43,6 +43,7 @@ func TestMediaUploadImageFromFileAndDownload(t *testing.T) {
 		return
 	}
 
+	t.Log("图片的 mediaId:", resp.MediaId)
 }
 
 func TestMediaUploadThumbFromFileAndDownload(t *testing.T) {

@@ -60,7 +60,7 @@ func TestQRCodeTemporaryCreateAndDownload(t *testing.T) {
 		t.Error(`qrcode == nil`)
 		return
 	}
-	if qrcode.SceneId != 1000000 || qrcode.Ticket == "" || qrcode.ExpiresAt != 100+time.Now().Unix() {
+	if qrcode.SceneId != 1000000 || qrcode.Ticket == "" || qrcode.ExpiresAt != 1000+time.Now().Unix() {
 		t.Error(`返回的 qrcode 不合法`)
 		return
 	}
