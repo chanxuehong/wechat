@@ -128,11 +128,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			s.setting.LinkRequestHandler(w, r, msgRqst.Link())
 
 		case request.MSG_TYPE_VOICE:
-			if msgRqst.Recognition == "" { // 普通的语音请求
-				s.setting.VoiceRequestHandler(w, r, msgRqst.Voice())
-			} else { // 语音识别请求
-				s.setting.VoiceRecognitionRequestHandler(w, r, msgRqst.VoiceRecognition())
-			}
+			s.setting.VoiceRequestHandler(w, r, msgRqst.Voice())
 
 		case request.MSG_TYPE_LOCATION:
 			s.setting.LocationRequestHandler(w, r, msgRqst.Location())

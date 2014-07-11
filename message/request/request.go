@@ -81,11 +81,12 @@ type Request struct {
 
 var _zero_request Request
 
-// 因为 Request 结构体比较大, 每次都申请比较不划算, 并且这个结构体一般都是过度,
-// 不会常驻内存, 所以建议用对象池技术; 用对象池最好都要每次都 清零, 以防旧数据干扰.
-func (msg *Request) Zero() *Request {
-	*msg = _zero_request
-	return msg
+// 因为 Request 结构体比较大, 每次都申请比较不划算, 并且这个结构体一般都是过渡,
+// 不会常驻内存, 所以建议用对象池技术;
+// 用对象池最好都要每次都 清零, 以防旧数据干扰.
+func (req *Request) Zero() *Request {
+	*req = _zero_request
+	return req
 }
 
 // 文本消息
@@ -96,13 +97,13 @@ type Text struct {
 	Content string `json:"Content"` // 文本消息内容
 }
 
-func (msg *Request) Text() *Text {
-	var r Text
-	r.CommonHead = msg.CommonHead
-	r.MsgId = msg.MsgId
-	r.Content = msg.Content
-
-	return &r
+func (req *Request) Text() (text *Text) {
+	text = &Text{
+		CommonHead: req.CommonHead,
+		MsgId:      req.MsgId,
+		Content:    req.Content,
+	}
+	return
 }
 
 // 图片消息
@@ -114,14 +115,14 @@ type Image struct {
 	PicURL  string `json:"PicUrl"`  // 图片链接
 }
 
-func (msg *Request) Image() *Image {
-	var r Image
-	r.CommonHead = msg.CommonHead
-	r.MsgId = msg.MsgId
-	r.MediaId = msg.MediaId
-	r.PicURL = msg.PicURL
-
-	return &r
+func (req *Request) Image() (image *Image) {
+	image = &Image{
+		CommonHead: req.CommonHead,
+		MsgId:      req.MsgId,
+		MediaId:    req.MediaId,
+		PicURL:     req.PicURL,
+	}
+	return
 }
 
 // 语音消息
@@ -129,39 +130,23 @@ type Voice struct {
 	CommonHead
 
 	MsgId   int64  `json:"MsgId"`   // 消息id, 64位整型
-	MediaId string `json:"MediaId"` // 语音消息媒体id，可以调用多媒体文件下载接口拉取数据。
+	MediaId string `json:"MediaId"` // 语音消息媒体id，可以调用多媒体文件下载接口拉取该媒体
 	Format  string `json:"Format"`  // 语音格式，如amr，speex等
+
+	// 语音识别结果，UTF8编码，
+	// NOTE: 需要开通语音识别功能，否则该字段为空，即使开通了语音识别该字段还是有可能为空
+	Recognition string `json:"Recognition"`
 }
 
-func (msg *Request) Voice() *Voice {
-	var r Voice
-	r.CommonHead = msg.CommonHead
-	r.MsgId = msg.MsgId
-	r.MediaId = msg.MediaId
-	r.Format = msg.Format
-
-	return &r
-}
-
-// 接收语音识别结果
-type VoiceRecognition struct {
-	CommonHead
-
-	MsgId       int64  `json:"MsgId"`       // 消息id, 64位整型
-	MediaId     string `json:"MediaId"`     // 语音消息媒体id，可以调用多媒体文件下载接口拉取该媒体
-	Format      string `json:"Format"`      // 语音格式：amr
-	Recognition string `json:"Recognition"` // 语音识别结果，UTF8编码
-}
-
-func (msg *Request) VoiceRecognition() *VoiceRecognition {
-	var r VoiceRecognition
-	r.CommonHead = msg.CommonHead
-	r.MsgId = msg.MsgId
-	r.MediaId = msg.MediaId
-	r.Format = msg.Format
-	r.Recognition = msg.Recognition
-
-	return &r
+func (req *Request) Voice() (voice *Voice) {
+	voice = &Voice{
+		CommonHead:  req.CommonHead,
+		MsgId:       req.MsgId,
+		MediaId:     req.MediaId,
+		Format:      req.Format,
+		Recognition: req.Recognition,
+	}
+	return
 }
 
 // 视频消息
@@ -173,14 +158,14 @@ type Video struct {
 	ThumbMediaId string `json:"ThumbMediaId"` // 视频消息缩略图的媒体id，可以调用多媒体文件下载接口拉取数据。
 }
 
-func (msg *Request) Video() *Video {
-	var r Video
-	r.CommonHead = msg.CommonHead
-	r.MsgId = msg.MsgId
-	r.MediaId = msg.MediaId
-	r.ThumbMediaId = msg.ThumbMediaId
-
-	return &r
+func (req *Request) Video() (video *Video) {
+	video = &Video{
+		CommonHead:   req.CommonHead,
+		MsgId:        req.MsgId,
+		MediaId:      req.MediaId,
+		ThumbMediaId: req.ThumbMediaId,
+	}
+	return
 }
 
 // 地理位置消息
@@ -194,16 +179,16 @@ type Location struct {
 	Label      string  `json:"Label"`      // 地理位置信息
 }
 
-func (msg *Request) Location() *Location {
-	var r Location
-	r.CommonHead = msg.CommonHead
-	r.MsgId = msg.MsgId
-	r.Location_X = msg.Location_X
-	r.Location_Y = msg.Location_Y
-	r.Scale = msg.Scale
-	r.Label = msg.Label
-
-	return &r
+func (req *Request) Location() (location *Location) {
+	location = &Location{
+		CommonHead: req.CommonHead,
+		MsgId:      req.MsgId,
+		Location_X: req.Location_X,
+		Location_Y: req.Location_Y,
+		Scale:      req.Scale,
+		Label:      req.Label,
+	}
+	return
 }
 
 // 链接消息
@@ -216,15 +201,15 @@ type Link struct {
 	URL         string `json:"Url"`         // 消息链接
 }
 
-func (msg *Request) Link() *Link {
-	var r Link
-	r.CommonHead = msg.CommonHead
-	r.MsgId = msg.MsgId
-	r.Title = msg.Title
-	r.Description = msg.Description
-	r.URL = msg.URL
-
-	return &r
+func (req *Request) Link() (link *Link) {
+	link = &Link{
+		CommonHead:  req.CommonHead,
+		MsgId:       req.MsgId,
+		Title:       req.Title,
+		Description: req.Description,
+		URL:         req.URL,
+	}
+	return
 }
 
 // 关注事件
@@ -234,12 +219,12 @@ type SubscribeEvent struct {
 	Event string `json:"Event"` // 事件类型，subscribe(订阅)
 }
 
-func (msg *Request) SubscribeEvent() *SubscribeEvent {
-	var r SubscribeEvent
-	r.CommonHead = msg.CommonHead
-	r.Event = msg.Event
-
-	return &r
+func (req *Request) SubscribeEvent() (event *SubscribeEvent) {
+	event = &SubscribeEvent{
+		CommonHead: req.CommonHead,
+		Event:      req.Event,
+	}
+	return
 }
 
 // 取消关注
@@ -249,12 +234,12 @@ type UnsubscribeEvent struct {
 	Event string `json:"Event"` // 事件类型，unsubscribe(取消订阅)
 }
 
-func (msg *Request) UnsubscribeEvent() *UnsubscribeEvent {
-	var r UnsubscribeEvent
-	r.CommonHead = msg.CommonHead
-	r.Event = msg.Event
-
-	return &r
+func (req *Request) UnsubscribeEvent() (event *UnsubscribeEvent) {
+	event = &UnsubscribeEvent{
+		CommonHead: req.CommonHead,
+		Event:      req.Event,
+	}
+	return
 }
 
 // 用户未关注时，扫描带参数二维码进行关注后的事件推送
@@ -264,6 +249,16 @@ type SubscribeByScanEvent struct {
 	Event    string `json:"Event"`    // 事件类型，subscribe
 	EventKey string `json:"EventKey"` // 事件KEY值，qrscene_为前缀，后面为二维码的参数值
 	Ticket   string `json:"Ticket"`   // 二维码的ticket，可用来换取二维码图片
+}
+
+func (req *Request) SubscribeByScanEvent() (event *SubscribeByScanEvent) {
+	event = &SubscribeByScanEvent{
+		CommonHead: req.CommonHead,
+		Event:      req.Event,
+		EventKey:   req.EventKey,
+		Ticket:     req.Ticket,
+	}
+	return
 }
 
 // 获取二维码参数
@@ -283,16 +278,6 @@ func (event *SubscribeByScanEvent) SceneId() (id uint32, err error) {
 	return
 }
 
-func (msg *Request) SubscribeByScanEvent() *SubscribeByScanEvent {
-	var r SubscribeByScanEvent
-	r.CommonHead = msg.CommonHead
-	r.Event = msg.Event
-	r.EventKey = msg.EventKey
-	r.Ticket = msg.Ticket
-
-	return &r
-}
-
 // 用户已关注时，扫描带参数二维码的事件推送
 type ScanEvent struct {
 	CommonHead
@@ -300,6 +285,16 @@ type ScanEvent struct {
 	Event    string `json:"Event"`    // 事件类型，SCAN
 	EventKey string `json:"EventKey"` // 事件KEY值，是一个32位无符号整数，即创建二维码时的二维码scene_id
 	Ticket   string `json:"Ticket"`   // 二维码的ticket，可用来换取二维码图片
+}
+
+func (req *Request) ScanEvent() (event *ScanEvent) {
+	event = &ScanEvent{
+		CommonHead: req.CommonHead,
+		Event:      req.Event,
+		EventKey:   req.EventKey,
+		Ticket:     req.Ticket,
+	}
+	return
 }
 
 // 获取二维码参数
@@ -312,16 +307,6 @@ func (event *ScanEvent) SceneId() (id uint32, err error) {
 	return
 }
 
-func (msg *Request) ScanEvent() *ScanEvent {
-	var r ScanEvent
-	r.CommonHead = msg.CommonHead
-	r.Event = msg.Event
-	r.EventKey = msg.EventKey
-	r.Ticket = msg.Ticket
-
-	return &r
-}
-
 // 上报地理位置事件
 type LocationEvent struct {
 	CommonHead
@@ -332,15 +317,15 @@ type LocationEvent struct {
 	Precision float64 `json:"Precision"` // 地理位置精度
 }
 
-func (msg *Request) LocationEvent() *LocationEvent {
-	var r LocationEvent
-	r.CommonHead = msg.CommonHead
-	r.Event = msg.Event
-	r.Latitude = msg.Latitude
-	r.Longitude = msg.Longitude
-	r.Precision = msg.Precision
-
-	return &r
+func (req *Request) LocationEvent() (event *LocationEvent) {
+	event = &LocationEvent{
+		CommonHead: req.CommonHead,
+		Event:      req.Event,
+		Latitude:   req.Latitude,
+		Longitude:  req.Longitude,
+		Precision:  req.Precision,
+	}
+	return
 }
 
 // 点击菜单拉取消息时的事件推送
@@ -351,13 +336,13 @@ type MenuClickEvent struct {
 	EventKey string `json:"EventKey"` // 事件KEY值，与自定义菜单接口中KEY值对应
 }
 
-func (msg *Request) MenuClickEvent() *MenuClickEvent {
-	var r MenuClickEvent
-	r.CommonHead = msg.CommonHead
-	r.Event = msg.Event
-	r.EventKey = msg.EventKey
-
-	return &r
+func (req *Request) MenuClickEvent() (event *MenuClickEvent) {
+	event = &MenuClickEvent{
+		CommonHead: req.CommonHead,
+		Event:      req.Event,
+		EventKey:   req.EventKey,
+	}
+	return
 }
 
 // 点击菜单跳转链接时的事件推送
@@ -368,22 +353,22 @@ type MenuViewEvent struct {
 	EventKey string `json:"EventKey"` // 事件KEY值，设置的跳转URL
 }
 
-func (msg *Request) MenuViewEvent() *MenuViewEvent {
-	var r MenuViewEvent
-	r.CommonHead = msg.CommonHead
-	r.Event = msg.Event
-	r.EventKey = msg.EventKey
-
-	return &r
+func (req *Request) MenuViewEvent() (event *MenuViewEvent) {
+	event = &MenuViewEvent{
+		CommonHead: req.CommonHead,
+		Event:      req.Event,
+		EventKey:   req.EventKey,
+	}
+	return
 }
 
 // 高级群发消息, 事件推送群发结果
 type MassSendJobFinishEvent struct {
 	CommonHead
 
-	MsgId int64 `json:"MsgId"` // 群发的消息ID, 64位整型
-
 	Event string `json:"Event"` // 事件信息，此处为MASSSENDJOBFINISH
+
+	MsgId int64 `json:"MsgId"` // 群发的消息ID, 64位整型
 
 	// 群发的结构, 为 "send success" 或 "send fail" 或 "err(num)".
 	// 但 send success 时, 也有可能因用户拒收公众号的消息, 系统错误等原因造成少量用户接收失败.
@@ -408,18 +393,18 @@ type MassSendJobFinishEvent struct {
 	ErrorCount  int `json:"ErrorCount"` // 发送失败的粉丝数
 }
 
-func (msg *Request) MassSendJobFinishEvent() *MassSendJobFinishEvent {
-	var r MassSendJobFinishEvent
-	r.CommonHead = msg.CommonHead
-	r.MsgId = msg.MsgID // NOTE
-	r.Event = msg.Event
-	r.Status = msg.Status
-	r.TotalCount = msg.TotalCount
-	r.FilterCount = msg.FilterCount
-	r.SentCount = msg.SentCount
-	r.ErrorCount = msg.ErrorCount
-
-	return &r
+func (req *Request) MassSendJobFinishEvent() (event *MassSendJobFinishEvent) {
+	event = &MassSendJobFinishEvent{
+		CommonHead:  req.CommonHead,
+		Event:       req.Event,
+		MsgId:       req.MsgID, // NOTE
+		Status:      req.Status,
+		TotalCount:  req.TotalCount,
+		FilterCount: req.FilterCount,
+		SentCount:   req.SentCount,
+		ErrorCount:  req.ErrorCount,
+	}
+	return
 }
 
 // 微信小店, 订单付款通知
@@ -433,14 +418,14 @@ type MerchantOrderEvent struct {
 	SkuInfo     string `json:"SkuInfo"`
 }
 
-func (msg *Request) MerchantOrderEvent() *MerchantOrderEvent {
-	var r MerchantOrderEvent
-	r.CommonHead = msg.CommonHead
-	r.Event = msg.Event
-	r.OrderId = msg.OrderId
-	r.OrderStatus = msg.OrderStatus
-	r.ProductId = msg.ProductId
-	r.SkuInfo = msg.SkuInfo
-
-	return &r
+func (req *Request) MerchantOrderEvent() (event *MerchantOrderEvent) {
+	event = &MerchantOrderEvent{
+		CommonHead:  req.CommonHead,
+		Event:       req.Event,
+		OrderId:     req.OrderId,
+		OrderStatus: req.OrderStatus,
+		ProductId:   req.ProductId,
+		SkuInfo:     req.SkuInfo,
+	}
+	return
 }

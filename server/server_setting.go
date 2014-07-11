@@ -22,7 +22,6 @@ type UnknownRequestHandlerFunc func(w http.ResponseWriter, r *http.Request, msg 
 type TextRequestHandlerFunc func(http.ResponseWriter, *http.Request, *request.Text)
 type ImageRequestHandlerFunc func(http.ResponseWriter, *http.Request, *request.Image)
 type VoiceRequestHandlerFunc func(http.ResponseWriter, *http.Request, *request.Voice)
-type VoiceRecognitionRequestHandlerFunc func(http.ResponseWriter, *http.Request, *request.VoiceRecognition)
 type VideoRequestHandlerFunc func(http.ResponseWriter, *http.Request, *request.Video)
 type LocationRequestHandlerFunc func(http.ResponseWriter, *http.Request, *request.Location)
 type LinkRequestHandlerFunc func(http.ResponseWriter, *http.Request, *request.Link)
@@ -46,13 +45,13 @@ type ServerSetting struct {
 	UnknownRequestHandler UnknownRequestHandlerFunc
 
 	// common request handler
-	TextRequestHandler             TextRequestHandlerFunc
-	ImageRequestHandler            ImageRequestHandlerFunc
-	VoiceRequestHandler            VoiceRequestHandlerFunc
-	VoiceRecognitionRequestHandler VoiceRecognitionRequestHandlerFunc
-	VideoRequestHandler            VideoRequestHandlerFunc
-	LocationRequestHandler         LocationRequestHandlerFunc
-	LinkRequestHandler             LinkRequestHandlerFunc
+	TextRequestHandler     TextRequestHandlerFunc
+	ImageRequestHandler    ImageRequestHandlerFunc
+	VoiceRequestHandler    VoiceRequestHandlerFunc
+	VideoRequestHandler    VideoRequestHandlerFunc
+	LocationRequestHandler LocationRequestHandlerFunc
+	LinkRequestHandler     LinkRequestHandlerFunc
+
 	// event handler
 	SubscribeEventHandler         SubscribeEventHandlerFunc
 	UnsubscribeEventHandler       UnsubscribeEventHandlerFunc
@@ -98,11 +97,6 @@ func (ss *ServerSetting) initialize(setting *ServerSetting) {
 		ss.VoiceRequestHandler = setting.VoiceRequestHandler
 	} else {
 		ss.VoiceRequestHandler = defaultVoiceRequestHandler
-	}
-	if setting.VoiceRecognitionRequestHandler != nil {
-		ss.VoiceRecognitionRequestHandler = setting.VoiceRecognitionRequestHandler
-	} else {
-		ss.VoiceRecognitionRequestHandler = defaultVoiceRecognitionRequestHandler
 	}
 	if setting.VideoRequestHandler != nil {
 		ss.VideoRequestHandler = setting.VideoRequestHandler
@@ -172,11 +166,9 @@ func (ss *ServerSetting) initialize(setting *ServerSetting) {
 func defaultInvalidRequestHandler(http.ResponseWriter, *http.Request, error)  {}
 func defaultUnknownRequestHandler(http.ResponseWriter, *http.Request, []byte) {}
 
-func defaultTextRequestHandler(http.ResponseWriter, *http.Request, *request.Text)   {}
-func defaultImageRequestHandler(http.ResponseWriter, *http.Request, *request.Image) {}
-func defaultVoiceRequestHandler(http.ResponseWriter, *http.Request, *request.Voice) {}
-func defaultVoiceRecognitionRequestHandler(http.ResponseWriter, *http.Request, *request.VoiceRecognition) {
-}
+func defaultTextRequestHandler(http.ResponseWriter, *http.Request, *request.Text)                  {}
+func defaultImageRequestHandler(http.ResponseWriter, *http.Request, *request.Image)                {}
+func defaultVoiceRequestHandler(http.ResponseWriter, *http.Request, *request.Voice)                {}
 func defaultVideoRequestHandler(http.ResponseWriter, *http.Request, *request.Video)                {}
 func defaultLocationRequestHandler(http.ResponseWriter, *http.Request, *request.Location)          {}
 func defaultLinkRequestHandler(http.ResponseWriter, *http.Request, *request.Link)                  {}
