@@ -50,6 +50,7 @@ func (c *Client) mediaUploadFromFile(mediaType, _filepath string) (resp *media.U
 }
 
 // 上传多媒体图片
+//  NOTE: 参数 filename 不是文件路径, 是指定 multipart form 里面文件名称
 func (c *Client) MediaUploadImage(filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error) {
 	if filename == "" {
 		err = errors.New(`filename == ""`)
@@ -63,6 +64,7 @@ func (c *Client) MediaUploadImage(filename string, mediaReader io.Reader) (resp 
 }
 
 // 上传多媒体缩略图
+//  NOTE: 参数 filename 不是文件路径, 是指定 multipart form 里面文件名称
 func (c *Client) MediaUploadThumb(filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error) {
 	if filename == "" {
 		err = errors.New(`filename == ""`)
@@ -76,6 +78,7 @@ func (c *Client) MediaUploadThumb(filename string, mediaReader io.Reader) (resp 
 }
 
 // 上传多媒体语音
+//  NOTE: 参数 filename 不是文件路径, 是指定 multipart form 里面文件名称
 func (c *Client) MediaUploadVoice(filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error) {
 	if filename == "" {
 		err = errors.New(`filename == ""`)
@@ -89,6 +92,7 @@ func (c *Client) MediaUploadVoice(filename string, mediaReader io.Reader) (resp 
 }
 
 // 上传多媒体视频
+//  NOTE: 参数 filename 不是文件路径, 是指定 multipart form 里面文件名称
 func (c *Client) MediaUploadVideo(filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error) {
 	if filename == "" {
 		err = errors.New(`filename == ""`)

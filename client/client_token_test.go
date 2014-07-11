@@ -30,6 +30,11 @@ func TestTokenRefresh(t *testing.T) {
 		return
 	}
 
+	if tk0 == "" {
+		t.Error(`token == ""`)
+		return
+	}
+
 	tk1, err := _test_client.Token()
 	if err != nil || tk0 != tk1 {
 		t.Error("逻辑错误: TokenRefresh 成功运行, 但是没有更新当前的 token 值.")

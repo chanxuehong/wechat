@@ -88,6 +88,7 @@ func NewVoice(touser []string, mediaId string) *Voice {
 
 // video =======================================================================
 
+// MediaId 应该通过 Client.MediaCreateVideo 得到
 type Video struct {
 	CommonHead
 
@@ -112,6 +113,7 @@ func NewVideo(touser []string, mediaId, title, description string) *Video {
 
 // news ========================================================================
 
+// MediaId 应该通过 Client.MediaCreateNews 得到
 type News struct {
 	CommonHead
 

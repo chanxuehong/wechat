@@ -75,6 +75,7 @@ func (c *Client) msgMassSendByGroup(msg interface{}) (msgid int64, err error) {
 		err = &result.Error
 		return
 	}
+
 	msgid = result.MsgId
 	return
 }

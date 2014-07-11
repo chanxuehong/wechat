@@ -16,12 +16,10 @@ func TestMediaUploadImageFromFileAndDownload(t *testing.T) {
 		t.Error("上传图片失败,", err)
 		return
 	}
-
 	if resp == nil {
-		t.Error(`resp == ""`)
+		t.Error(`resp == nil`)
 		return
 	}
-
 	if resp.MediaType != media.MEDIA_TYPE_IMAGE || resp.MediaId == "" ||
 		resp.CreatedAt == 0 {
 
@@ -40,11 +38,11 @@ func TestMediaUploadImageFromFileAndDownload(t *testing.T) {
 		t.Error(err)
 		return
 	}
-
 	if !isEqual {
 		t.Error("上传和下载的文件不相等")
 		return
 	}
+
 }
 
 func TestMediaUploadThumbFromFileAndDownload(t *testing.T) {
@@ -53,12 +51,10 @@ func TestMediaUploadThumbFromFileAndDownload(t *testing.T) {
 		t.Error("上传缩略图失败,", err)
 		return
 	}
-
 	if resp == nil {
-		t.Error(`resp == ""`)
+		t.Error(`resp == nil`)
 		return
 	}
-
 	if resp.MediaType != media.MEDIA_TYPE_THUMB || resp.MediaId == "" ||
 		resp.CreatedAt == 0 {
 
@@ -77,11 +73,12 @@ func TestMediaUploadThumbFromFileAndDownload(t *testing.T) {
 		t.Error(err)
 		return
 	}
-
 	if !isEqual {
 		t.Error("上传和下载的文件不相等")
 		return
 	}
+
+	t.Log("缩略图的 mediaId:", resp.MediaId)
 }
 
 func TestMediaUploadVoiceFromFileAndDownload(t *testing.T) {
@@ -90,12 +87,10 @@ func TestMediaUploadVoiceFromFileAndDownload(t *testing.T) {
 		t.Error("上传语音失败,", err)
 		return
 	}
-
 	if resp == nil {
-		t.Error(`resp == ""`)
+		t.Error(`resp == nil`)
 		return
 	}
-
 	if resp.MediaType != media.MEDIA_TYPE_VOICE || resp.MediaId == "" ||
 		resp.CreatedAt == 0 {
 
@@ -114,11 +109,12 @@ func TestMediaUploadVoiceFromFileAndDownload(t *testing.T) {
 		t.Error(err)
 		return
 	}
-
 	if !isEqual {
 		t.Error("上传和下载的文件不相等")
 		return
 	}
+
+	t.Log("语音的 mediaId:", resp.MediaId)
 }
 
 // 视频文件不能下载
@@ -128,16 +124,16 @@ func TestMediaUploadVideoFromFile(t *testing.T) {
 		t.Error("上传视频媒体失败,", err)
 		return
 	}
-
 	if resp == nil {
-		t.Error(`resp == ""`)
+		t.Error(`resp == nil`)
 		return
 	}
-
 	if resp.MediaType != media.MEDIA_TYPE_VIDEO || resp.MediaId == "" ||
 		resp.CreatedAt == 0 {
 
 		t.Error(`返回的 resp 不合法`)
 		return
 	}
+
+	t.Log("视频的 mediaId:", resp.MediaId)
 }

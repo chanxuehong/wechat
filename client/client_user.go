@@ -38,7 +38,7 @@ func (c *Client) UserGroupCreate(name string) (_group *user.Group, err error) {
 		} `json:"group"`
 		Error
 	}
-	if err = c.postJSON(_url, &request, &result); err != nil {
+	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
 
@@ -68,7 +68,6 @@ func (c *Client) UserGroupGet() (groups []user.Group, err error) {
 	}{
 		Groups: make([]user.Group, 0, 16),
 	}
-
 	if err = c.getJSON(_url, &result); err != nil {
 		return
 	}
@@ -104,7 +103,7 @@ func (c *Client) UserGroupRename(groupid int64, name string) (err error) {
 	request.Group.Name = name
 
 	var result Error
-	if err = c.postJSON(_url, request, &result); err != nil {
+	if err = c.postJSON(_url, &request, &result); err != nil {
 		return
 	}
 
@@ -133,7 +132,7 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int64, err error) {
 		GroupId int64 `json:"groupid"`
 		Error
 	}
-	if err = c.postJSON(_url, &request, &result); err != nil {
+	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
 
@@ -255,7 +254,7 @@ func (c *Client) userGet(beginOpenId string) (resp *userGetResponse, err error) 
 
 // 该结构实现了 user.UserIterator 接口
 type userGetIterator struct {
-	userGetResponse *userGetResponse // 对于 HasNext() 表示上次返回的数据
+	userGetResponse *userGetResponse // 最近一次获取的用户数据
 
 	wechatClient   *Client // 关联的微信 Client
 	nextPageCalled bool    // NextPage() 是否调用过
@@ -267,10 +266,11 @@ func (iter *userGetIterator) Total() int {
 
 func (iter *userGetIterator) HasNext() bool {
 	// 第一批数据不需要通过 NextPage() 来获取, 因为在创建这个对象的时候就获取了;
-	// 后续的数据都要通过 NextPage() 来获取, 所以要通过上一次的 NextOpenId 来判断了.
 	if !iter.nextPageCalled {
 		return iter.userGetResponse.GetCount > 0
 	}
+
+	// 后面的判断都要根据上一次获取的数据来判断
 
 	// 跟文档的描述貌似有点不一样, 即使后续没有用户, 貌似 next_openid 还是不为空!
 	// 所以增加了一个判断 iter.userGetResponse.GetCount == user.UserPageCountLimit

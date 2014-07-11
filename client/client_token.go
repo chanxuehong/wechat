@@ -41,21 +41,21 @@ func (c *Client) TokenRefresh() (token string, err error) {
 		resp, err = c.getNewToken()
 		if err != nil {
 			c.updateCurrentToken("", err)
-			c.resetRefreshTokenTickChan <- time.Minute
+			c.resetRefreshTokenTickChan <- time.Minute // 一分钟后尝试
 			return
 		}
 
 		c.updateCurrentToken(resp.Token, nil)
-		token = resp.Token
 		c.resetRefreshTokenTickChan <- time.Duration(resp.ExpiresIn) * time.Second
+		token = resp.Token
 		return
 	}
 }
 
 // 负责定时更新 access token.
-//  NOTE: 使用这种复杂的实现是减少 time.Now() 的调用, 不然每次都要比较 time.Now().
+//  NOTE: 使用这种实现可以减少 time.Now().Unix() 的调用, 不然每次都要比较 time.Now().Unix().
 func (c *Client) tokenAutoUpdate(tickDuration time.Duration) {
-	const defaultTickDuration = time.Minute // 设置 44 秒以上就不会超过限制(2000次/日 的限制)
+	const defaultTickDuration = time.Minute // 设置 44 秒以上就不会超过限制(2000次/日)
 
 NEW_TICK_DURATION:
 	ticker := time.NewTicker(tickDuration)

@@ -10,25 +10,6 @@ import (
 	"github.com/chanxuehong/wechat/message/custom"
 )
 
-// 发送客服消息功能都一样, 之所以不暴露这个接口是因为怕接收到不合法的参数.
-func (c *Client) msgCustomSend(msg interface{}) (err error) {
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := messageCustomSendURL(token)
-
-	var result Error
-	if err = c.postJSON(_url, msg, &result); err != nil {
-		return
-	}
-
-	if result.ErrCode != 0 {
-		return &result
-	}
-	return
-}
-
 // 发送客服消息, 文本.
 func (c *Client) MsgCustomSendText(msg *custom.Text) error {
 	if msg == nil {
@@ -78,4 +59,23 @@ func (c *Client) MsgCustomSendNews(msg *custom.News) (err error) {
 		return
 	}
 	return c.msgCustomSend(msg)
+}
+
+// 发送客服消息功能都一样, 之所以不暴露这个接口是因为怕接收到不合法的参数.
+func (c *Client) msgCustomSend(msg interface{}) (err error) {
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := messageCustomSendURL(token)
+
+	var result Error
+	if err = c.postJSON(_url, msg, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != 0 {
+		return &result
+	}
+	return
 }

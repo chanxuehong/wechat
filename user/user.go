@@ -33,6 +33,9 @@ type UserInfo struct {
 
 	// 用户关注时间，为时间戳。如果用户曾多次关注，则取最后关注时间
 	SubscribeTime int64 `json:"subscribe_time"`
+
+	// 下面这个字段文档中没有，但是实际返回的数据里有这个字段
+	Remark string `json:"remark"`
 }
 
 // 获取用户图像的大小

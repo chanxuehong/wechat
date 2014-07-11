@@ -13,6 +13,7 @@ func newBuffer() interface{} {
 	return bytes.NewBuffer(make([]byte, 2<<20)) // 默认 2MB
 }
 
+// NOTE: 返回的结果都重新初始化了
 func (c *Client) getBufferFromPool() (buf *bytes.Buffer) {
 	buf = c.bufferPool.Get().(*bytes.Buffer)
 	buf.Reset() // important!
