@@ -266,7 +266,7 @@ func (event *SubscribeByScanEvent) SceneId() (id uint32, err error) {
 	const prefix = "qrscene_"
 
 	if !strings.HasPrefix(event.EventKey, prefix) {
-		err = fmt.Errorf("EventKey(%s) 应该以 %s 为前缀", event.EventKey, prefix)
+		err = fmt.Errorf("EventKey 应该以 %s 为前缀, 但是现在是 %s", prefix, event.EventKey)
 		return
 	}
 

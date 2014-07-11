@@ -113,57 +113,6 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 		}
 	}
 
-	// 测试语音消息===============================================================
-
-	msgBytes = []byte(`<xml>
-		<ToUserName><![CDATA[toUser]]></ToUserName>
-		<FromUserName><![CDATA[fromUser]]></FromUserName>
-		<CreateTime>1357290913</CreateTime>
-		<MsgType><![CDATA[voice]]></MsgType>
-		<MediaId><![CDATA[media_id]]></MediaId>
-		<Format><![CDATA[Format]]></Format>
-		<MsgId>1234567890123456</MsgId>
-	</xml>`)
-
-	req.Zero()
-	if err := xml.Unmarshal(msgBytes, &req); err != nil {
-		t.Errorf("unmarshal(%#q):\nError: %s\n", msgBytes, err)
-	} else {
-		expectReq := Request{
-			CommonHead: CommonHead{
-				ToUserName:   "toUser",
-				FromUserName: "fromUser",
-				CreateTime:   1357290913,
-				MsgType:      MSG_TYPE_VOICE,
-			},
-
-			MsgId:   1234567890123456,
-			MediaId: "media_id",
-			Format:  "Format",
-		}
-		if req != expectReq {
-			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
-		} else {
-			expect := Voice{
-				CommonHead: CommonHead{
-					ToUserName:   "toUser",
-					FromUserName: "fromUser",
-					CreateTime:   1357290913,
-					MsgType:      MSG_TYPE_VOICE,
-				},
-
-				MsgId:   1234567890123456,
-				MediaId: "media_id",
-				Format:  "Format",
-			}
-
-			voice := req.Voice()
-			if *voice != expect {
-				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, voice, expect)
-			}
-		}
-	}
-
 	// 测试语音识别结果消息=========================================================
 
 	msgBytes = []byte(`<xml>
@@ -197,7 +146,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 		if req != expectReq {
 			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
 		} else {
-			expect := VoiceRecognition{
+			expect := Voice{
 				CommonHead: CommonHead{
 					ToUserName:   "toUser",
 					FromUserName: "fromUser",
@@ -211,7 +160,7 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 				Recognition: "腾讯微信团队",
 			}
 
-			voiceRecognition := req.VoiceRecognition()
+			voiceRecognition := req.Voice()
 			if *voiceRecognition != expect {
 				t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, voiceRecognition, expect)
 			}
