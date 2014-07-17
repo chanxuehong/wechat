@@ -13,7 +13,7 @@ type Order struct {
 	ExpressPrice int    `json:"order_express_price"` // 订单运费价格(单位 : 分)
 
 	BuyerOpenId      string `json:"buyer_openid"`      // 买家微信OPENID
-	BuyerNick        string `json:"buyer_nick"`        // 买家微信昵称
+	BuyerNickname    string `json:"buyer_nick"`        // 买家微信昵称
 	ReceiverName     string `json:"receiver_name"`     // 收货人姓名
 	ReceiverProvince string `json:"receiver_province"` // 收货地址省份
 	ReceiverCity     string `json:"receiver_city"`     // 收货地址城市
