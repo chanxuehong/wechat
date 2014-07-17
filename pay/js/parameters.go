@@ -38,13 +38,13 @@ type Parameters struct {
 	NonceStr     string `json:"nonceStr"`         // 必须, 商户生成的随机字符串
 	Package      string `json:"package"`          // 必须, 订单详情组合成的字符串, see OrderInfo.Package
 	SignType     string `json:"signType"`         // 必须, 目前仅支持 SHA1
-	PaySignature string `json:"paySign"`          // 必须, Parameters 的签名, see Parameters.SetPaySign 函数
+	PaySignature string `json:"paySign"`          // 必须, Parameters 的签名, see Parameters.SetPaySignature 函数
 }
 
 // 将 Parameters 做签名, 把签名填入 PaySign 字段.
 //  NOTE: 需要在设置了其他字段后才能调用.
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key
-func (para *Parameters) SetPaySign(paySignKey string) {
+func (para *Parameters) SetPaySignature(paySignKey string) {
 	timestamp := strconv.FormatInt(para.TimeStamp, 10)
 
 	// appid=&appkey=&noncestr=&package=&timestamp=

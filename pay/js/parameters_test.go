@@ -18,7 +18,7 @@ func TestArgumentsString(t *testing.T) {
 	para.SignType = "SHA1"
 	para.TimeStamp = 189026618
 
-	para.SetPaySign("2Wozy2aksie1puXUBpWD8oZxiD1DfQuEaiC7KcRATv1Ino3mdopKaPGQQ7TtkNySuAmCaDCrw4xhPY5qKTBl7Fzm0RgR3c0WaVYIXZARsxzHV2x7iwPPzOz94dnwPWSn")
+	para.SetPaySignature("2Wozy2aksie1puXUBpWD8oZxiD1DfQuEaiC7KcRATv1Ino3mdopKaPGQQ7TtkNySuAmCaDCrw4xhPY5qKTBl7Fzm0RgR3c0WaVYIXZARsxzHV2x7iwPPzOz94dnwPWSn")
 
 	bs, err := json.Marshal(&para)
 	if err != nil {
