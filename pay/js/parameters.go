@@ -11,6 +11,8 @@ import (
 	"strconv"
 )
 
+// jsapi 微信支付接口 getBrandWCPayRequest 的参数集合
+//
 // WeixinJSBridge.invoke(
 //     'getBrandWCPayRequest',
 //     {
@@ -43,18 +45,19 @@ type Parameters struct {
 //  NOTE: 需要在设置了其他字段后才能调用.
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key
 func (para *Parameters) SetPaySign(paySignKey string) {
+	timestamp := strconv.FormatInt(para.TimeStamp, 10)
+
+	// appid=&appkey=&noncestr=&package=&timestamp=
+	n := 44 + len(para.AppId) + len(paySignKey) + len(para.NonceStr) +
+		len(para.Package) + len(timestamp)
+	buf := make([]byte, 0, n)
+
 	// 字典序
 	// appid
 	// appkey
 	// noncestr
 	// package
 	// timestamp
-	timestamp := strconv.FormatInt(para.TimeStamp, 10)
-	// appid=&appkey=&noncestr=&package=&timestamp=
-	n := 44 + len(para.AppId) + len(paySignKey) + len(para.NonceStr) +
-		len(para.Package) + len(timestamp)
-
-	buf := make([]byte, 0, n)
 	buf = append(buf, "appid="...)
 	buf = append(buf, para.AppId...)
 	buf = append(buf, "&appkey="...)

@@ -5,8 +5,9 @@
 
 package js
 
-// -.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~ 不转义
-func urlEscape(s string) string {
+// 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_.~ 不转义.
+//  NOTE: 和 net/url.QueryEscape 不同的地方在于空格转义成 %20 而不是 +
+func URLEscape(s string) string {
 	hexCount := 0
 	for i := 0; i < len(s); i++ {
 		c := s[i]
@@ -36,6 +37,7 @@ func urlEscape(s string) string {
 	return string(t)
 }
 
+// 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_.~ 不转义
 func shouldEscape(c byte) bool {
 	if 'a' <= c && c <= 'z' || '0' <= c && c <= '9' || 'A' <= c && c <= 'Z' {
 		return false

@@ -16,13 +16,16 @@ import (
 //  @version:   微信客户端的版本;
 //  @err:       错误信息.
 func WXVersion(userAgent string) (version float64, err error) {
-	index := strings.LastIndex(userAgent, "/")
-	if index == -1 || index+1 == len(userAgent) {
+	// Mozilla/5.0(iphone;CPU iphone OS 5_1_1 like Mac OS X) AppleWebKit/534.46(KHTML,like Geocko)Mobile/9B206 MicroMessenger/5.0
+	lastSlashIndex := strings.LastIndex(userAgent, "/")
+	versionIndex := lastSlashIndex + 1
+
+	if lastSlashIndex == -1 || versionIndex == len(userAgent) {
 		err = errors.New("不是有效的微信浏览器 user-agent")
 		return
 	}
 
-	version, err = strconv.ParseFloat(userAgent[index+1:], 64)
+	version, err = strconv.ParseFloat(userAgent[versionIndex:], 64)
 	if err != nil {
 		err = errors.New("不是有效的微信浏览器 user-agent")
 		return

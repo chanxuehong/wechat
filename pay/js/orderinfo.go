@@ -18,24 +18,24 @@ import (
 // 订单详情.
 // jsapi getBrandWCPayRequest 接口的 package 参数的原型, see OrderInfo.Package()
 type OrderInfo struct {
-	BankType     string    // 必须，银行通道类型，固定为 "WX"
-	Body         string    // 必须，商品描述，128字节以内
-	Attach       string    // 可选，附加数据，原样返回，128字节以内
-	PartnerId    string    // 必须，注册时分配的财付通商户号 partnerId
-	OutTradeNo   string    // 必须，商户系统内部订单号，32个字符内，可包含字母，*确保在商户系统中唯一*
-	TotalFee     int       // 必须，订单总金额，单位为分
-	FeeType      int       // 必须，取值：1（人民币），目前暂只支持 1
-	NotifyURL    string    // 必须，在支付完成后，接收微信通知支付结果的URL，需要给出绝对路径，255个字符内
-	CreateIP     string    // 必须，订单生成的机器IP（指用户浏览器端IP，不是商户服务器IP，格式为IPV4），15个字节内
-	TimeStart    time.Time // 可选，订单生成时间，格式为 yyyyMMDDHHmmss，GMT+8，该时间取自商户服务器
-	TimeExpire   time.Time // 可选，订单失效时间，格式为 yyyyMMDDHHmmss，GMT+8，该时间取自商户服务器
-	TransportFee int       // 可选，物流费用，单位为分，如果有值，必须保证 TransportFee + ProductFee == TotalFee
-	ProductFee   int       // 可选，商品费用，单位为分，如果有值，必须保证 TransportFee + ProductFee == TotalFee
-	ProductTag   string    // 可选，商品标记，优惠卷时可能用到
-	Charset      string    // 必须，参数字符编码，取值范围: "GBK","UTF-8"
+	BankType     string    // 必须, 银行通道类型, 固定为 "WX"
+	Body         string    // 必须, 商品描述, 128字节以内
+	Attach       string    // 可选, 附加数据, 原样返回, 128字节以内
+	PartnerId    string    // 必须, 注册时分配的财付通商户号 partnerId
+	OutTradeNo   string    // 必须, 商户系统内部订单号, 32个字符内, 可包含字母, *确保在商户系统中唯一*
+	TotalFee     int       // 必须, 订单总金额, 单位为分
+	FeeType      int       // 必须, 取值：1（人民币）, 目前暂只支持 1
+	NotifyURL    string    // 必须, 在支付完成后, 接收微信通知支付结果的URL, 需要给出绝对路径, 255个字符内
+	CreateIP     string    // 必须, 订单生成的机器IP（指用户浏览器端IP, 不是商户服务器IP, 格式为IPV4）, 15个字节内
+	TimeStart    time.Time // 可选, 订单生成时间, 格式为 yyyyMMDDHHmmss, GMT+8, 该时间取自商户服务器
+	TimeExpire   time.Time // 可选, 订单失效时间, 格式为 yyyyMMDDHHmmss, GMT+8, 该时间取自商户服务器
+	TransportFee int       // 可选, 物流费用, 单位为分, 如果有值, 必须保证 TransportFee + ProductFee == TotalFee
+	ProductFee   int       // 可选, 商品费用, 单位为分, 如果有值, 必须保证 TransportFee + ProductFee == TotalFee
+	ProductTag   string    // 可选, 商品标记, 优惠卷时可能用到
+	Charset      string    // 必须, 参数字符编码, 取值范围: "GBK","UTF-8"
 }
 
-// 检查 info *OrderInfo 是否合法，合法返回 nil，否则返回错误信息
+// 检查 info *OrderInfo 是否合法, 合法返回 nil, 否则返回错误信息
 func (info *OrderInfo) Check() (err error) {
 	const (
 		BodyLimit       = 128
@@ -117,7 +117,7 @@ func formatTime(t time.Time) string {
 }
 
 // 将 info *OrderInfo 打包成 jsapi getBrandWCPayRequest 接口的 package 参数需要的格式.
-//  NOTE: 这个函数不对 info *OrderInfo 的字段做有效性检查，你可以选择调用 OrderInfo.Check()
+//  NOTE: 这个函数不对 info *OrderInfo 的字段做有效性检查, 你可以选择调用 OrderInfo.Check()
 //  @partnerKey: 财付通商户权限密钥 Key
 func (info *OrderInfo) Package(partnerKey string) (bs []byte) {
 	var (
@@ -129,15 +129,15 @@ func (info *OrderInfo) Package(partnerKey string) (bs []byte) {
 		ProductFeeStr   string
 	)
 	var (
-		BankTypeURLEscapedStr   string = urlEscape(info.BankType)
-		BodyURLEscapedStr       string = urlEscape(info.Body)
+		BankTypeURLEscapedStr   string = URLEscape(info.BankType)
+		BodyURLEscapedStr       string = URLEscape(info.Body)
 		AttachURLEscapedStr     string
-		PartnerIdURLEscapedStr  string = urlEscape(info.PartnerId)
-		OutTradeNoURLEscapedStr string = urlEscape(info.OutTradeNo)
-		NotifyURLEscapedStr     string = urlEscape(info.NotifyURL)
-		CreateIPURLEscapedStr   string = urlEscape(info.CreateIP)
+		PartnerIdURLEscapedStr  string = URLEscape(info.PartnerId)
+		OutTradeNoURLEscapedStr string = URLEscape(info.OutTradeNo)
+		NotifyURLEscapedStr     string = URLEscape(info.NotifyURL)
+		CreateIPURLEscapedStr   string = URLEscape(info.CreateIP)
 		ProductTagURLEscapedStr string
-		CharsetURLEscapedStr    string = urlEscape(info.Charset)
+		CharsetURLEscapedStr    string = URLEscape(info.Charset)
 		// TotalFeeURLEscapedStr     string
 		// FeeTypeURLEscapedStr      string
 		// TimeStartURLEscapedStr    string
@@ -155,7 +155,7 @@ func (info *OrderInfo) Package(partnerKey string) (bs []byte) {
 		len(CreateIPURLEscapedStr) + len(CharsetURLEscapedStr)
 
 	if info.Attach != "" {
-		AttachURLEscapedStr = urlEscape(info.Attach)
+		AttachURLEscapedStr = URLEscape(info.Attach)
 
 		// &attach=
 		n1 += 8 + len(info.Attach)
@@ -190,7 +190,7 @@ func (info *OrderInfo) Package(partnerKey string) (bs []byte) {
 		n2 += 13 + len(ProductFeeStr)
 	}
 	if info.ProductTag != "" {
-		ProductTagURLEscapedStr = urlEscape(info.ProductTag)
+		ProductTagURLEscapedStr = URLEscape(info.ProductTag)
 
 		// &goods_tag=
 		n1 += 11 + len(info.ProductTag)
