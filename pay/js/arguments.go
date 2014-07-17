@@ -69,7 +69,7 @@ func (args *Arguments) Check() (err error) {
 // 将 Arguments 格式化为符合参数要求的 JSON 格式，并自动填写签名字段.
 //  NOTE: 这个函数不对 args *Arguments 的字段做有效性检查，你可以选择调用 Arguments.Check()
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key
-func (args *Arguments) String(paySignKey string) (bs []byte) {
+func (args *Arguments) JSON(paySignKey string) (bs []byte) {
 	// 字典序
 	// appid
 	// appkey
