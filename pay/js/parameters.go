@@ -33,12 +33,12 @@ import (
 //     }
 // );
 type Parameters struct {
-	AppId     string `json:"appId"`            // 必须, 商户注册具有支付权限的公众号成功后即可获得
-	TimeStamp int64  `json:"timeStamp,string"` // 必须, unixtime, 商户生成
-	NonceStr  string `json:"nonceStr"`         // 必须, 商户生成的随机字符串
-	Package   string `json:"package"`          // 必须, 订单详情组合成的字符串, see OrderInfo.Package
-	SignType  string `json:"signType"`         // 必须, 目前仅支持 SHA1
-	PaySign   string `json:"paySign"`          // 必须, Parameters 的签名, see Parameters.SetPaySign 函数
+	AppId        string `json:"appId"`            // 必须, 商户注册具有支付权限的公众号成功后即可获得
+	TimeStamp    int64  `json:"timeStamp,string"` // 必须, unixtime, 商户生成
+	NonceStr     string `json:"nonceStr"`         // 必须, 商户生成的随机字符串
+	Package      string `json:"package"`          // 必须, 订单详情组合成的字符串, see OrderInfo.Package
+	SignType     string `json:"signType"`         // 必须, 目前仅支持 SHA1
+	PaySignature string `json:"paySign"`          // 必须, Parameters 的签名, see Parameters.SetPaySign 函数
 }
 
 // 将 Parameters 做签名, 把签名填入 PaySign 字段.
@@ -71,5 +71,5 @@ func (para *Parameters) SetPaySign(paySignKey string) {
 
 	// 目前仅支持 SHA1
 	hashsumArray := sha1.Sum(buf)
-	para.PaySign = hex.EncodeToString(hashsumArray[:])
+	para.PaySignature = hex.EncodeToString(hashsumArray[:])
 }
