@@ -8,6 +8,7 @@ package js
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"encoding/json"
 	"strconv"
 )
 
@@ -41,7 +42,7 @@ type Parameters struct {
 	PaySignature string `json:"paySign"`          // 必须, Parameters 的签名, see Parameters.SetPaySignature 函数
 }
 
-// 将 Parameters 做签名, 把签名填入 PaySign 字段.
+// 将 Parameters 做签名, 把签名填入 PaySignature 字段.
 //  NOTE: 需要在设置了其他字段后才能调用.
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key
 func (para *Parameters) SetPaySignature(paySignKey string) {
@@ -72,4 +73,9 @@ func (para *Parameters) SetPaySignature(paySignKey string) {
 	// 目前仅支持 SHA1
 	hashsumArray := sha1.Sum(buf)
 	para.PaySignature = hex.EncodeToString(hashsumArray[:])
+}
+
+func (para *Parameters) MarshalToJSON() []byte {
+	bs, _ := json.Marshal(para)
+	return bs
 }

@@ -9,6 +9,7 @@ import (
 	"crypto/sha1"
 	"crypto/subtle"
 	"encoding/hex"
+	"encoding/xml"
 	"strconv"
 )
 
@@ -119,4 +120,9 @@ func (resp *Response) SetAppSignature(paySignKey string) {
 
 	hashsumArray := sha1.Sum(buf)
 	resp.AppSignature = hex.EncodeToString(hashsumArray[:])
+}
+
+func (resp *Response) MarshalToXML() []byte {
+	bs, _ := xml.Marshal(resp)
+	return bs
 }
