@@ -3,6 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 封装被动接收微信服务器推送过来的消息和事件处理功能,
-// 以及提供相信的 hook 点让用户处理相应的消息和事件.
+// 封装微信服务器推送过来的常规消息(事件)处理 Handler.
+// 对于公众号开发模式, 都会要求提供一个 URL 来处理微信服务器推送过来的消息和事件,
+// 这个 package 就是封装推送到这个 URL 上的消息(事件)处理 Handler.
 package server

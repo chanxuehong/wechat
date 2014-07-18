@@ -35,7 +35,7 @@ type MenuViewEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.
 type MassSendJobFinishEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MassSendJobFinishEvent)
 type MerchantOrderEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MerchantOrderEvent)
 
-type ServerSetting struct {
+type HandlerSetting struct {
 	Token string
 
 	// Invalid request handler
@@ -64,101 +64,100 @@ type ServerSetting struct {
 	MerchantOrderEventHandler     MerchantOrderEventHandlerFunc
 }
 
-// 根据另外一个 ServerSetting 来初始化.
-// 没有设置的函数将会被初始化为默认处理函数.
+// 根据另外一个 HandlerSetting 来初始化, 没有设置的函数将会被初始化为默认处理函数.
 //  NOTE: 确保 setting != nil
-func (ss *ServerSetting) initialize(setting *ServerSetting) {
-	ss.Token = setting.Token
+func (this *HandlerSetting) initialize(setting *HandlerSetting) {
+	this.Token = setting.Token
 
 	if setting.InvalidRequestHandler != nil {
-		ss.InvalidRequestHandler = setting.InvalidRequestHandler
+		this.InvalidRequestHandler = setting.InvalidRequestHandler
 	} else {
-		ss.InvalidRequestHandler = defaultInvalidRequestHandler
+		this.InvalidRequestHandler = defaultInvalidRequestHandler
 	}
 
 	if setting.UnknownRequestHandler != nil {
-		ss.UnknownRequestHandler = setting.UnknownRequestHandler
+		this.UnknownRequestHandler = setting.UnknownRequestHandler
 	} else {
-		ss.UnknownRequestHandler = defaultUnknownRequestHandler
+		this.UnknownRequestHandler = defaultUnknownRequestHandler
 	}
 
 	// common request handler
 	if setting.TextRequestHandler != nil {
-		ss.TextRequestHandler = setting.TextRequestHandler
+		this.TextRequestHandler = setting.TextRequestHandler
 	} else {
-		ss.TextRequestHandler = defaultTextRequestHandler
+		this.TextRequestHandler = defaultTextRequestHandler
 	}
 	if setting.ImageRequestHandler != nil {
-		ss.ImageRequestHandler = setting.ImageRequestHandler
+		this.ImageRequestHandler = setting.ImageRequestHandler
 	} else {
-		ss.ImageRequestHandler = defaultImageRequestHandler
+		this.ImageRequestHandler = defaultImageRequestHandler
 	}
 	if setting.VoiceRequestHandler != nil {
-		ss.VoiceRequestHandler = setting.VoiceRequestHandler
+		this.VoiceRequestHandler = setting.VoiceRequestHandler
 	} else {
-		ss.VoiceRequestHandler = defaultVoiceRequestHandler
+		this.VoiceRequestHandler = defaultVoiceRequestHandler
 	}
 	if setting.VideoRequestHandler != nil {
-		ss.VideoRequestHandler = setting.VideoRequestHandler
+		this.VideoRequestHandler = setting.VideoRequestHandler
 	} else {
-		ss.VideoRequestHandler = defaultVideoRequestHandler
+		this.VideoRequestHandler = defaultVideoRequestHandler
 	}
 	if setting.LocationRequestHandler != nil {
-		ss.LocationRequestHandler = setting.LocationRequestHandler
+		this.LocationRequestHandler = setting.LocationRequestHandler
 	} else {
-		ss.LocationRequestHandler = defaultLocationRequestHandler
+		this.LocationRequestHandler = defaultLocationRequestHandler
 	}
 	if setting.LinkRequestHandler != nil {
-		ss.LinkRequestHandler = setting.LinkRequestHandler
+		this.LinkRequestHandler = setting.LinkRequestHandler
 	} else {
-		ss.LinkRequestHandler = defaultLinkRequestHandler
+		this.LinkRequestHandler = defaultLinkRequestHandler
 	}
 
 	// event handler
 	if setting.SubscribeEventHandler != nil {
-		ss.SubscribeEventHandler = setting.SubscribeEventHandler
+		this.SubscribeEventHandler = setting.SubscribeEventHandler
 	} else {
-		ss.SubscribeEventHandler = defaultSubscribeEventHandler
+		this.SubscribeEventHandler = defaultSubscribeEventHandler
 	}
 	if setting.UnsubscribeEventHandler != nil {
-		ss.UnsubscribeEventHandler = setting.UnsubscribeEventHandler
+		this.UnsubscribeEventHandler = setting.UnsubscribeEventHandler
 	} else {
-		ss.UnsubscribeEventHandler = defaultUnsubscribeEventHandler
+		this.UnsubscribeEventHandler = defaultUnsubscribeEventHandler
 	}
 	if setting.SubscribeByScanEventHandler != nil {
-		ss.SubscribeByScanEventHandler = setting.SubscribeByScanEventHandler
+		this.SubscribeByScanEventHandler = setting.SubscribeByScanEventHandler
 	} else {
-		ss.SubscribeByScanEventHandler = defaultSubscribeByScanEventHandler
+		this.SubscribeByScanEventHandler = defaultSubscribeByScanEventHandler
 	}
 	if setting.ScanEventHandler != nil {
-		ss.ScanEventHandler = setting.ScanEventHandler
+		this.ScanEventHandler = setting.ScanEventHandler
 	} else {
-		ss.ScanEventHandler = defaultScanEventHandler
+		this.ScanEventHandler = defaultScanEventHandler
 	}
 	if setting.LocationEventHandler != nil {
-		ss.LocationEventHandler = setting.LocationEventHandler
+		this.LocationEventHandler = setting.LocationEventHandler
 	} else {
-		ss.LocationEventHandler = defaultLocationEventHandler
+		this.LocationEventHandler = defaultLocationEventHandler
 	}
 	if setting.MenuClickEventHandler != nil {
-		ss.MenuClickEventHandler = setting.MenuClickEventHandler
+		this.MenuClickEventHandler = setting.MenuClickEventHandler
 	} else {
-		ss.MenuClickEventHandler = defaultMenuClickEventHandler
+		this.MenuClickEventHandler = defaultMenuClickEventHandler
 	}
 	if setting.MenuViewEventHandler != nil {
-		ss.MenuViewEventHandler = setting.MenuViewEventHandler
+		this.MenuViewEventHandler = setting.MenuViewEventHandler
 	} else {
-		ss.MenuViewEventHandler = defaultMenuViewEventHandler
+		this.MenuViewEventHandler = defaultMenuViewEventHandler
 	}
 	if setting.MassSendJobFinishEventHandler != nil {
-		ss.MassSendJobFinishEventHandler = setting.MassSendJobFinishEventHandler
+		this.MassSendJobFinishEventHandler = setting.MassSendJobFinishEventHandler
 	} else {
-		ss.MassSendJobFinishEventHandler = defaultMassSendJobFinishEventHandler
+		this.MassSendJobFinishEventHandler = defaultMassSendJobFinishEventHandler
 	}
 	if setting.MerchantOrderEventHandler != nil {
-		ss.MerchantOrderEventHandler = setting.MerchantOrderEventHandler
+		this.MerchantOrderEventHandler = setting.MerchantOrderEventHandler
 	} else {
-		ss.MerchantOrderEventHandler = defaultMerchantOrderEventHandler
+		this.MerchantOrderEventHandler = defaultMerchantOrderEventHandler
 	}
 }
 

@@ -36,10 +36,12 @@ func BenchmarkCheckSignatureWithBuffer(b *testing.B) {
 	)
 
 	var buffer = make([]byte, 256)
+
 	for i := 0; i < b.N; i++ {
 		checkSignature(signature, timestamp, nonce, token, buffer)
 	}
 }
+
 func BenchmarkCheckSignatureWithoutBuffer(b *testing.B) {
 	const (
 		signature = "1279a21cfde35abf7b408274163323b5bbcda731"

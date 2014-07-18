@@ -5,11 +5,11 @@
 
 package server
 
-var _test_server = func() *Server {
-	srv := NewServer(&ServerSetting{})
+var _test_handler = func() *Handler {
+	handler := NewHandler(&HandlerSetting{})
 	// 预热
-	unit := srv.getBufferUnitFromPool()
-	srv.putBufferUnitToPool(unit)
+	unit := handler.getBufferUnitFromPool()
+	handler.putBufferUnitToPool(unit)
 
-	return srv
+	return handler
 }()

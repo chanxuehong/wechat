@@ -11,19 +11,23 @@ import (
 	"testing"
 )
 
+// 下面两个性能基准测试是看看使用缓存是否能提高性能
+
+// 使用缓存
 func BenchmarkGetBufferUnitFromPool(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		func() {
-			unit := _test_server.getBufferUnitFromPool()
-			defer _test_server.putBufferUnitToPool(unit)
+			unit := _test_handler.getBufferUnitFromPool()
+			defer _test_handler.putBufferUnitToPool(unit)
 		}()
 	}
 }
 
+// 不使用缓存
 func BenchmarkGetBufferUnitFromNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		func() {
-			_ = bytes.NewBuffer(make([]byte, 512)) // server 平均收到消息的估计大小
+			_ = bytes.NewBuffer(make([]byte, 512)) // Handler 平均收到消息的估计大小
 			_ = request.Request{}
 			_ = make([]byte, 128) // checkSignature 内申请切片平均估计大小
 		}()
