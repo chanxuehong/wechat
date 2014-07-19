@@ -3,8 +3,11 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package js
+package pay
 
 const (
-	PARAMETERS_SIGN_TYPE_SHA1 = "SHA1"
+	BILL_BANK_TYPE_WX = "WX"
+	BILL_FEE_TYPE_RMB = 1
+	BILL_CHARSET_GBK  = "GBK"
+	BILL_CHARSET_UTF8 = "UTF-8"
 )

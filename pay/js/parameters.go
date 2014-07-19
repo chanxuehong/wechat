@@ -9,10 +9,19 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"strconv"
 )
 
-// jsapi 微信支付接口 getBrandWCPayRequest 的参数集合
+type Parameters struct {
+	AppId     string `json:"appId"`            // 必须, 公众号 id, 商户注册具有支付权限的公众号成功后即可获得
+	TimeStamp int64  `json:"timeStamp,string"` // 必须, unixtime, 商户生成
+	NonceStr  string `json:"nonceStr"`         // 必须, 商户生成的随机字符串
+	Package   string `json:"package"`          // 必须, 订单详情组合成的字符串, see ../Bill.Package
+	SignType  string `json:"signType"`         // 必须, 目前仅支持 SHA1
+}
+
+// 获取 jsapi 微信支付接口 getBrandWCPayRequest 的参数集合, JSON 格式.
 //
 // WeixinJSBridge.invoke(
 //     'getBrandWCPayRequest',
@@ -33,24 +42,21 @@ import (
 //         alert(res.err_code+res.err_desc);
 //     }
 // );
-type Parameters struct {
-	AppId        string `json:"appId"`            // 必须, 商户注册具有支付权限的公众号成功后即可获得
-	TimeStamp    int64  `json:"timeStamp,string"` // 必须, unixtime, 商户生成
-	NonceStr     string `json:"nonceStr"`         // 必须, 商户生成的随机字符串
-	Package      string `json:"package"`          // 必须, 订单详情组合成的字符串, see OrderInfo.Package
-	SignType     string `json:"signType"`         // 必须, 目前仅支持 SHA1
-	PaySignature string `json:"paySign"`          // 必须, Parameters 的签名, see Parameters.SetPaySignature 函数
-}
+//
+func (para *Parameters) MarshalToJSON(paySignKey string) (jsonBytes []byte, err error) {
+	var dst = struct {
+		*Parameters
+		PaySignature string `json:"paySign"`
+	}{
+		Parameters: para,
+	}
 
-// 将 Parameters 做签名, 把签名填入 PaySignature 字段.
-//  NOTE: 需要在设置了其他字段后才能调用.
-//  @paySignKey: 公众号支付请求中用于加密的密钥 Key
-func (para *Parameters) SetPaySignature(paySignKey string) {
 	timestamp := strconv.FormatInt(para.TimeStamp, 10)
 
-	// appid=&appkey=&noncestr=&package=&timestamp=
-	n := 44 + len(para.AppId) + len(paySignKey) + len(para.NonceStr) +
+	const keysLen = len(`appid=&appkey=&noncestr=&package=&timestamp=`)
+	n := keysLen + len(para.AppId) + len(paySignKey) + len(para.NonceStr) +
 		len(para.Package) + len(timestamp)
+
 	buf := make([]byte, 0, n)
 
 	// 字典序
@@ -70,12 +76,15 @@ func (para *Parameters) SetPaySignature(paySignKey string) {
 	buf = append(buf, "&timestamp="...)
 	buf = append(buf, timestamp...)
 
-	// 目前仅支持 SHA1
-	hashsumArray := sha1.Sum(buf)
-	para.PaySignature = hex.EncodeToString(hashsumArray[:])
-}
+	switch para.SignType {
+	case PARAMETERS_SIGN_TYPE_SHA1:
+		hashsumArray := sha1.Sum(buf)
+		dst.PaySignature = hex.EncodeToString(hashsumArray[:])
+	default:
+		err = fmt.Errorf("not implement for %s sign method", para.SignType)
+		return
+	}
 
-func (para *Parameters) MarshalToJSON() []byte {
-	bs, _ := json.Marshal(para)
-	return bs
+	jsonBytes, err = json.Marshal(dst)
+	return
 }

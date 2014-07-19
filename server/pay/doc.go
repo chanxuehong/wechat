@@ -3,8 +3,5 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package js
-
-const (
-	PARAMETERS_SIGN_TYPE_SHA1 = "SHA1"
-)
+// 微信支付相关的 Handler
+package pay
