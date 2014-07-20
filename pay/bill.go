@@ -131,11 +131,6 @@ func (this *Bill) Check() (err error) {
 	return
 }
 
-// 格式化时间到 yyyyMMDDHHmmss
-func formatTime(t time.Time) string {
-	return t.Format("20060102150405")
-}
-
 // 将 Bill 打包成 订单详情(package)字符串 需要的格式.
 //  @partnerKey: 财付通商户权限密钥 Key
 //  NOTE: 这个函数不对 this *Bill 的字段做有效性检查, 你可以选择调用 Bill.Check()
@@ -196,14 +191,14 @@ func (this *Bill) Package(partnerKey string) (bs []byte) {
 		n2 += 8 + len(AttachURLEscapedStr)
 	}
 	if !this.TimeStart.IsZero() {
-		TimeStartStr = formatTime(this.TimeStart)
+		TimeStartStr = FormatTime(this.TimeStart)
 
 		// &time_start=
 		n1 += 12 + len(TimeStartStr)
 		n2 += 12 + len(TimeStartStr)
 	}
 	if !this.TimeExpire.IsZero() {
-		TimeExpireStr = formatTime(this.TimeExpire)
+		TimeExpireStr = FormatTime(this.TimeExpire)
 
 		// &time_expire=
 		n1 += 13 + len(TimeExpireStr)
@@ -233,12 +228,13 @@ func (this *Bill) Package(partnerKey string) (bs []byte) {
 
 	// &key=
 	n1 += 5 + len(partnerKey)
-	// &sign=md5sum
+	// &sign=signature
 	n2 += 6 + 32
 
 	string1 := make([]byte, 0, n1)
 	bs = make([]byte, n2)
 	string2 := bs[:0]
+	signature := bs[n2-32:] // md5sum
 
 	// 字典序
 	// attach
@@ -357,12 +353,11 @@ func (this *Bill) Package(partnerKey string) (bs []byte) {
 
 	string1 = append(string1, "&key="...)
 	string1 = append(string1, partnerKey...)
-	string2 = append(string2, "&sign="...)
 
-	md5sumHexBytes := bs[len(string2):]
+	string2 = append(string2, "&sign="...)
 	md5sumArray := md5.Sum(string1)
-	hex.Encode(md5sumHexBytes, md5sumArray[:])
-	copy(md5sumHexBytes, bytes.ToUpper(md5sumHexBytes))
+	hex.Encode(signature, md5sumArray[:])
+	copy(signature, bytes.ToUpper(signature))
 
 	return
 }

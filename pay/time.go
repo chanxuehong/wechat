@@ -3,8 +3,15 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package js
+package pay
 
-const (
-	PARAMETERS_SIGN_MOTHOD_SHA1 = "SHA1"
+import (
+	"time"
 )
+
+var beijingLocation = time.FixedZone("GMT+8", 60*60*8)
+
+// 格式化时间到 yyyyMMDDHHmmss, GMT+8
+func FormatTime(t time.Time) string {
+	return t.In(beijingLocation).Format("20060102150405")
+}

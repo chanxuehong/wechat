@@ -10,7 +10,8 @@ package pay
 func URLEscape(s string) string {
 	hexCount := 0
 	for i := 0; i < len(s); i++ {
-		if shouldEscapeMap[s[i]] {
+		c := s[i]
+		if shouldEscapeMap[c] {
 			hexCount++
 		}
 	}

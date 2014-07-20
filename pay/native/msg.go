@@ -10,36 +10,51 @@ import (
 	"crypto/subtle"
 	"encoding/hex"
 	"encoding/xml"
+	"fmt"
 	"strconv"
 )
 
+// 获取订单详情 package 的请求消息
 type Request struct {
-	XMLName      struct{} `xml:"xml" json:"-"`
-	OpenId       string   `xml:"OpenId"`       // 点击链接准备购买商品的用户 OpenId
-	AppId        string   `xml:"AppId"`        // 公众帐号的 appid
-	IsSubscribe  int      `xml:"IsSubscribe"`  // 标记用户是否订阅该公众帐号，1为关注，0为未关注
-	ProductId    string   `xml:"ProductId"`    // 第三方的商品	ID号
-	TimeStamp    int64    `xml:"TimeStamp"`    // 时间戳
-	NonceStr     string   `xml:"NonceStr"`     // 随机串
-	AppSignature string   `xml:"AppSignature"` // 参数的加密签名
-	SignMethod   string   `xml:"SignMethod"`   // 签名方式，目前只支持“SHA1”，该字段不参与签名
+	XMLName   struct{} `xml:"xml" json:"-"`
+	AppId     string   `xml:"AppId"`     // 公众帐号的 appid
+	NonceStr  string   `xml:"NonceStr"`  // 随机串
+	TimeStamp int64    `xml:"TimeStamp"` // 时间戳
+
+	ProductId string `xml:"ProductId"` // 第三方的商品	ID号
+
+	OpenId      string `xml:"OpenId"`      // 点击链接准备购买商品的用户 OpenId
+	IsSubscribe int    `xml:"IsSubscribe"` // 标记用户是否订阅该公众帐号, 1为关注, 0为未关注
+
+	Signature  string `xml:"AppSignature"` // 参数的加密签名
+	SignMethod string `xml:"SignMethod"`   // 签名方式, 目前只支持"SHA1", 该字段不参与签名
 }
 
-func (req *Request) CheckSignature(paySignKey string) bool {
-	const hashsumLen = 40 // sha1
+// 校验 req *Request 的签名是否有效, isValid == true && err == nil 时表示有效.
+//  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
+func (req *Request) CheckSignature(paySignKey string) (isValid bool, err error) {
+	const hashSumLen = 40 // sha1
+	const twoHashSumLen = hashSumLen * 2
 
-	if len(req.AppSignature) != hashsumLen {
-		return false
+	if len(req.Signature) != hashSumLen {
+		return
 	}
 
-	IsSubscribeStr := strconv.FormatInt(int64(req.IsSubscribe), 10)
 	TimeStampStr := strconv.FormatInt(req.TimeStamp, 10)
+	IsSubscribeStr := strconv.FormatInt(int64(req.IsSubscribe), 10)
 
-	// hashsum, len(`appid=&appkey=&issubscribe=&noncestr=&openid=&productid=&timestamp=`) == 67
-	n := hashsumLen + 67 + len(req.AppId) + len(paySignKey) + len(IsSubscribeStr) +
+	const keysLen = len(`appid=&appkey=&issubscribe=&noncestr=&openid=&productid=&timestamp=`)
+
+	n := twoHashSumLen + keysLen + len(req.AppId) + len(paySignKey) + len(IsSubscribeStr) +
 		len(req.NonceStr) + len(req.OpenId) + len(req.ProductId) + len(TimeStampStr)
 
-	buf := make([]byte, hashsumLen, n)
+	// buf[:hashSumLen] 保存参数 req.Signature,
+	// buf[hashSumLen:twoHashSumLen] 保存生成的签名
+	// buf[twoHashSumLen:] 按照字典序列保存 string1
+	buf := make([]byte, n)
+	copy(buf, req.Signature)
+	signature := buf[hashSumLen:twoHashSumLen]
+	string1 := buf[twoHashSumLen:twoHashSumLen]
 
 	// appid
 	// appkey
@@ -48,54 +63,74 @@ func (req *Request) CheckSignature(paySignKey string) bool {
 	// openid
 	// productid
 	// timestamp
-	buf = append(buf, "appid="...)
-	buf = append(buf, req.AppId...)
-	buf = append(buf, "&appkey="...)
-	buf = append(buf, paySignKey...)
-	buf = append(buf, "&issubscribe="...)
-	buf = append(buf, IsSubscribeStr...)
-	buf = append(buf, "&noncestr="...)
-	buf = append(buf, req.NonceStr...)
-	buf = append(buf, "&openid="...)
-	buf = append(buf, req.OpenId...)
-	buf = append(buf, "&productid="...)
-	buf = append(buf, req.ProductId...)
-	buf = append(buf, "&timestamp="...)
-	buf = append(buf, TimeStampStr...)
+	string1 = append(string1, "appid="...)
+	string1 = append(string1, req.AppId...)
+	string1 = append(string1, "&appkey="...)
+	string1 = append(string1, paySignKey...)
+	string1 = append(string1, "&issubscribe="...)
+	string1 = append(string1, IsSubscribeStr...)
+	string1 = append(string1, "&noncestr="...)
+	string1 = append(string1, req.NonceStr...)
+	string1 = append(string1, "&openid="...)
+	string1 = append(string1, req.OpenId...)
+	string1 = append(string1, "&productid="...)
+	string1 = append(string1, req.ProductId...)
+	string1 = append(string1, "&timestamp="...)
+	string1 = append(string1, TimeStampStr...)
 
-	hashsumArray := sha1.Sum(buf[hashsumLen:])
-	hashsumHexBytes := buf[:hashsumLen]
-	hex.Encode(hashsumHexBytes, hashsumArray[:])
+	switch req.SignMethod {
+	case "sha1", "SHA1":
+		hashsumArray := sha1.Sum(string1)
+		hex.Encode(signature, hashsumArray[:])
+	default:
+		err = fmt.Errorf("not implement for %s sign method", req.SignMethod)
+		return
+	}
 
 	// 采用 subtle.ConstantTimeCompare 是防止 计时攻击!
-	if rslt := subtle.ConstantTimeCompare(hashsumHexBytes, []byte(req.AppSignature)); rslt == 1 {
-		return true
+	if rslt := subtle.ConstantTimeCompare(signature, buf[:hashSumLen]); rslt == 1 {
+		isValid = true
+		return
 	}
-	return false
+
+	return
 }
 
 type Response struct {
-	XMLName      struct{} `xml:"xml" json:"-"`
-	AppId        string   `xml:"AppId"`
-	Package      string   `xml:"Package"`
-	TimeStamp    int64    `xml:"TimeStamp"`
-	NonceStr     string   `xml:"NonceStr"`
-	RetCode      int      `xml:"RetCode"`
-	RetErrMsg    string   `xml:"RetErrMsg"`
-	AppSignature string   `xml:"AppSignature"`
-	SignMethod   string   `xml:"SignMethod"`
+	AppId     string `xml:"AppId"`     // 必须, 公众帐号的 appid
+	NonceStr  string `xml:"NonceStr"`  // 必须, 随机串
+	TimeStamp int64  `xml:"TimeStamp"` // 必须, 时间戳
+
+	Package string `xml:"Package"` // 必须,订单详情组合成的字符串, 4096个字符以内, see ../Bill.Package
+
+	// 可以自己定义错误信息
+	ErrCode int    `xml:"RetCode"`   // 可选, 0  表示正确
+	ErrMsg  string `xml:"RetErrMsg"` // 可选, 错误信息, 要求 utf8 编码格式
+
+	SignMethod string `xml:"SignMethod"` // 必须, 签名方式, 目前只支持 SHA1
 }
 
-func (resp *Response) SetAppSignature(paySignKey string) {
-	RetCodeStr := strconv.FormatInt(int64(resp.RetCode), 10)
+// 将 Response 格式化成文档规定的格式, XML 格式.
+//  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
+func (resp *Response) MarshalToXML(paySignKey string) (xmlBytes []byte, err error) {
+	var dst = struct {
+		XMLName struct{} `xml:"xml" json:"-"`
+		*Response
+		Signature string `xml:"AppSignature"`
+	}{
+		Response: resp,
+	}
+
 	TimeStampStr := strconv.FormatInt(resp.TimeStamp, 10)
+	ErrCodeStr := strconv.FormatInt(int64(resp.ErrCode), 10)
 
-	// len(`appid=&appkey=&noncestr=&package=&retcode=&reterrmsg=&timestamp=`) == 64
-	n := 64 + len(resp.AppId) + len(paySignKey) + len(resp.NonceStr) +
-		len(resp.Package) + len(RetCodeStr) + len(resp.RetErrMsg) + len(TimeStampStr)
+	const keysLen = len(`appid=&appkey=&noncestr=&package=&retcode=&reterrmsg=&timestamp=`)
+	n := keysLen + len(resp.AppId) + len(paySignKey) + len(resp.NonceStr) +
+		len(resp.Package) + len(ErrCodeStr) + len(resp.ErrMsg) + len(TimeStampStr)
 
-	buf := make([]byte, 0, n)
+	string1 := make([]byte, 0, n)
 
+	// 字典序
 	// appid
 	// appkey
 	// noncestr
@@ -103,26 +138,30 @@ func (resp *Response) SetAppSignature(paySignKey string) {
 	// retcode
 	// reterrmsg
 	// timestamp
-	buf = append(buf, "appid="...)
-	buf = append(buf, resp.AppId...)
-	buf = append(buf, "&appkey="...)
-	buf = append(buf, paySignKey...)
-	buf = append(buf, "&noncestr="...)
-	buf = append(buf, resp.NonceStr...)
-	buf = append(buf, "&package="...)
-	buf = append(buf, resp.Package...)
-	buf = append(buf, "&retcode="...)
-	buf = append(buf, RetCodeStr...)
-	buf = append(buf, "&reterrmsg="...)
-	buf = append(buf, resp.RetErrMsg...)
-	buf = append(buf, "&timestamp="...)
-	buf = append(buf, TimeStampStr...)
+	string1 = append(string1, "appid="...)
+	string1 = append(string1, resp.AppId...)
+	string1 = append(string1, "&appkey="...)
+	string1 = append(string1, paySignKey...)
+	string1 = append(string1, "&noncestr="...)
+	string1 = append(string1, resp.NonceStr...)
+	string1 = append(string1, "&package="...)
+	string1 = append(string1, resp.Package...)
+	string1 = append(string1, "&retcode="...)
+	string1 = append(string1, ErrCodeStr...)
+	string1 = append(string1, "&reterrmsg="...)
+	string1 = append(string1, resp.ErrMsg...)
+	string1 = append(string1, "&timestamp="...)
+	string1 = append(string1, TimeStampStr...)
 
-	hashsumArray := sha1.Sum(buf)
-	resp.AppSignature = hex.EncodeToString(hashsumArray[:])
-}
+	switch resp.SignMethod {
+	case RESPONSE_SIGN_METHOD_SHA1:
+		hashsumArray := sha1.Sum(string1)
+		dst.Signature = hex.EncodeToString(hashsumArray[:])
+	default:
+		err = fmt.Errorf("not implement for %s sign method", resp.SignMethod)
+		return
+	}
 
-func (resp *Response) MarshalToXML() []byte {
-	bs, _ := xml.Marshal(resp)
-	return bs
+	xmlBytes, err = xml.Marshal(dst)
+	return
 }

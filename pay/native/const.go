@@ -3,8 +3,8 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package js
+package native
 
 const (
-	PARAMETERS_SIGN_MOTHOD_SHA1 = "SHA1"
+	RESPONSE_SIGN_METHOD_SHA1 = "sha1"
 )

@@ -22,7 +22,7 @@ func TestWXVersion(t *testing.T) {
 		return
 	}
 
-	userAgent = `Mozilla/5.0(iphone;CPU iphone OS 5_1_1 like Mac OS X) AppleWebKit/534.46(KHTML,like Geocko)Mobile/9B206 MicroMessenger/5.0x`
+	userAgent = `Mozilla5.0(iphone;CPU iphone OS 5_1_1 like Mac OS X) AppleWebKit534.46(KHTML,like Geocko)Mobile9B206 MicroMessenger5.0`
 	_, err = WXVersion(userAgent)
 	if err == nil {
 		t.Errorf("从 %#s 获取版本号应该出错, 但是目前却没有错误!", userAgent)
@@ -36,7 +36,7 @@ func TestWXVersion(t *testing.T) {
 		return
 	}
 
-	userAgent = `Mozilla5.0(iphone;CPU iphone OS 5_1_1 like Mac OS X) AppleWebKit534.46(KHTML,like Geocko)Mobile9B206 MicroMessenger5.0`
+	userAgent = `Mozilla/5.0(iphone;CPU iphone OS 5_1_1 like Mac OS X) AppleWebKit/534.46(KHTML,like Geocko)Mobile/9B206 MicroMessenger/5.0x`
 	_, err = WXVersion(userAgent)
 	if err == nil {
 		t.Errorf("从 %#s 获取版本号应该出错, 但是目前却没有错误!", userAgent)
