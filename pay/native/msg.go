@@ -104,7 +104,7 @@ type BillResponse struct {
 	Package string `xml:"Package"` // 必须,订单详情组合成的字符串, 4096个字符以内, see ../Bill.Package
 
 	// 可以自己定义错误信息
-	ErrCode int    `xml:"RetCode"`   // 可选, 0  表示正确
+	ErrCode int    `xml:"RetCode"`   // 可选, 0 表示正确
 	ErrMsg  string `xml:"RetErrMsg"` // 可选, 错误信息, 要求 utf8 编码格式
 
 	SignMethod string `xml:"SignMethod"` // 必须, 签名方式, 目前只支持 sha1

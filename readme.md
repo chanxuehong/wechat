@@ -30,6 +30,10 @@ sns    主要实现的是网页授权获取用户基本信息功能，即微信�
 	go get -u github.com/chanxuehong/wechat/...
 
 ## 文档
+
+### [在线文档](http://godoc.org/github.com/chanxuehong/wechat)
+
+### 离线文档
 通过上面步骤下载下来后，可以在shell(windows 下面是 cmd) 里运行
 
 	godoc -http=:8080
