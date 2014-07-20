@@ -15,7 +15,7 @@ import (
 )
 
 // 获取订单详情 package 的请求消息
-type Request struct {
+type BillRequest struct {
 	XMLName   struct{} `xml:"xml" json:"-"`
 	AppId     string   `xml:"AppId"`     // 公众帐号的 appid
 	NonceStr  string   `xml:"NonceStr"`  // 随机串
@@ -30,9 +30,9 @@ type Request struct {
 	SignMethod string `xml:"SignMethod"`   // 签名方式, 目前只支持"SHA1", 该字段不参与签名
 }
 
-// 校验 req *Request 的签名是否有效, isValid == true && err == nil 时表示有效.
+// 校验 req *BillRequest 的签名是否有效, isValid == true && err == nil 时表示有效.
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
-func (req *Request) CheckSignature(paySignKey string) (isValid bool, err error) {
+func (req *BillRequest) CheckSignature(paySignKey string) (isValid bool, err error) {
 	const hashSumLen = 40 // sha1
 	const twoHashSumLen = hashSumLen * 2
 
@@ -96,7 +96,7 @@ func (req *Request) CheckSignature(paySignKey string) (isValid bool, err error) 
 	return
 }
 
-type Response struct {
+type BillResponse struct {
 	AppId     string `xml:"AppId"`     // 必须, 公众帐号的 appid
 	NonceStr  string `xml:"NonceStr"`  // 必须, 随机串
 	TimeStamp int64  `xml:"TimeStamp"` // 必须, 时间戳
@@ -110,15 +110,15 @@ type Response struct {
 	SignMethod string `xml:"SignMethod"` // 必须, 签名方式, 目前只支持 SHA1
 }
 
-// 将 Response 格式化成文档规定的格式, XML 格式.
+// 将 BillResponse 格式化成文档规定的格式, XML 格式.
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
-func (resp *Response) MarshalToXML(paySignKey string) (xmlBytes []byte, err error) {
+func (resp *BillResponse) MarshalToXML(paySignKey string) (xmlBytes []byte, err error) {
 	var dst = struct {
 		XMLName struct{} `xml:"xml" json:"-"`
-		*Response
+		*BillResponse
 		Signature string `xml:"AppSignature"`
 	}{
-		Response: resp,
+		BillResponse: resp,
 	}
 
 	TimeStampStr := strconv.FormatInt(resp.TimeStamp, 10)
