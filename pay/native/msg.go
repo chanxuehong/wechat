@@ -21,7 +21,7 @@ type BillRequest struct {
 	NonceStr  string   `xml:"NonceStr"`  // 必须, 随机串
 	TimeStamp int64    `xml:"TimeStamp"` // 必须, 时间戳
 
-	ProductId string `xml:"ProductId"` // 必须, 第三方的商品	id 号
+	ProductId string `xml:"ProductId"` // 必须, 第三方的商品 id 号
 
 	OpenId      string `xml:"OpenId"`      // 必须, 点击链接准备购买商品的用户 OpenId
 	IsSubscribe int    `xml:"IsSubscribe"` // 必须, 标记用户是否订阅该公众帐号, 1为关注, 0为未关注

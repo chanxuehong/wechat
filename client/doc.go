@@ -3,5 +3,5 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 封装公众平台主动请求功能.
+// 封装公众平台主动请求 API.
 package client

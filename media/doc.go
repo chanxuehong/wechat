@@ -3,7 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 主要定义下面的消息格式.
+// 媒体操作相关的数据结构.
 // 1. 上传媒体(多媒体文件, 图文消息, 视频消息)成功时返回消息
 // 2. 上传图文消息的请求结构
 // 3. 上传视频消息的请求结构
