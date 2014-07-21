@@ -25,10 +25,10 @@ type Bill struct {
 	PartnerId    string    // 必须, 注册时分配的财付通商户号 partnerId
 	OutTradeNo   string    // 必须, 商户系统内部订单号, 32个字符内, 可包含字母, *** 确保在商户系统中唯一 ***
 	TotalFee     int       // 必须, 订单总金额, 单位为分
-	TransportFee int       // 可选, 物流费用, 单位为分, 如果有值, 必须保证 TransportFee + ProductFee == TotalFee
-	ProductFee   int       // 可选, 商品费用, 单位为分, 如果有值, 必须保证 TransportFee + ProductFee == TotalFee
+	TransportFee int       // 可选, 物流费用, 单位为分; 如果有值, 必须保证 TransportFee + ProductFee == TotalFee
+	ProductFee   int       // 可选, 商品费用, 单位为分; 如果有值, 必须保证 TransportFee + ProductFee == TotalFee
 	ProductTag   string    // 可选, 商品标记, 优惠卷时可能用到
-	FeeType      int       // 必须, 取值: 1(人民币), 目前暂只支持 1
+	FeeType      int       // 必须, 取值: 1(人民币); 目前暂只支持 1
 	NotifyURL    string    // 必须, 在支付完成后, 接收微信通知支付结果的 URL, 需要给出绝对路径, 255个字符内
 	CreateIP     string    // 必须, 订单生成的机器IP(指用户浏览器端IP, 不是商户服务器IP, 格式为IPV4), 15个字节内
 	TimeStart    time.Time // 可选, 订单生成时间, 该时间取自商户服务器
@@ -47,7 +47,7 @@ func (this *Bill) Check() (err error) {
 	)
 
 	switch this.BankType {
-	case BILL_BANK_TYPE_WX:
+	case BANK_TYPE_WX:
 	case "":
 		err = errors.New("没有设置 BankType")
 		return
@@ -94,7 +94,7 @@ func (this *Bill) Check() (err error) {
 	}
 
 	switch this.FeeType {
-	case BILL_FEE_TYPE_RMB:
+	case FEE_TYPE_RMB:
 	default:
 		err = errors.New("不规范的 FeeType")
 		return

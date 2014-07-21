@@ -11,8 +11,8 @@ import (
 
 func TestBillPackage(t *testing.T) {
 	var bill Bill
-	bill.BankType = BILL_BANK_TYPE_WX
-	bill.FeeType = BILL_FEE_TYPE_RMB
+	bill.BankType = BANK_TYPE_WX
+	bill.FeeType = FEE_TYPE_RMB
 	bill.Body = "XXX"
 	bill.Charset = BILL_CHARSET_GBK
 	bill.PartnerId = "1900000109"

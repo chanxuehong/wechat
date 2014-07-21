@@ -6,8 +6,18 @@
 package pay
 
 const (
-	BILL_BANK_TYPE_WX = "WX"
-	BILL_FEE_TYPE_RMB = 1
+	IS_SUBSCRIBE_TRUE  = 1
+	IS_SUBSCRIBE_FALSE = 0
+
+	BANK_TYPE_WX = "WX"
+	FEE_TYPE_RMB = 1
+)
+const (
 	BILL_CHARSET_GBK  = "GBK"
 	BILL_CHARSET_UTF8 = "UTF-8"
+)
+
+const (
+	NOTIFICATION_TRADE_MODE_IMMEDIATE = 1 // TradeMode 即时到账
+	NOTIFICATION_TRADE_SUCCESS        = 0 // TradeState 成功
 )

@@ -20,7 +20,7 @@ type Notification struct {
 
 	OpenId      string // 必须, 支付该笔订单的用户 id, 商户可通过公众号其他接口为付款用户服务.
 	IsSubscribe int    // 必须, 用户是否关注了公众号. 1为关注, 0为未关注.
-	BuyerAlias  string // 可选, 买家别名 ,对应买家账号的一个加密串
+	BuyerAlias  string // 可选, 买家别名, 对应买家账号的一个加密串
 
 	TradeMode     int       // 必须, 交易模式, 1-即时到账, 其他保留
 	TradeState    int       // 必须, 交易状态(支付结果), 0-成功, 其他保留
