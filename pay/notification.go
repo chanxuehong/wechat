@@ -35,9 +35,9 @@ type Notification struct {
 	OutTradeNo string // 必须, 商户系统的订单号
 	Attach     string // 可选, 商户数据包
 
-	TotalFee     int // 必须, 支付金额, 单位为分, 如果 discount 有值, 通知的 total_fee + discount = 请求的 total_fee
-	Discount     int // 可选, 折扣价格, 单位分, 如果有值, 通知的total_fee + discount = 请求的total_fee
-	TransportFee int // 可选, 物流费用, 单位分, 默认0.如果有值, 必须保证transport_fee + product_fee = total_fee
-	ProductFee   int // 可选, 物品费用, 单位分.如果有值, 必须保证transport_fee + product_fee=total_fee
-	FeeType      int // 必须, 币种,目前只支持人民币,默认值是 1-人民币
+	TotalFee     int // 必须, 支付金额, 单位为分; 如果 discount 有值, 则有 TotalFee + Discount == 支付请求的 Bill.TotalFee
+	Discount     int // 可选, 折扣价格, 单位为分; 如果有值, 则有 TotalFee + Discount == 支付请求的 Bill.TotalFee
+	TransportFee int // 可选, 物流费用, 单位为分, 默认0; 如果有值, 必须保证 TransportFee + ProductFee == TotalFee
+	ProductFee   int // 可选, 物品费用, 单位为分; 如果有值, 必须保证 TransportFee + ProductFee == TotalFee
+	FeeType      int // 必须, 币种, 目前只支持人民币, 默认值是 1-人民币
 }

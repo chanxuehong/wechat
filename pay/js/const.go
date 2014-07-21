@@ -6,5 +6,5 @@
 package js
 
 const (
-	PARAMETERS_SIGN_MOTHOD_SHA1 = "SHA1"
+	PARAMETERS_SIGN_METHOD_SHA1 = "SHA1"
 )

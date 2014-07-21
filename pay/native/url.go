@@ -13,11 +13,13 @@ import (
 
 // 生成 native 支付 URL.
 //  @appId:      必须, 公众号 id, 商户注册具有支付权限的公众号成功后即可获得
-//  @paySignKey: 必须, 公众号支付请求中用于加密的密钥 Key
 //  @nonceStr:   必须, 32个字符以内, 商户生成的随机字符串
-//  @productId:  必须, 32个字符以内, 商户需要定义并维护自己的商品id, 这个id与一张订单等价, 微信后台凭借该id通过POST商户后台获取交易必须信息;
 //  @timestamp:  必须, unixtime, 商户生成
-func NativeURL(appId, paySignKey, nonceStr, productId string, timestamp int64) string {
+//  @productId:  必须, 32个字符以内, 商户需要定义并维护自己的商品id, 这个id与一张订单等价, 微信后台凭借该id通过POST商户后台获取交易必须信息;
+//  @paySignKey: 必须, 公众号支付请求中用于加密的密钥 Key
+func NativeURL(appId, nonceStr string, timestamp int64,
+	productId, paySignKey string) string {
+
 	timestampStr := strconv.FormatInt(timestamp, 10)
 
 	const keysLen = len(`appid=&appkey=&noncestr=&productid=&timestamp=`)

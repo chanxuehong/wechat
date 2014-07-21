@@ -16,7 +16,7 @@ func TestNativeURL(t *testing.T) {
 	productid := "123456"
 	var timestamp int64 = 189026618
 
-	_url := NativeURL(appid, appkey, noncestr, productid, timestamp)
+	_url := NativeURL(appid, noncestr, timestamp, productid, appkey)
 	want := "weixin://wxpay/bizpayurl?appid=wxf8b4f85f3a794e77&noncestr=adssdasssd13d&productid=123456&sign=18c6122878f0e946ae294e016eddda9468de80df&timestamp=189026618"
 
 	if _url != want {

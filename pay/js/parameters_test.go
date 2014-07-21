@@ -17,15 +17,20 @@ func TestArgumentsString(t *testing.T) {
 	para.SignMethod = "SHA1"
 	para.TimeStamp = 189026618
 
-	bs, err := para.MarshalToJSON("2Wozy2aksie1puXUBpWD8oZxiD1DfQuEaiC7KcRATv1Ino3mdopKaPGQQ7TtkNySuAmCaDCrw4xhPY5qKTBl7Fzm0RgR3c0WaVYIXZARsxzHV2x7iwPPzOz94dnwPWSn")
+	err := para.SetSignature("2Wozy2aksie1puXUBpWD8oZxiD1DfQuEaiC7KcRATv1Ino3mdopKaPGQQ7TtkNySuAmCaDCrw4xhPY5qKTBl7Fzm0RgR3c0WaVYIXZARsxzHV2x7iwPPzOz94dnwPWSn")
+	if err != nil {
+		t.Error(err)
+		return
+	}
 
+	bs, err := para.MarshalToJSON()
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
 	str := string(bs)
-	want := `{"appId":"wxf8b4f85f3a794e77","timeStamp":"189026618","nonceStr":"adssdasssd13d","package":"bank_type=WX\u0026body=XXX\u0026fee_type=1\u0026input_charset=GBK\u0026notify_url=http%3a%2f%2fwww.qq.com\u0026out_trade_no=16642817866003386000\u0026partner=1900000109\u0026spbill_create_ip=127.0.0.1\u0026total_fee=1\u0026sign=BEEF37AD19575D92E191C1E4B1474CA9","signType":"SHA1","paySign":"7717231c335a05165b1874658306fa431fe9a0de"}`
+	want := `{"appId":"wxf8b4f85f3a794e77","timeStamp":"189026618","nonceStr":"adssdasssd13d","package":"bank_type=WX\u0026body=XXX\u0026fee_type=1\u0026input_charset=GBK\u0026notify_url=http%3a%2f%2fwww.qq.com\u0026out_trade_no=16642817866003386000\u0026partner=1900000109\u0026spbill_create_ip=127.0.0.1\u0026total_fee=1\u0026sign=BEEF37AD19575D92E191C1E4B1474CA9","paySign":"7717231c335a05165b1874658306fa431fe9a0de","signType":"SHA1"}`
 	if str != want {
 		t.Errorf("failed, have %#s, want %#s", str, want)
 		return
