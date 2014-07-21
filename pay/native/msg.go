@@ -9,7 +9,6 @@ import (
 	"crypto/sha1"
 	"crypto/subtle"
 	"encoding/hex"
-	"encoding/xml"
 	"fmt"
 	"strconv"
 )
@@ -174,10 +173,5 @@ func (resp *BillResponse) SetSignature(paySignKey string) (err error) {
 	string1 = append(string1, TimeStampStr...)
 
 	resp.Signature = hex.EncodeToString(SumFunc(string1))
-	return
-}
-
-func (resp *BillResponse) MarshalToXML() (xmlBytes []byte, err error) {
-	xmlBytes, err = xml.Marshal(resp)
 	return
 }

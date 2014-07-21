@@ -8,7 +8,6 @@ package js
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"strconv"
 )
@@ -92,10 +91,5 @@ func (para *Parameters) SetSignature(paySignKey string) (err error) {
 	string1 = append(string1, timestamp...)
 
 	para.Signature = hex.EncodeToString(SumFunc(string1))
-	return
-}
-
-func (para *Parameters) MarshalToJSON() (jsonBytes []byte, err error) {
-	jsonBytes, err = json.Marshal(para)
 	return
 }

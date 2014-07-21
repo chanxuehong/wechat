@@ -6,6 +6,7 @@
 package js
 
 import (
+	"encoding/json"
 	"testing"
 )
 
@@ -23,7 +24,7 @@ func TestArgumentsString(t *testing.T) {
 		return
 	}
 
-	bs, err := para.MarshalToJSON()
+	bs, err := json.Marshal(&para)
 	if err != nil {
 		t.Error(err)
 		return
