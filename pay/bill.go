@@ -226,7 +226,7 @@ func (this *Bill) Package(partnerKey string) (bs []byte) {
 		n2 += 11 + len(ProductTagURLEscapedStr)
 	}
 
-	// &key=
+	// &key=partnerKey
 	n1 += 5 + len(partnerKey)
 	// &sign=signature
 	n2 += 6 + 32
