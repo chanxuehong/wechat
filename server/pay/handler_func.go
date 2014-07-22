@@ -21,4 +21,4 @@ type BillRequestHandlerFunc func(http.ResponseWriter, *http.Request, *native.Bil
 
 // 支付成功后, 微信服务器会通知支付结果, 该函数就是处理这个通知的.
 //  NOTE: 参数 *pay.Notification 已经经过验证了, 是合法的通知消息!
-type NotifyHandlerFunc func(http.ResponseWriter, *http.Request, *pay.Notification)
+type NotifyHandlerFunc func(http.ResponseWriter, *http.Request, *pay.NotifyPostData, *pay.NotifyURLData)

@@ -53,5 +53,4 @@ func NewNotifyHandler(
 
 // NotifyHandler 实现 http.Handler 接口
 func (handler *NotifyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
 }

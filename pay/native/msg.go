@@ -30,9 +30,9 @@ type BillRequest struct {
 	SignMethod string `xml:"SignMethod"`   // 必须, 签名方式, 目前只支持"SHA1", 该字段不参与签名
 }
 
-// 校验 req *BillRequest 的签名是否有效, isValid == true && err == nil 时表示有效.
+// 校验 req *BillRequest 是否有效, isValid == true && err == nil 时表示有效.
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
-func (req *BillRequest) CheckSignature(paySignKey string) (isValid bool, err error) {
+func (req *BillRequest) Check(paySignKey string) (isValid bool, err error) {
 	var hashSumLen, twoHashSumLen int
 	var SumFunc func([]byte) []byte // hash 签名函数
 

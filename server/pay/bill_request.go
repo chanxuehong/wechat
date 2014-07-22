@@ -59,13 +59,13 @@ func (handler *BillRequestHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	isValid, err := billReq.CheckSignature(handler.paySignKey)
+	isValid, err := billReq.Check(handler.paySignKey)
 	if err != nil {
 		handler.invalidRequestHandler(w, r, err)
 		return
 	}
 	if !isValid {
-		err = errors.New("CheckSignature failed")
+		err = errors.New("BillRequest.Check failed")
 		handler.invalidRequestHandler(w, r, err)
 		return
 	}
