@@ -11,14 +11,15 @@ import (
 	"crypto/subtle"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"net/url"
 	"sort"
 	"strconv"
 	"time"
 )
 
-// 支付成功后通知消息 url query string 部分
-type NotifyURLData struct {
+// 支付成功后通知消息 url query string 部分, 1.0 版本
+type NotifyURLDataVer1 struct {
 	// 协议参数 ==================================================================
 
 	ServiceVersion string // 必须, 版本号
@@ -53,216 +54,223 @@ type NotifyURLData struct {
 	BuyerAlias string // 可选, 买家别名, 对应买家账号的一个加密串
 }
 
-// 根据 values url.Values(来自对 notify url query string 的解析) 来初始化 data *NotifyURLData.
+// 根据 values url.Values(来自对 notify url query string 的解析) 来初始化 data *NotifyURLDataVer1.
 // 如果 values url.Values 里的参数不合法(包括签名不正确) 则返回错误信息, 否则返回 nil.
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
-func (data *NotifyURLData) CheckAndInit(values url.Values, paySignKey string) (err error) {
+func (data *NotifyURLDataVer1) CheckAndInit(values url.Values, paySignKey string) (err error) {
 	if values == nil {
 		return errors.New("values == nil")
 	}
 
 	// 先检查签名是否正确 =========================================================
 
-	signatures := values["sign"]
-	if len(signatures) == 0 || len(signatures[0]) == 0 {
-		return errors.New("sign is empty")
-	} else {
-		values.Del("sign")
-	}
-
-	keys := make([]string, 0, len(values))
-	for k := range values {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	var buf bytes.Buffer
-
-	for _, k := range keys {
-		vs := values[k]
-		for _, v := range vs {
-			if buf.Len() > 0 {
-				buf.WriteByte('&')
-			}
-			buf.WriteString(k)
-			buf.WriteByte('=')
-			buf.WriteString(v)
-		}
-	}
-	if buf.Len() > 0 {
-		buf.WriteByte('&')
-	}
-	buf.WriteString("key=")
-	buf.WriteString(paySignKey)
-
-	string1 := buf.Bytes()
-	hashSumArray := md5.Sum(string1)
-	hashSumHexBytes := make([]byte, hex.EncodedLen(len(hashSumArray)))
-	hex.Encode(hashSumHexBytes, hashSumArray[:])
-	copy(hashSumHexBytes, bytes.ToUpper(hashSumHexBytes))
-
-	if subtle.ConstantTimeCompare([]byte(signatures[0]), hashSumHexBytes) != 1 {
-		return errors.New("签名检验不通过")
-	}
-
-	// 初始化 ===================================================================
-
-	if serviceVersions := values["service_version"]; len(serviceVersions) > 0 && len(serviceVersions[0]) > 0 {
-		data.ServiceVersion = serviceVersions[0]
-	} else {
-		data.ServiceVersion = "1.0"
-	}
-
-	if charsets := values["input_charset"]; len(charsets) > 0 && len(charsets[0]) > 0 {
-		data.Charset = charsets[0]
-	} else {
-		data.Charset = NOTIFY_URL_DATA_CHARSET_GBK
-	}
-
-	// 在上面已经判断了
-	data.Signature = signatures[0]
-
+	var signMethod string
 	if signMethods := values["sign_type"]; len(signMethods) > 0 && len(signMethods[0]) > 0 {
-		data.SignMethod = signMethods[0]
+		signMethod = signMethods[0]
 	} else {
-		data.SignMethod = NOTIFY_URL_DATA_SIGN_METHOD_MD5
+		signMethod = NOTIFY_URL_DATA_SIGN_METHOD_MD5
 	}
 
-	if signKeyIndexes := values["sign_key_index"]; len(signKeyIndexes) > 0 && len(signKeyIndexes[0]) > 0 {
-		index, err := strconv.ParseInt(signKeyIndexes[0], 10, 64)
-		if err != nil {
-			return err
+	var charset string
+	if charsets := values["input_charset"]; len(charsets) > 0 && len(charsets[0]) > 0 {
+		charset = charsets[0]
+	} else {
+		charset = NOTIFY_URL_DATA_CHARSET_GBK
+	}
+
+	var signature string
+	if signatures := values["sign"]; len(signatures) > 0 && len(signatures[0]) > 0 {
+		signature = signatures[0]
+		values.Del("sign")
+	} else {
+		return errors.New("sign is empty")
+	}
+
+	switch {
+	case signMethod == NOTIFY_URL_DATA_SIGN_METHOD_MD5 && charset == NOTIFY_URL_DATA_CHARSET_UTF8:
+		keys := make([]string, 0, len(values))
+		for k := range values {
+			keys = append(keys, k)
 		}
-		data.SignKeyIndex = int(index)
-	} else {
-		data.SignKeyIndex = 1
-	}
+		sort.Strings(keys)
 
-	if notifyIds := values["notify_id"]; len(notifyIds) > 0 && len(notifyIds[0]) > 0 {
-		data.NotifyId = notifyIds[0]
-	} else {
-		return errors.New("notify_id is empty")
-	}
+		var buf bytes.Buffer
 
-	if tradeModes := values["trade_mode"]; len(tradeModes) > 0 && len(tradeModes[0]) > 0 {
-		mode, err := strconv.ParseInt(tradeModes[0], 10, 64)
-		if err != nil {
-			return err
+		for _, k := range keys {
+			vs := values[k]
+			for _, v := range vs {
+				if buf.Len() > 0 {
+					buf.WriteByte('&')
+				}
+				buf.WriteString(k)
+				buf.WriteByte('=')
+				buf.WriteString(v)
+			}
 		}
-		data.TradeMode = int(mode)
-	} else {
-		return errors.New("trade_mode is empty")
-	}
-
-	if tradeStates := values["trade_state"]; len(tradeStates) > 0 && len(tradeStates[0]) > 0 {
-		state, err := strconv.ParseInt(tradeStates[0], 10, 64)
-		if err != nil {
-			return err
+		if buf.Len() > 0 {
+			buf.WriteByte('&')
 		}
-		data.TradeState = int(state)
-	} else {
-		return errors.New("trade_state is empty")
-	}
+		buf.WriteString("key=")
+		buf.WriteString(paySignKey)
 
-	if payInfo := values["pay_info"]; len(payInfo) > 0 {
-		data.PayInfo = payInfo[0]
-	}
+		string1 := buf.Bytes()
+		hashSumArray := md5.Sum(string1)
+		hashSumHexBytes := make([]byte, hex.EncodedLen(len(hashSumArray)))
+		hex.Encode(hashSumHexBytes, hashSumArray[:])
+		copy(hashSumHexBytes, bytes.ToUpper(hashSumHexBytes))
 
-	if bankBillNo := values["bank_billno"]; len(bankBillNo) > 0 {
-		data.BankBillNo = bankBillNo[0]
-	}
-
-	if transactionIds := values["transaction_id"]; len(transactionIds) > 0 && len(transactionIds[0]) > 0 {
-		data.TransactionId = transactionIds[0]
-	} else {
-		return errors.New("transaction_id is empty")
-	}
-
-	if timeEnds := values["time_end"]; len(timeEnds) > 0 && len(timeEnds[0]) > 0 {
-		t, err := ParseTime(timeEnds[0])
-		if err != nil {
-			return err
+		if subtle.ConstantTimeCompare([]byte(signature), hashSumHexBytes) != 1 {
+			return errors.New("签名检验不通过")
 		}
-		data.TimeEnd = t
-	} else {
-		return errors.New("time_end is empty")
-	}
 
-	if bankTypes := values["bank_type"]; len(bankTypes) > 0 && len(bankTypes[0]) > 0 {
-		data.BankType = bankTypes[0]
-	} else {
-		return errors.New("bank_type is empty")
-	}
+		// 初始化 ===================================================================
 
-	if partnerIds := values["partner"]; len(partnerIds) > 0 && len(partnerIds[0]) > 0 {
-		data.PartnerId = partnerIds[0]
-	} else {
-		return errors.New("partner is empty")
-	}
+		// 在上面已经判断了
+		data.ServiceVersion = "1.0"
+		data.SignMethod = signMethod
+		data.Charset = charset
+		data.Signature = signature
 
-	if outTradeNo := values["out_trade_no"]; len(outTradeNo) > 0 && len(outTradeNo[0]) > 0 {
-		data.OutTradeNo = outTradeNo[0]
-	} else {
-		return errors.New("out_trade_no is empty")
-	}
-
-	if attaches := values["attach"]; len(attaches) > 0 {
-		data.Attach = attaches[0]
-	}
-
-	if totalFees := values["total_fee"]; len(totalFees) > 0 && len(totalFees[0]) > 0 {
-		fee, err := strconv.ParseInt(totalFees[0], 10, 64)
-		if err != nil {
-			return err
+		if signKeyIndexes := values["sign_key_index"]; len(signKeyIndexes) > 0 && len(signKeyIndexes[0]) > 0 {
+			index, err := strconv.ParseInt(signKeyIndexes[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			data.SignKeyIndex = int(index)
+		} else {
+			data.SignKeyIndex = 1
 		}
-		data.TotalFee = int(fee)
-	} else {
-		return errors.New("total_fee is empty")
-	}
 
-	if discounts := values["discount"]; len(discounts) > 0 && len(discounts[0]) > 0 {
-		discount, err := strconv.ParseInt(discounts[0], 10, 64)
-		if err != nil {
-			return err
+		if notifyIds := values["notify_id"]; len(notifyIds) > 0 && len(notifyIds[0]) > 0 {
+			data.NotifyId = notifyIds[0]
+		} else {
+			return errors.New("notify_id is empty")
 		}
-		data.Discount = int(discount)
-	}
 
-	if transportFees := values["transport_fee"]; len(transportFees) > 0 && len(transportFees[0]) > 0 {
-		fee, err := strconv.ParseInt(transportFees[0], 10, 64)
-		if err != nil {
-			return err
+		if tradeModes := values["trade_mode"]; len(tradeModes) > 0 && len(tradeModes[0]) > 0 {
+			mode, err := strconv.ParseInt(tradeModes[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			data.TradeMode = int(mode)
+		} else {
+			return errors.New("trade_mode is empty")
 		}
-		data.TransportFee = int(fee)
-	}
 
-	if productFees := values["product_fee"]; len(productFees) > 0 && len(productFees[0]) > 0 {
-		fee, err := strconv.ParseInt(productFees[0], 10, 64)
-		if err != nil {
-			return err
+		if tradeStates := values["trade_state"]; len(tradeStates) > 0 && len(tradeStates[0]) > 0 {
+			state, err := strconv.ParseInt(tradeStates[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			data.TradeState = int(state)
+		} else {
+			return errors.New("trade_state is empty")
 		}
-		data.ProductFee = int(fee)
-	}
 
-	if data.TransportFee != 0 || data.ProductFee != 0 {
-		if data.TransportFee+data.ProductFee != data.TotalFee {
-			return errors.New(`transport_fee+product_fee != total_fee`)
+		if payInfo := values["pay_info"]; len(payInfo) > 0 {
+			data.PayInfo = payInfo[0]
 		}
-	}
 
-	if feeTypes := values["fee_type"]; len(feeTypes) > 0 && len(feeTypes[0]) > 0 {
-		feeType, err := strconv.ParseInt(feeTypes[0], 10, 64)
-		if err != nil {
-			return err
+		if bankBillNo := values["bank_billno"]; len(bankBillNo) > 0 {
+			data.BankBillNo = bankBillNo[0]
 		}
-		data.FeeType = int(feeType)
-	} else {
-		return errors.New("fee_type is empty")
-	}
 
-	if buyerAliases := values["buyer_alias"]; len(buyerAliases) > 0 {
-		data.BuyerAlias = buyerAliases[0]
-	}
+		if transactionIds := values["transaction_id"]; len(transactionIds) > 0 && len(transactionIds[0]) > 0 {
+			data.TransactionId = transactionIds[0]
+		} else {
+			return errors.New("transaction_id is empty")
+		}
 
-	return
+		if timeEnds := values["time_end"]; len(timeEnds) > 0 && len(timeEnds[0]) > 0 {
+			t, err := ParseTime(timeEnds[0])
+			if err != nil {
+				return err
+			}
+			data.TimeEnd = t
+		} else {
+			return errors.New("time_end is empty")
+		}
+
+		if bankTypes := values["bank_type"]; len(bankTypes) > 0 && len(bankTypes[0]) > 0 {
+			data.BankType = bankTypes[0]
+		} else {
+			return errors.New("bank_type is empty")
+		}
+
+		if partnerIds := values["partner"]; len(partnerIds) > 0 && len(partnerIds[0]) > 0 {
+			data.PartnerId = partnerIds[0]
+		} else {
+			return errors.New("partner is empty")
+		}
+
+		if outTradeNo := values["out_trade_no"]; len(outTradeNo) > 0 && len(outTradeNo[0]) > 0 {
+			data.OutTradeNo = outTradeNo[0]
+		} else {
+			return errors.New("out_trade_no is empty")
+		}
+
+		if attaches := values["attach"]; len(attaches) > 0 {
+			data.Attach = attaches[0]
+		}
+
+		if totalFees := values["total_fee"]; len(totalFees) > 0 && len(totalFees[0]) > 0 {
+			fee, err := strconv.ParseInt(totalFees[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			data.TotalFee = int(fee)
+		} else {
+			return errors.New("total_fee is empty")
+		}
+
+		if discounts := values["discount"]; len(discounts) > 0 && len(discounts[0]) > 0 {
+			discount, err := strconv.ParseInt(discounts[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			data.Discount = int(discount)
+		}
+
+		if transportFees := values["transport_fee"]; len(transportFees) > 0 && len(transportFees[0]) > 0 {
+			fee, err := strconv.ParseInt(transportFees[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			data.TransportFee = int(fee)
+		}
+
+		if productFees := values["product_fee"]; len(productFees) > 0 && len(productFees[0]) > 0 {
+			fee, err := strconv.ParseInt(productFees[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			data.ProductFee = int(fee)
+		}
+
+		if data.TransportFee != 0 || data.ProductFee != 0 {
+			if data.TransportFee+data.ProductFee != data.TotalFee {
+				return errors.New(`transport_fee+product_fee != total_fee`)
+			}
+		}
+
+		if feeTypes := values["fee_type"]; len(feeTypes) > 0 && len(feeTypes[0]) > 0 {
+			feeType, err := strconv.ParseInt(feeTypes[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			data.FeeType = int(feeType)
+		} else {
+			return errors.New("fee_type is empty")
+		}
+
+		if buyerAliases := values["buyer_alias"]; len(buyerAliases) > 0 {
+			data.BuyerAlias = buyerAliases[0]
+		}
+
+		return
+
+	default:
+		err = fmt.Errorf("没有实现对 签名方法(%s) 或者 字符编码(%s) 的支持", signMethod, charset)
+		return
+	}
 }
