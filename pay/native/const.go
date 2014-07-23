@@ -8,3 +8,8 @@ package native
 const (
 	RESPONSE_SIGN_METHOD_SHA1 = "sha1"
 )
+
+const (
+	IS_SUBSCRIBE_TRUE  = 1
+	IS_SUBSCRIBE_FALSE = 0
+)

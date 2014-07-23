@@ -30,17 +30,19 @@ type NotifyPostData struct {
 	SignMethod string `xml:"SignMethod"`   // 必须, 签名方式, 目前只支持"sha1"
 }
 
-// 校验 data *NotifyPostData 是否有效, isValid == true && err == nil 时表示有效.
+// 检查 data *NotifyPostData 是否合法(包括签名的检查), 合法返回 nil, 否则返回错误信息.
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
-func (data *NotifyPostData) Check(paySignKey string) (isValid bool, err error) {
+func (data *NotifyPostData) Check(paySignKey string) (err error) {
+	// 检查字段完整性
 	if data.AppId == "" || data.NonceStr == "" || data.TimeStamp == 0 ||
 		data.OpenId == "" || data.IsSubscribe != IS_SUBSCRIBE_TRUE && data.IsSubscribe != IS_SUBSCRIBE_FALSE ||
 		data.Signature == "" || data.SignMethod == "" {
 
-		err = errors.New("无效的 NotifyPostData")
+		err = errors.New("无效的 NotifyPostData, 某些字段没有值")
 		return
 	}
 
+	// 检查签名
 	var hashSumLen, twoHashSumLen int
 	var SumFunc func([]byte) []byte // hash 签名函数
 
@@ -60,6 +62,7 @@ func (data *NotifyPostData) Check(paySignKey string) (isValid bool, err error) {
 	}
 
 	if len(data.Signature) != hashSumLen {
+		err = errors.New("签名不正确")
 		return
 	}
 
@@ -103,8 +106,8 @@ func (data *NotifyPostData) Check(paySignKey string) (isValid bool, err error) {
 	hex.Encode(signature, SumFunc(string1))
 
 	// 采用 subtle.ConstantTimeCompare 是防止 计时攻击!
-	if subtle.ConstantTimeCompare(dataSignature, signature) == 1 {
-		isValid = true
+	if subtle.ConstantTimeCompare(dataSignature, signature) != 1 {
+		err = errors.New("签名不正确")
 		return
 	}
 	return

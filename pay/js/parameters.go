@@ -37,8 +37,8 @@ import (
 //
 type Parameters struct {
 	AppId     string `json:"appId"`            // 必须, 公众号 id, 商户注册具有支付权限的公众号成功后即可获得
-	TimeStamp int64  `json:"timeStamp,string"` // 必须, unixtime, 商户生成
 	NonceStr  string `json:"nonceStr"`         // 必须, 商户生成的随机字符串, 32个字符以内
+	TimeStamp int64  `json:"timeStamp,string"` // 必须, unixtime, 商户生成
 
 	Package string `json:"package"` // 必须, 订单详情组合成的字符串, 4096个字符以内, see ../Bill.Package
 

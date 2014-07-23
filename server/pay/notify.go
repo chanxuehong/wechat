@@ -6,23 +6,22 @@
 package pay
 
 import (
+	"encoding/xml"
+	"errors"
+	"github.com/chanxuehong/wechat/pay"
 	"net/http"
+	"net/url"
 )
-
-// 根据密钥编号获取密钥
-type GetSignKeyFunc func(keyIndex int) string
 
 // 支付成功通知消息的 Handler
 type NotifyHandler struct {
 	paySignKey            string
-	getSignKey            GetSignKeyFunc
 	invalidRequestHandler InvalidRequestHandlerFunc
 	notifyHandler         NotifyHandlerFunc
 }
 
 func NewNotifyHandler(
 	paySignKey string,
-	getSignKey GetSignKeyFunc,
 	invalidRequestHandler InvalidRequestHandlerFunc,
 	notifyHandler NotifyHandlerFunc,
 
@@ -30,9 +29,6 @@ func NewNotifyHandler(
 
 	if paySignKey == "" {
 		panic(`paySignKey == ""`)
-	}
-	if getSignKey == nil {
-		panic("getSignKey == nil")
 	}
 	if invalidRequestHandler == nil {
 		panic("invalidRequestHandler == nil")
@@ -43,7 +39,6 @@ func NewNotifyHandler(
 
 	handler = &NotifyHandler{
 		paySignKey:            paySignKey,
-		getSignKey:            getSignKey,
 		invalidRequestHandler: invalidRequestHandler,
 		notifyHandler:         notifyHandler,
 	}
@@ -53,4 +48,40 @@ func NewNotifyHandler(
 
 // NotifyHandler 实现 http.Handler 接口
 func (handler *NotifyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		err := errors.New("request method is not POST")
+		handler.invalidRequestHandler(w, r, err)
+		return
+	}
+
+	if r.URL == nil {
+		err := errors.New("r.URL == nil")
+		handler.invalidRequestHandler(w, r, err)
+		return
+	}
+
+	var postData pay.NotifyPostData
+	if err := xml.NewDecoder(r.Body).Decode(&postData); err != nil {
+		handler.invalidRequestHandler(w, r, err)
+		return
+	}
+
+	if err := postData.Check(handler.paySignKey); err != nil {
+		handler.invalidRequestHandler(w, r, err)
+		return
+	}
+
+	values, err := url.ParseQuery(r.URL.RawQuery)
+	if err != nil {
+		handler.invalidRequestHandler(w, r, err)
+		return
+	}
+
+	var urlData pay.NotifyURLData
+	if err := urlData.CheckAndInit(values, handler.paySignKey); err != nil {
+		handler.invalidRequestHandler(w, r, err)
+		return
+	}
+
+	handler.notifyHandler(w, r, &postData, &urlData)
 }

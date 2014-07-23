@@ -9,6 +9,7 @@ import (
 	"crypto/sha1"
 	"crypto/subtle"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"strconv"
 )
@@ -27,12 +28,23 @@ type BillRequest struct {
 	IsSubscribe int    `xml:"IsSubscribe"` // 必须, 标记用户是否订阅该公众帐号, 1为关注, 0为未关注
 
 	Signature  string `xml:"AppSignature"` // 必须, 参数的加密签名
-	SignMethod string `xml:"SignMethod"`   // 必须, 签名方式, 目前只支持"SHA1", 该字段不参与签名
+	SignMethod string `xml:"SignMethod"`   // 必须, 签名方式, 目前只支持 "sha1", 该字段不参与签名
 }
 
-// 校验 req *BillRequest 是否有效, isValid == true && err == nil 时表示有效.
+// 检查 req *BillRequest 是否合法(包括签名的检查), 合法返回 nil, 否则返回错误信息.
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
-func (req *BillRequest) Check(paySignKey string) (isValid bool, err error) {
+func (req *BillRequest) Check(paySignKey string) (err error) {
+	// 首先检查字段的完整性
+	if req.AppId == "" || req.NonceStr == "" || req.TimeStamp == 0 ||
+		req.ProductId == "" || req.OpenId == "" || req.IsSubscribe != IS_SUBSCRIBE_TRUE &&
+		req.IsSubscribe != IS_SUBSCRIBE_FALSE || req.Signature == "" ||
+		req.SignMethod == "" {
+
+		err = errors.New("无效的 BillRequest, 某些字段没有值")
+		return
+	}
+
+	// 检查签名
 	var hashSumLen, twoHashSumLen int
 	var SumFunc func([]byte) []byte // hash 签名函数
 
@@ -52,6 +64,7 @@ func (req *BillRequest) Check(paySignKey string) (isValid bool, err error) {
 	}
 
 	if len(req.Signature) != hashSumLen {
+		err = errors.New("签名不正确")
 		return
 	}
 
@@ -67,11 +80,13 @@ func (req *BillRequest) Check(paySignKey string) (isValid bool, err error) {
 	// buf[hashSumLen:twoHashSumLen] 保存生成的签名
 	// buf[twoHashSumLen:] 按照字典序列保存 string1
 	buf := make([]byte, n)
-	copy(buf, req.Signature)
 	reqSignature := buf[:hashSumLen]
 	signature := buf[hashSumLen:twoHashSumLen]
 	string1 := buf[twoHashSumLen:twoHashSumLen]
 
+	copy(reqSignature, req.Signature)
+
+	// 字典序
 	// appid
 	// appkey
 	// issubscribe
@@ -97,8 +112,8 @@ func (req *BillRequest) Check(paySignKey string) (isValid bool, err error) {
 	hex.Encode(signature, SumFunc(string1))
 
 	// 采用 subtle.ConstantTimeCompare 是防止 计时攻击!
-	if subtle.ConstantTimeCompare(reqSignature, signature) == 1 {
-		isValid = true
+	if subtle.ConstantTimeCompare(reqSignature, signature) != 1 {
+		err = errors.New("签名不正确")
 		return
 	}
 	return
@@ -111,14 +126,14 @@ type BillResponse struct {
 	NonceStr  string `xml:"NonceStr"`  // 必须, 随机串
 	TimeStamp int64  `xml:"TimeStamp"` // 必须, 时间戳
 
-	Package string `xml:"Package"` // 必须,订单详情组合成的字符串, 4096个字符以内, see ../Bill.Package
+	Package string `xml:"Package"` // 必须, 订单详情组合成的字符串, 4096个字符以内, see ../Bill.Package
 
 	// 可以自己定义错误信息
 	ErrCode int    `xml:"RetCode"`   // 可选, 0 表示正确
 	ErrMsg  string `xml:"RetErrMsg"` // 可选, 错误信息, 要求 utf8 编码格式
 
 	Signature  string `xml:"AppSignature"` // 必须, 该 BillResponse 自身的签名. see BillResponse.SetSignature
-	SignMethod string `xml:"SignMethod"`   // 必须, 签名方式, 目前只支持 sha1
+	SignMethod string `xml:"SignMethod"`   // 必须, 签名方式, 目前只支持 "sha1"
 }
 
 // 设置签名字段.

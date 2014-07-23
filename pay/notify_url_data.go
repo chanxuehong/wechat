@@ -6,22 +6,28 @@
 package pay
 
 import (
+	"bytes"
+	"crypto/md5"
+	"crypto/subtle"
+	"encoding/hex"
 	"errors"
 	"net/url"
+	"sort"
 	"strconv"
 	"time"
 )
 
 // 支付成功后通知消息 url query string 部分
 type NotifyURLData struct {
-	// 协议参数
+	// 协议参数 ==================================================================
+
 	ServiceVersion string // 必须, 版本号
 	Charset        string // 必须, 字符编码, 取值: GBK, UTF-8
 	Signature      string // 必须, 签名
 	SignMethod     string // 必须, 签名类型, 取值: MD5, RSA
 	SignKeyIndex   int    // 必须, 多密钥支持的密钥序号
 
-	// 业务参数
+	// 业务参数 ==================================================================
 
 	NotifyId string // 必须, 支付结果通知 id, 对于某些特定商户, 只返回通知 id, 要求商户据此查询交易结果
 
@@ -47,42 +53,83 @@ type NotifyURLData struct {
 	BuyerAlias string // 可选, 买家别名, 对应买家账号的一个加密串
 }
 
-func (data *NotifyURLData) Init(values url.Values) (err error) {
+// 根据 values url.Values(来自对 notify url query string 的解析) 来初始化 data *NotifyURLData.
+// 如果 values url.Values 里的参数不合法(包括签名不正确) 则返回错误信息, 否则返回 nil.
+//  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
+func (data *NotifyURLData) CheckAndInit(values url.Values, paySignKey string) (err error) {
 	if values == nil {
 		return errors.New("values == nil")
 	}
 
-	serviceVersions := values["service_version"]
-	if len(serviceVersions) > 0 && len(serviceVersions[0]) > 0 {
+	// 先检查签名是否正确 =========================================================
+
+	signatures := values["sign"]
+	if len(signatures) == 0 || len(signatures[0]) == 0 {
+		return errors.New("sign is empty")
+	} else {
+		values.Del("sign")
+	}
+
+	keys := make([]string, 0, len(values))
+	for k := range values {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	var buf bytes.Buffer
+
+	for _, k := range keys {
+		vs := values[k]
+		for _, v := range vs {
+			if buf.Len() > 0 {
+				buf.WriteByte('&')
+			}
+			buf.WriteString(k)
+			buf.WriteByte('=')
+			buf.WriteString(v)
+		}
+	}
+	if buf.Len() > 0 {
+		buf.WriteByte('&')
+	}
+	buf.WriteString("key=")
+	buf.WriteString(paySignKey)
+
+	string1 := buf.Bytes()
+	hashSumArray := md5.Sum(string1)
+	hashSumHexBytes := make([]byte, hex.EncodedLen(len(hashSumArray)))
+	hex.Encode(hashSumHexBytes, hashSumArray[:])
+	copy(hashSumHexBytes, bytes.ToUpper(hashSumHexBytes))
+
+	if subtle.ConstantTimeCompare([]byte(signatures[0]), hashSumHexBytes) != 1 {
+		return errors.New("签名检验不通过")
+	}
+
+	// 初始化 ===================================================================
+
+	if serviceVersions := values["service_version"]; len(serviceVersions) > 0 && len(serviceVersions[0]) > 0 {
 		data.ServiceVersion = serviceVersions[0]
 	} else {
 		data.ServiceVersion = "1.0"
 	}
 
-	charsets := values["input_charset"]
-	if len(charsets) > 0 && len(charsets[0]) > 0 {
+	if charsets := values["input_charset"]; len(charsets) > 0 && len(charsets[0]) > 0 {
 		data.Charset = charsets[0]
 	} else {
 		data.Charset = NOTIFY_URL_DATA_CHARSET_GBK
 	}
 
-	signatures := values["sign"]
-	if len(signatures) > 0 && len(signatures[0]) > 0 {
-		data.Signature = signatures[0]
-	} else {
-		return errors.New("sign is empty")
-	}
+	// 在上面已经判断了
+	data.Signature = signatures[0]
 
-	signMethods := values["sign_type"]
-	if len(signMethods) > 0 && len(signMethods[0]) > 0 {
+	if signMethods := values["sign_type"]; len(signMethods) > 0 && len(signMethods[0]) > 0 {
 		data.SignMethod = signMethods[0]
 	} else {
 		data.SignMethod = NOTIFY_URL_DATA_SIGN_METHOD_MD5
 	}
 
-	signKeyIndexes := values["sign_key_index"]
-	if len(signKeyIndexes) > 0 && len(signKeyIndexes[0]) > 0 {
-		index, err := strconv.ParseInt(signMethods[0], 10, 64)
+	if signKeyIndexes := values["sign_key_index"]; len(signKeyIndexes) > 0 && len(signKeyIndexes[0]) > 0 {
+		index, err := strconv.ParseInt(signKeyIndexes[0], 10, 64)
 		if err != nil {
 			return err
 		}
@@ -91,15 +138,13 @@ func (data *NotifyURLData) Init(values url.Values) (err error) {
 		data.SignKeyIndex = 1
 	}
 
-	notifyIds := values["notify_id"]
-	if len(notifyIds) > 0 && len(notifyIds[0]) > 0 {
+	if notifyIds := values["notify_id"]; len(notifyIds) > 0 && len(notifyIds[0]) > 0 {
 		data.NotifyId = notifyIds[0]
 	} else {
 		return errors.New("notify_id is empty")
 	}
 
-	tradeModes := values["trade_mode"]
-	if len(tradeModes) > 0 && len(tradeModes[0]) > 0 {
+	if tradeModes := values["trade_mode"]; len(tradeModes) > 0 && len(tradeModes[0]) > 0 {
 		mode, err := strconv.ParseInt(tradeModes[0], 10, 64)
 		if err != nil {
 			return err
@@ -109,8 +154,7 @@ func (data *NotifyURLData) Init(values url.Values) (err error) {
 		return errors.New("trade_mode is empty")
 	}
 
-	tradeStates := values["trade_state"]
-	if len(tradeStates) > 0 && len(tradeStates[0]) > 0 {
+	if tradeStates := values["trade_state"]; len(tradeStates) > 0 && len(tradeStates[0]) > 0 {
 		state, err := strconv.ParseInt(tradeStates[0], 10, 64)
 		if err != nil {
 			return err
@@ -120,25 +164,21 @@ func (data *NotifyURLData) Init(values url.Values) (err error) {
 		return errors.New("trade_state is empty")
 	}
 
-	payInfo := values["pay_info"]
-	if len(payInfo) > 0 {
+	if payInfo := values["pay_info"]; len(payInfo) > 0 {
 		data.PayInfo = payInfo[0]
 	}
 
-	bankBillNo := values["bank_billno"]
-	if len(bankBillNo) > 0 {
+	if bankBillNo := values["bank_billno"]; len(bankBillNo) > 0 {
 		data.BankBillNo = bankBillNo[0]
 	}
 
-	transactionIds := values["transaction_id"]
-	if len(transactionIds) > 0 && len(transactionIds[0]) > 0 {
+	if transactionIds := values["transaction_id"]; len(transactionIds) > 0 && len(transactionIds[0]) > 0 {
 		data.TransactionId = transactionIds[0]
 	} else {
 		return errors.New("transaction_id is empty")
 	}
 
-	timeEnds := values["time_end"]
-	if len(timeEnds) > 0 && len(timeEnds[0]) > 0 {
+	if timeEnds := values["time_end"]; len(timeEnds) > 0 && len(timeEnds[0]) > 0 {
 		t, err := ParseTime(timeEnds[0])
 		if err != nil {
 			return err
@@ -148,34 +188,29 @@ func (data *NotifyURLData) Init(values url.Values) (err error) {
 		return errors.New("time_end is empty")
 	}
 
-	bankTypes := values["bank_type"]
-	if len(bankTypes) > 0 && len(bankTypes[0]) > 0 {
+	if bankTypes := values["bank_type"]; len(bankTypes) > 0 && len(bankTypes[0]) > 0 {
 		data.BankType = bankTypes[0]
 	} else {
 		return errors.New("bank_type is empty")
 	}
 
-	partnerIds := values["partner"]
-	if len(partnerIds) > 0 && len(partnerIds[0]) > 0 {
+	if partnerIds := values["partner"]; len(partnerIds) > 0 && len(partnerIds[0]) > 0 {
 		data.PartnerId = partnerIds[0]
 	} else {
 		return errors.New("partner is empty")
 	}
 
-	outTradeNo := values["out_trade_no"]
-	if len(outTradeNo) > 0 && len(outTradeNo[0]) > 0 {
+	if outTradeNo := values["out_trade_no"]; len(outTradeNo) > 0 && len(outTradeNo[0]) > 0 {
 		data.OutTradeNo = outTradeNo[0]
 	} else {
 		return errors.New("out_trade_no is empty")
 	}
 
-	attaches := values["attach"]
-	if len(attaches) > 0 {
+	if attaches := values["attach"]; len(attaches) > 0 {
 		data.Attach = attaches[0]
 	}
 
-	totalFees := values["total_fee"]
-	if len(totalFees) > 0 && len(totalFees[0]) > 0 {
+	if totalFees := values["total_fee"]; len(totalFees) > 0 && len(totalFees[0]) > 0 {
 		fee, err := strconv.ParseInt(totalFees[0], 10, 64)
 		if err != nil {
 			return err
@@ -185,8 +220,7 @@ func (data *NotifyURLData) Init(values url.Values) (err error) {
 		return errors.New("total_fee is empty")
 	}
 
-	discounts := values["discount"]
-	if len(discounts) > 0 && len(discounts[0]) > 0 {
+	if discounts := values["discount"]; len(discounts) > 0 && len(discounts[0]) > 0 {
 		discount, err := strconv.ParseInt(discounts[0], 10, 64)
 		if err != nil {
 			return err
@@ -194,8 +228,7 @@ func (data *NotifyURLData) Init(values url.Values) (err error) {
 		data.Discount = int(discount)
 	}
 
-	transportFees := values["transport_fee"]
-	if len(transportFees) > 0 && len(transportFees[0]) > 0 {
+	if transportFees := values["transport_fee"]; len(transportFees) > 0 && len(transportFees[0]) > 0 {
 		fee, err := strconv.ParseInt(transportFees[0], 10, 64)
 		if err != nil {
 			return err
@@ -203,8 +236,7 @@ func (data *NotifyURLData) Init(values url.Values) (err error) {
 		data.TransportFee = int(fee)
 	}
 
-	productFees := values["product_fee"]
-	if len(productFees) > 0 && len(productFees[0]) > 0 {
+	if productFees := values["product_fee"]; len(productFees) > 0 && len(productFees[0]) > 0 {
 		fee, err := strconv.ParseInt(productFees[0], 10, 64)
 		if err != nil {
 			return err
@@ -218,8 +250,7 @@ func (data *NotifyURLData) Init(values url.Values) (err error) {
 		}
 	}
 
-	feeTypes := values["fee_type"]
-	if len(feeTypes) > 0 && len(feeTypes[0]) > 0 {
+	if feeTypes := values["fee_type"]; len(feeTypes) > 0 && len(feeTypes[0]) > 0 {
 		feeType, err := strconv.ParseInt(feeTypes[0], 10, 64)
 		if err != nil {
 			return err
@@ -229,8 +260,7 @@ func (data *NotifyURLData) Init(values url.Values) (err error) {
 		return errors.New("fee_type is empty")
 	}
 
-	buyerAliases := values["buyer_alias"]
-	if len(buyerAliases) > 0 {
+	if buyerAliases := values["buyer_alias"]; len(buyerAliases) > 0 {
 		data.BuyerAlias = buyerAliases[0]
 	}
 

@@ -7,7 +7,7 @@ package pay
 
 // 转义 s string 到 URL 编码格式.
 //  NOTE: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_.~ 不转义,
-//  和 net/url.QueryEscape 不同的地方在于空格转义成 %20 而不是 +
+//  和 net/url.QueryEscape 不同的地方在于 空格" " 转义成 "%20" 而不是 "+"
 func URLEscape(s string) string {
 	hexCount := 0
 	for i := 0; i < len(s); i++ {
