@@ -63,6 +63,9 @@ func (data *NotifyURLDataVer1) CheckAndInit(values url.Values, getSignKey GetSig
 	if values == nil {
 		return errors.New("values == nil")
 	}
+	if getSignKey == nil {
+		return errors.New("getSignKey ==  nil")
+	}
 
 	// 先检查签名是否正确 =========================================================
 
