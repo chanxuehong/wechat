@@ -59,7 +59,6 @@ type NotifyURLDataVer1 struct {
 
 // 根据 values url.Values(来自对 notify url query string 的解析) 来初始化 data *NotifyURLDataVer1.
 // 如果 values url.Values 里的参数不合法(包括签名不正确) 则返回错误信息, 否则返回 nil.
-//  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
 func (data *NotifyURLDataVer1) CheckAndInit(values url.Values, getSignKey GetSignKey) (err error) {
 	if values == nil {
 		return errors.New("values == nil")
