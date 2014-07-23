@@ -12,23 +12,19 @@ import (
 	"github.com/chanxuehong/wechat/pay"
 	"net/http"
 	"net/url"
-	"strconv"
 )
-
-// 根据密钥 index 获取密钥, 找不到合法的密钥返回空值 ""
-type GetSignKey func(keyIndex int) string
 
 // 支付成功通知消息的 Handler
 type NotifyHandler struct {
-	paySignKey            string
-	getSignKey            GetSignKey
+	paySignKey            string         // post 部分签名密钥
+	getSignKey            pay.GetSignKey // url 部分签名密钥获取函数
 	invalidRequestHandler InvalidRequestHandlerFunc
 	notifyHandlerVer1     NotifyHandlerFuncVer1
 }
 
 func NewNotifyHandler(
 	paySignKey string,
-	getSignKey GetSignKey,
+	getSignKey pay.GetSignKey,
 	invalidRequestHandler InvalidRequestHandlerFunc,
 	notifyHandlerVer1 NotifyHandlerFuncVer1,
 
@@ -94,37 +90,18 @@ func (handler *NotifyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		serviceVersion = "1.0"
 	}
 
-	var signKeyIndex int
-	if signKeyIndexes := values["sign_key_index"]; len(signKeyIndexes) > 0 && len(signKeyIndexes[0]) > 0 {
-		index, err := strconv.ParseInt(signKeyIndexes[0], 10, 64)
-		if err != nil {
-			err = fmt.Errorf("获取密钥 index 出错: %s", err.Error())
-			handler.invalidRequestHandler(w, r, err)
-			return
-		}
-		signKeyIndex = int(index)
-	} else {
-		signKeyIndex = 1
-	}
-
-	urlSignKey := handler.getSignKey(signKeyIndex)
-	if urlSignKey == "" {
-		err = fmt.Errorf("获取index 为 %d 的密钥失败", signKeyIndex)
-		handler.invalidRequestHandler(w, r, err)
-		return
-	}
-
 	switch serviceVersion {
 	case "1.0":
 		var urlData pay.NotifyURLDataVer1
-		if err := urlData.CheckAndInit(values, urlSignKey); err != nil {
+		if err := urlData.CheckAndInit(values, handler.getSignKey); err != nil {
 			handler.invalidRequestHandler(w, r, err)
 			return
 		}
+
 		handler.notifyHandlerVer1(w, r, &postData, &urlData)
 
 	default:
-		err := fmt.Errorf("没有实现接口版本号为 %s 的支持", serviceVersion)
+		err := fmt.Errorf("没有实现对接口版本号为 %s 的支持", serviceVersion)
 		handler.invalidRequestHandler(w, r, err)
 		return
 	}

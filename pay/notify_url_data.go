@@ -18,6 +18,9 @@ import (
 	"time"
 )
 
+// 根据密钥 index 获取密钥, 找不到合法的密钥返回空值 ""
+type GetSignKey func(keyIndex int) string
+
 // 支付成功后通知消息 url query string 部分, 1.0 版本
 type NotifyURLDataVer1 struct {
 	// 协议参数 ==================================================================
@@ -57,7 +60,7 @@ type NotifyURLDataVer1 struct {
 // 根据 values url.Values(来自对 notify url query string 的解析) 来初始化 data *NotifyURLDataVer1.
 // 如果 values url.Values 里的参数不合法(包括签名不正确) 则返回错误信息, 否则返回 nil.
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
-func (data *NotifyURLDataVer1) CheckAndInit(values url.Values, paySignKey string) (err error) {
+func (data *NotifyURLDataVer1) CheckAndInit(values url.Values, getSignKey GetSignKey) (err error) {
 	if values == nil {
 		return errors.New("values == nil")
 	}
@@ -86,6 +89,22 @@ func (data *NotifyURLDataVer1) CheckAndInit(values url.Values, paySignKey string
 		return errors.New("sign is empty")
 	}
 
+	var signKeyIndex int
+	if signKeyIndexes := values["sign_key_index"]; len(signKeyIndexes) > 0 && len(signKeyIndexes[0]) > 0 {
+		index, err := strconv.ParseInt(signKeyIndexes[0], 10, 64)
+		if err != nil {
+			return fmt.Errorf("解析密钥 %s 出错: %s", signKeyIndexes[0], err.Error())
+		}
+		signKeyIndex = int(index)
+	} else {
+		signKeyIndex = 1
+	}
+
+	signKey := getSignKey(signKeyIndex)
+	if signKey == "" {
+		return fmt.Errorf("获取编号为 %d 的加密密钥失败", signKeyIndex)
+	}
+
 	switch {
 	case signMethod == NOTIFY_URL_DATA_SIGN_METHOD_MD5 && charset == NOTIFY_URL_DATA_CHARSET_UTF8:
 		keys := make([]string, 0, len(values))
@@ -111,7 +130,7 @@ func (data *NotifyURLDataVer1) CheckAndInit(values url.Values, paySignKey string
 			buf.WriteByte('&')
 		}
 		buf.WriteString("key=")
-		buf.WriteString(paySignKey)
+		buf.WriteString(signKey)
 
 		string1 := buf.Bytes()
 		hashSumArray := md5.Sum(string1)
@@ -130,16 +149,7 @@ func (data *NotifyURLDataVer1) CheckAndInit(values url.Values, paySignKey string
 		data.SignMethod = signMethod
 		data.Charset = charset
 		data.Signature = signature
-
-		if signKeyIndexes := values["sign_key_index"]; len(signKeyIndexes) > 0 && len(signKeyIndexes[0]) > 0 {
-			index, err := strconv.ParseInt(signKeyIndexes[0], 10, 64)
-			if err != nil {
-				return err
-			}
-			data.SignKeyIndex = int(index)
-		} else {
-			data.SignKeyIndex = 1
-		}
+		data.SignKeyIndex = signKeyIndex
 
 		if notifyIds := values["notify_id"]; len(notifyIds) > 0 && len(notifyIds[0]) > 0 {
 			data.NotifyId = notifyIds[0]
