@@ -21,8 +21,8 @@ type TokenService interface {
 	TokenRefresh() (token string, err error) // 请求服务器刷新 access token
 }
 
-// 相对于微信服务器, 主动请求的功能模块都相当于是 Client;
-// 这个结构就是封装所有这些请求功能, 并发安全.
+// 相对于微信服务器, 主动请求的功能都封装在 Client 里面;
+// Client 并发安全, 一个应用维护一个 Client 实例即可!
 type Client struct {
 	tokenService TokenService
 

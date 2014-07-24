@@ -22,3 +22,8 @@ type BillRequestHandlerFunc func(http.ResponseWriter, *http.Request, *native.Bil
 // 支付成功后, 微信服务器会通知支付结果, 该函数就是处理这个通知的.
 //  NOTE: 参数 *pay.OrderNotifyPostData, *pay.OrderNotifyURLDataVer1 已经经过验证了, 是合法的通知消息!
 type OrderNotifyHandlerFuncVer1 func(http.ResponseWriter, *http.Request, *pay.OrderNotifyPostData, *pay.OrderNotifyURLDataVer1)
+
+// 为了及时通知商户异常，提高商户在微信平台的服务质量。
+// 微信后台会向商户推送告警通知，包括发货延迟、调用失败、通知失败等情况
+//  NOTE: 参数 *pay.AlarmNotifyData 已经经过验证了, 无需再次认证签名!
+type AlarmNotifyHandlerFunc func(http.ResponseWriter, *http.Request, *pay.AlarmNotifyData)

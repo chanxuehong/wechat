@@ -19,9 +19,17 @@ import (
 	"github.com/chanxuehong/wechat/client"
 )
 
-func main() {
-	wechatClient := client.NewClient("你的公众号-appid", "你的公众号-appsecret", nil)
+// 一个应用一个实例
+var wechatClient *client.Client
 
+func init() {
+	// TODO: 获取必要数据的代码
+
+	// 初始化 wechatClient
+	wechatClient = client.NewClient("你的公众号-appid", "你的公众号-appsecret", nil)
+}
+
+func main() {
 	qrcode, err := wechatClient.QRCodeTemporaryCreate(100, 1000)
 	if err != nil {
 		fmt.Println(err)

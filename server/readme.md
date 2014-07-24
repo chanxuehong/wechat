@@ -50,6 +50,24 @@ import (
 	"net/http"
 )
 
+// 一般一个应用维护一个实例即可
+var wechatHandler *server.Handler
+
+func init() {
+	// TODO: 获取必要数据的代码
+
+	// 初始化 wechatHandler
+	setting := &server.HandlerSetting{
+		Token:              "你的公众号的 token",
+		TextRequestHandler: TextRequestHandler,
+	}
+	wechatHandler = server.NewHandler(setting) // 并发安全，一般一个应用只用一个实例即可
+
+	// 注册这个 handler 到回调 URL 上
+	// 比如你在公众平台后台注册的回调地址是 http://abc.xxx.com/weixin，那么可以这样注册
+	http.Handle("/weixin", wechatHandler)
+}
+
 // 自定义文本消息处理函数
 func TextRequestHandler(w http.ResponseWriter, r *http.Request, text *request.Text) {
 	//TODO: 添加你的代码，下面只是示例代码！
@@ -62,15 +80,6 @@ func TextRequestHandler(w http.ResponseWriter, r *http.Request, text *request.Te
 }
 
 func main() {
-	setting := &server.HandlerSetting{
-		Token:              "你的公众号的 token",
-		TextRequestHandler: TextRequestHandler,
-	}
-	wechatHandler := server.NewHandler(setting) // 并发安全，一般一个应用只用一个实例即可
-
-	// 比如你在公众平台后台注册的回调地址是 http://abc.xxx.com/weixin，那么可以这样注册
-	http.Handle("/weixin", wechatHandler) // 绑定到回调URL上
-
 	http.ListenAndServe(":80", nil)
 }
 ```
