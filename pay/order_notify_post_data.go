@@ -14,8 +14,11 @@ import (
 	"strconv"
 )
 
-// 支付成功后通知消息 post 部分
-type NotifyPostData struct {
+// 用户在成功完成支付后，微信后台通知（POST）商户服务器（notify_url）支付结果。
+// 商户可以使用 notify_url 的通知结果进行个性化页面的展示。
+//
+// 这是支付成功后通知消息 post 部分
+type OrderNotifyPostData struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
 	// 下面这三个字段和之前传过去的一样? 可以比对下, 确保安全?
@@ -30,18 +33,9 @@ type NotifyPostData struct {
 	SignMethod string `xml:"SignMethod"`   // 必须, 签名方式, 目前只支持"sha1"
 }
 
-// 检查 data *NotifyPostData 是否合法(包括签名的检查), 合法返回 nil, 否则返回错误信息.
+// 检查 data *OrderNotifyPostData 是否合法(包括签名的检查), 合法返回 nil, 否则返回错误信息.
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
-func (data *NotifyPostData) Check(paySignKey string) (err error) {
-	// 检查字段完整性
-	if data.AppId == "" || data.NonceStr == "" || data.TimeStamp == 0 ||
-		data.OpenId == "" || data.IsSubscribe != IS_SUBSCRIBE_TRUE && data.IsSubscribe != IS_SUBSCRIBE_FALSE ||
-		data.Signature == "" || data.SignMethod == "" {
-
-		err = errors.New("无效的 NotifyPostData, 某些字段没有值")
-		return
-	}
-
+func (data *OrderNotifyPostData) Check(paySignKey string) (err error) {
 	// 检查签名
 	var hashSumLen, twoHashSumLen int
 	var SumFunc func([]byte) []byte // hash 签名函数
@@ -84,6 +78,7 @@ func (data *NotifyPostData) Check(paySignKey string) (err error) {
 
 	copy(dataSignature, data.Signature)
 
+	// 字典序
 	// appid
 	// appkey
 	// issubscribe

@@ -15,10 +15,10 @@ import (
 //  @err: 具体的错误信息
 type InvalidRequestHandlerFunc func(w http.ResponseWriter, r *http.Request, err error)
 
-// 订单详情请求处理函数.
+// 微信请求获取订单详情的处理函数.
 //  NOTE: 参数 *native.BillRequest 已经经过验证了, 无需再次认证签名!
 type BillRequestHandlerFunc func(http.ResponseWriter, *http.Request, *native.BillRequest)
 
 // 支付成功后, 微信服务器会通知支付结果, 该函数就是处理这个通知的.
-//  NOTE: 参数 *pay.Notification 已经经过验证了, 是合法的通知消息!
-type NotifyHandlerFuncVer1 func(http.ResponseWriter, *http.Request, *pay.NotifyPostData, *pay.NotifyURLDataVer1)
+//  NOTE: 参数 *pay.OrderNotifyPostData, *pay.OrderNotifyURLDataVer1 已经经过验证了, 是合法的通知消息!
+type OrderNotifyHandlerFuncVer1 func(http.ResponseWriter, *http.Request, *pay.OrderNotifyPostData, *pay.OrderNotifyURLDataVer1)

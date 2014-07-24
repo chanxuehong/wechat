@@ -18,11 +18,14 @@ import (
 	"time"
 )
 
-// 根据密钥 index 获取密钥, 找不到合法的密钥返回空值 ""
-type GetSignKey func(keyIndex int) string
+// 多密钥支持的情况下, 根据密钥 index 获取 partnerKey, 找不到合法的密钥返回空值 ""
+type GetPartnerKey func(keyIndex int) string
 
-// 支付成功后通知消息 url query string 部分, 1.0 版本
-type NotifyURLDataVer1 struct {
+// 用户在成功完成支付后，微信后台通知（POST）商户服务器（notify_url）支付结果。
+// 商户可以使用 notify_url 的通知结果进行个性化页面的展示。
+//
+// 这是支付成功后通知消息 url query string 部分, 1.0 版本
+type OrderNotifyURLDataVer1 struct {
 	// 协议参数 ==================================================================
 
 	ServiceVersion string // 必须, 版本号
@@ -57,14 +60,14 @@ type NotifyURLDataVer1 struct {
 	BuyerAlias string // 可选, 买家别名, 对应买家账号的一个加密串
 }
 
-// 根据 values url.Values(来自对 notify url query string 的解析) 来初始化 data *NotifyURLDataVer1.
+// 根据 values url.Values(来自对 notify url query string 的解析) 来初始化 data *OrderNotifyURLDataVer1.
 // 如果 values url.Values 里的参数不合法(包括签名不正确) 则返回错误信息, 否则返回 nil.
-func (data *NotifyURLDataVer1) CheckAndInit(values url.Values, getSignKey GetSignKey) (err error) {
+func (data *OrderNotifyURLDataVer1) CheckAndInit(values url.Values, getPartnerKey GetPartnerKey) (err error) {
 	if values == nil {
 		return errors.New("values == nil")
 	}
-	if getSignKey == nil {
-		return errors.New("getSignKey ==  nil")
+	if getPartnerKey == nil {
+		return errors.New("getPartnerKey ==  nil")
 	}
 
 	// 先检查签名是否正确 =========================================================
@@ -73,14 +76,14 @@ func (data *NotifyURLDataVer1) CheckAndInit(values url.Values, getSignKey GetSig
 	if signMethods := values["sign_type"]; len(signMethods) > 0 && len(signMethods[0]) > 0 {
 		signMethod = signMethods[0]
 	} else {
-		signMethod = NOTIFY_URL_DATA_SIGN_METHOD_MD5
+		signMethod = "MD5"
 	}
 
 	var charset string
 	if charsets := values["input_charset"]; len(charsets) > 0 && len(charsets[0]) > 0 {
 		charset = charsets[0]
 	} else {
-		charset = NOTIFY_URL_DATA_CHARSET_GBK
+		charset = "GBK"
 	}
 
 	var signature string
@@ -102,13 +105,13 @@ func (data *NotifyURLDataVer1) CheckAndInit(values url.Values, getSignKey GetSig
 		signKeyIndex = 1
 	}
 
-	signKey := getSignKey(signKeyIndex)
-	if signKey == "" {
+	partnerKey := getPartnerKey(signKeyIndex)
+	if partnerKey == "" {
 		return fmt.Errorf("获取编号为 %d 的加密密钥失败", signKeyIndex)
 	}
 
 	switch {
-	case signMethod == NOTIFY_URL_DATA_SIGN_METHOD_MD5 && charset == NOTIFY_URL_DATA_CHARSET_UTF8:
+	case signMethod == "MD5" && charset == "UTF-8":
 		keys := make([]string, 0, len(values))
 		for k := range values {
 			keys = append(keys, k)
@@ -117,6 +120,7 @@ func (data *NotifyURLDataVer1) CheckAndInit(values url.Values, getSignKey GetSig
 
 		var buf bytes.Buffer
 
+		// 原始串拼接
 		for _, k := range keys {
 			vs := values[k]
 			for _, v := range vs {
@@ -132,7 +136,7 @@ func (data *NotifyURLDataVer1) CheckAndInit(values url.Values, getSignKey GetSig
 			buf.WriteByte('&')
 		}
 		buf.WriteString("key=")
-		buf.WriteString(signKey)
+		buf.WriteString(partnerKey)
 
 		string1 := buf.Bytes()
 		hashSumArray := md5.Sum(string1)

@@ -11,8 +11,7 @@ package pay
 func URLEscape(s string) string {
 	hexCount := 0
 	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if shouldEscapeMap[c] {
+		if shouldEscapeTable[s[i]] {
 			hexCount++
 		}
 	}
@@ -25,7 +24,7 @@ func URLEscape(s string) string {
 	j := 0
 	for i := 0; i < len(s); i++ {
 		switch c := s[i]; {
-		case shouldEscapeMap[c]:
+		case shouldEscapeTable[c]:
 			t[j] = '%'
 			t[j+1] = "0123456789ABCDEF"[c>>4]
 			t[j+2] = "0123456789ABCDEF"[c&0x0f]
@@ -40,21 +39,21 @@ func URLEscape(s string) string {
 }
 
 // 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_.~ 不转义
-var shouldEscapeMap [256]bool
+var shouldEscapeTable [256]bool
 
 func init() {
 	for i := 0; i < 256; i++ {
-		if '0' <= i && i <= '9' || 'A' <= i && i <= 'Z' || 'a' <= i && i <= 'z' {
-			shouldEscapeMap[i] = false
+		c := byte(i)
+
+		if '0' <= c && c <= '9' || 'A' <= c && c <= 'Z' || 'a' <= c && c <= 'z' {
 			continue
 		}
 
-		switch i {
+		switch c {
 		case '-', '_', '.', '~':
-			shouldEscapeMap[i] = false
 
 		default:
-			shouldEscapeMap[i] = true
+			shouldEscapeTable[i] = true
 		}
 	}
 }

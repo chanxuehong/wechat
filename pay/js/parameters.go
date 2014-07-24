@@ -10,6 +10,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 // js api 微信支付接口 getBrandWCPayRequest 的参数.
@@ -36,7 +37,7 @@ import (
 //  );
 //
 type Parameters struct {
-	AppId     string `json:"appId"`            // 必须, 公众号 id, 商户注册具有支付权限的公众号成功后即可获得
+	AppId     string `json:"appId"`            // 必须, 公众号 id
 	NonceStr  string `json:"nonceStr"`         // 必须, 商户生成的随机字符串, 32个字符以内
 	TimeStamp int64  `json:"timeStamp,string"` // 必须, unixtime, 商户生成
 
@@ -52,8 +53,9 @@ type Parameters struct {
 func (para *Parameters) SetSignature(paySignKey string) (err error) {
 	var SumFunc func([]byte) []byte // hash 签名函数
 
-	switch para.SignMethod {
-	case PARAMETERS_SIGN_METHOD_SHA1:
+	switch {
+	case strings.ToUpper(para.SignMethod) == "SHA1":
+		para.SignMethod = "SHA1"
 		SumFunc = func(src []byte) (hashsum []byte) {
 			hashsumArray := sha1.Sum(src)
 			hashsum = hashsumArray[:]
@@ -65,11 +67,11 @@ func (para *Parameters) SetSignature(paySignKey string) (err error) {
 		return
 	}
 
-	timestamp := strconv.FormatInt(para.TimeStamp, 10)
+	TimeStampStr := strconv.FormatInt(para.TimeStamp, 10)
 
 	const keysLen = len(`appid=&appkey=&noncestr=&package=&timestamp=`)
 	n := keysLen + len(para.AppId) + len(paySignKey) + len(para.NonceStr) +
-		len(para.Package) + len(timestamp)
+		len(para.Package) + len(TimeStampStr)
 
 	string1 := make([]byte, 0, n)
 
@@ -88,7 +90,7 @@ func (para *Parameters) SetSignature(paySignKey string) (err error) {
 	string1 = append(string1, "&package="...)
 	string1 = append(string1, para.Package...)
 	string1 = append(string1, "&timestamp="...)
-	string1 = append(string1, timestamp...)
+	string1 = append(string1, TimeStampStr...)
 
 	para.Signature = hex.EncodeToString(SumFunc(string1))
 	return

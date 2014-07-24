@@ -10,15 +10,17 @@ import (
 	"testing"
 )
 
-func TestParametersSetSignature(t *testing.T) {
+func TestParametersSetSignatureAndMarshal(t *testing.T) {
 	var para Parameters
 	para.AppId = "wxf8b4f85f3a794e77"
 	para.NonceStr = "adssdasssd13d"
 	para.Package = "bank_type=WX&body=XXX&fee_type=1&input_charset=GBK&notify_url=http%3a%2f%2fwww.qq.com&out_trade_no=16642817866003386000&partner=1900000109&spbill_create_ip=127.0.0.1&total_fee=1&sign=BEEF37AD19575D92E191C1E4B1474CA9"
-	para.SignMethod = "SHA1"
+	para.SignMethod = SIGN_METHOD_SHA1
 	para.TimeStamp = 189026618
 
-	err := para.SetSignature("2Wozy2aksie1puXUBpWD8oZxiD1DfQuEaiC7KcRATv1Ino3mdopKaPGQQ7TtkNySuAmCaDCrw4xhPY5qKTBl7Fzm0RgR3c0WaVYIXZARsxzHV2x7iwPPzOz94dnwPWSn")
+	appKey := "2Wozy2aksie1puXUBpWD8oZxiD1DfQuEaiC7KcRATv1Ino3mdopKaPGQQ7TtkNySuAmCaDCrw4xhPY5qKTBl7Fzm0RgR3c0WaVYIXZARsxzHV2x7iwPPzOz94dnwPWSn"
+
+	err := para.SetSignature(appKey)
 	if err != nil {
 		t.Error(err)
 		return

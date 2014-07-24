@@ -14,7 +14,7 @@ func TestBillPackage(t *testing.T) {
 	bill.BankType = BANK_TYPE_WX
 	bill.FeeType = FEE_TYPE_RMB
 	bill.Body = "XXX"
-	bill.Charset = BILL_CHARSET_GBK
+	bill.Charset = CHARSET_GBK
 	bill.PartnerId = "1900000109"
 	bill.TotalFee = 1
 	bill.CreateIP = "127.0.0.1"

@@ -19,6 +19,7 @@ type BillRequestHandler struct {
 	billRequestHandler    BillRequestHandlerFunc
 }
 
+// NOTE: 所有参数必须有效
 func NewBillRequestHandler(
 	paySignKey string,
 	invalidRequestHandler InvalidRequestHandlerFunc,

@@ -15,45 +15,47 @@ import (
 )
 
 // 支付成功通知消息的 Handler
-type NotifyHandler struct {
-	paySignKey            string         // post 部分签名密钥
-	getSignKey            pay.GetSignKey // url 部分签名密钥获取函数
-	invalidRequestHandler InvalidRequestHandlerFunc
-	notifyHandlerVer1     NotifyHandlerFuncVer1
+type OrderNotifyHandler struct {
+	paySignKey             string            // post 部分签名密钥
+	getPartnerKey          pay.GetPartnerKey // url 部分签名密钥获取函数
+	invalidRequestHandler  InvalidRequestHandlerFunc
+	orderNotifyHandlerVer1 OrderNotifyHandlerFuncVer1
 }
 
-func NewNotifyHandler(
+// NOTE: 所有参数必须有效
+func NewOrderNotifyHandler(
 	paySignKey string,
-	getSignKey pay.GetSignKey,
+	getPartnerKey pay.GetPartnerKey,
 	invalidRequestHandler InvalidRequestHandlerFunc,
-	notifyHandlerVer1 NotifyHandlerFuncVer1,
+	orderNotifyHandlerVer1 OrderNotifyHandlerFuncVer1,
 
-) (handler *NotifyHandler) {
+) (handler *OrderNotifyHandler) {
 
 	if paySignKey == "" {
 		panic(`paySignKey == ""`)
 	}
-	if getSignKey == nil {
-		panic("getSignKey == nil")
+	if getPartnerKey == nil {
+		panic("getPartnerKey == nil")
 	}
 	if invalidRequestHandler == nil {
 		panic("invalidRequestHandler == nil")
 	}
-	if notifyHandlerVer1 == nil {
-		panic("notifyHandlerVer1 == nil")
+	if orderNotifyHandlerVer1 == nil {
+		panic("orderNotifyHandlerVer1 == nil")
 	}
 
-	handler = &NotifyHandler{
-		getSignKey:            getSignKey,
-		invalidRequestHandler: invalidRequestHandler,
-		notifyHandlerVer1:     notifyHandlerVer1,
+	handler = &OrderNotifyHandler{
+		paySignKey:             paySignKey,
+		getPartnerKey:          getPartnerKey,
+		invalidRequestHandler:  invalidRequestHandler,
+		orderNotifyHandlerVer1: orderNotifyHandlerVer1,
 	}
 
 	return
 }
 
 // NotifyHandler 实现 http.Handler 接口
-func (handler *NotifyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (handler *OrderNotifyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		err := errors.New("request method is not POST")
 		handler.invalidRequestHandler(w, r, err)
@@ -66,7 +68,7 @@ func (handler *NotifyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	var postData pay.NotifyPostData
+	var postData pay.OrderNotifyPostData
 	if err := xml.NewDecoder(r.Body).Decode(&postData); err != nil {
 		handler.invalidRequestHandler(w, r, err)
 		return
@@ -83,6 +85,7 @@ func (handler *NotifyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// 确定接口版本号
 	var serviceVersion string
 	if serviceVersions := values["service_version"]; len(serviceVersions) > 0 && len(serviceVersions[0]) > 0 {
 		serviceVersion = serviceVersions[0]
@@ -92,13 +95,13 @@ func (handler *NotifyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 
 	switch serviceVersion {
 	case "1.0":
-		var urlData pay.NotifyURLDataVer1
-		if err := urlData.CheckAndInit(values, handler.getSignKey); err != nil {
+		var urlData pay.OrderNotifyURLDataVer1
+		if err := urlData.CheckAndInit(values, handler.getPartnerKey); err != nil {
 			handler.invalidRequestHandler(w, r, err)
 			return
 		}
 
-		handler.notifyHandlerVer1(w, r, &postData, &urlData)
+		handler.orderNotifyHandlerVer1(w, r, &postData, &urlData)
 
 	default:
 		err := fmt.Errorf("没有实现对接口版本号为 %s 的支持", serviceVersion)

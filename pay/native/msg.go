@@ -12,9 +12,11 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
-// 获取订单详情 package 的请求消息
+// 在公众平台接到用户点击上述特殊Native（原生）支付的URL之后，会调用注册时填写的
+// 商户获取订单Package的回调URL。微信公众平台调用时会使用POST方式，推送 xml 格式的数据
 type BillRequest struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
@@ -34,16 +36,6 @@ type BillRequest struct {
 // 检查 req *BillRequest 是否合法(包括签名的检查), 合法返回 nil, 否则返回错误信息.
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
 func (req *BillRequest) Check(paySignKey string) (err error) {
-	// 首先检查字段的完整性
-	if req.AppId == "" || req.NonceStr == "" || req.TimeStamp == 0 ||
-		req.ProductId == "" || req.OpenId == "" || req.IsSubscribe != IS_SUBSCRIBE_TRUE &&
-		req.IsSubscribe != IS_SUBSCRIBE_FALSE || req.Signature == "" ||
-		req.SignMethod == "" {
-
-		err = errors.New("无效的 BillRequest, 某些字段没有值")
-		return
-	}
-
 	// 检查签名
 	var hashSumLen, twoHashSumLen int
 	var SumFunc func([]byte) []byte // hash 签名函数
@@ -119,6 +111,7 @@ func (req *BillRequest) Check(paySignKey string) (err error) {
 	return
 }
 
+// 获取订单详情 package 的回复消息
 type BillResponse struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
@@ -142,8 +135,9 @@ type BillResponse struct {
 func (resp *BillResponse) SetSignature(paySignKey string) (err error) {
 	var SumFunc func([]byte) []byte // hash 签名函数
 
-	switch resp.SignMethod {
-	case RESPONSE_SIGN_METHOD_SHA1:
+	switch {
+	case strings.ToLower(resp.SignMethod) == "sha1":
+		resp.SignMethod = "sha1"
 		SumFunc = func(src []byte) (hashsum []byte) {
 			hashsumArray := sha1.Sum(src)
 			hashsum = hashsumArray[:]

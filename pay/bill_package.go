@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-// 订单支付的详细清单.
+// 订单详情, 微信根据这个信息生成订单.
 // js api 和 native api 都需要这个, 就是那个 订单详情(package) 字符串, see Bill.Package.
 type Bill struct {
 	BankType     string    // 必须, 银行通道类型, 固定为 "WX"
@@ -122,7 +122,7 @@ func (this *Bill) Check() (err error) {
 	}
 
 	switch this.Charset {
-	case "", BILL_CHARSET_UTF8, BILL_CHARSET_GBK:
+	case "", CHARSET_UTF8, CHARSET_GBK:
 	default:
 		err = errors.New("不规范的 Charset")
 		return
@@ -136,7 +136,7 @@ func (this *Bill) Check() (err error) {
 //  NOTE: 这个函数不对 this *Bill 的字段做有效性检查, 你可以选择调用 Bill.Check()
 func (this *Bill) Package(partnerKey string) (bs []byte) {
 	if this.Charset == "" {
-		this.Charset = BILL_CHARSET_UTF8
+		this.Charset = CHARSET_UTF8
 	}
 
 	var (
