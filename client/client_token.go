@@ -169,7 +169,7 @@ func (c *Client) getNewToken() (resp tokenResponse, err error) {
 		return
 	}
 
-	// 由于网络的延时, 分布式服务器之间的时间可能不是绝对同步, access token 过期时间留了一个缓冲区;
+	// 由于网络的延时 以及 分布式服务器之间的时间可能不是绝对同步, access token 过期时间留了一个缓冲区;
 	// 正常情况下微信服务器会返回 7200, 则缓冲区的大小为 20 分钟, 这样分布式服务器之间的时间差
 	// 在 20 分钟内基本不会出现问题!
 	switch {
