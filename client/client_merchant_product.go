@@ -37,7 +37,7 @@ func (c *Client) MerchantProductAdd(_product *product.Product) (productId string
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -69,7 +69,7 @@ func (c *Client) MerchantProductDelete(productId string) (err error) {
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 
 	return
@@ -100,7 +100,7 @@ func (c *Client) MerchantProductUpdate(_product *product.Product) (err error) {
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 
 	return
@@ -129,7 +129,7 @@ func (c *Client) MerchantProductGet(productId string) (_product *product.Product
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -177,7 +177,7 @@ func (c *Client) merchantProductGetByStatus(status int) (products []product.Prod
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -208,7 +208,7 @@ func (c *Client) merchantProductModifyStatus(productId string, status int) (err 
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 
 	return

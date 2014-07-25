@@ -127,7 +127,7 @@ func (c *Client) Exchange(code string) (token *OAuth2Token, err error) {
 		return
 	}
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -192,7 +192,7 @@ func (c *Client) TokenRefresh() (err error) {
 	}
 
 	if result.ErrCode != 0 {
-		return &result.Error
+		return result.Error
 	}
 
 	switch {
@@ -315,7 +315,7 @@ func (c *Client) UserInfo(lang string) (info *UserInfo, err error) {
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 

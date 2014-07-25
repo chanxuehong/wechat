@@ -27,7 +27,7 @@ func (c *Client) MsgMassDelete(msgid int64) (err error) {
 		return
 	}
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 	return
 }

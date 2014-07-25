@@ -32,7 +32,7 @@ func (c *Client) MerchantStockAdd(productId string, skuInfo string, quantity int
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 
 	return
@@ -65,7 +65,7 @@ func (c *Client) MerchantStockReduce(productId string, skuInfo string, quantity 
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 
 	return

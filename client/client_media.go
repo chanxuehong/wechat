@@ -154,7 +154,7 @@ func (c *Client) mediaUpload(mediaType, filename string, mediaReader io.Reader) 
 			return
 		}
 		if result.ErrCode != 0 {
-			err = &result.Error
+			err = result.Error
 			return
 		}
 
@@ -174,7 +174,7 @@ func (c *Client) mediaUpload(mediaType, filename string, mediaReader io.Reader) 
 			return
 		}
 		if result.ErrCode != 0 {
-			err = &result.Error
+			err = result.Error
 			return
 		}
 
@@ -233,7 +233,7 @@ func (c *Client) mediaDownload(mediaId string, writer io.Writer) (err error) {
 	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return
 	}
-	return &result
+	return result
 }
 
 // 根据上传的缩略图媒体创建图文消息素材
@@ -257,7 +257,7 @@ func (c *Client) MediaCreateNews(news media.News) (resp *media.UploadResponse, e
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -293,7 +293,7 @@ func (c *Client) MediaCreateVideo(mediaId, title, description string) (resp *med
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 

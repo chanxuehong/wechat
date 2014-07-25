@@ -43,7 +43,7 @@ func (c *Client) UserGroupCreate(name string) (_group *user.Group, err error) {
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -73,7 +73,7 @@ func (c *Client) UserGroupGet() (groups []user.Group, err error) {
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -108,7 +108,7 @@ func (c *Client) UserGroupRename(groupid int64, name string) (err error) {
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 
 	return
@@ -137,7 +137,7 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int64, err error) {
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -167,7 +167,7 @@ func (c *Client) UserMoveToGroup(openid string, toGroupId int64) (err error) {
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 
 	return
@@ -202,7 +202,7 @@ func (c *Client) UserInfo(openid string, lang string) (userinfo *user.UserInfo, 
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 	if result.Subscribe == 0 {
@@ -244,7 +244,7 @@ func (c *Client) userGet(beginOpenId string) (resp *userGetResponse, err error) 
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 

@@ -35,7 +35,7 @@ func (c *Client) MerchantShelfAdd(_shelf *shelf.Shelf) (shelfId int64, err error
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -63,7 +63,7 @@ func (c *Client) MerchantShelfDelete(shelfId int64) (err error) {
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 
 	return
@@ -87,7 +87,7 @@ func (c *Client) MerchantShelfModify(_shelf *shelf.Shelf) (err error) {
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 
 	return
@@ -113,7 +113,7 @@ func (c *Client) MerchantShelfGetAll() (shelves []shelf.ShelfX, err error) {
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -144,7 +144,7 @@ func (c *Client) MerchantShelfGetById(shelfId int64) (_shelf *shelf.ShelfX, err 
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 

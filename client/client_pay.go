@@ -28,7 +28,7 @@ func (c *Client) PayDeliverNotify(data *pay.DeliverNotifyData) (err error) {
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 	return
 }
@@ -55,7 +55,7 @@ func (c *Client) PayOrderQuery(req *pay.OrderQueryRequest) (resp *pay.OrderQuery
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 

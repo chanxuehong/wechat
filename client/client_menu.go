@@ -25,7 +25,7 @@ func (c *Client) MenuCreate(_menu menu.Menu) (err error) {
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 	return
 }
@@ -44,7 +44,7 @@ func (c *Client) MenuDelete() (err error) {
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 	return
 }
@@ -66,7 +66,7 @@ func (c *Client) MenuGet() (_menu menu.Menu, err error) {
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 

@@ -84,7 +84,7 @@ func (c *Client) merchantUploadImage(filename string, imageReader io.Reader) (im
 		return
 	}
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 

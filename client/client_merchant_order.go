@@ -32,7 +32,7 @@ func (c *Client) MerchantOrderGetById(orderId string) (_order *order.Order, err 
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -72,7 +72,7 @@ func (c *Client) MerchantOrderGetByFilter(status int, beginTime, endTime int64) 
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -107,7 +107,7 @@ func (c *Client) MerchantOrderSetDelivery(orderId, deliveryCompany, deliveryTrac
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 
 	return
@@ -133,7 +133,7 @@ func (c *Client) MerchantOrderClose(orderId string) (err error) {
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 
 	return

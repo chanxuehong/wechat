@@ -46,7 +46,7 @@ func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (_qrco
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -86,7 +86,7 @@ func (c *Client) QRCodePermanentCreate(sceneId uint32) (_qrcode *qrcode.Permanen
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 	result.PermanentQRCode.SceneId = sceneId

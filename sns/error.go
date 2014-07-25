@@ -15,6 +15,6 @@ type Error struct {
 	ErrMsg  string `json:"errmsg"`
 }
 
-func (e *Error) Error() string {
+func (e Error) Error() string {
 	return fmt.Sprintf("errcode: %d, errmsg: %s", e.ErrCode, e.ErrMsg)
 }

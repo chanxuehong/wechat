@@ -41,7 +41,7 @@ func (c *Client) MerchantGroupAdd(_group *group.GroupEx) (groupId int64, err err
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -69,7 +69,7 @@ func (c *Client) MerchantGroupDelete(groupId int64) (err error) {
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 
 	return
@@ -101,7 +101,7 @@ func (c *Client) MerchantGroupRename(groupId int64, newName string) (err error) 
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 
 	return
@@ -125,7 +125,7 @@ func (c *Client) MerchantGroupModifyProduct(modifyRequest *group.GroupModifyProd
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 
 	return
@@ -150,7 +150,7 @@ func (c *Client) MerchantGroupGetAll() (groups []group.Group, err error) {
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -181,7 +181,7 @@ func (c *Client) MerchantGroupGetById(groupId int64) (_group *group.GroupEx, err
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 

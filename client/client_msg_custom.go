@@ -75,7 +75,7 @@ func (c *Client) msgCustomSend(msg interface{}) (err error) {
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 	return
 }

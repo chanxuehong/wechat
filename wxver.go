@@ -15,7 +15,7 @@ import (
 //  @userAgent: 微信内置浏览器的 user-agent;
 //  @x, y, z:   如果微信版本为 5.3.1 则有 x==5, y==3, z==1
 //  @err:       错误信息
-func WXVersion(userAgent string) (x int, y int, z int, err error) {
+func WXVersion(userAgent string) (x, y, z int, err error) {
 	// Mozilla/5.0(iphone;CPU iphone OS 5_1_1 like Mac OS X) AppleWebKit/534.46(KHTML,like Geocko)Mobile/9B206 MicroMessenger/5.0
 	lastSlashIndex := strings.LastIndex(userAgent, "/")
 	versionIndex := lastSlashIndex + 1

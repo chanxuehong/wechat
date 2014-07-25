@@ -41,7 +41,7 @@ func (c *Client) MerchantExpressAddDeliveryTemplate(template *express.DeliveryTe
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -69,7 +69,7 @@ func (c *Client) MerchantExpressDeleteDeliveryTemplate(templateId int64) (err er
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 
 	return
@@ -104,7 +104,7 @@ func (c *Client) MerchantExpressUpdateDeliveryTemplate(template *express.Deliver
 	}
 
 	if result.ErrCode != 0 {
-		return &result
+		return result
 	}
 
 	return
@@ -133,7 +133,7 @@ func (c *Client) MerchantExpressGetDeliveryTemplateById(templateId int64) (dt *e
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -160,7 +160,7 @@ func (c *Client) MerchantExpressGetAllDeliveryTemplate() (dts []express.Delivery
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 

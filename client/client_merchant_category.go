@@ -35,7 +35,7 @@ func (c *Client) MerchantCategoryGetSub(categoryId int64) (categories []category
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -68,7 +68,7 @@ func (c *Client) MerchantCategoryGetSKU(categoryId int64) (skus []category.SKU, 
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
@@ -101,7 +101,7 @@ func (c *Client) MerchantCategoryGetProperty(categoryId int64) (properties []cat
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 

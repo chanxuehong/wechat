@@ -39,7 +39,7 @@ func (c *Client) CustomServiceRecordGet(request *customservice.RecordGetRequest)
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 

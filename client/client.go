@@ -13,25 +13,17 @@ import (
 	"time"
 )
 
-// 对于分布式应用，统一由（逻辑上）一个服务器来获取和更新 access token，其他的服务都从这个
-// 服务器上获取 access token 或者请求服务器更新 access token。
-// TokenService 就是这个服务器的接口。
-type TokenService interface {
-	Token() (token string, err error)        // 从服务器获取 access token
-	TokenRefresh() (token string, err error) // 请求服务器刷新 access token
-}
-
 // 相对于微信服务器, 主动请求的功能都封装在 Client 里面;
 // Client 并发安全, 一个应用维护一个 Client 实例即可!
 type Client struct {
-	tokenService TokenService
-
-	// 如果 tokenService == nil，则 Client 自己负责更新 access token，
-	// 下面 4 个字段就是做这个用的。
-
 	appid, appsecret string
 
-	// 缓存当前的 access token，goroutine tokenAutoUpdate() 定期更新。
+	tokenCache TokenCache
+
+	// 如果 tokenCache == nil，则 Client 自己负责更新 access token，
+	// 下面两个字段 currentToken, resetRefreshTokenTickChan 就是做这个用处的
+
+	// currentToken 缓存当前的 access token，goroutine tokenAutoUpdate() 定期更新。
 	currentToken struct {
 		rwmutex sync.RWMutex
 		token   string
@@ -85,13 +77,17 @@ func NewClient(appid, appsecret string, httpClient *http.Client) (clt *Client) {
 // 创建一个新的 Client, 一般用于分布式环境.
 //  如果 httpClient == nil 则默认用 http.DefaultClient，
 //  这个参数可以参考 ../CommonHttpClient 和 ../MediaHttpClient。
-func NewClientEx(tokenService TokenService, httpClient *http.Client) (clt *Client) {
-	if tokenService == nil {
-		panic("tokenService == nil")
+func NewClientEx(appid, appsecret string,
+	httpClient *http.Client, tokenCache TokenCache) (clt *Client) {
+
+	if tokenCache == nil {
+		panic("tokenCache == nil")
 	}
 
 	clt = &Client{
-		tokenService: tokenService,
+		appid:      appid,
+		appsecret:  appsecret,
+		tokenCache: tokenCache,
 		bufferPool: sync.Pool{
 			New: newBuffer,
 		},

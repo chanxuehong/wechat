@@ -72,7 +72,7 @@ func (c *Client) msgMassSendByOpenId(msg interface{}) (msgid int64, err error) {
 	}
 
 	if result.ErrCode != 0 {
-		err = &result.Error
+		err = result.Error
 		return
 	}
 
