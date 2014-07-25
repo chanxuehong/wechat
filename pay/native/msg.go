@@ -6,7 +6,6 @@
 package native
 
 import (
-	"crypto/sha1"
 	"crypto/subtle"
 	"encoding/hex"
 	"errors"
@@ -15,8 +14,8 @@ import (
 	"strings"
 )
 
-// 在公众平台接到用户点击上述特殊Native（原生）支付的URL之后，会调用注册时填写的
-// 商户获取订单Package的回调URL。微信公众平台调用时会使用POST方式，推送 xml 格式的数据
+// 公众平台接到用户点击 Native 支付 URL 之后, 会调用注册时填写的商户获取订单 Package 的回调 URL.
+// 微信公众平台调用时会使用POST方式, 这是推送的 xml 格式的数据结构.
 type BillRequest struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
@@ -38,17 +37,13 @@ type BillRequest struct {
 func (req *BillRequest) Check(paySignKey string) (err error) {
 	// 检查签名
 	var hashSumLen, twoHashSumLen int
-	var SumFunc func([]byte) []byte // hash 签名函数
+	var sumFunc hashSumFunc
 
 	switch req.SignMethod {
 	case "sha1", "SHA1":
 		hashSumLen = 40
 		twoHashSumLen = 80
-		SumFunc = func(src []byte) (hashsum []byte) {
-			hashsumArray := sha1.Sum(src)
-			hashsum = hashsumArray[:]
-			return
-		}
+		sumFunc = sha1Sum
 
 	default:
 		err = fmt.Errorf(`not implement for "%s" sign method`, req.SignMethod)
@@ -101,7 +96,7 @@ func (req *BillRequest) Check(paySignKey string) (err error) {
 	string1 = append(string1, "&timestamp="...)
 	string1 = append(string1, TimeStampStr...)
 
-	hex.Encode(signature, SumFunc(string1))
+	hex.Encode(signature, sumFunc(string1))
 
 	// 采用 subtle.ConstantTimeCompare 是防止 计时攻击!
 	if subtle.ConstantTimeCompare(reqSignature, signature) != 1 {
@@ -111,7 +106,8 @@ func (req *BillRequest) Check(paySignKey string) (err error) {
 	return
 }
 
-// 获取订单详情 package 的回复消息
+// 公众平台接到用户点击 Native 支付 URL 之后, 会调用注册时填写的商户获取订单 Package 的回调 URL.
+// 这是获取订单详情 package 的回复消息数据结构.
 type BillResponse struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
@@ -133,16 +129,15 @@ type BillResponse struct {
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
 //  NOTE: 要求在 resp *BillResponse 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
 func (resp *BillResponse) SetSignature(paySignKey string) (err error) {
-	var SumFunc func([]byte) []byte // hash 签名函数
+	var sumFunc hashSumFunc
 
 	switch {
+	case resp.SignMethod == SIGN_METHOD_SHA1:
+		sumFunc = sha1Sum
+
 	case strings.ToLower(resp.SignMethod) == "sha1":
-		resp.SignMethod = "sha1"
-		SumFunc = func(src []byte) (hashsum []byte) {
-			hashsumArray := sha1.Sum(src)
-			hashsum = hashsumArray[:]
-			return
-		}
+		resp.SignMethod = SIGN_METHOD_SHA1
+		sumFunc = sha1Sum
 
 	default:
 		err = fmt.Errorf(`not implement for "%s" sign method`, resp.SignMethod)
@@ -181,6 +176,6 @@ func (resp *BillResponse) SetSignature(paySignKey string) (err error) {
 	string1 = append(string1, "&timestamp="...)
 	string1 = append(string1, TimeStampStr...)
 
-	resp.Signature = hex.EncodeToString(SumFunc(string1))
+	resp.Signature = hex.EncodeToString(sumFunc(string1))
 	return
 }

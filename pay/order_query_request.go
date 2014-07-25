@@ -8,7 +8,6 @@ package pay
 import (
 	"bytes"
 	"crypto/md5"
-	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
 	"strconv"
@@ -64,10 +63,10 @@ func MakeOrderQueryRequestPackage(
 	return string(string2)
 }
 
-// 因为某一方技术的原因，可能导致商户在预期时间内都收不到最终支付通知，
-// 此时商户可以通过API来查询订单的详细支付状态。
+// 因为某一方技术的原因, 可能导致商户在预期时间内都收不到最终支付通知,
+// 此时商户可以通过API来查询订单的详细支付状态.
 //
-// 订单查询的请求数据
+// 这是订单查询的请求数据结构
 type OrderQueryRequest struct {
 	AppId      string `json:"appid"`            // 公众平台账户的 AppId
 	Package    string `json:"package"`          // 查询订单的关键信息数据, see MakeOrderQueryRequestPackage
@@ -80,16 +79,15 @@ type OrderQueryRequest struct {
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
 //  NOTE: 要求在 req *OrderQueryRequest 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
 func (req *OrderQueryRequest) SetSignature(paySignKey string) (err error) {
-	var SumFunc func([]byte) []byte // hash 签名函数
+	var sumFunc hashSumFunc
 
 	switch {
+	case req.SignMethod == SIGN_METHOD_SHA1:
+		sumFunc = sha1Sum
+
 	case strings.ToLower(req.SignMethod) == "sha1":
-		req.SignMethod = "sha1"
-		SumFunc = func(src []byte) (hashsum []byte) {
-			hashsumArray := sha1.Sum(src)
-			hashsum = hashsumArray[:]
-			return
-		}
+		req.SignMethod = SIGN_METHOD_SHA1
+		sumFunc = sha1Sum
 
 	default:
 		err = fmt.Errorf(`not implement for "%s" sign method`, req.SignMethod)
@@ -117,6 +115,6 @@ func (req *OrderQueryRequest) SetSignature(paySignKey string) (err error) {
 	string1 = append(string1, "&timestamp="...)
 	string1 = append(string1, TimeStampStr...)
 
-	req.Signature = hex.EncodeToString(SumFunc(string1))
+	req.Signature = hex.EncodeToString(sumFunc(string1))
 	return
 }

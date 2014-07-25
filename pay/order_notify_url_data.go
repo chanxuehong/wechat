@@ -21,8 +21,8 @@ import (
 // 多密钥支持的情况下, 根据密钥 index 获取 partnerKey, 找不到合法的密钥返回空值 ""
 type GetPartnerKey func(keyIndex int) string
 
-// 用户在成功完成支付后，微信后台通知（POST）商户服务器（notify_url）支付结果。
-// 商户可以使用 notify_url 的通知结果进行个性化页面的展示。
+// 用户在成功完成支付后, 微信后台通知(POST)商户服务器(notify_url)支付结果.
+// 商户可以使用 notify_url 的通知结果进行个性化页面的展示.
 //
 // 这是支付成功后通知消息 url query string 部分, 1.0 版本
 type OrderNotifyURLDataVer1 struct {

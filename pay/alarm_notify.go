@@ -6,7 +6,6 @@
 package pay
 
 import (
-	"crypto/sha1"
 	"crypto/subtle"
 	"encoding/hex"
 	"errors"
@@ -14,15 +13,15 @@ import (
 	"strconv"
 )
 
-// 告警通知
-// 为了及时通知商户异常，提高商户在微信平台的服务质量。微信后台会向商户推送告警通知，
-// 包括发货延迟、调用失败、通知失败等情况，通知的地址是商户在申请支付时填写的告警通知URL，
-// 在“公众平台-服务-服务中心-商户功能-商户基本资料-告警通知URL”可以查看。
-// 商户接收到告警通知后请尽快修复其中提到的问题，以免影响线上经营
+// 告警通知.
+// 为了及时通知商户异常, 提高商户在微信平台的服务质量. 微信后台会向商户推送告警通知,
+// 包括发货延迟, 调用失败, 通知失败等情况, 通知的地址是商户在申请支付时填写的告警通知 URL,
+// 在"公众平台-服务-服务中心-商户功能-商户基本资料-告警通知URL"可以查看.
+// 商户接收到告警通知后请尽快修复其中提到的问题, 以免影响线上经营
 //
-// 商户收到告警通知后，需要成功返回 success。在通过功能发布检测时，请保证已调通。
+// 商户收到告警通知后, 需要成功返回 success. 在通过功能发布检测时, 请保证已调通.
 //
-// 告警通知URL接收的postData的xml数据
+// 这是告警通知URL接收的postData的xml数据结构.
 type AlarmNotifyData struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
@@ -42,17 +41,13 @@ type AlarmNotifyData struct {
 func (data *AlarmNotifyData) Check(paySignKey string) (err error) {
 	// 检查签名
 	var hashSumLen, twoHashSumLen int
-	var SumFunc func([]byte) []byte // hash 签名函数
+	var sumFunc hashSumFunc
 
 	switch data.SignMethod {
 	case "sha1", "SHA1":
 		hashSumLen = 40
 		twoHashSumLen = 80
-		SumFunc = func(src []byte) (hashsum []byte) {
-			hashsumArray := sha1.Sum(src)
-			hashsum = hashsumArray[:]
-			return
-		}
+		sumFunc = sha1Sum
 
 	default:
 		err = fmt.Errorf(`not implement for "%s" sign method`, data.SignMethod)
@@ -102,7 +97,7 @@ func (data *AlarmNotifyData) Check(paySignKey string) (err error) {
 	string1 = append(string1, "&timestamp="...)
 	string1 = append(string1, TimeStampStr...)
 
-	hex.Encode(signature, SumFunc(string1))
+	hex.Encode(signature, sumFunc(string1))
 
 	// 采用 subtle.ConstantTimeCompare 是防止 计时攻击!
 	if subtle.ConstantTimeCompare(dataSignature, signature) != 1 {

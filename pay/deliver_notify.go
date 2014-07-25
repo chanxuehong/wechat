@@ -6,20 +6,19 @@
 package pay
 
 import (
-	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
 	"strconv"
 	"strings"
 )
 
-// 为了更好地跟踪订单的情况，需要第三方在收到最终支付通知之后，调用发货通知API告知微信后台该订单的发货状态。
-// 发货时间限制：虚拟、服务类24小时内，实物类72小时内。
+// 为了更好地跟踪订单的情况, 需要第三方在收到最终支付通知之后, 调用发货通知API告知微信后台该订单的发货状态.
+// 发货时间限制: 虚拟, 服务类24小时内, 实物类72小时内.
 //
-// 请在收到支付通知后，按时发货，并使用发货通知接口将相关信息同步到微信后台。
-// 若平台在规定时间内没有收到，将视作发货超时处理。
+// 请在收到支付通知后, 按时发货, 并使用发货通知接口将相关信息同步到微信后台.
+// 若平台在规定时间内没有收到, 将视作发货超时处理.
 //
-// 发货通知的的数据是放在PostData中的，格式为json
+// 发货通知的的数据是放在PostData中的, 格式为 JSON.
 type DeliverNotifyData struct {
 	AppId            string `json:"appid"`                    // 公众平台账户的 AppId
 	OpenId           string `json:"openid"`                   // 购买用户的 OpenId, 这个已经放在最终支付结果通知的 PostData 里了
@@ -36,16 +35,15 @@ type DeliverNotifyData struct {
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
 //  NOTE: 要求在 data *DeliverNotifyData 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
 func (data *DeliverNotifyData) SetSignature(paySignKey string) (err error) {
-	var SumFunc func([]byte) []byte // hash 签名函数
+	var sumFunc hashSumFunc
 
 	switch {
+	case data.SignMethod == SIGN_METHOD_SHA1:
+		sumFunc = sha1Sum
+
 	case strings.ToLower(data.SignMethod) == "sha1":
-		data.SignMethod = "sha1"
-		SumFunc = func(src []byte) (hashsum []byte) {
-			hashsumArray := sha1.Sum(src)
-			hashsum = hashsumArray[:]
-			return
-		}
+		data.SignMethod = SIGN_METHOD_SHA1
+		sumFunc = sha1Sum
 
 	default:
 		err = fmt.Errorf(`not implement for "%s" sign method`, data.SignMethod)
@@ -88,6 +86,6 @@ func (data *DeliverNotifyData) SetSignature(paySignKey string) (err error) {
 	string1 = append(string1, "&transid="...)
 	string1 = append(string1, data.TransactionId...)
 
-	data.Signature = hex.EncodeToString(SumFunc(string1))
+	data.Signature = hex.EncodeToString(sumFunc(string1))
 	return
 }

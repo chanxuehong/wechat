@@ -6,7 +6,6 @@
 package js
 
 import (
-	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
 	"strconv"
@@ -51,16 +50,15 @@ type Parameters struct {
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
 //  NOTE: 要求在 para *Parameters 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
 func (para *Parameters) SetSignature(paySignKey string) (err error) {
-	var SumFunc func([]byte) []byte // hash 签名函数
+	var sumFunc hashSumFunc
 
 	switch {
-	case strings.ToUpper(para.SignMethod) == "SHA1":
-		para.SignMethod = "SHA1"
-		SumFunc = func(src []byte) (hashsum []byte) {
-			hashsumArray := sha1.Sum(src)
-			hashsum = hashsumArray[:]
-			return
-		}
+	case para.SignMethod == SIGN_METHOD_SHA1:
+		sumFunc = sha1Sum
+
+	case strings.ToLower(para.SignMethod) == "sha1":
+		para.SignMethod = SIGN_METHOD_SHA1
+		sumFunc = sha1Sum
 
 	default:
 		err = fmt.Errorf(`not implement for "%s" sign method`, para.SignMethod)
@@ -92,6 +90,6 @@ func (para *Parameters) SetSignature(paySignKey string) (err error) {
 	string1 = append(string1, "&timestamp="...)
 	string1 = append(string1, TimeStampStr...)
 
-	para.Signature = hex.EncodeToString(SumFunc(string1))
+	para.Signature = hex.EncodeToString(sumFunc(string1))
 	return
 }

@@ -6,7 +6,6 @@
 package pay
 
 import (
-	"crypto/sha1"
 	"crypto/subtle"
 	"encoding/hex"
 	"errors"
@@ -14,10 +13,10 @@ import (
 	"strconv"
 )
 
-// 用户在成功完成支付后，微信后台通知（POST）商户服务器（notify_url）支付结果。
-// 商户可以使用 notify_url 的通知结果进行个性化页面的展示。
+// 用户在成功完成支付后, 微信后台通知(POST)商户服务器(notify_url)支付结果.
+// 商户可以使用 notify_url 的通知结果进行个性化页面的展示.
 //
-// 这是支付成功后通知消息 post 部分
+// 这是支付成功后通知消息 post 部分的数据结构.
 type OrderNotifyPostData struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
@@ -38,17 +37,13 @@ type OrderNotifyPostData struct {
 func (data *OrderNotifyPostData) Check(paySignKey string) (err error) {
 	// 检查签名
 	var hashSumLen, twoHashSumLen int
-	var SumFunc func([]byte) []byte // hash 签名函数
+	var sumFunc hashSumFunc
 
 	switch data.SignMethod {
 	case "sha1", "SHA1":
 		hashSumLen = 40
 		twoHashSumLen = 80
-		SumFunc = func(src []byte) (hashsum []byte) {
-			hashsumArray := sha1.Sum(src)
-			hashsum = hashsumArray[:]
-			return
-		}
+		sumFunc = sha1Sum
 
 	default:
 		err = fmt.Errorf(`not implement for "%s" sign method`, data.SignMethod)
@@ -98,7 +93,7 @@ func (data *OrderNotifyPostData) Check(paySignKey string) (err error) {
 	string1 = append(string1, "&timestamp="...)
 	string1 = append(string1, TimeStampStr...)
 
-	hex.Encode(signature, SumFunc(string1))
+	hex.Encode(signature, sumFunc(string1))
 
 	// 采用 subtle.ConstantTimeCompare 是防止 计时攻击!
 	if subtle.ConstantTimeCompare(dataSignature, signature) != 1 {
