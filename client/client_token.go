@@ -21,39 +21,11 @@ func (c *Client) Token() (token string, err error) {
 			}
 
 			// 缓存中没有 access token, 去微信服务器获取
-			var resp tokenResponse
-			resp, err = c.getNewToken()
-			if err != nil { // 从微信服务器获取 access token 失败
-				return
-			}
-
-			tk.Value = resp.Token
-			tk.ExpiresAt = time.Now().Unix() + resp.ExpiresIn
-
-			if err = c.tokenCache.SetToken(tk); err != nil { // 更新 access token 到缓存失败
-				return
-			}
-
-			token = tk.Value
-			return
+			return c.xaTokenRefresh()
 		}
 
 		if time.Now().Unix() > tk.ExpiresAt { // 从缓存中获取的 access token 过期了
-			var resp tokenResponse
-			resp, err = c.getNewToken()
-			if err != nil { // 从微信服务器获取 access token 失败
-				return
-			}
-
-			tk.Value = resp.Token
-			tk.ExpiresAt = time.Now().Unix() + resp.ExpiresIn
-
-			if err = c.tokenCache.SetToken(tk); err != nil { // 更新 access token 到缓存失败
-				return
-			}
-
-			token = tk.Value
-			return
+			return c.xaTokenRefresh()
 		}
 
 		token = tk.Value
@@ -80,21 +52,7 @@ func (c *Client) updateCurrentToken(token string, err error) {
 //  NOTE: 正常情况下无需调用该函数, 请使用 Client.Token() 获取 access token.
 func (c *Client) TokenRefresh() (token string, err error) {
 	if c.tokenCache != nil {
-		var resp tokenResponse
-		resp, err = c.getNewToken()
-		if err != nil {
-			return
-		}
-
-		var tk Token
-		tk.Value = resp.Token
-		tk.ExpiresAt = time.Now().Unix() + resp.ExpiresIn
-		if err = c.tokenCache.SetToken(tk); err != nil {
-			return
-		}
-
-		token = tk.Value
-		return
+		return c.xaTokenRefresh()
 
 	} else {
 		var resp tokenResponse
@@ -199,5 +157,23 @@ func (c *Client) getNewToken() (resp tokenResponse, err error) {
 	default:
 		err = fmt.Errorf("expires_in 应该是正整数, 现在为: %d", result.ExpiresIn)
 	}
+	return
+}
+
+// 分布式情况下, 从微信服务器获取新的 access token, 并更新到 c.tokenCache.
+func (c *Client) xaTokenRefresh() (token string, err error) {
+	resp, err := c.getNewToken()
+	if err != nil {
+		return
+	}
+
+	var tk Token
+	tk.Value = resp.Token
+	tk.ExpiresAt = time.Now().Unix() + resp.ExpiresIn
+	if err = c.tokenCache.SetToken(tk); err != nil {
+		return
+	}
+
+	token = tk.Value
 	return
 }
