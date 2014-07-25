@@ -169,18 +169,35 @@ func (c *Client) getNewToken() (resp tokenResponse, err error) {
 		return
 	}
 
+	// 由于网络的延时, 分布式服务器之间的时间可能不是绝对同步, access token 过期时间留了一个缓冲区;
+	// 正常情况下微信服务器会返回 7200, 则缓冲区的大小为 20 分钟, 这样分布式服务器之间的时间差
+	// 在 20 分钟内基本不会出现问题!
 	switch {
-	case result.ExpiresIn > 10:
-		result.ExpiresIn -= 10 // 考虑到网络延时, 提前 10 秒过期
+	case result.ExpiresIn > 60*60: // 返回的过期时间大于 1 个小时, 缓冲区为 20 分钟
+		result.ExpiresIn -= 60 * 20
 		resp = result.tokenResponse
-		return
 
-	case result.ExpiresIn > 0: // (0, 10], 正常情况下不会出现
+	case result.ExpiresIn > 60*30: // 返回的过期时间大于 30 分钟, 缓冲区为 10 分钟
+		result.ExpiresIn -= 60 * 10
 		resp = result.tokenResponse
-		return
 
-	default: // <= 0, 正常情况下不会出现
+	case result.ExpiresIn > 60*15: // 返回的过期时间大于 15 分钟, 缓冲区为 5 分钟
+		result.ExpiresIn -= 60 * 5
+		resp = result.tokenResponse
+
+	case result.ExpiresIn > 60*5: // 返回的过期时间大于 5 分钟, 缓冲区为 1 分钟
+		result.ExpiresIn -= 60
+		resp = result.tokenResponse
+
+	case result.ExpiresIn > 60: // 返回的过期时间大于 1 分钟, 缓冲区为 20 秒
+		result.ExpiresIn -= 20
+		resp = result.tokenResponse
+
+	case result.ExpiresIn > 0: // 没有办法了, 死马当做活马医了
+		resp = result.tokenResponse
+
+	default:
 		err = fmt.Errorf("expires_in 应该是正整数, 现在为: %d", result.ExpiresIn)
-		return
 	}
+	return
 }

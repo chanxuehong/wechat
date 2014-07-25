@@ -74,6 +74,7 @@ func NewClient(appid, appsecret string, httpClient *http.Client) (clt *Client) {
 // 创建一个新的 Client, 一般用于分布式环境.
 //  如果 httpClient == nil 则默认用 http.DefaultClient，
 //  这个参数可以参考 ../CommonHttpClient 和 ../MediaHttpClient。
+//  NOTE: 分布式环境要求服务器之间时间同步!!!
 func NewClientEx(appid, appsecret string,
 	httpClient *http.Client, tokenCache TokenCache) (clt *Client) {
 

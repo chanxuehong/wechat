@@ -131,18 +131,33 @@ func (c *Client) Exchange(code string) (token *OAuth2Token, err error) {
 		return
 	}
 
+	// 由于网络的延时, 分布式服务器之间的时间可能不是绝对同步, access token 过期时间留了一个缓冲区;
+	// 正常情况下微信服务器会返回 7200, 则缓冲区的大小为 20 分钟, 这样分布式服务器之间的时间差
+	// 在 20 分钟内基本不会出现问题!
 	switch {
-	case result.ExpiresIn > 10: // 正常情况下远大于 10
-		tok.ExpiresAt = time.Now().Unix() + result.ExpiresIn - 10 // 考虑到网络延时，提前 10 秒过期
+	case result.ExpiresIn > 60*60: // 返回的过期时间大于 1 个小时, 缓冲区为 20 分钟
+		tok.ExpiresAt = time.Now().Unix() + result.ExpiresIn - 60*20
 
-	case result.ExpiresIn > 0:
+	case result.ExpiresIn > 60*30: // 返回的过期时间大于 30 分钟, 缓冲区为 10 分钟
+		tok.ExpiresAt = time.Now().Unix() + result.ExpiresIn - 60*10
+
+	case result.ExpiresIn > 60*15: // 返回的过期时间大于 15 分钟, 缓冲区为 5 分钟
+		tok.ExpiresAt = time.Now().Unix() + result.ExpiresIn - 60*5
+
+	case result.ExpiresIn > 60*5: // 返回的过期时间大于 5 分钟, 缓冲区为 1 分钟
+		tok.ExpiresAt = time.Now().Unix() + result.ExpiresIn - 60
+
+	case result.ExpiresIn > 60: // 返回的过期时间大于 1 分钟, 缓冲区为 20 秒
+		tok.ExpiresAt = time.Now().Unix() + result.ExpiresIn - 20
+
+	case result.ExpiresIn > 0: // 没有办法了, 死马当做活马医了
 		tok.ExpiresAt = time.Now().Unix() + result.ExpiresIn
 
 	case result.ExpiresIn == 0:
 		tok.ExpiresAt = 0
 
 	default:
-		err = fmt.Errorf("token ExpiresIn(==%d) < 0", result.ExpiresIn)
+		err = fmt.Errorf("expires_in 不能为负数: %d", result.ExpiresIn)
 		return
 	}
 
@@ -195,18 +210,34 @@ func (c *Client) TokenRefresh() (err error) {
 		return result.Error
 	}
 
+	// 由于网络的延时, 分布式服务器之间的时间可能不是绝对同步, access token 过期时间留了一个缓冲区;
+	// 正常情况下微信服务器会返回 7200, 则缓冲区的大小为 20 分钟, 这样分布式服务器之间的时间差
+	// 在 20 分钟内基本不会出现问题!
 	switch {
-	case result.ExpiresIn > 10: // 正常情况下远大于 10
-		c.ExpiresAt = time.Now().Unix() + result.ExpiresIn - 10 // 考虑到网络延时，提前 10 秒过期
+	case result.ExpiresIn > 60*60: // 返回的过期时间大于 1 个小时, 缓冲区为 20 分钟
+		c.ExpiresAt = time.Now().Unix() + result.ExpiresIn - 60*20
 
-	case result.ExpiresIn > 0:
+	case result.ExpiresIn > 60*30: // 返回的过期时间大于 30 分钟, 缓冲区为 10 分钟
+		c.ExpiresAt = time.Now().Unix() + result.ExpiresIn - 60*10
+
+	case result.ExpiresIn > 60*15: // 返回的过期时间大于 15 分钟, 缓冲区为 5 分钟
+		c.ExpiresAt = time.Now().Unix() + result.ExpiresIn - 60*5
+
+	case result.ExpiresIn > 60*5: // 返回的过期时间大于 5 分钟, 缓冲区为 1 分钟
+		c.ExpiresAt = time.Now().Unix() + result.ExpiresIn - 60
+
+	case result.ExpiresIn > 60: // 返回的过期时间大于 1 分钟, 缓冲区为 20 秒
+		c.ExpiresAt = time.Now().Unix() + result.ExpiresIn - 20
+
+	case result.ExpiresIn > 0: // 没有办法了, 死马当做活马医了
 		c.ExpiresAt = time.Now().Unix() + result.ExpiresIn
 
 	case result.ExpiresIn == 0:
 		c.ExpiresAt = 0
 
 	default:
-		return fmt.Errorf("token ExpiresIn(==%d) < 0", result.ExpiresIn)
+		err = fmt.Errorf("expires_in 不能为负数: %d", result.ExpiresIn)
+		return
 	}
 
 	c.AccessToken = result.AccessToken
