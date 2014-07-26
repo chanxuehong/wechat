@@ -13,14 +13,14 @@ import (
 	"time"
 )
 
-// access token 缓存服务器接口
+// access token 缓存服务器接口, see ./token_cache_service.png
 type TokenCache interface {
 	// 获取 access token.
 	// 正常情况下 token != "" && err == nil, 否则 token == "" && err != nil
 	Token() (token string, err error)
 }
 
-// 请求 access token 服务刷新 access token 接口
+// 请求 access token 服务刷新 access token 接口, see ./token_cache_service.png
 type TokenService interface {
 	// 从微信服务器获取新的 access token.
 	// 正常情况下 token != "" && err == nil, 否则 token == "" && err != nil
@@ -51,6 +51,21 @@ type defaultTokenCacheService struct {
 	resetTokenRefreshTickChan chan time.Duration
 
 	httpClient *http.Client
+}
+
+func newDefaultTokenCacheService(appid, appsecret string, httpClient *http.Client) (srv *defaultTokenCacheService) {
+	srv = &defaultTokenCacheService{
+		appid:                     appid,
+		appsecret:                 appsecret,
+		resetTokenRefreshTickChan: make(chan time.Duration),
+	}
+
+	if httpClient == nil {
+		srv.httpClient = http.DefaultClient
+	} else {
+		srv.httpClient = httpClient
+	}
+	return
 }
 
 // 启动定时获取 access token 的服务

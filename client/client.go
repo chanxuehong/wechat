@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
-	"time"
 )
 
 // 相对于微信服务器, 主动请求的功能都封装在 Client 里面;
@@ -21,7 +20,7 @@ type Client struct {
 	tokenService TokenService
 
 	// 用于单进程环境, 和上面两个字段互斥
-	defaultTokenCacheService
+	*defaultTokenCacheService
 
 	//  NOTE: require go1.3+ , 如果你的环境不满足这个条件, 可以自己实现一个简单的 Pool,
 	//        see github.com/chanxuehong/util/pool
@@ -36,19 +35,13 @@ type Client struct {
 //  see ../CommonHttpClient 和 ../MediaHttpClient.
 func NewClient(appid, appsecret string, httpClient *http.Client) (clt *Client) {
 	clt = &Client{
-		defaultTokenCacheService: defaultTokenCacheService{
-			appid:                     appid,
-			appsecret:                 appsecret,
-			resetTokenRefreshTickChan: make(chan time.Duration),
-		},
-		bufferPool: sync.Pool{New: newBuffer},
+		defaultTokenCacheService: newDefaultTokenCacheService(appid, appsecret, httpClient),
+		bufferPool:               sync.Pool{New: newBuffer},
 	}
 
 	if httpClient == nil {
-		clt.defaultTokenCacheService.httpClient = http.DefaultClient
 		clt.httpClient = http.DefaultClient
 	} else {
-		clt.defaultTokenCacheService.httpClient = httpClient
 		clt.httpClient = httpClient
 	}
 
