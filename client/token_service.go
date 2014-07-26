@@ -18,9 +18,9 @@ type TokenService interface {
 	TokenRefresh() (token string, err error)
 }
 
-var _ TokenService = new(DefaultTokenService)
+var _ TokenService = new(defaultTokenService)
 
-type DefaultTokenService struct {
+type defaultTokenService struct {
 	appid, appsecret string
 
 	// goroutine tokenAutoUpdate() 里有个定时器, 每次触发都会更新 currentToken,
@@ -36,22 +36,7 @@ type DefaultTokenService struct {
 	httpClient *http.Client // 可以根据自己的需要定制 http.Client
 }
 
-func NewDefaultTokenService(appid, appsecret string, httpClient *http.Client) (srv *DefaultTokenService) {
-	srv = &DefaultTokenService{
-		appid:                     appid,
-		appsecret:                 appsecret,
-		resetTokenRefreshTickChan: make(chan time.Duration),
-	}
-
-	if httpClient == nil {
-		srv.httpClient = http.DefaultClient
-	} else {
-		srv.httpClient = httpClient
-	}
-	return
-}
-
-func (srv *DefaultTokenService) Start() {
+func (srv *defaultTokenService) start() {
 	tk, err := srv.getNewToken()
 	if err != nil {
 		srv.updateCurrentToken("", err)
@@ -62,7 +47,8 @@ func (srv *DefaultTokenService) Start() {
 	}
 }
 
-func (srv *DefaultTokenService) Token() (token string, err error) {
+// 获取 access token
+func (srv *defaultTokenService) Token() (token string, err error) {
 	srv.currentToken.rwmutex.RLock()
 	token = srv.currentToken.token
 	err = srv.currentToken.err
@@ -70,7 +56,7 @@ func (srv *DefaultTokenService) Token() (token string, err error) {
 	return
 }
 
-func (srv *DefaultTokenService) updateCurrentToken(token string, err error) {
+func (srv *defaultTokenService) updateCurrentToken(token string, err error) {
 	srv.currentToken.rwmutex.Lock()
 	srv.currentToken.token = token
 	srv.currentToken.err = err
@@ -78,7 +64,12 @@ func (srv *DefaultTokenService) updateCurrentToken(token string, err error) {
 }
 
 // 从微信服务器获取新的 access token.
-func (srv *DefaultTokenService) TokenRefresh() (token string, err error) {
+//  NOTE:
+//  1. 正常情况下无需调用该函数, 请使用 Token() 获取 access token.
+//  2. 即使函数调用中返回了 access token 过期错误(正常情况下不会出现),
+//     也请谨慎调用 TokenRefresh, 建议直接返回错误! 因为很有可能造成雪崩效应!
+//     所以调用这个函数你应该知道发生了什么!!!
+func (srv *defaultTokenService) TokenRefresh() (token string, err error) {
 	resp, err := srv.getNewToken()
 	if err != nil {
 		srv.updateCurrentToken("", err)
@@ -99,7 +90,7 @@ type tokenResponse struct {
 }
 
 // 从微信服务器获取新的 access_token
-func (srv *DefaultTokenService) getNewToken() (resp tokenResponse, err error) {
+func (srv *defaultTokenService) getNewToken() (resp tokenResponse, err error) {
 	_url := "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" +
 		srv.appid + "&secret=" + srv.appsecret
 
@@ -156,7 +147,7 @@ func (srv *DefaultTokenService) getNewToken() (resp tokenResponse, err error) {
 }
 
 // 单独一个 goroutine 来定时获取 access token
-func (srv *DefaultTokenService) tokenAutoUpdate(tickDuration time.Duration) {
+func (srv *defaultTokenService) tokenAutoUpdate(tickDuration time.Duration) {
 	const defaultTickDuration = time.Minute // 设置 44 秒以上就不会超过限制(2000次/日)
 	var ticker *time.Ticker
 
