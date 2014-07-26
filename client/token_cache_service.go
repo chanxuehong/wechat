@@ -13,17 +13,30 @@ import (
 	"time"
 )
 
+// access token 缓存服务器接口
 type TokenCache interface {
+	// 获取 access token.
+	// 正常情况下 token != "" && err == nil, 否则 token == "" && err != nil
 	Token() (token string, err error)
 }
 
+// 请求 access token 服务刷新 access token 接口
 type TokenService interface {
+	// 从微信服务器获取新的 access token.
+	// 正常情况下 token != "" && err == nil, 否则 token == "" && err != nil
+	//
+	//  NOTE:
+	//  1. 正常情况下无需调用该函数, 请使用 Token() 获取 access token.
+	//  2. 即使函数调用中返回了 access token 过期错误(正常情况下不会出现),
+	//     也请谨慎调用 TokenRefresh, 建议直接返回错误! 因为很有可能造成雪崩效应!
+	//     所以调用这个函数你应该知道发生了什么!!!
 	TokenRefresh() (token string, err error)
 }
 
 var _ TokenCache = new(defaultTokenCacheService)
 var _ TokenService = new(defaultTokenCacheService)
 
+// defaultTokenCacheService 实现了单进程环境下 TokenCache, TokenService 接口
 type defaultTokenCacheService struct {
 	appid, appsecret string
 
@@ -37,9 +50,10 @@ type defaultTokenCacheService struct {
 	}
 	resetTokenRefreshTickChan chan time.Duration
 
-	httpClient *http.Client // 可以根据自己的需要定制 http.Client
+	httpClient *http.Client
 }
 
+// 启动定时获取 access token 的服务
 func (srv *defaultTokenCacheService) start() {
 	tk, err := srv.getNewToken()
 	if err != nil {
@@ -51,7 +65,7 @@ func (srv *defaultTokenCacheService) start() {
 	}
 }
 
-// 获取 access token
+// 实现 TokenCache
 func (srv *defaultTokenCacheService) Token() (token string, err error) {
 	srv.currentToken.rwmutex.RLock()
 	token = srv.currentToken.token
@@ -67,7 +81,7 @@ func (srv *defaultTokenCacheService) updateCurrentToken(token string, err error)
 	srv.currentToken.rwmutex.Unlock()
 }
 
-// 从微信服务器获取新的 access token.
+// 实现 TokenService
 func (srv *defaultTokenCacheService) TokenRefresh() (token string, err error) {
 	resp, err := srv.getNewToken()
 	if err != nil {
@@ -82,7 +96,7 @@ func (srv *defaultTokenCacheService) TokenRefresh() (token string, err error) {
 	return
 }
 
-// 从服务器获取 acces_token 成功时返回的消息格式
+// 从微信服务器获取 acces token 成功时返回的消息格式
 type tokenResponse struct {
 	Token     string `json:"access_token"` // 获取到的凭证
 	ExpiresIn int64  `json:"expires_in"`   // 凭证有效时间，单位：秒

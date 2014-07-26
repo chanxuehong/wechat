@@ -20,6 +20,7 @@ type Client struct {
 	tokenCache   TokenCache
 	tokenService TokenService
 
+	// 用于单进程环境, 和上面两个字段互斥
 	defaultTokenCacheService
 
 	//  NOTE: require go1.3+ , 如果你的环境不满足这个条件, 可以自己实现一个简单的 Pool,
