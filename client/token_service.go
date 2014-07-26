@@ -51,7 +51,7 @@ func NewDefaultTokenService(appid, appsecret string, httpClient *http.Client) (s
 	return
 }
 
-func (srv *DefaultTokenService) start() {
+func (srv *DefaultTokenService) Start() {
 	tk, err := srv.getNewToken()
 	if err != nil {
 		srv.updateCurrentToken("", err)

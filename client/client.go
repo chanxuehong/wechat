@@ -17,7 +17,7 @@ import (
 type Client struct {
 	// 下面两个字段互斥
 	tokenService        TokenService
-	defaultTokenService DefaultTokenService
+	defaultTokenService *DefaultTokenService
 
 	//  NOTE: require go1.3+ , 如果你的环境不满足这个条件, 可以自己实现一个简单的 Pool,
 	//        see github.com/chanxuehong/util/pool
@@ -32,7 +32,7 @@ type Client struct {
 //  see ../CommonHttpClient 和 ../MediaHttpClient.
 func NewClient(appid, appsecret string, httpClient *http.Client) (clt *Client) {
 	clt = &Client{
-		defaultTokenService: *NewDefaultTokenService(appid, appsecret, httpClient),
+		defaultTokenService: NewDefaultTokenService(appid, appsecret, httpClient),
 		bufferPool:          sync.Pool{New: newBuffer},
 	}
 
@@ -42,7 +42,7 @@ func NewClient(appid, appsecret string, httpClient *http.Client) (clt *Client) {
 		clt.httpClient = httpClient
 	}
 
-	clt.defaultTokenService.start()
+	clt.defaultTokenService.Start()
 	return
 }
 
