@@ -7,6 +7,7 @@ package client
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"sync"
@@ -16,9 +17,10 @@ import (
 // 相对于微信服务器, 主动请求的功能都封装在 Client 里面;
 // Client 并发安全, 一般情况下一个应用维护一个 Client 实例即可!
 type Client struct {
-	// 下面两个字段互斥
+	tokenCache   TokenCache
 	tokenService TokenService
-	defaultTokenService
+
+	defaultTokenCacheService
 
 	//  NOTE: require go1.3+ , 如果你的环境不满足这个条件, 可以自己实现一个简单的 Pool,
 	//        see github.com/chanxuehong/util/pool
@@ -33,7 +35,7 @@ type Client struct {
 //  see ../CommonHttpClient 和 ../MediaHttpClient.
 func NewClient(appid, appsecret string, httpClient *http.Client) (clt *Client) {
 	clt = &Client{
-		defaultTokenService: defaultTokenService{
+		defaultTokenCacheService: defaultTokenCacheService{
 			appid:                     appid,
 			appsecret:                 appsecret,
 			resetTokenRefreshTickChan: make(chan time.Duration),
@@ -42,26 +44,41 @@ func NewClient(appid, appsecret string, httpClient *http.Client) (clt *Client) {
 	}
 
 	if httpClient == nil {
-		clt.defaultTokenService.httpClient = http.DefaultClient
+		clt.defaultTokenCacheService.httpClient = http.DefaultClient
 		clt.httpClient = http.DefaultClient
 	} else {
-		clt.defaultTokenService.httpClient = httpClient
+		clt.defaultTokenCacheService.httpClient = httpClient
 		clt.httpClient = httpClient
 	}
 
-	clt.defaultTokenService.start()
+	clt.defaultTokenCacheService.start()
+	return
+}
+
+// 只是实现了接口, 没有实现功能
+var defaultTokenService TokenService = incompleteTokenService(0)
+
+type incompleteTokenService int
+
+func (incompleteTokenService) TokenRefresh() (token string, err error) {
+	err = errors.New("没有实现 TokenRefresh 功能")
 	return
 }
 
 // 创建一个新的 Client.
+// tokenCache 必须实现, tokenService, httpClient 均可为 nil.
 //  如果 httpClient == nil 则默认用 http.DefaultClient，
 //  see ../CommonHttpClient 和 ../MediaHttpClient。
-func NewClientEx(tokenService TokenService, httpClient *http.Client) (clt *Client) {
+func NewClientEx(tokenCache TokenCache, tokenService TokenService, httpClient *http.Client) (clt *Client) {
+	if tokenCache == nil {
+		panic("tokenCache == nil")
+	}
 	if tokenService == nil {
-		panic("tokenService == nil")
+		tokenService = defaultTokenService
 	}
 
 	clt = &Client{
+		tokenCache:   tokenCache,
 		tokenService: tokenService,
 		bufferPool:   sync.Pool{New: newBuffer},
 	}
