@@ -9,16 +9,6 @@ import (
 	"net/url"
 )
 
-// !!! 是不是所有的变量都要加 url.QueryEscape ? 知道的告诉我一声 !!!
-
-// https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=APPSECRET
-func tokenGetURL(appid, appsecret string) string {
-	return "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" +
-		appid +
-		"&secret=" +
-		appsecret
-}
-
 // https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=ACCESS_TOKEN
 func messageCustomSendURL(accesstoken string) string {
 	return "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=" +
