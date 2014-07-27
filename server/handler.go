@@ -11,6 +11,7 @@ import (
 	"github.com/chanxuehong/wechat/message/request"
 	"io"
 	"net/http"
+	"net/url"
 	"sync"
 )
 
@@ -33,9 +34,7 @@ func NewHandler(setting *HandlerSetting) (handler *Handler) {
 	}
 
 	handler = &Handler{
-		bufferUnitPool: sync.Pool{
-			New: newBufferUnit,
-		},
+		bufferUnitPool: sync.Pool{New: newBufferUnit},
 	}
 	handler.setting.initialize(setting)
 
@@ -46,23 +45,28 @@ func NewHandler(setting *HandlerSetting) (handler *Handler) {
 func (handler *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST": // 处理从微信服务器推送过来的消息(事件) ==============================
-		var err error
+		var urlValues url.Values
 		var signature, timestamp, nonce string
+		var err error
 
-		if err = r.ParseForm(); err != nil {
+		if r.URL == nil {
+			handler.setting.InvalidRequestHandler(w, r, errors.New("r.URL == nil"))
+			return
+		}
+		if urlValues, err = url.ParseQuery(r.URL.RawQuery); err != nil {
 			handler.setting.InvalidRequestHandler(w, r, err)
 			return
 		}
 
-		if signature = r.FormValue("signature"); signature == "" {
+		if signature = urlValues.Get("signature"); signature == "" {
 			handler.setting.InvalidRequestHandler(w, r, errors.New("signature is empty"))
 			return
 		}
-		if timestamp = r.FormValue("timestamp"); timestamp == "" {
+		if timestamp = urlValues.Get("timestamp"); timestamp == "" {
 			handler.setting.InvalidRequestHandler(w, r, errors.New("timestamp is empty"))
 			return
 		}
-		if nonce = r.FormValue("nonce"); nonce == "" {
+		if nonce = urlValues.Get("nonce"); nonce == "" {
 			handler.setting.InvalidRequestHandler(w, r, errors.New("nonce is empty"))
 			return
 		}
@@ -153,27 +157,32 @@ func (handler *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "GET": // 首次验证 ======================================================
-		var err error
+		var urlValues url.Values
 		var signature, timestamp, nonce, echostr string
+		var err error
 
-		if err = r.ParseForm(); err != nil {
+		if r.URL == nil {
+			handler.setting.InvalidRequestHandler(w, r, errors.New("r.URL == nil"))
+			return
+		}
+		if urlValues, err = url.ParseQuery(r.URL.RawQuery); err != nil {
 			handler.setting.InvalidRequestHandler(w, r, err)
 			return
 		}
 
-		if signature = r.FormValue("signature"); signature == "" {
+		if signature = urlValues.Get("signature"); signature == "" {
 			handler.setting.InvalidRequestHandler(w, r, errors.New("signature is empty"))
 			return
 		}
-		if timestamp = r.FormValue("timestamp"); timestamp == "" {
+		if timestamp = urlValues.Get("timestamp"); timestamp == "" {
 			handler.setting.InvalidRequestHandler(w, r, errors.New("timestamp is empty"))
 			return
 		}
-		if nonce = r.FormValue("nonce"); nonce == "" {
+		if nonce = urlValues.Get("nonce"); nonce == "" {
 			handler.setting.InvalidRequestHandler(w, r, errors.New("nonce is empty"))
 			return
 		}
-		if echostr = r.FormValue("echostr"); echostr == "" {
+		if echostr = urlValues.Get("echostr"); echostr == "" {
 			handler.setting.InvalidRequestHandler(w, r, errors.New("echostr is empty"))
 			return
 		}
