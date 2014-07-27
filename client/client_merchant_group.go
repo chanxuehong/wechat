@@ -20,12 +20,6 @@ func (c *Client) MerchantGroupAdd(_group *group.GroupEx) (groupId int64, err err
 
 	_group.Id = 0 // 无需指定 Id 字段
 
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := merchantGroupAddURL(token)
-
 	var request = struct {
 		GroupDetail *group.GroupEx `json:"group_detail"`
 	}{
@@ -36,27 +30,39 @@ func (c *Client) MerchantGroupAdd(_group *group.GroupEx) (groupId int64, err err
 		Error
 		GroupId int64 `json:"group_id"`
 	}
-	if err = c.postJSON(_url, request, &result); err != nil {
-		return
-	}
 
-	if result.ErrCode != 0 {
-		err = result.Error
-		return
-	}
-
-	groupId = result.GroupId
-	return
-}
-
-// 删除分组
-func (c *Client) MerchantGroupDelete(groupId int64) (err error) {
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	_url := merchantGroupDeleteURL(token)
+	_url := merchantGroupAddURL(token)
+	if err = c.postJSON(_url, request, &result); err != nil {
+		return
+	}
 
+	switch result.ErrCode {
+	case errCodeOK:
+		groupId = result.GroupId
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result.Error
+		return
+	}
+}
+
+// 删除分组
+func (c *Client) MerchantGroupDelete(groupId int64) (err error) {
 	var request = struct {
 		GroupId int64 `json:"group_id"`
 	}{
@@ -64,15 +70,34 @@ func (c *Client) MerchantGroupDelete(groupId int64) (err error) {
 	}
 
 	var result Error
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := merchantGroupDeleteURL(token)
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
-		return result
-	}
+	switch result.ErrCode {
+	case errCodeOK:
+		return
 
-	return
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result
+		return
+	}
 }
 
 // 修改分组名称
@@ -80,12 +105,6 @@ func (c *Client) MerchantGroupRename(groupId int64, newName string) (err error) 
 	if newName == "" {
 		return errors.New(`newName == ""`)
 	}
-
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := merchantGroupPropertyModifyURL(token)
 
 	var request = struct {
 		GroupId   int64  `json:"group_id"`
@@ -96,15 +115,34 @@ func (c *Client) MerchantGroupRename(groupId int64, newName string) (err error) 
 	}
 
 	var result Error
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := merchantGroupPropertyModifyURL(token)
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
-		return result
-	}
+	switch result.ErrCode {
+	case errCodeOK:
+		return
 
-	return
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result
+		return
+	}
 }
 
 // 修改分组商品
@@ -113,59 +151,77 @@ func (c *Client) MerchantGroupModifyProduct(modifyRequest *group.GroupModifyProd
 		return errors.New("modifyRequest == nil")
 	}
 
+	var result Error
+
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
 	_url := merchantGroupProductModifyURL(token)
-
-	var result Error
 	if err = c.postJSON(_url, modifyRequest, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
-		return result
-	}
+	switch result.ErrCode {
+	case errCodeOK:
+		return
 
-	return
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result
+		return
+	}
 }
 
 // 获取所有分组
 func (c *Client) MerchantGroupGetAll() (groups []group.Group, err error) {
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := merchantGroupGetAllURL(token)
-
 	var result struct {
 		Error
 		GroupsDetail []group.Group `json:"groups_detail"`
 	}
 	result.GroupsDetail = make([]group.Group, 0, 16)
 
-	if err = c.getJSON(_url, &result); err != nil {
-		return
-	}
-
-	if result.ErrCode != 0 {
-		err = result.Error
-		return
-	}
-
-	groups = result.GroupsDetail
-	return
-}
-
-// 根据分组ID获取分组信息
-func (c *Client) MerchantGroupGetById(groupId int64) (_group *group.GroupEx, err error) {
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	_url := merchantGroupGetByIdURL(token)
+	_url := merchantGroupGetAllURL(token)
+	if err = c.getJSON(_url, &result); err != nil {
+		return
+	}
 
+	switch result.ErrCode {
+	case errCodeOK:
+		groups = result.GroupsDetail
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result.Error
+		return
+	}
+}
+
+// 根据分组ID获取分组信息
+func (c *Client) MerchantGroupGetById(groupId int64) (_group *group.GroupEx, err error) {
 	var request = struct {
 		GroupId int64 `json:"group_id"`
 	}{
@@ -176,15 +232,33 @@ func (c *Client) MerchantGroupGetById(groupId int64) (_group *group.GroupEx, err
 		Error
 		GroupDetail group.GroupEx `json:"group_detail"`
 	}
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := merchantGroupGetByIdURL(token)
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
+	switch result.ErrCode {
+	case errCodeOK:
+		_group = &result.GroupDetail
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
 		err = result.Error
 		return
 	}
-
-	_group = &result.GroupDetail
-	return
 }

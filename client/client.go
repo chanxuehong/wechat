@@ -13,7 +13,7 @@ import (
 	"sync"
 )
 
-// 相对于微信服务器, 主动请求的功能都封装在 Client 里面;
+// Client 封装了主动请求功能, 比如创建菜单, 回复客服消息等等.
 // Client 并发安全, 一般情况下一个应用维护一个 Client 实例即可!
 type Client struct {
 	tokenCache   TokenCache
@@ -26,7 +26,7 @@ type Client struct {
 	//        see github.com/chanxuehong/util/pool
 	bufferPool sync.Pool // 缓存的是 *bytes.Buffer
 
-	httpClient *http.Client // 可以根据自己的需要定制 http.Client
+	httpClient *http.Client
 }
 
 // 创建一个新的 Client.
@@ -38,6 +38,7 @@ func NewClient(appid, appsecret string, httpClient *http.Client) (clt *Client) {
 		defaultTokenCacheService: newDefaultTokenCacheService(appid, appsecret, httpClient),
 		bufferPool:               sync.Pool{New: newBuffer},
 	}
+	clt.defaultTokenCacheService.start()
 
 	if httpClient == nil {
 		clt.httpClient = http.DefaultClient
@@ -45,11 +46,10 @@ func NewClient(appid, appsecret string, httpClient *http.Client) (clt *Client) {
 		clt.httpClient = httpClient
 	}
 
-	clt.defaultTokenCacheService.start()
 	return
 }
 
-// 只是实现了接口, 没有实现功能
+// 只是实现了 TokenService 接口, 没有实现功能
 var defaultTokenService TokenService = incompleteTokenService(0)
 
 type incompleteTokenService int
@@ -88,7 +88,7 @@ func NewClientEx(tokenCache TokenCache, tokenService TokenService, httpClient *h
 
 // Client 通用的 json post 请求
 func (c *Client) postJSON(_url string, request interface{}, response interface{}) (err error) {
-	buf := c.getBufferFromPool()
+	buf := c.getBufferFromPool() // *bytes.Buffer
 	defer c.putBufferToPool(buf)
 
 	if err = json.NewEncoder(buf).Encode(request); err != nil {

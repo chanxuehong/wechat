@@ -10,12 +10,6 @@ package client
 //  还是能在其本地看到消息卡片。 另外，删除群发消息只能删除图文消息和视频消息，
 //  其他类型的消息一经发送，无法删除。
 func (c *Client) MsgMassDelete(msgid int64) (err error) {
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := messageMassDeleteURL(token)
-
 	var request = struct {
 		MsgId int64 `json:"msgid"`
 	}{
@@ -23,11 +17,32 @@ func (c *Client) MsgMassDelete(msgid int64) (err error) {
 	}
 
 	var result Error
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := messageMassDeleteURL(token)
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
-	if result.ErrCode != 0 {
-		return result
+
+	switch result.ErrCode {
+	case errCodeOK:
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result
+		return
 	}
-	return
 }

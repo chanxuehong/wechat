@@ -24,9 +24,11 @@ func (c *Client) MerchantUploadImageFromFile(_filepath string) (imageURL string,
 	}
 	defer file.Close()
 
-	return c.MerchantUploadImage(filepath.Base(_filepath), file)
+	return c.merchantUploadImage(filepath.Base(_filepath), file)
 }
 
+// 上传图片
+//  NOTE: 参数 filename 不是文件路径, 是指定 multipart form 里面文件名称
 func (c *Client) MerchantUploadImage(filename string, imageReader io.Reader) (imageURL string, err error) {
 	if filename == "" {
 		err = errors.New(`filename == ""`)
@@ -41,11 +43,6 @@ func (c *Client) MerchantUploadImage(filename string, imageReader io.Reader) (im
 
 // 上传图片
 func (c *Client) merchantUploadImage(filename string, imageReader io.Reader) (imageURL string, err error) {
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-
 	bodyBuf := c.getBufferFromPool() // io.ReadWriter
 	defer c.putBufferToPool(bodyBuf) // important!
 
@@ -64,6 +61,12 @@ func (c *Client) merchantUploadImage(filename string, imageReader io.Reader) (im
 		return
 	}
 
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
 	_url := merchantUploadImageURL(token, filename)
 	resp, err := c.httpClient.Post(_url, bodyContentType, bodyBuf)
 	if err != nil {
@@ -83,11 +86,22 @@ func (c *Client) merchantUploadImage(filename string, imageReader io.Reader) (im
 	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return
 	}
-	if result.ErrCode != 0 {
+
+	switch result.ErrCode {
+	case errCodeOK:
+		imageURL = result.ImageURL
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
 		err = result.Error
 		return
 	}
-
-	imageURL = result.ImageURL
-	return
 }

@@ -20,12 +20,6 @@ func (c *Client) MerchantExpressAddDeliveryTemplate(template *express.DeliveryTe
 
 	template.Id = 0
 
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := merchantExpressAddURL(token)
-
 	var request = struct {
 		DeliveryTemplate *express.DeliveryTemplate `json:"delivery_template"`
 	}{
@@ -36,27 +30,39 @@ func (c *Client) MerchantExpressAddDeliveryTemplate(template *express.DeliveryTe
 		Error
 		TemplateId int64 `json:"template_id"`
 	}
-	if err = c.postJSON(_url, request, &result); err != nil {
-		return
-	}
 
-	if result.ErrCode != 0 {
-		err = result.Error
-		return
-	}
-
-	templateId = result.TemplateId
-	return
-}
-
-// 删除邮费模板
-func (c *Client) MerchantExpressDeleteDeliveryTemplate(templateId int64) (err error) {
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	_url := merchantExpressDeleteURL(token)
+	_url := merchantExpressAddURL(token)
+	if err = c.postJSON(_url, request, &result); err != nil {
+		return
+	}
 
+	switch result.ErrCode {
+	case errCodeOK:
+		templateId = result.TemplateId
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result.Error
+		return
+	}
+}
+
+// 删除邮费模板
+func (c *Client) MerchantExpressDeleteDeliveryTemplate(templateId int64) (err error) {
 	var request = struct {
 		TemplateId int64 `json:"template_id"`
 	}{
@@ -64,15 +70,34 @@ func (c *Client) MerchantExpressDeleteDeliveryTemplate(templateId int64) (err er
 	}
 
 	var result Error
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := merchantExpressDeleteURL(token)
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
-		return result
-	}
+	switch result.ErrCode {
+	case errCodeOK:
+		return
 
-	return
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result
+		return
+	}
 }
 
 // 修改邮费模板
@@ -81,12 +106,6 @@ func (c *Client) MerchantExpressUpdateDeliveryTemplate(template *express.Deliver
 	if template == nil {
 		return errors.New("template == nil")
 	}
-
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := merchantExpressUpdateURL(token)
 
 	var request = struct {
 		TemplateId       int64                     `json:"template_id"`
@@ -99,25 +118,38 @@ func (c *Client) MerchantExpressUpdateDeliveryTemplate(template *express.Deliver
 	template.Id = 0 // 请求的时候不携带这个参数
 
 	var result Error
-	if err = c.postJSON(_url, request, &result); err != nil {
-		return
-	}
 
-	if result.ErrCode != 0 {
-		return result
-	}
-
-	return
-}
-
-// 获取指定ID的邮费模板
-func (c *Client) MerchantExpressGetDeliveryTemplateById(templateId int64) (dt *express.DeliveryTemplate, err error) {
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	_url := merchantExpressGetByIdURL(token)
+	_url := merchantExpressUpdateURL(token)
+	if err = c.postJSON(_url, request, &result); err != nil {
+		return
+	}
 
+	switch result.ErrCode {
+	case errCodeOK:
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result
+		return
+	}
+}
+
+// 获取指定ID的邮费模板
+func (c *Client) MerchantExpressGetDeliveryTemplateById(templateId int64) (dt *express.DeliveryTemplate, err error) {
 	var request = struct {
 		TemplateId int64 `json:"template_id"`
 	}{
@@ -128,42 +160,71 @@ func (c *Client) MerchantExpressGetDeliveryTemplateById(templateId int64) (dt *e
 		Error
 		TemplateInfo express.DeliveryTemplate `json:"template_info"`
 	}
-	if err = c.postJSON(_url, request, &result); err != nil {
-		return
-	}
 
-	if result.ErrCode != 0 {
-		err = result.Error
-		return
-	}
-
-	dt = &result.TemplateInfo
-	return
-}
-
-// 获取所有邮费模板
-func (c *Client) MerchantExpressGetAllDeliveryTemplate() (dts []express.DeliveryTemplate, err error) {
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	_url := merchantExpressGetAllURL(token)
+	_url := merchantExpressGetByIdURL(token)
+	if err = c.postJSON(_url, request, &result); err != nil {
+		return
+	}
 
+	switch result.ErrCode {
+	case errCodeOK:
+		dt = &result.TemplateInfo
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result.Error
+		return
+	}
+}
+
+// 获取所有邮费模板
+func (c *Client) MerchantExpressGetAllDeliveryTemplate() (dts []express.DeliveryTemplate, err error) {
 	var result struct {
 		Error
 		TemplatesInfo []express.DeliveryTemplate `json:"templates_info"`
 	}
 	result.TemplatesInfo = make([]express.DeliveryTemplate, 0, 16)
 
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := merchantExpressGetAllURL(token)
 	if err = c.getJSON(_url, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
+	switch result.ErrCode {
+	case errCodeOK:
+		dts = result.TemplatesInfo
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
 		err = result.Error
 		return
 	}
-
-	dts = result.TemplatesInfo
-	return
 }

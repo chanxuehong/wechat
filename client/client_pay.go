@@ -16,21 +16,35 @@ func (c *Client) PayDeliverNotify(data *pay.DeliverNotifyData) (err error) {
 		return errors.New("data == nil")
 	}
 
+	var result Error
+
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
 	_url := payDeliverNotifyURL(token)
-
-	var result Error
 	if err = c.postJSON(_url, data, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
-		return result
+	switch result.ErrCode {
+	case errCodeOK:
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result
+		return
 	}
-	return
 }
 
 // 微信支付订单查询
@@ -40,25 +54,37 @@ func (c *Client) PayOrderQuery(req *pay.OrderQueryRequest) (resp *pay.OrderQuery
 		return
 	}
 
+	var result struct {
+		Error
+		OrderInfo pay.OrderQueryResponse `json:"order_info"`
+	}
+
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
 	_url := payOrderQueryURL(token)
-
-	var result struct {
-		Error
-		OrderInfo pay.OrderQueryResponse `json:"order_info"`
-	}
 	if err = c.postJSON(_url, req, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
+	switch result.ErrCode {
+	case errCodeOK:
+		resp = &result.OrderInfo
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
 		err = result.Error
 		return
 	}
-
-	resp = &result.OrderInfo
-	return
 }

@@ -17,12 +17,6 @@ import (
 
 // 创建临时二维码
 func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (_qrcode *qrcode.TemporaryQRCode, err error) {
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := qrcodeCreateURL(token)
-
 	var request struct {
 		ExpireSeconds int    `json:"expire_seconds"`
 		ActionName    string `json:"action_name"`
@@ -41,31 +35,43 @@ func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (_qrco
 		ExpireSeconds int64  `json:"expire_seconds"`
 		Error
 	}
-	if err = c.postJSON(_url, &request, &result); err != nil {
-		return
-	}
 
-	if result.ErrCode != 0 {
-		err = result.Error
-		return
-	}
-
-	_qrcode = &qrcode.TemporaryQRCode{
-		SceneId:   sceneId,
-		Ticket:    result.Ticket,
-		ExpiresAt: time.Now().Unix() + result.ExpireSeconds,
-	}
-	return
-}
-
-// 创建永久二维码
-func (c *Client) QRCodePermanentCreate(sceneId uint32) (_qrcode *qrcode.PermanentQRCode, err error) {
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
 	_url := qrcodeCreateURL(token)
+	if err = c.postJSON(_url, &request, &result); err != nil {
+		return
+	}
 
+	switch result.ErrCode {
+	case errCodeOK:
+		_qrcode = &qrcode.TemporaryQRCode{
+			SceneId:   sceneId,
+			Ticket:    result.Ticket,
+			ExpiresAt: time.Now().Unix() + result.ExpireSeconds,
+		}
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result.Error
+		return
+	}
+}
+
+// 创建永久二维码
+func (c *Client) QRCodePermanentCreate(sceneId uint32) (_qrcode *qrcode.PermanentQRCode, err error) {
 	var request struct {
 		ActionName string `json:"action_name"`
 		ActionInfo struct {
@@ -81,18 +87,36 @@ func (c *Client) QRCodePermanentCreate(sceneId uint32) (_qrcode *qrcode.Permanen
 		qrcode.PermanentQRCode
 		Error
 	}
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := qrcodeCreateURL(token)
 	if err = c.postJSON(_url, &request, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
+	switch result.ErrCode {
+	case errCodeOK:
+		result.PermanentQRCode.SceneId = sceneId
+		_qrcode = &result.PermanentQRCode
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
 		err = result.Error
 		return
 	}
-	result.PermanentQRCode.SceneId = sceneId
-
-	_qrcode = &result.PermanentQRCode
-	return
 }
 
 // 根据 qrcode ticket 得到 qrcode 图片的 url

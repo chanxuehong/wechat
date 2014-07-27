@@ -65,6 +65,7 @@ func newDefaultTokenCacheService(appid, appsecret string, httpClient *http.Clien
 	} else {
 		srv.httpClient = httpClient
 	}
+
 	return
 }
 

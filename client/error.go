@@ -7,7 +7,17 @@ package client
 
 import (
 	"fmt"
+	"time"
 )
+
+const (
+	errCodeOK      = 0
+	errCodeTimeout = 42001
+)
+
+func timeoutRetryWait() {
+	time.Sleep(500 * time.Millisecond)
+}
 
 // 微信服务器返回的错误都是这个格式
 type Error struct {

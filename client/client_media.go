@@ -107,11 +107,6 @@ func (c *Client) MediaUploadVideo(filename string, mediaReader io.Reader) (resp 
 
 // 上传多媒体
 func (c *Client) mediaUpload(mediaType, filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error) {
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-
 	bodyBuf := c.getBufferFromPool() // io.ReadWriter
 	defer c.putBufferToPool(bodyBuf) // important!
 
@@ -130,6 +125,12 @@ func (c *Client) mediaUpload(mediaType, filename string, mediaReader io.Reader) 
 		return
 	}
 
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
 	_url := mediaUploadURL(token, mediaType)
 	httpResp, err := c.httpClient.Post(_url, bodyContentType, bodyBuf)
 	if err != nil {
@@ -153,17 +154,28 @@ func (c *Client) mediaUpload(mediaType, filename string, mediaReader io.Reader) 
 		if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 			return
 		}
-		if result.ErrCode != 0 {
+
+		switch result.ErrCode {
+		case errCodeOK:
+			resp = &media.UploadResponse{
+				MediaType: result.MediaType,
+				MediaId:   result.MediaId,
+				CreatedAt: result.CreatedAt,
+			}
+			return
+
+		case errCodeTimeout:
+			if !hasRetry {
+				hasRetry = true
+				timeoutRetryWait()
+				goto RETRY
+			}
+			fallthrough
+
+		default:
 			err = result.Error
 			return
 		}
-
-		resp = &media.UploadResponse{
-			MediaType: result.MediaType,
-			MediaId:   result.MediaId,
-			CreatedAt: result.CreatedAt,
-		}
-		return
 
 	default:
 		var result struct {
@@ -173,13 +185,24 @@ func (c *Client) mediaUpload(mediaType, filename string, mediaReader io.Reader) 
 		if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 			return
 		}
-		if result.ErrCode != 0 {
+
+		switch result.ErrCode {
+		case errCodeOK:
+			resp = &result.UploadResponse
+			return
+
+		case errCodeTimeout:
+			if !hasRetry {
+				hasRetry = true
+				timeoutRetryWait()
+				goto RETRY
+			}
+			fallthrough
+
+		default:
 			err = result.Error
 			return
 		}
-
-		resp = &result.UploadResponse
-		return
 	}
 }
 
@@ -206,12 +229,13 @@ func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
 
 // 下载多媒体文件.
 func (c *Client) mediaDownload(mediaId string, writer io.Writer) (err error) {
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
 	_url := mediaDownloadURL(token, mediaId)
-
 	resp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return
@@ -233,7 +257,23 @@ func (c *Client) mediaDownload(mediaId string, writer io.Writer) (err error) {
 	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return
 	}
-	return result
+
+	switch result.ErrCode {
+	case errCodeOK:
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result
+		return
+	}
 }
 
 // 根据上传的缩略图媒体创建图文消息素材
@@ -242,38 +282,44 @@ func (c *Client) MediaCreateNews(news media.News) (resp *media.UploadResponse, e
 		return
 	}
 
+	var result struct {
+		media.UploadResponse
+		Error
+	}
+
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
 	_url := mediaCreateNewsURL(token)
-
-	var result struct {
-		media.UploadResponse
-		Error
-	}
 	if err = c.postJSON(_url, news, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
+	switch result.ErrCode {
+	case errCodeOK:
+		resp = &result.UploadResponse
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
 		err = result.Error
 		return
 	}
-
-	resp = &result.UploadResponse
-	return
 }
 
 // 根据上传的视频文件 media_id 创建视频媒体, 群发视频消息应该用这个函数得到的 media_id.
 //  NOTE: title, description 可以为空
 func (c *Client) MediaCreateVideo(mediaId, title, description string) (resp *media.UploadResponse, err error) {
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := mediaCreateVideoURL(token)
-
 	var request = struct {
 		MediaId     string `json:"media_id"`
 		Title       string `json:"title,omitempty"`
@@ -288,15 +334,33 @@ func (c *Client) MediaCreateVideo(mediaId, title, description string) (resp *med
 		media.UploadResponse
 		Error
 	}
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := mediaCreateVideoURL(token)
 	if err = c.postJSON(_url, &request, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
+	switch result.ErrCode {
+	case errCodeOK:
+		resp = &result.UploadResponse
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
 		err = result.Error
 		return
 	}
-
-	resp = &result.UploadResponse
-	return
 }

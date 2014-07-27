@@ -17,12 +17,6 @@ func (c *Client) CustomServiceRecordGet(request *customservice.RecordGetRequest)
 		return
 	}
 
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := customServiceRecordGetURL(token)
-
 	var result struct {
 		RecordList []customservice.Record `json:"recordlist"`
 		Error
@@ -34,17 +28,34 @@ func (c *Client) CustomServiceRecordGet(request *customservice.RecordGetRequest)
 		result.RecordList = make([]customservice.Record, 0, size)
 	}
 
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := customServiceRecordGetURL(token)
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
+	switch result.ErrCode {
+	case errCodeOK:
+		records = result.RecordList
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
 		err = result.Error
 		return
 	}
-
-	records = result.RecordList
-	return
 }
 
 // 该结构实现了 github.com/chanxuehong/wechat/customservice.RecordIterator 接口

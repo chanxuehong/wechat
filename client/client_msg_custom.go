@@ -63,19 +63,33 @@ func (c *Client) MsgCustomSendNews(msg *custom.News) (err error) {
 
 // 发送客服消息功能都一样, 之所以不暴露这个接口是因为怕接收到不合法的参数.
 func (c *Client) msgCustomSend(msg interface{}) (err error) {
+	var result Error
+
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
 	_url := messageCustomSendURL(token)
-
-	var result Error
 	if err = c.postJSON(_url, msg, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
-		return result
+	switch result.ErrCode {
+	case errCodeOK:
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result
+		return
 	}
-	return
 }

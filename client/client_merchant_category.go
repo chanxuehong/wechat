@@ -12,12 +12,6 @@ import (
 // 获取指定分类的所有子分类.
 //  @categoryId: 大分类ID(根节点分类id为1)
 func (c *Client) MerchantCategoryGetSub(categoryId int64) (categories []category.Category, err error) {
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := merchantCategoryGetSubURL(token)
-
 	var request = struct {
 		CategoryId int64 `json:"cate_id"`
 	}{
@@ -30,27 +24,38 @@ func (c *Client) MerchantCategoryGetSub(categoryId int64) (categories []category
 	}
 	result.Categories = make([]category.Category, 0, 16)
 
-	if err = c.postJSON(_url, request, &result); err != nil {
-		return
-	}
-
-	if result.ErrCode != 0 {
-		err = result.Error
-		return
-	}
-
-	categories = result.Categories
-	return
-}
-
-// 获取指定子分类的所有SKU
-func (c *Client) MerchantCategoryGetSKU(categoryId int64) (skus []category.SKU, err error) {
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	_url := merchantCategoryGetSKUURL(token)
+	_url := merchantCategoryGetSubURL(token)
+	if err = c.postJSON(_url, request, &result); err != nil {
+		return
+	}
 
+	switch result.ErrCode {
+	case errCodeOK:
+		categories = result.Categories
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result.Error
+		return
+	}
+}
+
+// 获取指定子分类的所有SKU
+func (c *Client) MerchantCategoryGetSKU(categoryId int64) (skus []category.SKU, err error) {
 	var request = struct {
 		CategoryId int64 `json:"cate_id"`
 	}{
@@ -63,27 +68,38 @@ func (c *Client) MerchantCategoryGetSKU(categoryId int64) (skus []category.SKU, 
 	}
 	result.SKUs = make([]category.SKU, 0, 16)
 
-	if err = c.postJSON(_url, request, &result); err != nil {
-		return
-	}
-
-	if result.ErrCode != 0 {
-		err = result.Error
-		return
-	}
-
-	skus = result.SKUs
-	return
-}
-
-// 获取指定分类的所有属性
-func (c *Client) MerchantCategoryGetProperty(categoryId int64) (properties []category.Property, err error) {
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	_url := merchantCategoryGetPropertyURL(token)
+	_url := merchantCategoryGetSKUURL(token)
+	if err = c.postJSON(_url, request, &result); err != nil {
+		return
+	}
 
+	switch result.ErrCode {
+	case errCodeOK:
+		skus = result.SKUs
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result.Error
+		return
+	}
+}
+
+// 获取指定分类的所有属性
+func (c *Client) MerchantCategoryGetProperty(categoryId int64) (properties []category.Property, err error) {
 	var request = struct {
 		CategoryId int64 `json:"cate_id"`
 	}{
@@ -96,15 +112,32 @@ func (c *Client) MerchantCategoryGetProperty(categoryId int64) (properties []cat
 	}
 	result.Properties = make([]category.Property, 0, 16)
 
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := merchantCategoryGetPropertyURL(token)
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
+	switch result.ErrCode {
+	case errCodeOK:
+		properties = result.Properties
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
 		err = result.Error
 		return
 	}
-
-	properties = result.Properties
-	return
 }

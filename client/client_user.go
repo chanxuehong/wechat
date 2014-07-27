@@ -18,12 +18,6 @@ func (c *Client) UserGroupCreate(name string) (_group *user.Group, err error) {
 		return
 	}
 
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := userGroupCreateURL(token)
-
 	var request struct {
 		Group struct {
 			Name string `json:"name"`
@@ -38,47 +32,77 @@ func (c *Client) UserGroupCreate(name string) (_group *user.Group, err error) {
 		} `json:"group"`
 		Error
 	}
-	if err = c.postJSON(_url, request, &result); err != nil {
-		return
-	}
 
-	if result.ErrCode != 0 {
-		err = result.Error
-		return
-	}
-
-	_group = &user.Group{
-		Id:   result.Group.Id,
-		Name: result.Group.Name,
-	}
-	return
-}
-
-// 查询所有分组
-func (c *Client) UserGroupGet() (groups []user.Group, err error) {
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	_url := userGroupGetURL(token)
+	_url := userGroupCreateURL(token)
+	if err = c.postJSON(_url, request, &result); err != nil {
+		return
+	}
 
+	switch result.ErrCode {
+	case errCodeOK:
+		_group = &user.Group{
+			Id:   result.Group.Id,
+			Name: result.Group.Name,
+		}
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result.Error
+		return
+	}
+}
+
+// 查询所有分组
+func (c *Client) UserGroupGet() (groups []user.Group, err error) {
 	var result = struct {
 		Groups []user.Group `json:"groups"`
 		Error
 	}{
 		Groups: make([]user.Group, 0, 16),
 	}
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := userGroupGetURL(token)
 	if err = c.getJSON(_url, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
+	switch result.ErrCode {
+	case errCodeOK:
+		groups = result.Groups
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
 		err = result.Error
 		return
 	}
-
-	groups = result.Groups
-	return
 }
 
 // 修改分组名
@@ -86,12 +110,6 @@ func (c *Client) UserGroupRename(groupid int64, name string) (err error) {
 	if len(name) == 0 {
 		return errors.New(`name == ""`)
 	}
-
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := userGroupRenameURL(token)
 
 	var request struct {
 		Group struct {
@@ -103,25 +121,38 @@ func (c *Client) UserGroupRename(groupid int64, name string) (err error) {
 	request.Group.Name = name
 
 	var result Error
-	if err = c.postJSON(_url, &request, &result); err != nil {
-		return
-	}
 
-	if result.ErrCode != 0 {
-		return result
-	}
-
-	return
-}
-
-// 查询用户所在分组
-func (c *Client) UserInWhichGroup(openid string) (groupid int64, err error) {
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	_url := userInWhichGroupURL(token)
+	_url := userGroupRenameURL(token)
+	if err = c.postJSON(_url, &request, &result); err != nil {
+		return
+	}
 
+	switch result.ErrCode {
+	case errCodeOK:
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result
+		return
+	}
+}
+
+// 查询用户所在分组
+func (c *Client) UserInWhichGroup(openid string) (groupid int64, err error) {
 	var request = struct {
 		OpenId string `json:"openid"`
 	}{
@@ -132,27 +163,39 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int64, err error) {
 		GroupId int64 `json:"groupid"`
 		Error
 	}
-	if err = c.postJSON(_url, request, &result); err != nil {
-		return
-	}
 
-	if result.ErrCode != 0 {
-		err = result.Error
-		return
-	}
-
-	groupid = result.GroupId
-	return
-}
-
-// 移动用户分组
-func (c *Client) UserMoveToGroup(openid string, toGroupId int64) (err error) {
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	_url := userMoveToGroupURL(token)
+	_url := userInWhichGroupURL(token)
+	if err = c.postJSON(_url, request, &result); err != nil {
+		return
+	}
 
+	switch result.ErrCode {
+	case errCodeOK:
+		groupid = result.GroupId
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result.Error
+		return
+	}
+}
+
+// 移动用户分组
+func (c *Client) UserMoveToGroup(openid string, toGroupId int64) (err error) {
 	var request = struct {
 		OpenId    string `json:"openid"`
 		ToGroupId int64  `json:"to_groupid"`
@@ -162,15 +205,34 @@ func (c *Client) UserMoveToGroup(openid string, toGroupId int64) (err error) {
 	}
 
 	var result Error
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := userMoveToGroupURL(token)
 	if err = c.postJSON(_url, &request, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
-		return result
-	}
+	switch result.ErrCode {
+	case errCodeOK:
+		return
 
-	return
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result
+		return
+	}
 }
 
 // 获取用户基本信息.
@@ -186,32 +248,44 @@ func (c *Client) UserInfo(openid string, lang string) (userinfo *user.UserInfo, 
 		return
 	}
 
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := userInfoURL(token, openid, lang)
-
 	var result struct {
 		Subscribe int `json:"subscribe"` // 用户是否订阅该公众号标识，值为0时，代表此用户没有关注该公众号，拉取不到其余信息。
 		user.UserInfo
 		Error
 	}
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := userInfoURL(token, openid, lang)
 	if err = c.getJSON(_url, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
+	switch result.ErrCode {
+	case errCodeOK:
+		if result.Subscribe == 0 {
+			err = fmt.Errorf("该用户 %s 没有订阅这个公众号", openid)
+			return
+		}
+		userinfo = &result.UserInfo
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
 		err = result.Error
 		return
 	}
-	if result.Subscribe == 0 {
-		err = fmt.Errorf("该用户 %s 没有订阅这个公众号", openid)
-		return
-	}
-
-	userinfo = &result.UserInfo
-	return
 }
 
 // 获取关注者返回的数据结构
@@ -227,29 +301,40 @@ type userGetResponse struct {
 
 // 获取关注者列表, 如果 beginOpenId == "" 则表示从头遍历
 func (c *Client) userGet(beginOpenId string) (resp *userGetResponse, err error) {
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := userGetURL(token, beginOpenId)
-
 	var result struct {
 		userGetResponse
 		Error
 	}
 	result.userGetResponse.Data.OpenId = make([]string, 0, 256)
 
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := userGetURL(token, beginOpenId)
 	if err = c.getJSON(_url, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
+	switch result.ErrCode {
+	case errCodeOK:
+		resp = &result.userGetResponse
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
 		err = result.Error
 		return
 	}
-
-	resp = &result.userGetResponse
-	return
 }
 
 // 该结构实现了 user.UserIterator 接口

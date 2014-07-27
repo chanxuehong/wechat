@@ -57,25 +57,37 @@ func (c *Client) MsgMassSendNewsByGroup(msg *massbygroup.News) (msgid int64, err
 
 // 根据分组群发消息, 之所以不暴露这个接口是因为怕接收到不合法的参数.
 func (c *Client) msgMassSendByGroup(msg interface{}) (msgid int64, err error) {
+	var result struct {
+		Error
+		MsgId int64 `json:"msg_id"`
+	}
+
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
 	_url := messageMassSendByGroupURL(token)
-
-	var result struct {
-		Error
-		MsgId int64 `json:"msg_id"`
-	}
 	if err = c.postJSON(_url, msg, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
+	switch result.ErrCode {
+	case errCodeOK:
+		msgid = result.MsgId
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
 		err = result.Error
 		return
 	}
-
-	msgid = result.MsgId
-	return
 }

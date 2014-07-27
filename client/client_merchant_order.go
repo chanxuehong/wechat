@@ -11,12 +11,6 @@ import (
 
 // 根据订单id获取订单详情
 func (c *Client) MerchantOrderGetById(orderId string) (_order *order.Order, err error) {
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := merchantOrderGetByIdURL(token)
-
 	var request = struct {
 		OrderId string `json:"order_id"`
 	}{
@@ -27,17 +21,35 @@ func (c *Client) MerchantOrderGetById(orderId string) (_order *order.Order, err 
 		Error
 		Order order.Order `json:"order"`
 	}
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := merchantOrderGetByIdURL(token)
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
+	switch result.ErrCode {
+	case errCodeOK:
+		_order = &result.Order
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
 		err = result.Error
 		return
 	}
-
-	_order = &result.Order
-	return
 }
 
 // 根据订单状态/创建时间获取订单详情
@@ -45,12 +57,6 @@ func (c *Client) MerchantOrderGetById(orderId string) (_order *order.Order, err 
 //  @beginTime: 订单创建时间起始时间, 不带该字段(==0) 则不按照时间做筛选
 //  @endTime:   订单创建时间终止时间, 不带该字段(==0) 则不按照时间做筛选
 func (c *Client) MerchantOrderGetByFilter(status int, beginTime, endTime int64) (orders []order.Order, err error) {
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := merchantOrderGetByFilterURL(token)
-
 	var request = struct {
 		Status    int   `json:"status,omitempty"`
 		BeginTime int64 `json:"begintime,omitempty"`
@@ -67,17 +73,34 @@ func (c *Client) MerchantOrderGetByFilter(status int, beginTime, endTime int64) 
 	}
 	result.OrderList = make([]order.Order, 0, 64)
 
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := merchantOrderGetByFilterURL(token)
 	if err = c.postJSON(_url, &request, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
+	switch result.ErrCode {
+	case errCodeOK:
+		orders = result.OrderList
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
 		err = result.Error
 		return
 	}
-
-	orders = result.OrderList
-	return
 }
 
 // 设置订单发货信息.
@@ -85,12 +108,6 @@ func (c *Client) MerchantOrderGetByFilter(status int, beginTime, endTime int64) 
 //  @deliveryCompany: 物流公司ID(参考《物流公司ID》)
 //  @deliveryTrackNo: 运单ID
 func (c *Client) MerchantOrderSetDelivery(orderId, deliveryCompany, deliveryTrackNo string) (err error) {
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := merchantOrderSetDeliveryURL(token)
-
 	var request = struct {
 		OrderId         string `json:"order_id"`
 		DeliveryCompany string `json:"delivery_company"`
@@ -102,25 +119,38 @@ func (c *Client) MerchantOrderSetDelivery(orderId, deliveryCompany, deliveryTrac
 	}
 
 	var result Error
-	if err = c.postJSON(_url, &request, &result); err != nil {
-		return
-	}
 
-	if result.ErrCode != 0 {
-		return result
-	}
-
-	return
-}
-
-// 关闭订单
-func (c *Client) MerchantOrderClose(orderId string) (err error) {
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	_url := merchantOrderCloseURL(token)
+	_url := merchantOrderSetDeliveryURL(token)
+	if err = c.postJSON(_url, &request, &result); err != nil {
+		return
+	}
 
+	switch result.ErrCode {
+	case errCodeOK:
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result
+		return
+	}
+}
+
+// 关闭订单
+func (c *Client) MerchantOrderClose(orderId string) (err error) {
 	var request = struct {
 		OrderId string `json:"order_id"`
 	}{
@@ -128,13 +158,32 @@ func (c *Client) MerchantOrderClose(orderId string) (err error) {
 	}
 
 	var result Error
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := merchantOrderCloseURL(token)
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
 
-	if result.ErrCode != 0 {
-		return result
-	}
+	switch result.ErrCode {
+	case errCodeOK:
+		return
 
-	return
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result
+		return
+	}
 }
