@@ -16,7 +16,7 @@ const (
 )
 
 func timeoutRetryWait() {
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(300 * time.Millisecond)
 }
 
 // 微信服务器返回的错误都是这个格式

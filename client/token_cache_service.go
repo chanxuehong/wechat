@@ -73,10 +73,12 @@ func newDefaultTokenCacheService(appid, appsecret string, httpClient *http.Clien
 func (srv *defaultTokenCacheService) start() {
 	tk, err := srv.getNewToken()
 	if err != nil {
-		srv.updateCurrentToken("", err)
+		srv.currentToken.token = ""
+		srv.currentToken.err = err
 		go srv.tokenAutoUpdate(time.Minute) // 一分钟后尝试
 	} else {
-		srv.updateCurrentToken(tk.Token, nil)
+		srv.currentToken.token = tk.Token
+		srv.currentToken.err = nil
 		go srv.tokenAutoUpdate(time.Duration(tk.ExpiresIn) * time.Second)
 	}
 }
@@ -90,25 +92,24 @@ func (srv *defaultTokenCacheService) Token() (token string, err error) {
 	return
 }
 
-func (srv *defaultTokenCacheService) updateCurrentToken(token string, err error) {
-	srv.currentToken.rwmutex.Lock()
-	srv.currentToken.token = token
-	srv.currentToken.err = err
-	srv.currentToken.rwmutex.Unlock()
-}
-
 // 实现 TokenService
 func (srv *defaultTokenCacheService) TokenRefresh() (token string, err error) {
+	srv.currentToken.rwmutex.Lock()
+	defer srv.currentToken.rwmutex.Unlock()
+
 	resp, err := srv.getNewToken()
 	if err != nil {
-		srv.updateCurrentToken("", err)
+		srv.currentToken.token = ""
+		srv.currentToken.err = err
 		srv.resetTokenRefreshTickChan <- time.Minute // 一分钟后尝试
 		return
 	}
 
-	srv.updateCurrentToken(resp.Token, nil)
-	srv.resetTokenRefreshTickChan <- time.Duration(resp.ExpiresIn) * time.Second
 	token = resp.Token
+
+	srv.currentToken.token = resp.Token
+	srv.currentToken.err = nil
+	srv.resetTokenRefreshTickChan <- time.Duration(resp.ExpiresIn) * time.Second
 	return
 }
 
@@ -189,16 +190,27 @@ NEW_TICK_DURATION:
 			goto NEW_TICK_DURATION
 
 		case <-ticker.C:
+			srv.currentToken.rwmutex.Lock()
+
 			resp, err := srv.getNewToken()
 			if err != nil {
-				srv.updateCurrentToken("", err)
+				srv.currentToken.token = ""
+				srv.currentToken.err = err
+
+				srv.currentToken.rwmutex.Unlock()
+
 				if tickDuration != defaultTickDuration { // 出错则重置到 defaultTickDuration
 					ticker.Stop()
 					tickDuration = defaultTickDuration
 					goto NEW_TICK_DURATION
 				}
+
 			} else {
-				srv.updateCurrentToken(resp.Token, nil)
+				srv.currentToken.token = resp.Token
+				srv.currentToken.err = nil
+
+				srv.currentToken.rwmutex.Unlock()
+
 				newTickDuration := time.Duration(resp.ExpiresIn) * time.Second
 				if tickDuration != newTickDuration {
 					ticker.Stop()
