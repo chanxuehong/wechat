@@ -6,6 +6,7 @@
 package client
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -125,6 +126,8 @@ func (c *Client) mediaUpload(mediaType, filename string, mediaReader io.Reader) 
 		return
 	}
 
+	postContent := bodyBuf.Bytes() // 这么绕一下是为了 RETRY 的时候不会出错
+
 	hasRetry := false
 RETRY:
 	token, err := c.Token()
@@ -132,7 +135,7 @@ RETRY:
 		return
 	}
 	_url := mediaUploadURL(token, mediaType)
-	httpResp, err := c.httpClient.Post(_url, bodyContentType, bodyBuf)
+	httpResp, err := c.httpClient.Post(_url, bodyContentType, bytes.NewReader(postContent))
 	if err != nil {
 		return
 	}

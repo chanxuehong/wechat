@@ -6,6 +6,7 @@
 package client
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -61,6 +62,8 @@ func (c *Client) merchantUploadImage(filename string, imageReader io.Reader) (im
 		return
 	}
 
+	postContent := bodyBuf.Bytes() // 这么绕一下是为了 RETRY 的时候能正常工作
+
 	hasRetry := false
 RETRY:
 	token, err := c.Token()
@@ -68,7 +71,7 @@ RETRY:
 		return
 	}
 	_url := merchantUploadImageURL(token, filename)
-	resp, err := c.httpClient.Post(_url, bodyContentType, bodyBuf)
+	resp, err := c.httpClient.Post(_url, bodyContentType, bytes.NewReader(postContent))
 	if err != nil {
 		return
 	}
