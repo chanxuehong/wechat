@@ -97,5 +97,4 @@ func (handler *FeedbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 		handler.invalidHandler(w, r, err)
 		return
 	}
-
 }
