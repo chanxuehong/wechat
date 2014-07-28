@@ -71,38 +71,24 @@ func (handler *FeedbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 		handler.invalidHandler(w, r, err)
 		return
 	}
+	if err := msgReq.Check(handler.paySignKey); err != nil {
+		handler.invalidHandler(w, r, err)
+		return
+	}
 
 	switch msgReq.MsgType {
 	case feedback.MSG_TYPE_REQUEST:
 		req := msgReq.GetRequest()
-
-		if err := req.Check(handler.paySignKey); err != nil {
-			err = errors.New("Request Check failed: " + err.Error())
-			handler.invalidHandler(w, r, err)
-			return
-		}
 		handler.requestHandler(w, r, req)
 		return
 
 	case feedback.MSG_TYPE_CONFIRM:
 		cfm := msgReq.GetConfirm()
-
-		if err := cfm.Check(handler.paySignKey); err != nil {
-			err = errors.New("Confirm Check failed: " + err.Error())
-			handler.invalidHandler(w, r, err)
-			return
-		}
 		handler.confirmHandler(w, r, cfm)
 		return
 
 	case feedback.MSG_TYPE_REJECT:
 		rjt := msgReq.GetReject()
-
-		if err := rjt.Check(handler.paySignKey); err != nil {
-			err = errors.New("Reject Check failed: " + err.Error())
-			handler.invalidHandler(w, r, err)
-			return
-		}
 		handler.rejectHandler(w, r, rjt)
 		return
 

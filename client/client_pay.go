@@ -88,3 +88,36 @@ RETRY:
 		return
 	}
 }
+
+// 标记客户的投诉处理状态
+func (c *Client) PayFeedbackUpdate(openid string, feedbackid int64) (err error) {
+	var result Error
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := payFeedbackUpdateURL(token, openid, feedbackid)
+	if err = c.getJSON(_url, &result); err != nil {
+		return
+	}
+
+	switch result.ErrCode {
+	case errCodeOK:
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = result
+		return
+	}
+}
