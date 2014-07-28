@@ -35,21 +35,21 @@ import (
 //      }
 //  );
 //
-type Parameters struct {
+type PayRequestParameters struct {
 	AppId     string `json:"appId"`            // 必须, 公众号 id
 	NonceStr  string `json:"nonceStr"`         // 必须, 商户生成的随机字符串, 32个字符以内
 	TimeStamp int64  `json:"timeStamp,string"` // 必须, unixtime, 商户生成
 
 	Package string `json:"package"` // 必须, 订单详情组合成的字符串, 4096个字符以内, see ../Bill.Package
 
-	Signature  string `json:"paySign"`  // 必须, 该 Parameters 自身的签名. see Parameters.SetSignature
+	Signature  string `json:"paySign"`  // 必须, 该 PayRequestParameters 自身的签名. see PayRequestParameters.SetSignature
 	SignMethod string `json:"signType"` // 必须, 签名方式, 目前仅支持 SHA1
 }
 
 // 设置签名字段.
 //  @paySignKey: 公众号支付请求中用于加密的密钥 Key, 对应于支付场景中的 appKey
-//  NOTE: 要求在 para *Parameters 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
-func (para *Parameters) SetSignature(paySignKey string) (err error) {
+//  NOTE: 要求在 para *PayRequestParameters 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
+func (para *PayRequestParameters) SetSignature(paySignKey string) (err error) {
 	var sumFunc hashSumFunc
 
 	switch {

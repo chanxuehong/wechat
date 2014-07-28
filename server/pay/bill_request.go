@@ -14,33 +14,33 @@ import (
 
 // native api 请求订单详情的 Handler
 type BillRequestHandler struct {
-	paySignKey            string
-	invalidRequestHandler InvalidRequestHandlerFunc
-	billRequestHandler    BillRequestHandlerFunc
+	paySignKey     string
+	invalidHandler InvalidRequestHandlerFunc
+	requestHandler BillRequestHandlerFunc
 }
 
 // NOTE: 所有参数必须有效
 func NewBillRequestHandler(
 	paySignKey string,
-	invalidRequestHandler InvalidRequestHandlerFunc,
-	billRequestHandler BillRequestHandlerFunc,
+	invalidHandler InvalidRequestHandlerFunc,
+	requestHandler BillRequestHandlerFunc,
 
 ) (handler *BillRequestHandler) {
 
 	if paySignKey == "" {
 		panic(`paySignKey == ""`)
 	}
-	if invalidRequestHandler == nil {
-		panic("invalidRequestHandler == nil")
+	if invalidHandler == nil {
+		panic("invalidHandler == nil")
 	}
-	if billRequestHandler == nil {
-		panic("billRequestHandler == nil")
+	if requestHandler == nil {
+		panic("requestHandler == nil")
 	}
 
 	handler = &BillRequestHandler{
-		paySignKey:            paySignKey,
-		invalidRequestHandler: invalidRequestHandler,
-		billRequestHandler:    billRequestHandler,
+		paySignKey:     paySignKey,
+		invalidHandler: invalidHandler,
+		requestHandler: requestHandler,
 	}
 
 	return
@@ -50,20 +50,20 @@ func NewBillRequestHandler(
 func (handler *BillRequestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		err := errors.New("request method is not POST")
-		handler.invalidRequestHandler(w, r, err)
+		handler.invalidHandler(w, r, err)
 		return
 	}
 
 	var billReq native.BillRequest
 	if err := xml.NewDecoder(r.Body).Decode(&billReq); err != nil {
-		handler.invalidRequestHandler(w, r, err)
+		handler.invalidHandler(w, r, err)
 		return
 	}
 
 	if err := billReq.Check(handler.paySignKey); err != nil {
-		handler.invalidRequestHandler(w, r, err)
+		handler.invalidHandler(w, r, err)
 		return
 	}
 
-	handler.billRequestHandler(w, r, &billReq)
+	handler.requestHandler(w, r, &billReq)
 }

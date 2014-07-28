@@ -10,8 +10,8 @@ import (
 	"testing"
 )
 
-func TestParametersSetSignatureAndMarshal(t *testing.T) {
-	var para Parameters
+func TestPayRequestParametersSetSignatureAndMarshal(t *testing.T) {
+	var para PayRequestParameters
 	para.AppId = "wxf8b4f85f3a794e77"
 	para.NonceStr = "adssdasssd13d"
 	para.Package = "bank_type=WX&body=XXX&fee_type=1&input_charset=GBK&notify_url=http%3a%2f%2fwww.qq.com&out_trade_no=16642817866003386000&partner=1900000109&spbill_create_ip=127.0.0.1&total_fee=1&sign=BEEF37AD19575D92E191C1E4B1474CA9"

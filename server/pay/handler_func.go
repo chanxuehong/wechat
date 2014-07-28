@@ -7,6 +7,7 @@ package pay
 
 import (
 	"github.com/chanxuehong/wechat/pay"
+	"github.com/chanxuehong/wechat/pay/feedback"
 	"github.com/chanxuehong/wechat/pay/native"
 	"net/http"
 )
@@ -27,3 +28,15 @@ type OrderNotifyHandlerFuncVer1 func(http.ResponseWriter, *http.Request, *pay.Or
 // 微信后台会向商户推送告警通知，包括发货延迟、调用失败、通知失败等情况
 //  NOTE: 参数 *pay.AlarmNotifyData 已经经过验证了, 无需再次认证签名!
 type AlarmNotifyHandlerFunc func(http.ResponseWriter, *http.Request, *pay.AlarmNotifyData)
+
+// 处理维权接口用户投诉消息
+//  NOTE: 参数 *feedback.Request 已经经过验证了, 无需再次认证签名!
+type FeedbackRequestHandlerFunc func(http.ResponseWriter, *http.Request, *feedback.Request)
+
+// 处理维权接口用户确认消除投诉消息
+//  NOTE: 参数 *feedback.Confirm 已经经过验证了, 无需再次认证签名!
+type FeedbackConfirmHandlerFunc func(http.ResponseWriter, *http.Request, *feedback.Confirm)
+
+// 处理维权接口用户拒绝消除投诉消息
+//  NOTE: 参数 *feedback.Reject 已经经过验证了, 无需再次认证签名!
+type FeedbackRejectHandlerFunc func(http.ResponseWriter, *http.Request, *feedback.Reject)

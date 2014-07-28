@@ -14,33 +14,33 @@ import (
 
 // 告警处理 Handler
 type AlarmNotifyHandler struct {
-	paySignKey             string
-	invalidRequestHandler  InvalidRequestHandlerFunc
-	alarmNotifyHandlerFunc AlarmNotifyHandlerFunc
+	paySignKey        string
+	invalidHandler    InvalidRequestHandlerFunc
+	notifyHandlerFunc AlarmNotifyHandlerFunc
 }
 
 // NOTE: 所有参数必须有效
 func NewAlarmNotifyHandler(
 	paySignKey string,
-	invalidRequestHandler InvalidRequestHandlerFunc,
-	alarmNotifyHandlerFunc AlarmNotifyHandlerFunc,
+	invalidHandler InvalidRequestHandlerFunc,
+	notifyHandlerFunc AlarmNotifyHandlerFunc,
 
 ) (handler *AlarmNotifyHandler) {
 
 	if paySignKey == "" {
 		panic(`paySignKey == ""`)
 	}
-	if invalidRequestHandler == nil {
-		panic("invalidRequestHandler == nil")
+	if invalidHandler == nil {
+		panic("invalidHandler == nil")
 	}
-	if alarmNotifyHandlerFunc == nil {
-		panic("alarmNotifyHandlerFunc == nil")
+	if notifyHandlerFunc == nil {
+		panic("notifyHandlerFunc == nil")
 	}
 
 	handler = &AlarmNotifyHandler{
-		paySignKey:             paySignKey,
-		invalidRequestHandler:  invalidRequestHandler,
-		alarmNotifyHandlerFunc: alarmNotifyHandlerFunc,
+		paySignKey:        paySignKey,
+		invalidHandler:    invalidHandler,
+		notifyHandlerFunc: notifyHandlerFunc,
 	}
 
 	return
@@ -50,20 +50,20 @@ func NewAlarmNotifyHandler(
 func (handler *AlarmNotifyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		err := errors.New("request method is not POST")
-		handler.invalidRequestHandler(w, r, err)
+		handler.invalidHandler(w, r, err)
 		return
 	}
 
 	var alarmData pay.AlarmNotifyData
 	if err := xml.NewDecoder(r.Body).Decode(&alarmData); err != nil {
-		handler.invalidRequestHandler(w, r, err)
+		handler.invalidHandler(w, r, err)
 		return
 	}
 
 	if err := alarmData.Check(handler.paySignKey); err != nil {
-		handler.invalidRequestHandler(w, r, err)
+		handler.invalidHandler(w, r, err)
 		return
 	}
 
-	handler.alarmNotifyHandlerFunc(w, r, &alarmData)
+	handler.notifyHandlerFunc(w, r, &alarmData)
 }
