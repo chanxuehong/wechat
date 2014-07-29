@@ -16,7 +16,25 @@ func TestSubscribeByScanEventSceneId(t *testing.T) {
 	sceneid, err := event.SceneId()
 	if err != nil {
 		t.Error(err)
-	} else if sceneid != 1000 {
-		t.Errorf("SubscribeByScanEvent.SceneId():\nhave %d\nwant 1000\n", sceneid)
+		return
+	}
+	if sceneid != 1000 {
+		t.Errorf("SceneId():\nhave %d\nwant 1000\n", sceneid)
+		return
+	}
+}
+
+func TestScanEventSceneId(t *testing.T) {
+	event := ScanEvent{
+		EventKey: "1000",
+	}
+	sceneid, err := event.SceneId()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if sceneid != 1000 {
+		t.Errorf("SceneId():\nhave %d\nwant 1000\n", sceneid)
+		return
 	}
 }

@@ -244,11 +244,11 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 				MsgType:      MSG_TYPE_LOCATION,
 			},
 
-			MsgId:      1234567890123456,
-			Location_X: 23.134525,  // 最后一位是 5 才能精确表示
-			Location_Y: 113.358805, // 最后一位是 5 才能精确表示
-			Scale:      20,
-			Label:      "位置信息",
+			MsgId:     1234567890123456,
+			LocationX: 23.134525,  // 最后一位是 5 才能精确表示
+			LocationY: 113.358805, // 最后一位是 5 才能精确表示
+			Scale:     20,
+			Label:     "位置信息",
 		}
 		if req != expectReq {
 			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", msgBytes, req, expectReq)
@@ -261,11 +261,11 @@ func TestRequestUnmarshalAndZero(t *testing.T) {
 					MsgType:      MSG_TYPE_LOCATION,
 				},
 
-				MsgId:      1234567890123456,
-				Location_X: 23.134525,  // 最后一位是 5 才能精确表示
-				Location_Y: 113.358805, // 最后一位是 5 才能精确表示
-				Scale:      20,
-				Label:      "位置信息",
+				MsgId:     1234567890123456,
+				LocationX: 23.134525,  // 最后一位是 5 才能精确表示
+				LocationY: 113.358805, // 最后一位是 5 才能精确表示
+				Scale:     20,
+				Label:     "位置信息",
 			}
 
 			location := req.Location()

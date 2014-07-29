@@ -62,9 +62,7 @@ func (req *MsgRequest) Check(paySignKey string) (err error) {
 	}
 
 	TimeStampStr := strconv.FormatInt(req.TimeStamp, 10)
-
 	const keysLen = len(`appid=&appkey=&openid=&timestamp=`)
-
 	n := twoHashSumLen + keysLen + len(req.AppId) + len(paySignKey) +
 		len(req.OpenId) + len(TimeStampStr)
 

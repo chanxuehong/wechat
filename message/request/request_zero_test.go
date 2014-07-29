@@ -13,7 +13,7 @@ func TestRequestZero(t *testing.T) {
 	var req Request
 	req.ToUserName = "touser"
 
-	if req == _zero_request {
+	if req == zeroRequest {
 		t.Error("req must not be zero")
 		return
 	}
@@ -31,14 +31,14 @@ func BenchmarkRequestZero(b *testing.B) {
 		req.Zero()
 	}
 }
-func BenchmarkRequest_Zero(b *testing.B) {
+func BenchmarkRequestZeroX(b *testing.B) {
 	var req Request
 	for i := 0; i < b.N; i++ {
-		req._Zero()
+		req.ZeroX()
 	}
 }
 
-func (msg *Request) _Zero() *Request {
+func (msg *Request) ZeroX() *Request {
 	msg.CommonHead.ToUserName = ""
 	msg.CommonHead.FromUserName = ""
 	msg.CommonHead.CreateTime = 0
@@ -54,8 +54,8 @@ func (msg *Request) _Zero() *Request {
 	msg.Format = ""
 	msg.Recognition = ""
 	msg.ThumbMediaId = ""
-	msg.Location_X = 0
-	msg.Location_Y = 0
+	msg.LocationX = 0
+	msg.LocationY = 0
 	msg.Scale = 0
 	msg.Label = ""
 	msg.Title = ""

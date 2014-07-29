@@ -12,23 +12,30 @@ import (
 )
 
 type CommonHead struct {
-	ToUserName   string `xml:"ToUserName"`   // 接收方帐号(OpenID)
-	FromUserName string `xml:"FromUserName"` // 开发者微信号
-	CreateTime   int64  `xml:"CreateTime"`   // 消息创建时间(整型), unixtime
-	MsgType      string `xml:"MsgType"`      // text, image, voice, video, music, news, transfer_customer_service
+	ToUserName   string `xml:"ToUserName"   json:"ToUserName"`   // 接收方帐号(OpenID)
+	FromUserName string `xml:"FromUserName" json:"FromUserName"` // 开发者微信号
+	CreateTime   int64  `xml:"CreateTime"   json:"CreateTime"`   // 消息创建时间(整型), unixtime
+	MsgType      string `xml:"MsgType"      json:"MsgType"`      // text, image, voice, video, music, news, transfer_customer_service
 }
 
-// text ========================================================================
-
+// 文本消息
+//
+//  <xml>
+//      <ToUserName>ovx6euNq-hN2do74jeVSqZB82DiE</ToUserName>
+//      <FromUserName>gh_xxxxxxxxxxxx</FromUserName>
+//      <CreateTime>1406609798</CreateTime>
+//      <MsgType>text</MsgType>
+//      <Content>文本回复测试</Content>
+//  </xml>
 type Text struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
 
-	Content string `xml:"Content"` // 回复的消息内容(换行：在content中能够换行, 微信客户端就支持换行显示)
+	Content string `xml:"Content" json:"Content"` // 回复的消息内容(换行：在content中能够换行, 微信客户端就支持换行显示)
 }
 
-func NewText(to, from, content string) *Text {
-	msg := Text{
+func NewText(to, from, content string) (text *Text) {
+	text = &Text{
 		CommonHead: CommonHead{
 			ToUserName:   to,
 			FromUserName: from,
@@ -36,24 +43,33 @@ func NewText(to, from, content string) *Text {
 			MsgType:      MSG_TYPE_TEXT,
 		},
 	}
-	msg.Content = content
+	text.Content = content
 
-	return &msg
+	return
 }
 
-// image =======================================================================
-
+// 图片消息
+//
+//  <xml>
+//      <ToUserName>os-IKuHd9pJ6xsn4mS7GyL4HxqI4</ToUserName>
+//      <FromUserName>gh_xxxxxxxxxxxx</FromUserName>
+//      <CreateTime>1406609903</CreateTime>
+//      <MsgType>image</MsgType>
+//      <Image>
+//          <MediaId>C-bBnTx9XFlVPTCMYWZ6_PeRBCWVfghkSJj2DXTG4faqgAyfjxqdHrtO0Jtpa7K-</MediaId>
+//      </Image>
+//  </xml>
 type Image struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
 
 	Image struct {
-		MediaId string `xml:"MediaId"` // 通过上传多媒体文件, 得到的id
-	} `xml:"Image"`
+		MediaId string `xml:"MediaId" json:"MediaId"` // 通过上传多媒体文件, 得到的id
+	} `xml:"Image" json:"Image"`
 }
 
-func NewImage(to, from, mediaId string) *Image {
-	msg := Image{
+func NewImage(to, from, mediaId string) (image *Image) {
+	image = &Image{
 		CommonHead: CommonHead{
 			ToUserName:   to,
 			FromUserName: from,
@@ -61,24 +77,33 @@ func NewImage(to, from, mediaId string) *Image {
 			MsgType:      MSG_TYPE_IMAGE,
 		},
 	}
-	msg.Image.MediaId = mediaId
+	image.Image.MediaId = mediaId
 
-	return &msg
+	return
 }
 
-// voice =======================================================================
-
+// 语音消息
+//
+//  <xml>
+//      <ToUserName>os-IKuHd9pJ6xsn4mS7GyL4HxqI4</ToUserName>
+//      <FromUserName>gh_xxxxxxxxxxxx</FromUserName>
+//      <CreateTime>1406610000</CreateTime>
+//      <MsgType>voice</MsgType>
+//      <Voice>
+//          <MediaId>GxIcE7umAGoJU29636XgsilpZmNYsiXngcA_RjIV3JJNkFw9fo2muf-94QsC37MT</MediaId>
+//      </Voice>
+//  </xml>
 type Voice struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
 
 	Voice struct {
-		MediaId string `xml:"MediaId"` // 通过上传多媒体文件, 得到的id
-	} `xml:"Voice"`
+		MediaId string `xml:"MediaId" json:"MediaId"` // 通过上传多媒体文件, 得到的id
+	} `xml:"Voice" json:"Voice"`
 }
 
-func NewVoice(to, from, mediaId string) *Voice {
-	msg := Voice{
+func NewVoice(to, from, mediaId string) (voice *Voice) {
+	voice = &Voice{
 		CommonHead: CommonHead{
 			ToUserName:   to,
 			FromUserName: from,
@@ -86,27 +111,38 @@ func NewVoice(to, from, mediaId string) *Voice {
 			MsgType:      MSG_TYPE_VOICE,
 		},
 	}
-	msg.Voice.MediaId = mediaId
+	voice.Voice.MediaId = mediaId
 
-	return &msg
+	return
 }
 
-// video =======================================================================
-
+// 视频消息
+//
+//  <xml>
+//      <ToUserName>os-IKuHd9pJ6xsn4mS7GyL4HxqI4</ToUserName>
+//      <FromUserName>gh_xxxxxxxxxxxx</FromUserName>
+//      <CreateTime>1406610204</CreateTime>
+//      <MsgType>video</MsgType>
+//      <Video>
+//          <Title>标题</Title>
+//          <Description>描述</Description>
+//          <MediaId>kZ9bccrQaFVq1aa3TbLNdXnocPz-LfrfrI8Vrs-pKts8QOmmF66tsoihEW3qhpeP</MediaId>
+//      </Video>
+//  </xml>
 type Video struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
 
 	Video struct {
-		MediaId     string `xml:"MediaId"`               // 通过上传多媒体文件, 得到的id
-		Title       string `xml:"Title,omitempty"`       // 视频消息的标题
-		Description string `xml:"Description,omitempty"` // 视频消息的描述
-	} `xml:"Video"`
+		Title       string `xml:"Title,omitempty"       json:"Title,omitempty"`       // 视频消息的标题
+		Description string `xml:"Description,omitempty" json:"Description,omitempty"` // 视频消息的描述
+		MediaId     string `xml:"MediaId"               json:"MediaId"`               // 通过上传多媒体文件, 得到的id
+	} `xml:"Video" json:"Video"`
 }
 
 // title, description 可以为 ""
-func NewVideo(to, from, mediaId, title, description string) *Video {
-	msg := Video{
+func NewVideo(to, from, mediaId, title, description string) (video *Video) {
+	video = &Video{
 		CommonHead: CommonHead{
 			ToUserName:   to,
 			FromUserName: from,
@@ -114,31 +150,46 @@ func NewVideo(to, from, mediaId, title, description string) *Video {
 			MsgType:      MSG_TYPE_VIDEO,
 		},
 	}
-	msg.Video.MediaId = mediaId
-	msg.Video.Title = title
-	msg.Video.Description = description
+	video.Video.Title = title
+	video.Video.Description = description
+	video.Video.MediaId = mediaId
 
-	return &msg
+	return
 }
 
-// music =======================================================================
-
+// 音乐消息
+//
+//  <xml>
+//      <ToUserName>os-IKuHd9pJ6xsn4mS7GyL4HxqI4</ToUserName>
+//      <FromUserName>gh_xxxxxxxxxxxx</FromUserName>
+//      <CreateTime>1406610407</CreateTime>
+//      <MsgType>music</MsgType>
+//      <Music>
+//          <Title>标题</Title>
+//          <Description>描述</Description>
+//          <MusicUrl>http://music.baidu.com/song/2191061</MusicUrl>
+//          <HQMusicUrl>http://music.baidu.com/song/2191061</HQMusicUrl>
+//          <ThumbMediaId>4lasRoqC1ydjrq7VhU74mra7KVwacWDVdF6PlS3caQkYdYhrj3rkt7P59GOoSKzX</ThumbMediaId>
+//      </Music>
+//  </xml>
 type Music struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
 
 	Music struct {
-		Title        string `xml:"Title,omitempty"`       // 音乐标题
-		Description  string `xml:"Description,omitempty"` // 音乐描述
-		MusicURL     string `xml:"MusicUrl"`              // 音乐链接
-		HQMusicURL   string `xml:"HQMusicUrl"`            // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
-		ThumbMediaId string `xml:"ThumbMediaId"`          // 缩略图的媒体id, 通过上传多媒体文件, 得到的id
-	} `xml:"Music"`
+		Title        string `xml:"Title,omitempty"       json:"Title,omitempty"`       // 音乐标题
+		Description  string `xml:"Description,omitempty" json:"Description,omitempty"` // 音乐描述
+		MusicURL     string `xml:"MusicUrl"              json:"MusicUrl"`              // 音乐链接
+		HQMusicURL   string `xml:"HQMusicUrl"            json:"HQMusicUrl"`            // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
+		ThumbMediaId string `xml:"ThumbMediaId"          json:"ThumbMediaId"`          // 缩略图的媒体id, 通过上传多媒体文件, 得到的id
+	} `xml:"Music" json:"Music"`
 }
 
 // title, description 可以为 ""
-func NewMusic(to, from, thumbMediaId, musicURL, HQMusicURL, title, description string) *Music {
-	msg := Music{
+func NewMusic(to, from, thumbMediaId, musicURL,
+	HQMusicURL, title, description string) (music *Music) {
+
+	music = &Music{
 		CommonHead: CommonHead{
 			ToUserName:   to,
 			FromUserName: from,
@@ -146,42 +197,72 @@ func NewMusic(to, from, thumbMediaId, musicURL, HQMusicURL, title, description s
 			MsgType:      MSG_TYPE_MUSIC,
 		},
 	}
-	msg.Music.ThumbMediaId = thumbMediaId
-	msg.Music.MusicURL = musicURL
-	msg.Music.HQMusicURL = HQMusicURL
-	msg.Music.Title = title
-	msg.Music.Description = description
+	music.Music.Title = title
+	music.Music.Description = description
+	music.Music.ThumbMediaId = thumbMediaId
+	music.Music.MusicURL = musicURL
+	music.Music.HQMusicURL = HQMusicURL
 
-	return &msg
+	return
 }
 
-// news ========================================================================
-
-// 图文消息里的 item
+// 图文消息里的 Article
 type NewsArticle struct {
-	Title       string `xml:"Title,omitempty"`       // 图文消息标题
-	Description string `xml:"Description,omitempty"` // 图文消息描述
-	PicURL      string `xml:"PicUrl,omitempty"`      // 图片链接, 支持JPG, PNG格式, 较好的效果为大图360*200, 小图200*200
-	URL         string `xml:"Url,omitempty"`         // 点击图文消息跳转链接
+	Title       string `xml:"Title,omitempty"       json:"Title,omitempty"`       // 图文消息标题
+	Description string `xml:"Description,omitempty" json:"Description,omitempty"` // 图文消息描述
+	PicURL      string `xml:"PicUrl,omitempty"      json:"PicUrl,omitempty"`      // 图片链接, 支持JPG, PNG格式, 较好的效果为大图360*200, 小图200*200
+	URL         string `xml:"Url,omitempty"         json:"Url,omitempty"`         // 点击图文消息跳转链接
+}
+
+func NewNewsArticle(Title, Description, PicURL, URL string) (article *NewsArticle) {
+	article = &NewsArticle{
+		Title:       Title,
+		Description: Description,
+		PicURL:      PicURL,
+		URL:         URL,
+	}
+	return
 }
 
 // 图文消息.
 //  NOTE: Articles 赋值的同时也要更改 ArticleCount 字段, 建议用 NewNews() 和 News.AppendArticle()
+//
+//  <xml>
+//      <ToUserName>os-IKuHd9pJ6xsn4mS7GyL4HxqI4</ToUserName>
+//      <FromUserName>gh_xxxxxxxxxxxx</FromUserName>
+//      <CreateTime>1406611521</CreateTime>
+//      <MsgType>news</MsgType>
+//      <ArticleCount>2</ArticleCount>
+//      <Articles>
+//          <item>
+//              <Title>标题1</Title>
+//              <Description>描述1</Description>
+//              <PicUrl>http://news.baidu.com/resource/img/logo_news_137_46.png</PicUrl>
+//              <Url>http://news.baidu.com/</Url>
+//          </item>
+//          <item>
+//              <Title>标题2</Title>
+//              <Description>描述2</Description>
+//              <PicUrl>http://mat1.gtimg.com/news/news2013/LOGO.jpg</PicUrl>
+//              <Url>http://news.qq.com/</Url>
+//          </item>
+//      </Articles>
+//  </xml>
 type News struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
 
-	ArticleCount int            `xml:"ArticleCount"`            // 图文消息个数, 限制为10条以内
-	Articles     []*NewsArticle `xml:"Articles>item,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
+	ArticleCount int            `xml:"ArticleCount"            json:"ArticleCount"`       // 图文消息个数, 限制为10条以内
+	Articles     []*NewsArticle `xml:"Articles>item,omitempty" json:"Articles,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
 }
 
 // NOTE: articles 的长度不能超过 NewsArticleCountLimit
-func NewNews(to, from string, articles []*NewsArticle) *News {
+func NewNews(to, from string, articles []*NewsArticle) (news *News) {
 	if articles == nil {
 		articles = make([]*NewsArticle, 0, NewsArticleCountLimit)
 	}
 
-	msg := News{
+	news = &News{
 		CommonHead: CommonHead{
 			ToUserName:   to,
 			FromUserName: from,
@@ -189,23 +270,24 @@ func NewNews(to, from string, articles []*NewsArticle) *News {
 			MsgType:      MSG_TYPE_NEWS,
 		},
 	}
-	msg.ArticleCount = len(articles)
-	msg.Articles = articles
+	news.ArticleCount = len(articles)
+	news.Articles = articles
 
-	return &msg
+	return
 }
 
 // NOTE: 请确保 News.Articles 的长度不要超过 NewsArticleCountLimit
-func (msg *News) AppendArticle(article ...*NewsArticle) {
+func (n *News) AppendArticle(article ...*NewsArticle) {
 	if len(article) > 0 {
-		msg.Articles = append(msg.Articles, article...)
-		msg.ArticleCount = len(msg.Articles)
+		n.Articles = append(n.Articles, article...)
+		n.ArticleCount = len(n.Articles)
 	}
 }
 
 // 检查 News 是否有效，有效返回 nil，否则返回错误信息
 func (n *News) CheckValid() (err error) {
 	articleNum := len(n.Articles)
+
 	if articleNum != n.ArticleCount {
 		err = fmt.Errorf("图文消息的 ArticleCount == %d, 实际文章个数为 %d", n.ArticleCount, articleNum)
 		return
@@ -220,8 +302,6 @@ func (n *News) CheckValid() (err error) {
 	}
 	return
 }
-
-// transfer_customer_service ===================================================
 
 // 将消息转发到多客服
 type TransferCustomerService struct {

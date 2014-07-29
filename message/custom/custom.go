@@ -15,8 +15,15 @@ type CommonHead struct {
 	MsgType string `json:"msgtype"` // text, image, voice, video, music, news
 }
 
-// text ========================================================================
-
+// 文本消息
+//
+//  {
+//      "touser": "os-IKuHd9pJ6xsn4mS7GyL4HxqI4",
+//      "msgtype": "text",
+//      "text": {
+//          "content": "测试文本"
+//      }
+//  }
 type Text struct {
 	CommonHead
 
@@ -25,20 +32,27 @@ type Text struct {
 	} `json:"text"`
 }
 
-func NewText(to, content string) *Text {
-	msg := Text{
+func NewText(to, content string) (text *Text) {
+	text = &Text{
 		CommonHead: CommonHead{
 			ToUser:  to,
 			MsgType: MSG_TYPE_TEXT,
 		},
 	}
-	msg.Text.Content = content
+	text.Text.Content = content
 
-	return &msg
+	return
 }
 
-// image =======================================================================
-
+// 图片消息
+//
+//  {
+//      "touser": "os-IKuHd9pJ6xsn4mS7GyL4HxqI4",
+//      "msgtype": "image",
+//      "image": {
+//          "media_id": "C-bBnTx9XFlVPTCMYWZ6_PeRBCWVfghkSJj2DXTG4faqgAyfjxqdHrtO0Jtpa7K-"
+//      }
+//  }
 type Image struct {
 	CommonHead
 
@@ -47,20 +61,27 @@ type Image struct {
 	} `json:"image"`
 }
 
-func NewImage(to, mediaId string) *Image {
-	msg := Image{
+func NewImage(to, mediaId string) (image *Image) {
+	image = &Image{
 		CommonHead: CommonHead{
 			ToUser:  to,
 			MsgType: MSG_TYPE_IMAGE,
 		},
 	}
-	msg.Image.MediaId = mediaId
+	image.Image.MediaId = mediaId
 
-	return &msg
+	return
 }
 
-// voice =======================================================================
-
+// 语音消息
+//
+//  {
+//      "touser": "os-IKuHd9pJ6xsn4mS7GyL4HxqI4",
+//      "msgtype": "voice",
+//      "voice": {
+//          "media_id": "GxIcE7umAGoJU29636XgsilpZmNYsiXngcA_RjIV3JJNkFw9fo2muf-94QsC37MT"
+//      }
+//  }
 type Voice struct {
 	CommonHead
 
@@ -69,20 +90,29 @@ type Voice struct {
 	} `json:"voice"`
 }
 
-func NewVoice(to, mediaId string) *Voice {
-	msg := Voice{
+func NewVoice(to, mediaId string) (voice *Voice) {
+	voice = &Voice{
 		CommonHead: CommonHead{
 			ToUser:  to,
 			MsgType: MSG_TYPE_VOICE,
 		},
 	}
-	msg.Voice.MediaId = mediaId
+	voice.Voice.MediaId = mediaId
 
-	return &msg
+	return
 }
 
-// video =======================================================================
-
+// 视频消息
+//
+//  {
+//      "touser": "os-IKuHd9pJ6xsn4mS7GyL4HxqI4",
+//      "msgtype": "video",
+//      "video": {
+//          "media_id": "kZ9bccrQaFVq1aa3TbLNdXnocPz-LfrfrI8Vrs-pKts8QOmmF66tsoihEW3qhpeP",
+//          "title": "标题",
+//          "description": "描述"
+//      }
+//  }
 type Video struct {
 	CommonHead
 
@@ -94,22 +124,33 @@ type Video struct {
 }
 
 // title, description 可以为 ""
-func NewVideo(to, mediaId, title, description string) *Video {
-	msg := Video{
+func NewVideo(to, mediaId, title, description string) (video *Video) {
+	video = &Video{
 		CommonHead: CommonHead{
 			ToUser:  to,
 			MsgType: MSG_TYPE_VIDEO,
 		},
 	}
-	msg.Video.MediaId = mediaId
-	msg.Video.Title = title
-	msg.Video.Description = description
+	video.Video.MediaId = mediaId
+	video.Video.Title = title
+	video.Video.Description = description
 
-	return &msg
+	return
 }
 
-// music =======================================================================
-
+// 音乐消息
+//
+//  {
+//      "touser": "os-IKuHd9pJ6xsn4mS7GyL4HxqI4",
+//      "msgtype": "music",
+//      "music": {
+//          "title": "标题",
+//          "description": "描述",
+//          "musicurl": "http://music.baidu.com/song/2191061",
+//          "hqmusicurl": "http://music.baidu.com/song/2191061",
+//          "thumb_media_id": "4lasRoqC1ydjrq7VhU74mra7KVwacWDVdF6PlS3caQkYdYhrj3rkt7P59GOoSKzX"
+//      }
+//  }
 type Music struct {
 	CommonHead
 
@@ -123,25 +164,23 @@ type Music struct {
 }
 
 // title, description 可以为 ""
-func NewMusic(to, thumbMediaId, musicURL, HQMusicURL, title, description string) *Music {
-	msg := Music{
+func NewMusic(to, thumbMediaId, musicURL, HQMusicURL, title, description string) (music *Music) {
+	music = &Music{
 		CommonHead: CommonHead{
 			ToUser:  to,
 			MsgType: MSG_TYPE_MUSIC,
 		},
 	}
-	msg.Music.ThumbMediaId = thumbMediaId
-	msg.Music.MusicURL = musicURL
-	msg.Music.HQMusicURL = HQMusicURL
-	msg.Music.Title = title
-	msg.Music.Description = description
+	music.Music.Title = title
+	music.Music.Description = description
+	music.Music.ThumbMediaId = thumbMediaId
+	music.Music.MusicURL = musicURL
+	music.Music.HQMusicURL = HQMusicURL
 
-	return &msg
+	return
 }
 
-// news ========================================================================
-
-// 图文消息里的 item
+// 图文消息里的 Article
 type NewsArticle struct {
 	Title       string `json:"title,omitempty"`       // 图文消息标题
 	Description string `json:"description,omitempty"` // 图文消息描述
@@ -149,7 +188,38 @@ type NewsArticle struct {
 	URL         string `json:"url,omitempty"`         // 点击图文消息跳转链接
 }
 
+func NewNewsArticle(Title, Description, PicURL, URL string) (article *NewsArticle) {
+	article = &NewsArticle{
+		Title:       Title,
+		Description: Description,
+		PicURL:      PicURL,
+		URL:         URL,
+	}
+	return
+}
+
 // 图文消息
+//
+//  {
+//      "touser": "os-IKuHd9pJ6xsn4mS7GyL4HxqI4",
+//      "msgtype": "news",
+//      "news": {
+//          "articles": [
+//              {
+//                  "title": "标题1",
+//                  "description": "描述1",
+//                  "picurl": "http://news.baidu.com/resource/img/logo_news_137_46.png",
+//                  "url": "http://news.baidu.com/"
+//              },
+//              {
+//                  "title": "标题2",
+//                  "description": "描述2",
+//                  "picurl": "http://mat1.gtimg.com/news/news2013/LOGO.jpg",
+//                  "url": "http://news.qq.com/"
+//              }
+//          ]
+//      }
+//  }
 type News struct {
 	CommonHead
 
@@ -159,16 +229,23 @@ type News struct {
 }
 
 // NOTE: articles 的长度不能超过 NewsArticleCountLimit
-func NewNews(to string, articles []*NewsArticle) *News {
-	msg := News{
+func NewNews(to string, articles []*NewsArticle) (news *News) {
+	news = &News{
 		CommonHead: CommonHead{
 			ToUser:  to,
 			MsgType: MSG_TYPE_NEWS,
 		},
 	}
-	msg.News.Articles = articles
+	news.News.Articles = articles
 
-	return &msg
+	return
+}
+
+// NOTE: 请确保 Articles 的长度不要超过 NewsArticleCountLimit
+func (n *News) AppendArticle(article ...*NewsArticle) {
+	if len(article) > 0 {
+		n.News.Articles = append(n.News.Articles, article...)
+	}
 }
 
 // 检查 News 是否有效，有效返回 nil，否则返回错误信息

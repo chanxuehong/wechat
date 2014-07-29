@@ -37,12 +37,14 @@ import (
 //  });
 //
 type EditAddressParameters struct {
-	AppId      string `json:"appId"`            // 公众号 id
-	NonceStr   string `json:"nonceStr"`         // 随机字符串
-	TimeStamp  int64  `json:"timeStamp,string"` // 时间戳, unixtime
-	Scope      string `json:"scope"`            // 填写"jsapi_address", 获得编辑地址权限
-	Signature  string `json:"addrSign"`         // 签名
-	SignMethod string `json:"signType"`         // 签名方式, 目前仅支持SHA1
+	AppId     string `json:"appId"`            // 公众号 id
+	NonceStr  string `json:"nonceStr"`         // 随机字符串
+	TimeStamp int64  `json:"timeStamp,string"` // 时间戳, unixtime
+
+	Scope string `json:"scope"` // 填写"jsapi_address", 获得编辑地址权限
+
+	Signature  string `json:"addrSign"` // 签名
+	SignMethod string `json:"signType"` // 签名方式, 目前仅支持SHA1
 }
 
 // 设置签名字段.

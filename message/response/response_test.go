@@ -96,9 +96,9 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		<CreateTime>12345678</CreateTime>
 		<MsgType>video</MsgType>
 		<Video>
-			<MediaId>media_id</MediaId>
 			<Title>title</Title>
 			<Description>description</Description>
+			<MediaId>media_id</MediaId>
 		</Video> 
 	</xml>`)
 
