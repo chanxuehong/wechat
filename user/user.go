@@ -34,8 +34,11 @@ type UserInfo struct {
 	// 用户关注时间，为时间戳。如果用户曾多次关注，则取最后关注时间
 	SubscribeTime int64 `json:"subscribe_time"`
 
+	// 只有在用户将公众号绑定到微信开放平台帐号后，才会出现该字段。
+	UnionId string `json:"unionid,omitempty"`
+
 	// 下面这个字段文档中没有，但是实际返回的数据里有这个字段
-	Remark string `json:"remark"`
+	Remark string `json:"remark,omitempty"`
 }
 
 // 获取用户图像的大小

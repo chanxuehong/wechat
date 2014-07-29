@@ -39,3 +39,7 @@ func main() {
 	fmt.Println(qrcode)
 }
 ```
+
+## 测试信息
+
+https://github.com/chanxuehong/wechat/blob/master/client/testinfo.txt

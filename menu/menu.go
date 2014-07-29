@@ -5,8 +5,44 @@
 
 package menu
 
+// 菜单
+//
+//  {
+//      "button": [
+//          {
+//              "name": "click",
+//              "type": "click",
+//              "key": "key"
+//          },
+//          {
+//              "name": "view",
+//              "type": "view",
+//              "url": "http://www.qq.com"
+//          },
+//          {
+//              "name": "sub_menu",
+//              "sub_button": [
+//                  {
+//                      "name": "sub_click",
+//                      "type": "click",
+//                      "key": "key"
+//                  },
+//                  {
+//                      "name": "sub_view",
+//                      "type": "view",
+//                      "url": "http://www.qq.com"
+//                  }
+//              ]
+//          }
+//      ]
+//  }
 type Menu struct {
 	Buttons []*Button `json:"button,omitempty"` // 按钮个数不能超过 MenuButtonCountLimit
+}
+
+// 确保 mn.Buttons 的长度不要超过 MenuButtonCountLimit
+func (mn Menu) AppendButton(button ...*Button) {
+	mn.Buttons = append(mn.Buttons, button...)
 }
 
 // 菜单的按钮

@@ -1,26 +1,26 @@
-func QRCodeDownload(ticket string, writer io.Writer) (err error)
-func QRCodeDownloadToFile(ticket, _filepath string) (err error)
-func QRCodeURL(ticket string) string
+func QRCodeDownload(ticket string, writer io.Writer) (err error) 已测试
+func QRCodeDownloadToFile(ticket, _filepath string) (err error)  已测试
+func QRCodeURL(ticket string) string                             已测试
 type Client
     func NewClient(appid, appsecret string, httpClient *http.Client) (clt *Client)
     func NewClientEx(tokenCache TokenCache, tokenService TokenService, httpClient *http.Client) (clt *Client)
     func (c *Client) CustomServiceRecordGet(request *customservice.RecordGetRequest) (records []customservice.Record, err error)
     func (c *Client) CustomServiceRecordIterator(request *customservice.RecordGetRequest) (iter customservice.RecordIterator, err error)
-    func (c *Client) MediaCreateNews(news media.News) (resp *media.UploadResponse, err error)
-    func (c *Client) MediaCreateVideo(mediaId, title, description string) (resp *media.UploadResponse, err error)
-    func (c *Client) MediaDownload(mediaId string, writer io.Writer) error
-    func (c *Client) MediaDownloadToFile(mediaId, _filepath string) (err error)
-    func (c *Client) MediaUploadImage(filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error)
-    func (c *Client) MediaUploadImageFromFile(_filepath string) (resp *media.UploadResponse, err error)
-    func (c *Client) MediaUploadThumb(filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error)
-    func (c *Client) MediaUploadThumbFromFile(_filepath string) (resp *media.UploadResponse, err error)
-    func (c *Client) MediaUploadVideo(filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error)
-    func (c *Client) MediaUploadVideoFromFile(_filepath string) (resp *media.UploadResponse, err error)
-    func (c *Client) MediaUploadVoice(filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error)
-    func (c *Client) MediaUploadVoiceFromFile(_filepath string) (resp *media.UploadResponse, err error)
-    func (c *Client) MenuCreate(_menu menu.Menu) (err error)
-    func (c *Client) MenuDelete() (err error)
-    func (c *Client) MenuGet() (_menu menu.Menu, err error)
+    func (c *Client) MediaCreateNews(news media.News) (resp *media.UploadResponse, err error)                          已测试
+    func (c *Client) MediaCreateVideo(mediaId, title, description string) (resp *media.UploadResponse, err error)      已测试
+    func (c *Client) MediaDownload(mediaId string, writer io.Writer) error                                             已测试
+    func (c *Client) MediaDownloadToFile(mediaId, _filepath string) (err error)                                        已测试
+    func (c *Client) MediaUploadImage(filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error)  已测试
+    func (c *Client) MediaUploadImageFromFile(_filepath string) (resp *media.UploadResponse, err error)                已测试
+    func (c *Client) MediaUploadThumb(filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error)  已测试
+    func (c *Client) MediaUploadThumbFromFile(_filepath string) (resp *media.UploadResponse, err error)                已测试
+    func (c *Client) MediaUploadVideo(filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error)  已测试
+    func (c *Client) MediaUploadVideoFromFile(_filepath string) (resp *media.UploadResponse, err error)                已测试
+    func (c *Client) MediaUploadVoice(filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error)  已测试
+    func (c *Client) MediaUploadVoiceFromFile(_filepath string) (resp *media.UploadResponse, err error)                已测试
+    func (c *Client) MenuCreate(_menu menu.Menu) (err error) 已测试
+    func (c *Client) MenuDelete() (err error)                已测试
+    func (c *Client) MenuGet() (_menu menu.Menu, err error)  已测试
     func (c *Client) MerchantCategoryGetProperty(categoryId int64) (properties []category.Property, err error)
     func (c *Client) MerchantCategoryGetSKU(categoryId int64) (skus []category.SKU, err error)
     func (c *Client) MerchantCategoryGetSub(categoryId int64) (categories []category.Category, err error)
@@ -77,16 +77,16 @@ type Client
     func (c *Client) PayDeliverNotify(data *pay.DeliverNotifyData) (err error)
     func (c *Client) PayFeedbackUpdate(openid string, feedbackid int64) (err error)
     func (c *Client) PayOrderQuery(req *pay.OrderQueryRequest) (resp *pay.OrderQueryResponse, err error)
-    func (c *Client) QRCodeDownload(ticket string, writer io.Writer) (err error)
-    func (c *Client) QRCodeDownloadToFile(ticket, _filepath string) (err error)
-    func (c *Client) QRCodePermanentCreate(sceneId uint32) (_qrcode *qrcode.PermanentQRCode, err error)
-    func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (_qrcode *qrcode.TemporaryQRCode, err error)
-    func (c *Client) Token() (token string, err error)
-    func (c *Client) TokenRefresh() (token string, err error)
-    func (c *Client) UserGroupCreate(name string) (_group *user.Group, err error)
-    func (c *Client) UserGroupGet() (groups []user.Group, err error)
-    func (c *Client) UserGroupRename(groupid int64, name string) (err error)
-    func (c *Client) UserInWhichGroup(openid string) (groupid int64, err error)
-    func (c *Client) UserInfo(openid string, lang string) (userinfo *user.UserInfo, err error)
-    func (c *Client) UserIterator(beginOpenId string) (iter user.UserIterator, err error)
-    func (c *Client) UserMoveToGroup(openid string, toGroupId int64) (err error)
+    func (c *Client) QRCodeDownload(ticket string, writer io.Writer) (err error)                                           已测试
+    func (c *Client) QRCodeDownloadToFile(ticket, _filepath string) (err error)                                            已测试
+    func (c *Client) QRCodePermanentCreate(sceneId uint32) (_qrcode *qrcode.PermanentQRCode, err error)                    已测试
+    func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (_qrcode *qrcode.TemporaryQRCode, err error) 已测试
+    func (c *Client) Token() (token string, err error)           已测试
+    func (c *Client) TokenRefresh() (token string, err error)    已测试
+    func (c *Client) UserGroupCreate(name string) (_group *user.Group, err error)              已测试
+    func (c *Client) UserGroupGet() (groups []user.Group, err error)                           已测试
+    func (c *Client) UserGroupRename(groupid int64, name string) (err error)                   已测试
+    func (c *Client) UserInWhichGroup(openid string) (groupid int64, err error)                已测试
+    func (c *Client) UserInfo(openid string, lang string) (userinfo *user.UserInfo, err error) 已测试
+    func (c *Client) UserIterator(beginOpenId string) (iter user.UserIterator, err error)      已测试
+    func (c *Client) UserMoveToGroup(openid string, toGroupId int64) (err error)               已测试
