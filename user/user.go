@@ -38,7 +38,7 @@ type UserInfo struct {
 	UnionId string `json:"unionid,omitempty"`
 
 	// 下面这个字段文档中没有，但是实际返回的数据里有这个字段
-	Remark string `json:"remark,omitempty"`
+	// Remark string `json:"remark,omitempty"`
 }
 
 // 获取用户图像的大小

@@ -12,8 +12,8 @@ import (
 
 // 上传媒体成功时的回复报文
 type UploadResponse struct {
-	// 媒体文件类型，分别有图片（image）、语音（voice）、视频（video）和
-	// 缩略图（thumb，主要用于视频与音乐格式的缩略图），次数为news，即图文消息
+	// 媒体文件类型，分别有图片（image）、语音（voice）、视频（video）、
+	// 缩略图（thumb，主要用于视频与音乐格式的缩略图）和 图文消息（news）
 	MediaType string `json:"type"`
 
 	// 媒体文件上传后，获取时的唯一标识.
