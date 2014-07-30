@@ -188,16 +188,6 @@ type NewsArticle struct {
 	URL         string `json:"url,omitempty"`         // 点击图文消息跳转链接
 }
 
-func NewNewsArticle(Title, Description, PicURL, URL string) (article *NewsArticle) {
-	article = &NewsArticle{
-		Title:       Title,
-		Description: Description,
-		PicURL:      PicURL,
-		URL:         URL,
-	}
-	return
-}
-
 // 图文消息
 //
 //  {
@@ -224,12 +214,12 @@ type News struct {
 	CommonHead
 
 	News struct {
-		Articles []*NewsArticle `json:"articles,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
+		Articles []NewsArticle `json:"articles,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
 	} `json:"news"`
 }
 
 // NOTE: articles 的长度不能超过 NewsArticleCountLimit
-func NewNews(to string, articles []*NewsArticle) (news *News) {
+func NewNews(to string, articles []NewsArticle) (news *News) {
 	news = &News{
 		CommonHead: CommonHead{
 			ToUser:  to,
@@ -239,13 +229,6 @@ func NewNews(to string, articles []*NewsArticle) (news *News) {
 	news.News.Articles = articles
 
 	return
-}
-
-// NOTE: 请确保 Articles 的长度不要超过 NewsArticleCountLimit
-func (n *News) AppendArticle(article ...*NewsArticle) {
-	if len(article) > 0 {
-		n.News.Articles = append(n.News.Articles, article...)
-	}
 }
 
 // 检查 News 是否有效，有效返回 nil，否则返回错误信息

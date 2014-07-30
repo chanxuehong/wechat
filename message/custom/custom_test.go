@@ -175,7 +175,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 
 	news.News.Articles = append(
 		news.News.Articles,
-		&NewsArticle{
+		NewsArticle{
 			Title:       "title1",
 			Description: "description1",
 			PicURL:      "picurl",
@@ -217,7 +217,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 
 	news.News.Articles = append(
 		news.News.Articles,
-		&NewsArticle{
+		NewsArticle{
 			Title:       "title",
 			Description: "description",
 			PicURL:      "picurl",

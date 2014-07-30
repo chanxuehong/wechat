@@ -214,16 +214,6 @@ type NewsArticle struct {
 	URL         string `xml:"Url,omitempty"         json:"Url,omitempty"`         // 点击图文消息跳转链接
 }
 
-func NewNewsArticle(Title, Description, PicURL, URL string) (article *NewsArticle) {
-	article = &NewsArticle{
-		Title:       Title,
-		Description: Description,
-		PicURL:      PicURL,
-		URL:         URL,
-	}
-	return
-}
-
 // 图文消息.
 //  NOTE: Articles 赋值的同时也要更改 ArticleCount 字段, 建议用 NewNews() 和 News.AppendArticle()
 //
@@ -252,12 +242,16 @@ type News struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
 
-	ArticleCount int            `xml:"ArticleCount"            json:"ArticleCount"`       // 图文消息个数, 限制为10条以内
-	Articles     []*NewsArticle `xml:"Articles>item,omitempty" json:"Articles,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
+	ArticleCount int           `xml:"ArticleCount"            json:"ArticleCount"`       // 图文消息个数, 限制为10条以内
+	Articles     []NewsArticle `xml:"Articles>item,omitempty" json:"Articles,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
 }
 
 // NOTE: articles 的长度不能超过 NewsArticleCountLimit
-func NewNews(to, from string, articles []*NewsArticle) (news *News) {
+func NewNews(to, from string, articles []NewsArticle) (news *News) {
+	if articles == nil {
+		articles = make([]NewsArticle, 0, NewsArticleCountLimit)
+	}
+
 	news = &News{
 		CommonHead: CommonHead{
 			ToUserName:   to,
@@ -266,7 +260,6 @@ func NewNews(to, from string, articles []*NewsArticle) (news *News) {
 			MsgType:      MSG_TYPE_NEWS,
 		},
 	}
-
 	news.Articles = articles
 	news.ArticleCount = len(articles)
 
@@ -274,7 +267,7 @@ func NewNews(to, from string, articles []*NewsArticle) (news *News) {
 }
 
 // NOTE: 请确保 News.Articles 的长度不要超过 NewsArticleCountLimit
-func (n *News) AppendArticle(article ...*NewsArticle) {
+func (n *News) AppendArticle(article ...NewsArticle) {
 	if len(article) > 0 {
 		n.Articles = append(n.Articles, article...)
 		n.ArticleCount = len(n.Articles)

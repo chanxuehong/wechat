@@ -187,7 +187,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		</Articles>
 	</xml>`)
 
-	news.AppendArticle(&NewsArticle{
+	news.AppendArticle(NewsArticle{
 		Title:       "title1",
 		Description: "description1",
 		PicURL:      "picurl",
@@ -227,7 +227,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		</Articles>
 	</xml>`)
 
-	news.AppendArticle(&NewsArticle{
+	news.AppendArticle(NewsArticle{
 		Title:       "title",
 		Description: "description",
 		PicURL:      "picurl",

@@ -48,25 +48,24 @@ func TestMenuMarshal(t *testing.T) {
 		]
 	}`)
 
-	button0 := NewClickButton("今日歌曲", "V1001_TODAY_MUSIC")
-	button1 := NewClickButton("歌手简介", "V1001_TODAY_SINGER")
-	button2 := NewSubMenuButton("菜单", nil)
-	button2.SubButtons = append(button2.SubButtons, NewViewButton("搜索", "http://www.soso.com/"))
-	button2.SubButtons = append(button2.SubButtons, NewViewButton("视频", "http://v.qq.com/"))
-	button2.SubButtons = append(button2.SubButtons, NewClickButton("赞一下我们", "V1001_GOOD"))
+	var buttons = make([]Button, 3)
+	buttons[0].InitToViewButton("搜索", "http://www.soso.com/")
+	buttons[1].InitToViewButton("视频", "http://v.qq.com/")
+	buttons[2].InitToClickButton("赞一下我们", "V1001_GOOD")
 
-	var _menu Menu
-	_menu.Buttons = append(_menu.Buttons, button0)
-	_menu.Buttons = append(_menu.Buttons, button1)
-	_menu.Buttons = append(_menu.Buttons, button2)
+	var mn Menu
+	mn.Buttons = make([]Button, 3)
+	mn.Buttons[0].InitToClickButton("今日歌曲", "V1001_TODAY_MUSIC")
+	mn.Buttons[1].InitToClickButton("歌手简介", "V1001_TODAY_SINGER")
+	mn.Buttons[2].InitToSubMenuButton("菜单", buttons)
 
-	b, err := json.Marshal(_menu)
+	b, err := json.Marshal(mn)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", _menu, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", mn, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", _menu, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", mn, b, want)
 		}
 	}
 }
@@ -112,29 +111,28 @@ func TestMenuUnmarshal(t *testing.T) {
 		]
 	}`)
 
-	var _menu Menu
-	if err := json.Unmarshal(src, &_menu); err != nil {
+	var mn Menu
+	if err := json.Unmarshal(src, &mn); err != nil {
 		t.Errorf("unmarshal(%#q):\nError: %s\n", src, err)
 	} else {
-		button0 := NewClickButton("今日歌曲", "V1001_TODAY_MUSIC")
-		button1 := NewClickButton("歌手简介", "V1001_TODAY_SINGER")
-		button2 := NewSubMenuButton("菜单", nil)
-		button2.SubButtons = append(button2.SubButtons, NewViewButton("搜索", "http://www.soso.com/"))
-		button2.SubButtons = append(button2.SubButtons, NewViewButton("视频", "http://v.qq.com/"))
-		button2.SubButtons = append(button2.SubButtons, NewClickButton("赞一下我们", "V1001_GOOD"))
+		var buttons = make([]Button, 3)
+		buttons[0].InitToViewButton("搜索", "http://www.soso.com/")
+		buttons[1].InitToViewButton("视频", "http://v.qq.com/")
+		buttons[2].InitToClickButton("赞一下我们", "V1001_GOOD")
 
-		var _menu1 Menu
-		_menu1.Buttons = append(_menu1.Buttons, button0)
-		_menu1.Buttons = append(_menu1.Buttons, button1)
-		_menu1.Buttons = append(_menu1.Buttons, button2)
+		var mn1 Menu
+		mn1.Buttons = make([]Button, 3)
+		mn1.Buttons[0].InitToClickButton("今日歌曲", "V1001_TODAY_MUSIC")
+		mn1.Buttons[1].InitToClickButton("歌手简介", "V1001_TODAY_SINGER")
+		mn1.Buttons[2].InitToSubMenuButton("菜单", buttons)
 
-		if !menuEqual(_menu1.Buttons, _menu.Buttons) {
-			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", src, _menu, _menu1)
+		if !menuEqual(mn1.Buttons, mn.Buttons) {
+			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", src, mn, mn1)
 		}
 	}
 }
 
-func menuEqual(src, to []*Button) bool {
+func menuEqual(src, to []Button) bool {
 	if len(src) != len(to) {
 		return false
 	}

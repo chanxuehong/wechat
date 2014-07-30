@@ -15,7 +15,7 @@ type Shelf struct {
 	Banner string `json:"shelf_banner,omitempty"`
 
 	Info struct {
-		ModuleInfos []*Module `json:"module_infos,omitempty"`
+		ModuleInfos []Module `json:"module_infos,omitempty"`
 	} `json:"shelf_data"`
 }
 
@@ -29,7 +29,7 @@ type ShelfX struct {
 	Banner string `json:"shelf_banner,omitempty"`
 
 	Info struct {
-		ModuleInfos []*Module `json:"module_infos,omitempty"`
+		ModuleInfos []Module `json:"module_infos,omitempty"`
 	} `json:"shelf_info"`
 }
 
@@ -41,68 +41,63 @@ type Module struct {
 	GroupInfos *groupInfos `json:"group_infos,omitempty"` // 分组信息, 控件 2,4,5 的属性
 }
 
-// 创建货架控件1
-func NewModule1(groupId int64, count int) *Module {
-	return &Module{
-		EId: 1,
-		GroupInfo: &groupInfo{
-			GroupId: groupId,
-			Filter: &groupInfoFilter{
-				Count: count,
-			},
+// 初始化 md 指向的 Module 为 控件1
+//  NOTE: 要求 md 指向的 Module 是 zero value, 即是刚创建的全0值, 否则有不可预料的错误!
+func (md *Module) InitToModule1(groupId int64, count int) {
+	md.EId = 1
+	md.GroupInfo = &groupInfo{
+		GroupId: groupId,
+		Filter: &groupInfoFilter{
+			Count: count,
 		},
 	}
 }
 
-// 创建货架控件2
-func NewModule2(groupIds []int64) *Module {
+// 初始化 md 指向的 Module 为 控件2
+//  NOTE: 要求 md 指向的 Module 是 zero value, 即是刚创建的全0值, 否则有不可预料的错误!
+func (md *Module) InitToModule2(groupIds []int64) {
 	groups := make([]Group, len(groupIds))
 	for i := 0; i < len(groupIds); i++ {
 		groups[i].GroupId = groupIds[i]
 	}
 
-	return &Module{
-		EId: 2,
-		GroupInfos: &groupInfos{
-			Groups: groups,
-		},
+	md.EId = 2
+	md.GroupInfos = &groupInfos{
+		Groups: groups,
 	}
 }
 
-// 创建货架控件3
-func NewModule3(groupId int64, image string) *Module {
-	return &Module{
-		EId: 3,
-		GroupInfo: &groupInfo{
-			GroupId: groupId,
-			Image:   image,
-		},
+// 初始化 md 指向的 Module 为 控件3
+//  NOTE: 要求 md 指向的 Module 是 zero value, 即是刚创建的全0值, 否则有不可预料的错误!
+func (md *Module) InitToModule3(groupId int64, image string) {
+	md.EId = 3
+	md.GroupInfo = &groupInfo{
+		GroupId: groupId,
+		Image:   image,
 	}
 }
 
-// 创建货架控件4
-func NewModule4(groups []Group) *Module {
-	return &Module{
-		EId: 4,
-		GroupInfos: &groupInfos{
-			Groups: groups,
-		},
+// 初始化 md 指向的 Module 为 控件4
+//  NOTE: 要求 md 指向的 Module 是 zero value, 即是刚创建的全0值, 否则有不可预料的错误!
+func (md *Module) InitToModule4(groups []Group) {
+	md.EId = 4
+	md.GroupInfos = &groupInfos{
+		Groups: groups,
 	}
 }
 
-// 创建货架控件5
-func NewModule5(groupIds []int64, imageBackground string) *Module {
+// 初始化 md 指向的 Module 为 控件5
+//  NOTE: 要求 md 指向的 Module 是 zero value, 即是刚创建的全0值, 否则有不可预料的错误!
+func (md *Module) InitToModule5(groupIds []int64, imageBackground string) {
 	groups := make([]Group, len(groupIds))
 	for i := 0; i < len(groupIds); i++ {
 		groups[i].GroupId = groupIds[i]
 	}
 
-	return &Module{
-		EId: 5,
-		GroupInfos: &groupInfos{
-			Groups:          groups,
-			ImageBackground: imageBackground,
-		},
+	md.EId = 5
+	md.GroupInfos = &groupInfos{
+		Groups:          groups,
+		ImageBackground: imageBackground,
 	}
 }
 

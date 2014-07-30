@@ -85,8 +85,8 @@ func TestGroupProductModifyRequestNewAndAppend(t *testing.T) {
 		Name:      "testexpress",
 		Assumer:   ASSUMER_BUYER,
 		Valuation: VALUATION_BY_ITEM,
-		TopFees: []*TopFee{
-			&TopFee{
+		TopFees: []TopFee{
+			TopFee{
 				ExpressId: 10000027,
 				Normal: TopFeeNormal{
 					StartStandards: 1,
@@ -94,8 +94,8 @@ func TestGroupProductModifyRequestNewAndAppend(t *testing.T) {
 					AddStandards:   3,
 					AddFees:        1,
 				},
-				Customs: []*TopFeeCustom{
-					&TopFeeCustom{
+				Customs: []TopFeeCustom{
+					TopFeeCustom{
 						TopFeeNormal: TopFeeNormal{
 							StartStandards: 1,
 							StartFees:      100,
@@ -108,7 +108,7 @@ func TestGroupProductModifyRequestNewAndAppend(t *testing.T) {
 					},
 				},
 			},
-			&TopFee{
+			TopFee{
 				ExpressId: 10000028,
 				Normal: TopFeeNormal{
 					StartStandards: 1,
@@ -116,8 +116,8 @@ func TestGroupProductModifyRequestNewAndAppend(t *testing.T) {
 					AddStandards:   3,
 					AddFees:        2,
 				},
-				Customs: []*TopFeeCustom{
-					&TopFeeCustom{
+				Customs: []TopFeeCustom{
+					TopFeeCustom{
 						TopFeeNormal: TopFeeNormal{
 							StartStandards: 1,
 							StartFees:      10,
@@ -130,7 +130,7 @@ func TestGroupProductModifyRequestNewAndAppend(t *testing.T) {
 					},
 				},
 			},
-			&TopFee{
+			TopFee{
 				ExpressId: 10000029,
 				Normal: TopFeeNormal{
 					StartStandards: 1,
@@ -138,8 +138,8 @@ func TestGroupProductModifyRequestNewAndAppend(t *testing.T) {
 					AddStandards:   3,
 					AddFees:        3,
 				},
-				Customs: []*TopFeeCustom{
-					&TopFeeCustom{
+				Customs: []TopFeeCustom{
+					TopFeeCustom{
 						TopFeeNormal: TopFeeNormal{
 							StartStandards: 1,
 							StartFees:      8,

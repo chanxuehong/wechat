@@ -97,26 +97,26 @@ func TestShelfMarshal(t *testing.T) {
 		Name:   "测试货架",
 		Banner: "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl2ibrWQn8zWFUh1YznsMV0XEiavFfLzDWYyvQOBBszXlMaiabGWzz5B2KhNn2IDemHa3iarmCyribYlZYyw/0",
 	}
-	_shelf.Info.ModuleInfos = []*Module{
-		NewModule1(50, 2),
-		NewModule2([]int64{49, 50, 51}),
-		NewModule3(52, "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl29nqqObBwFwnIX3licVPnFV5Jm64z4I0TTicv0TjN7Vl9bykUUibYKIOjicAwIt6Oy0Y6a1Rjp5Tos8tg/0"),
-		NewModule4([]Group{
-			Group{
-				GroupId: 49,
-				Image:   "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl29nqqObBwFwnIX3licVPnFV5uUQx7TLx4tB9qZfbe3JmqR4NkkEmpb5LUWoXF1ek9nga0IkeSSFZ8g/0",
-			},
-			Group{
-				GroupId: 50,
-				Image:   "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl29nqqObBwFwnIX3licVPnFV5G1kdy3ViblHrR54gbCmbiaMnl5HpLGm5JFeENyO9FEZAy6mPypEpLibLA/0",
-			},
-			Group{
-				GroupId: 52,
-				Image:   "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl29nqqObBwFwnIX3licVPnFV5uUQx7TLx4tB9qZfbe3JmqR4NkkEmpb5LUWoXF1ek9nga0IkeSSFZ8g/0",
-			},
-		}),
-		NewModule5([]int64{43, 44, 45, 46}, "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl29nqqObBwFwnIX3licVPnFV5uUQx7TLx4tB9qZfbe3JmqR4NkkEmpb5LUWoXF1ek9nga0IkeSSFZ8g/0"),
-	}
+	modules := make([]Module, 5)
+	modules[0].InitToModule1(50, 2)
+	modules[1].InitToModule2([]int64{49, 50, 51})
+	modules[2].InitToModule3(52, "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl29nqqObBwFwnIX3licVPnFV5Jm64z4I0TTicv0TjN7Vl9bykUUibYKIOjicAwIt6Oy0Y6a1Rjp5Tos8tg/0")
+	modules[3].InitToModule4([]Group{
+		Group{
+			GroupId: 49,
+			Image:   "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl29nqqObBwFwnIX3licVPnFV5uUQx7TLx4tB9qZfbe3JmqR4NkkEmpb5LUWoXF1ek9nga0IkeSSFZ8g/0",
+		},
+		Group{
+			GroupId: 50,
+			Image:   "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl29nqqObBwFwnIX3licVPnFV5G1kdy3ViblHrR54gbCmbiaMnl5HpLGm5JFeENyO9FEZAy6mPypEpLibLA/0",
+		},
+		Group{
+			GroupId: 52,
+			Image:   "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl29nqqObBwFwnIX3licVPnFV5uUQx7TLx4tB9qZfbe3JmqR4NkkEmpb5LUWoXF1ek9nga0IkeSSFZ8g/0",
+		},
+	})
+	modules[4].InitToModule5([]int64{43, 44, 45, 46}, "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl29nqqObBwFwnIX3licVPnFV5uUQx7TLx4tB9qZfbe3JmqR4NkkEmpb5LUWoXF1ek9nga0IkeSSFZ8g/0")
+	_shelf.Info.ModuleInfos = modules
 
 	b, err := json.Marshal(_shelf)
 	if err != nil {

@@ -38,7 +38,7 @@ type NewsArticle struct {
 
 // 图文消息
 type News struct {
-	Articles []*NewsArticle `json:"articles,omitempty"` // 图文消息，一个图文消息支持1到10条图文
+	Articles []NewsArticle `json:"articles,omitempty"` // 图文消息，一个图文消息支持1到10条图文
 }
 
 // 检查 News 是否有效，有效返回 nil，否则返回错误信息

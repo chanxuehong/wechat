@@ -27,7 +27,7 @@ func TestGroupProductModifyRequestNewAndAppend(t *testing.T) {
 		]
 	}`)
 
-	request := NewGroupProductModifyRequest(
+	request := NewGroupModifyProductRequest(
 		28,
 		[]string{"pDF3iY-CgqlAL3k8Ilz-6sj0UYpk"},
 		[]string{"pDF3iY-RewlAL3k8Ilz-6sjsepp9"},
@@ -43,7 +43,7 @@ func TestGroupProductModifyRequestNewAndAppend(t *testing.T) {
 		}
 	}
 
-	request = NewGroupProductModifyRequest(28, nil, nil)
+	request = NewGroupModifyProductRequest(28, nil, nil)
 	request.AddProduct("pDF3iY-CgqlAL3k8Ilz-6sj0UYpk")
 	request.DeleteProduct("pDF3iY-RewlAL3k8Ilz-6sjsepp9")
 
