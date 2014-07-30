@@ -12,7 +12,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"time"
 )
 
 // 创建临时二维码
@@ -31,8 +30,7 @@ func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (_qrco
 	request.ActionInfo.Scene.SceneId = sceneId
 
 	var result struct {
-		Ticket        string `json:"ticket"`
-		ExpireSeconds int64  `json:"expire_seconds"`
+		qrcode.TemporaryQRCode
 		Error
 	}
 
@@ -49,11 +47,8 @@ RETRY:
 
 	switch result.ErrCode {
 	case errCodeOK:
-		_qrcode = &qrcode.TemporaryQRCode{
-			SceneId:   sceneId,
-			Ticket:    result.Ticket,
-			ExpiresAt: time.Now().Unix() + result.ExpireSeconds,
-		}
+		result.TemporaryQRCode.SceneId = sceneId
+		_qrcode = &result.TemporaryQRCode
 		return
 
 	case errCodeTimeout:
