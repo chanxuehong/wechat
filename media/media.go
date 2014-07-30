@@ -42,7 +42,7 @@ type News struct {
 }
 
 // 检查 News 是否有效，有效返回 nil，否则返回错误信息
-func (n News) CheckValid() (err error) {
+func (n *News) CheckValid() (err error) {
 	articleNum := len(n.Articles)
 	if articleNum == 0 {
 		err = errors.New("图文消息是空的")

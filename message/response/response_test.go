@@ -157,7 +157,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		</Articles>
 	</xml>`)
 
-	news := NewNews("toUser", "fromUser", nil)
+	news := NewNews("toUser", "fromUser", make([]NewsArticle, 0, 2))
 	news.CreateTime = 12345678
 
 	b, err = xml.Marshal(news)
@@ -187,12 +187,13 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		</Articles>
 	</xml>`)
 
-	news.AppendArticle(NewsArticle{
+	news.Articles = append(news.Articles, NewsArticle{
 		Title:       "title1",
 		Description: "description1",
 		PicURL:      "picurl",
 		URL:         "url",
 	})
+	news.UpdateArticleCount()
 
 	b, err = xml.Marshal(news)
 	if err != nil {
@@ -227,12 +228,13 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		</Articles>
 	</xml>`)
 
-	news.AppendArticle(NewsArticle{
+	news.Articles = append(news.Articles, NewsArticle{
 		Title:       "title",
 		Description: "description",
 		PicURL:      "picurl",
 		URL:         "url",
 	})
+	news.UpdateArticleCount()
 
 	b, err = xml.Marshal(news)
 	if err != nil {

@@ -248,10 +248,6 @@ type News struct {
 
 // NOTE: articles 的长度不能超过 NewsArticleCountLimit
 func NewNews(to, from string, articles []NewsArticle) (news *News) {
-	if articles == nil {
-		articles = make([]NewsArticle, 0, NewsArticleCountLimit)
-	}
-
 	news = &News{
 		CommonHead: CommonHead{
 			ToUserName:   to,
@@ -266,12 +262,9 @@ func NewNews(to, from string, articles []NewsArticle) (news *News) {
 	return
 }
 
-// NOTE: 请确保 News.Articles 的长度不要超过 NewsArticleCountLimit
-func (n *News) AppendArticle(article ...NewsArticle) {
-	if len(article) > 0 {
-		n.Articles = append(n.Articles, article...)
-		n.ArticleCount = len(n.Articles)
-	}
+// n.ArticleCount = len(n.Articles)
+func (n *News) UpdateArticleCount() {
+	n.ArticleCount = len(n.Articles)
 }
 
 // 检查 News 是否有效，有效返回 nil，否则返回错误信息
