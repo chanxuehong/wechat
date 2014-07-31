@@ -28,8 +28,8 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	text := NewText([]string{"oR5Gjjl_eiZoUpGozMo7dbBJ362A"}, "hello from boxer.")
-	text.ToUser = append(text.ToUser, "oR5Gjjo5rXlMUocSEXKT7Q5RQ63Q")
+	text := NewText([]string{"oR5Gjjl_eiZoUpGozMo7dbBJ362A", "oR5Gjjo5rXlMUocSEXKT7Q5RQ63Q"},
+		"hello from boxer.")
 
 	b, err := json.Marshal(text)
 	if err != nil {
@@ -54,8 +54,8 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	image := NewImage([]string{"OPENID1"}, "BTgN0opcW3Y5zV_ZebbsD3NFKRWf6cb7OPswPi9Q83fOJHK2P67dzxn11Cp7THat")
-	image.ToUser = append(image.ToUser, "OPENID2")
+	image := NewImage([]string{"OPENID1", "OPENID2"},
+		"BTgN0opcW3Y5zV_ZebbsD3NFKRWf6cb7OPswPi9Q83fOJHK2P67dzxn11Cp7THat")
 
 	b, err = json.Marshal(image)
 	if err != nil {
@@ -80,8 +80,8 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	voice := NewVoice([]string{"OPENID1"}, "mLxl6paC7z2Tl-NJT64yzJve8T9c8u9K2x-Ai6Ujd4lIH9IBuF6-2r66mamn_gIT")
-	voice.ToUser = append(voice.ToUser, "OPENID2")
+	voice := NewVoice([]string{"OPENID1", "OPENID2"},
+		"mLxl6paC7z2Tl-NJT64yzJve8T9c8u9K2x-Ai6Ujd4lIH9IBuF6-2r66mamn_gIT")
 
 	b, err = json.Marshal(voice)
 	if err != nil {

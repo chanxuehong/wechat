@@ -61,7 +61,6 @@ func (c *Client) MsgCustomSendNews(msg *custom.News) (err error) {
 	return c.msgCustomSend(msg)
 }
 
-// 发送客服消息功能都一样, 之所以不暴露这个接口是因为怕接收到不合法的参数.
 func (c *Client) msgCustomSend(msg interface{}) (err error) {
 	var result Error
 

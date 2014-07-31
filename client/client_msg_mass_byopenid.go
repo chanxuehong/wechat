@@ -16,6 +16,9 @@ func (c *Client) MsgMassSendTextByOpenId(msg *massbyopenid.Text) (msgid int64, e
 		err = errors.New("msg == nil")
 		return
 	}
+	if err = msg.CheckValid(); err != nil {
+		return
+	}
 	return c.msgMassSendByOpenId(msg)
 }
 
@@ -23,6 +26,9 @@ func (c *Client) MsgMassSendTextByOpenId(msg *massbyopenid.Text) (msgid int64, e
 func (c *Client) MsgMassSendImageByOpenId(msg *massbyopenid.Image) (msgid int64, err error) {
 	if msg == nil {
 		err = errors.New("msg == nil")
+		return
+	}
+	if err = msg.CheckValid(); err != nil {
 		return
 	}
 	return c.msgMassSendByOpenId(msg)
@@ -34,6 +40,9 @@ func (c *Client) MsgMassSendVoiceByOpenId(msg *massbyopenid.Voice) (msgid int64,
 		err = errors.New("msg == nil")
 		return
 	}
+	if err = msg.CheckValid(); err != nil {
+		return
+	}
 	return c.msgMassSendByOpenId(msg)
 }
 
@@ -41,6 +50,9 @@ func (c *Client) MsgMassSendVoiceByOpenId(msg *massbyopenid.Voice) (msgid int64,
 func (c *Client) MsgMassSendVideoByOpenId(msg *massbyopenid.Video) (msgid int64, err error) {
 	if msg == nil {
 		err = errors.New("msg == nil")
+		return
+	}
+	if err = msg.CheckValid(); err != nil {
 		return
 	}
 	return c.msgMassSendByOpenId(msg)
@@ -52,10 +64,12 @@ func (c *Client) MsgMassSendNewsByOpenId(msg *massbyopenid.News) (msgid int64, e
 		err = errors.New("msg == nil")
 		return
 	}
+	if err = msg.CheckValid(); err != nil {
+		return
+	}
 	return c.msgMassSendByOpenId(msg)
 }
 
-// 根据 OpenId列表 群发消息, 之所以不暴露这个接口是因为怕接收到不合法的参数.
 func (c *Client) msgMassSendByOpenId(msg interface{}) (msgid int64, err error) {
 	var result struct {
 		Error

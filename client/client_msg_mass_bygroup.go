@@ -55,7 +55,6 @@ func (c *Client) MsgMassSendNewsByGroup(msg *massbygroup.News) (msgid int64, err
 	return c.msgMassSendByGroup(msg)
 }
 
-// 根据分组群发消息, 之所以不暴露这个接口是因为怕接收到不合法的参数.
 func (c *Client) msgMassSendByGroup(msg interface{}) (msgid int64, err error) {
 	var result struct {
 		Error

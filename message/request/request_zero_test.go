@@ -9,22 +9,6 @@ import (
 	"testing"
 )
 
-func TestRequestZero(t *testing.T) {
-	var req Request
-	req.ToUserName = "touser"
-
-	if req == zeroRequest {
-		t.Error("req must not be zero")
-		return
-	}
-
-	req.Zero()
-	if req.ToUserName != "" {
-		t.Error("req must be zero")
-		return
-	}
-}
-
 func BenchmarkRequestZero(b *testing.B) {
 	var req Request
 	for i := 0; i < b.N; i++ {
