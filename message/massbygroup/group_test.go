@@ -27,7 +27,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	text := NewText("2", "CONTENT")
+	text := NewText(2, "CONTENT")
 
 	b, err := json.Marshal(text)
 	if err != nil {
@@ -51,7 +51,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	image := NewImage("2", "123dsdajkasd231jhksad")
+	image := NewImage(2, "123dsdajkasd231jhksad")
 
 	b, err = json.Marshal(image)
 	if err != nil {
@@ -75,7 +75,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	voice := NewVoice("2", "123dsdajkasd231jhksad")
+	voice := NewVoice(2, "123dsdajkasd231jhksad")
 
 	b, err = json.Marshal(voice)
 	if err != nil {
@@ -99,7 +99,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	video := NewVideo("2", "IhdaAQXuvJtGzwwc0abfXnzeezfO0NgPK6AQYShD8RQYMTtfzbLdBIQkQziv2XJc")
+	video := NewVideo(2, "IhdaAQXuvJtGzwwc0abfXnzeezfO0NgPK6AQYShD8RQYMTtfzbLdBIQkQziv2XJc")
 
 	b, err = json.Marshal(video)
 	if err != nil {
@@ -123,7 +123,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	news := NewNews("2", "123dsdajkasd231jhksad")
+	news := NewNews(2, "123dsdajkasd231jhksad")
 
 	b, err = json.Marshal(news)
 	if err != nil {

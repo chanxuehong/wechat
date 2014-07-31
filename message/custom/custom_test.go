@@ -145,7 +145,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		"news":{}
 	}`)
 
-	news := NewNews("toUser", nil)
+	news := NewNews("toUser", make([]NewsArticle, 0, 2))
 
 	b, err = json.Marshal(news)
 	if err != nil {

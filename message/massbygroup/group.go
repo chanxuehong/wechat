@@ -7,13 +7,22 @@ package massbygroup
 
 type CommonHead struct {
 	Filter struct {
-		GroupId string `json:"group_id"`
+		GroupId int64 `json:"group_id,string"`
 	} `json:"filter"`
 	MsgType string `json:"msgtype"`
 }
 
-// text ========================================================================
-
+// 文本消息
+//
+//  {
+//      "filter": {
+//          "group_id": "2"
+//      },
+//      "msgtype": "text"
+//      "text": {
+//          "content": "CONTENT"
+//      },
+//  }
 type Text struct {
 	CommonHead
 
@@ -22,7 +31,7 @@ type Text struct {
 	} `json:"text"`
 }
 
-func NewText(groupId, content string) *Text {
+func NewText(groupId int64, content string) *Text {
 	var msg Text
 	msg.Filter.GroupId = groupId
 	msg.MsgType = MSG_TYPE_TEXT
@@ -31,8 +40,17 @@ func NewText(groupId, content string) *Text {
 	return &msg
 }
 
-// image =======================================================================
-
+// 图片消息
+//
+//  {
+//      "filter": {
+//          "group_id": "2"
+//      },
+//      "msgtype": "image"
+//      "image": {
+//          "media_id": "123dsdajkasd231jhksad"
+//      },
+//  }
 type Image struct {
 	CommonHead
 
@@ -41,7 +59,7 @@ type Image struct {
 	} `json:"image"`
 }
 
-func NewImage(groupId, mediaId string) *Image {
+func NewImage(groupId int64, mediaId string) *Image {
 	var msg Image
 	msg.Filter.GroupId = groupId
 	msg.MsgType = MSG_TYPE_IMAGE
@@ -50,8 +68,17 @@ func NewImage(groupId, mediaId string) *Image {
 	return &msg
 }
 
-// voice =======================================================================
-
+// 语音消息
+//
+//  {
+//      "filter": {
+//          "group_id": "2"
+//      },
+//      "msgtype": "voice"
+//      "voice": {
+//          "media_id": "123dsdajkasd231jhksad"
+//      },
+//  }
 type Voice struct {
 	CommonHead
 
@@ -60,7 +87,7 @@ type Voice struct {
 	} `json:"voice"`
 }
 
-func NewVoice(groupId, mediaId string) *Voice {
+func NewVoice(groupId int64, mediaId string) *Voice {
 	var msg Voice
 	msg.Filter.GroupId = groupId
 	msg.MsgType = MSG_TYPE_VOICE
@@ -69,9 +96,18 @@ func NewVoice(groupId, mediaId string) *Voice {
 	return &msg
 }
 
-// video =======================================================================
-
-// MediaId 应该通过 Client.MediaCreateVideo 得到
+// 视频消息
+//  NOTE: MediaId 应该通过 Client.MediaCreateVideo 得到
+//
+//  {
+//      "filter": {
+//          "group_id": "2"
+//      },
+//      "msgtype": "mpvideo"
+//      "mpvideo": {
+//          "media_id": "IhdaAQXuvJtGzwwc0abfXnzeezfO0NgPK6AQYShD8RQYMTtfzbLdBIQkQziv2XJc"
+//      },
+//  }
 type Video struct {
 	CommonHead
 
@@ -80,7 +116,8 @@ type Video struct {
 	} `json:"mpvideo"`
 }
 
-func NewVideo(groupId, mediaId string) *Video {
+//  NOTE: mediaId 应该通过 Client.MediaCreateVideo 得到
+func NewVideo(groupId int64, mediaId string) *Video {
 	var msg Video
 	msg.Filter.GroupId = groupId
 	msg.MsgType = MSG_TYPE_VIDEO
@@ -89,9 +126,18 @@ func NewVideo(groupId, mediaId string) *Video {
 	return &msg
 }
 
-// news ========================================================================
-
-// MediaId 应该通过 Client.MediaCreateNews 得到
+// 图文消息
+//  NOTE: MediaId 应该通过 Client.MediaCreateNews 得到
+//
+//  {
+//      "filter": {
+//          "group_id": "2"
+//      },
+//      "msgtype": "mpnews"
+//      "mpnews": {
+//          "media_id": "123dsdajkasd231jhksad"
+//      },
+//  }
 type News struct {
 	CommonHead
 
@@ -100,7 +146,8 @@ type News struct {
 	} `json:"mpnews"`
 }
 
-func NewNews(groupId, mediaId string) *News {
+//  NOTE: mediaId 应该通过 Client.MediaCreateNews 得到
+func NewNews(groupId int64, mediaId string) *News {
 	var msg News
 	msg.Filter.GroupId = groupId
 	msg.MsgType = MSG_TYPE_NEWS

@@ -29,8 +29,18 @@ func (head *CommonHead) CheckValid() (err error) {
 	return
 }
 
-// text ========================================================================
-
+// 文本消息
+//
+//  {
+//      "touser": [
+//          "oR5Gjjl_eiZoUpGozMo7dbBJ362A",
+//          "oR5Gjjo5rXlMUocSEXKT7Q5RQ63Q"
+//      ],
+//      "msgtype": "text",
+//      "text": {
+//          "content": "hello from boxer."
+//      }
+//  }
 type Text struct {
 	CommonHead
 
@@ -48,8 +58,18 @@ func NewText(touser []string, content string) *Text {
 	return &msg
 }
 
-// image =======================================================================
-
+// 图片消息
+//
+//  {
+//      "touser": [
+//          "OPENID1",
+//          "OPENID2"
+//      ],
+//      "msgtype": "image"
+//      "image": {
+//          "media_id": "BTgN0opcW3Y5zV_ZebbsD3NFKRWf6cb7OPswPi9Q83fOJHK2P67dzxn11Cp7THat"
+//      },
+//  }
 type Image struct {
 	CommonHead
 
@@ -67,8 +87,18 @@ func NewImage(touser []string, mediaId string) *Image {
 	return &msg
 }
 
-// voice =======================================================================
-
+// 语音消息
+//
+//  {
+//      "touser": [
+//          "OPENID1",
+//          "OPENID2"
+//      ],
+//      "msgtype": "voice"
+//      "voice": {
+//          "media_id": "mLxl6paC7z2Tl-NJT64yzJve8T9c8u9K2x-Ai6Ujd4lIH9IBuF6-2r66mamn_gIT"
+//      },
+//  }
 type Voice struct {
 	CommonHead
 
@@ -86,9 +116,21 @@ func NewVoice(touser []string, mediaId string) *Voice {
 	return &msg
 }
 
-// video =======================================================================
-
-// MediaId 应该通过 Client.MediaCreateVideo 得到
+// 视频消息
+//  NOTE: MediaId 应该通过 Client.MediaCreateVideo 得到
+//
+//  {
+//      "touser": [
+//          "OPENID1",
+//          "OPENID2"
+//      ],
+//      "msgtype": "video"
+//      "video": {
+//          "media_id": "123dsdajkasd231jhksad",
+//          "title": "TITLE",
+//          "description": "DESCRIPTION"
+//      },
+//  }
 type Video struct {
 	CommonHead
 
@@ -99,7 +141,9 @@ type Video struct {
 	} `json:"video"`
 }
 
-// title, description 可以为空
+// 创建视频消息
+//  NOTE: MediaId 应该通过 Client.MediaCreateVideo 得到
+//  title, description 可以为空
 func NewVideo(touser []string, mediaId, title, description string) *Video {
 	var msg Video
 	msg.ToUser = touser
@@ -111,9 +155,19 @@ func NewVideo(touser []string, mediaId, title, description string) *Video {
 	return &msg
 }
 
-// news ========================================================================
-
-// MediaId 应该通过 Client.MediaCreateNews 得到
+// 图文消息
+//  NOTE: MediaId 应该通过 Client.MediaCreateNews 得到
+//
+//  {
+//      "touser": [
+//          "OPENID1",
+//          "OPENID2"
+//      ],
+//      "msgtype": "mpnews"
+//      "mpnews": {
+//          "media_id": "123dsdajkasd231jhksad"
+//      },
+//  }
 type News struct {
 	CommonHead
 
@@ -122,6 +176,8 @@ type News struct {
 	} `json:"mpnews"`
 }
 
+// 创建图文消息
+//  NOTE: MediaId 应该通过 Client.MediaCreateNews 得到
 func NewNews(touser []string, mediaId string) *News {
 	var msg News
 	msg.ToUser = touser

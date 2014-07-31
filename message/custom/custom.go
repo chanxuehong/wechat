@@ -123,7 +123,8 @@ type Video struct {
 	} `json:"video"`
 }
 
-// title, description 可以为 ""
+// 新建一个视频消息
+//  title, description 可以为 ""
 func NewVideo(to, mediaId, title, description string) (video *Video) {
 	video = &Video{
 		CommonHead: CommonHead{
@@ -131,9 +132,9 @@ func NewVideo(to, mediaId, title, description string) (video *Video) {
 			MsgType: MSG_TYPE_VIDEO,
 		},
 	}
-	video.Video.MediaId = mediaId
 	video.Video.Title = title
 	video.Video.Description = description
+	video.Video.MediaId = mediaId
 
 	return
 }
@@ -163,7 +164,8 @@ type Music struct {
 	} `json:"music"`
 }
 
-// title, description 可以为 ""
+// 新建一个音乐消息
+//  title, description 可以为 ""
 func NewMusic(to, thumbMediaId, musicURL, HQMusicURL, title, description string) (music *Music) {
 	music = &Music{
 		CommonHead: CommonHead{
@@ -218,7 +220,8 @@ type News struct {
 	} `json:"news"`
 }
 
-// NOTE: articles 的长度不能超过 NewsArticleCountLimit
+// 新建图文消息
+//  NOTE: articles 的长度不能超过 NewsArticleCountLimit
 func NewNews(to string, articles []NewsArticle) (news *News) {
 	news = &News{
 		CommonHead: CommonHead{
