@@ -68,12 +68,15 @@ func CopyMusic(w io.Writer, msg *response.Music) error {
 }
 
 // 把 news 回复消息 msg 写入 writer w
-func CopyNews(w io.Writer, msg *response.News) error {
+func CopyNews(w io.Writer, msg *response.News) (err error) {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
+	}
+	if err = msg.CheckValid(); err != nil {
+		return
 	}
 	return copyResponse(w, msg)
 }
