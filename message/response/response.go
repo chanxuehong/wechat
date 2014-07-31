@@ -5,6 +5,12 @@
 
 package response
 
+import (
+	"errors"
+	"fmt"
+	"time"
+)
+
 type CommonHead struct {
 	ToUserName   string `xml:"ToUserName"   json:"ToUserName"`   // 接收方帐号(OpenID)
 	FromUserName string `xml:"FromUserName" json:"FromUserName"` // 开发者微信号
@@ -28,6 +34,20 @@ type Text struct {
 	Content string `xml:"Content" json:"Content"` // 回复的消息内容(换行：在content中能够换行, 微信客户端就支持换行显示)
 }
 
+func NewText(to, from, content string) (text *Text) {
+	text = &Text{
+		CommonHead: CommonHead{
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      MSG_TYPE_TEXT,
+		},
+	}
+	text.Content = content
+
+	return
+}
+
 // 图片消息
 //
 //  <xml>
@@ -48,6 +68,20 @@ type Image struct {
 	} `xml:"Image" json:"Image"`
 }
 
+func NewImage(to, from, mediaId string) (image *Image) {
+	image = &Image{
+		CommonHead: CommonHead{
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      MSG_TYPE_IMAGE,
+		},
+	}
+	image.Image.MediaId = mediaId
+
+	return
+}
+
 // 语音消息
 //
 //  <xml>
@@ -66,6 +100,20 @@ type Voice struct {
 	Voice struct {
 		MediaId string `xml:"MediaId" json:"MediaId"` // 通过上传多媒体文件, 得到的id
 	} `xml:"Voice" json:"Voice"`
+}
+
+func NewVoice(to, from, mediaId string) (voice *Voice) {
+	voice = &Voice{
+		CommonHead: CommonHead{
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      MSG_TYPE_VOICE,
+		},
+	}
+	voice.Voice.MediaId = mediaId
+
+	return
 }
 
 // 视频消息
@@ -90,6 +138,23 @@ type Video struct {
 		Description string `xml:"Description,omitempty" json:"Description,omitempty"` // 视频消息的描述
 		MediaId     string `xml:"MediaId"               json:"MediaId"`               // 通过上传多媒体文件, 得到的id
 	} `xml:"Video" json:"Video"`
+}
+
+// title, description 可以为 ""
+func NewVideo(to, from, mediaId, title, description string) (video *Video) {
+	video = &Video{
+		CommonHead: CommonHead{
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      MSG_TYPE_VIDEO,
+		},
+	}
+	video.Video.Title = title
+	video.Video.Description = description
+	video.Video.MediaId = mediaId
+
+	return
 }
 
 // 音乐消息
@@ -118,6 +183,27 @@ type Music struct {
 		HQMusicURL   string `xml:"HQMusicUrl"            json:"HQMusicUrl"`            // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
 		ThumbMediaId string `xml:"ThumbMediaId"          json:"ThumbMediaId"`          // 缩略图的媒体id, 通过上传多媒体文件, 得到的id
 	} `xml:"Music" json:"Music"`
+}
+
+// title, description 可以为 ""
+func NewMusic(to, from, thumbMediaId, musicURL,
+	HQMusicURL, title, description string) (music *Music) {
+
+	music = &Music{
+		CommonHead: CommonHead{
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      MSG_TYPE_MUSIC,
+		},
+	}
+	music.Music.Title = title
+	music.Music.Description = description
+	music.Music.ThumbMediaId = thumbMediaId
+	music.Music.MusicURL = musicURL
+	music.Music.HQMusicURL = HQMusicURL
+
+	return
 }
 
 // 图文消息里的 Article
@@ -160,8 +246,59 @@ type News struct {
 	Articles     []NewsArticle `xml:"Articles>item,omitempty" json:"Articles,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
 }
 
+// NOTE: articles 的长度不能超过 NewsArticleCountLimit
+func NewNews(to, from string, articles []NewsArticle) (news *News) {
+	news = &News{
+		CommonHead: CommonHead{
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      MSG_TYPE_NEWS,
+		},
+	}
+	news.Articles = articles
+	news.ArticleCount = len(articles)
+
+	return
+}
+
+// n.ArticleCount = len(n.Articles)
+func (n *News) UpdateArticleCount() {
+	n.ArticleCount = len(n.Articles)
+}
+
+// 检查 News 是否有效，有效返回 nil，否则返回错误信息
+func (n *News) CheckValid() (err error) {
+	articleNum := len(n.Articles)
+
+	if articleNum != n.ArticleCount {
+		err = fmt.Errorf("图文消息的 ArticleCount == %d, 实际文章个数为 %d", n.ArticleCount, articleNum)
+		return
+	}
+	if articleNum == 0 {
+		err = errors.New("图文消息是空的")
+		return
+	}
+	if articleNum > NewsArticleCountLimit {
+		err = fmt.Errorf("图文消息的文章个数不能超过 %d, 现在为 %d", NewsArticleCountLimit, articleNum)
+		return
+	}
+	return
+}
+
 // 将消息转发到多客服
 type TransferCustomerService struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
+}
+
+func NewTransferCustomerService(to, from string) *TransferCustomerService {
+	return &TransferCustomerService{
+		CommonHead: CommonHead{
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      MSG_TYPE_TRANSFER_CUSTOMER_SERVICE,
+		},
+	}
 }

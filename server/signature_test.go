@@ -36,7 +36,6 @@ func BenchmarkCheckSignatureWithBuffer(b *testing.B) {
 	)
 
 	var buffer = make([]byte, 256)
-	_ = buffer
 
 	for i := 0; i < b.N; i++ {
 		checkSignature(signature, timestamp, nonce, token, buffer)
@@ -50,9 +49,6 @@ func BenchmarkCheckSignatureWithoutBuffer(b *testing.B) {
 		nonce     = "1556813842"
 		token     = "your_weixin_token"
 	)
-
-	var buffer = make([]byte, 256)
-	_ = buffer
 
 	for i := 0; i < b.N; i++ {
 		checkSignature(signature, timestamp, nonce, token, nil)

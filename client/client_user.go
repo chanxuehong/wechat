@@ -12,7 +12,7 @@ import (
 )
 
 // 创建分组
-func (c *Client) UserGroupCreate(name string) (_group user.Group, err error) {
+func (c *Client) UserGroupCreate(name string) (_group *user.Group, err error) {
 	if len(name) == 0 {
 		err = errors.New(`name == ""`)
 		return
@@ -46,7 +46,7 @@ RETRY:
 
 	switch result.ErrCode {
 	case errCodeOK:
-		_group = user.Group{
+		_group = &user.Group{
 			Id:   result.Group.Id,
 			Name: result.Group.Name,
 		}

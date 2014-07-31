@@ -38,7 +38,7 @@ func BenchmarkRequestZeroX(b *testing.B) {
 	}
 }
 
-func (msg *Request) ZeroX() {
+func (msg *Request) ZeroX() *Request {
 	msg.CommonHead.ToUserName = ""
 	msg.CommonHead.FromUserName = ""
 	msg.CommonHead.CreateTime = 0
@@ -83,5 +83,5 @@ func (msg *Request) ZeroX() {
 	msg.ProductId = ""
 	msg.SkuInfo = ""
 
-	return
+	return msg
 }

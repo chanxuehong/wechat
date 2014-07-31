@@ -20,27 +20,27 @@ import (
 )
 
 // 上传多媒体图片
-func (c *Client) MediaUploadImageFromFile(_filepath string) (info media.MediaInfo, err error) {
+func (c *Client) MediaUploadImageFromFile(_filepath string) (resp *media.UploadResponse, err error) {
 	return c.mediaUploadFromFile(media.MEDIA_TYPE_IMAGE, _filepath)
 }
 
 // 上传多媒体缩略图
-func (c *Client) MediaUploadThumbFromFile(_filepath string) (info media.MediaInfo, err error) {
+func (c *Client) MediaUploadThumbFromFile(_filepath string) (resp *media.UploadResponse, err error) {
 	return c.mediaUploadFromFile(media.MEDIA_TYPE_THUMB, _filepath)
 }
 
 // 上传多媒体语音
-func (c *Client) MediaUploadVoiceFromFile(_filepath string) (info media.MediaInfo, err error) {
+func (c *Client) MediaUploadVoiceFromFile(_filepath string) (resp *media.UploadResponse, err error) {
 	return c.mediaUploadFromFile(media.MEDIA_TYPE_VOICE, _filepath)
 }
 
 // 上传多媒体视频
-func (c *Client) MediaUploadVideoFromFile(_filepath string) (info media.MediaInfo, err error) {
+func (c *Client) MediaUploadVideoFromFile(_filepath string) (resp *media.UploadResponse, err error) {
 	return c.mediaUploadFromFile(media.MEDIA_TYPE_VIDEO, _filepath)
 }
 
 // 上传多媒体
-func (c *Client) mediaUploadFromFile(mediaType, _filepath string) (info media.MediaInfo, err error) {
+func (c *Client) mediaUploadFromFile(mediaType, _filepath string) (resp *media.UploadResponse, err error) {
 	file, err := os.Open(_filepath)
 	if err != nil {
 		return
@@ -52,7 +52,7 @@ func (c *Client) mediaUploadFromFile(mediaType, _filepath string) (info media.Me
 
 // 上传多媒体图片
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart form 里面文件名称
-func (c *Client) MediaUploadImage(filename string, mediaReader io.Reader) (info media.MediaInfo, err error) {
+func (c *Client) MediaUploadImage(filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error) {
 	if filename == "" {
 		err = errors.New(`filename == ""`)
 		return
@@ -66,7 +66,7 @@ func (c *Client) MediaUploadImage(filename string, mediaReader io.Reader) (info 
 
 // 上传多媒体缩略图
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart form 里面文件名称
-func (c *Client) MediaUploadThumb(filename string, mediaReader io.Reader) (info media.MediaInfo, err error) {
+func (c *Client) MediaUploadThumb(filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error) {
 	if filename == "" {
 		err = errors.New(`filename == ""`)
 		return
@@ -80,7 +80,7 @@ func (c *Client) MediaUploadThumb(filename string, mediaReader io.Reader) (info 
 
 // 上传多媒体语音
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart form 里面文件名称
-func (c *Client) MediaUploadVoice(filename string, mediaReader io.Reader) (info media.MediaInfo, err error) {
+func (c *Client) MediaUploadVoice(filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error) {
 	if filename == "" {
 		err = errors.New(`filename == ""`)
 		return
@@ -94,7 +94,7 @@ func (c *Client) MediaUploadVoice(filename string, mediaReader io.Reader) (info 
 
 // 上传多媒体视频
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart form 里面文件名称
-func (c *Client) MediaUploadVideo(filename string, mediaReader io.Reader) (info media.MediaInfo, err error) {
+func (c *Client) MediaUploadVideo(filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error) {
 	if filename == "" {
 		err = errors.New(`filename == ""`)
 		return
@@ -107,7 +107,7 @@ func (c *Client) MediaUploadVideo(filename string, mediaReader io.Reader) (info 
 }
 
 // 上传多媒体
-func (c *Client) mediaUpload(mediaType, filename string, mediaReader io.Reader) (info media.MediaInfo, err error) {
+func (c *Client) mediaUpload(mediaType, filename string, mediaReader io.Reader) (resp *media.UploadResponse, err error) {
 	bodyBuf := c.getBufferFromPool() // io.ReadWriter
 	defer c.putBufferToPool(bodyBuf) // important!
 
@@ -160,7 +160,7 @@ RETRY:
 
 		switch result.ErrCode {
 		case errCodeOK:
-			info = media.MediaInfo{
+			resp = &media.UploadResponse{
 				MediaType: result.MediaType,
 				MediaId:   result.MediaId,
 				CreatedAt: result.CreatedAt,
@@ -182,7 +182,7 @@ RETRY:
 
 	default:
 		var result struct {
-			media.MediaInfo
+			media.UploadResponse
 			Error
 		}
 		if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
@@ -191,7 +191,7 @@ RETRY:
 
 		switch result.ErrCode {
 		case errCodeOK:
-			info = result.MediaInfo
+			resp = &result.UploadResponse
 			return
 
 		case errCodeTimeout:
@@ -280,20 +280,13 @@ RETRY:
 }
 
 // 根据上传的缩略图媒体创建图文消息素材
-func (c *Client) MediaCreateNews(articles []media.NewsArticle) (info media.MediaInfo, err error) {
-	if len(articles) > media.NewsArticleCountLimit {
-		err = fmt.Errorf("图文消息的文章个数不能超过 %d, 现在为 %d", media.NewsArticleCountLimit, len(articles))
+func (c *Client) MediaCreateNews(news media.News) (resp *media.UploadResponse, err error) {
+	if err = news.CheckValid(); err != nil {
 		return
 	}
 
-	var request = struct {
-		Articles []media.NewsArticle `json:"articles,omitempty"`
-	}{
-		Articles: articles,
-	}
-
 	var result struct {
-		media.MediaInfo
+		media.UploadResponse
 		Error
 	}
 
@@ -304,13 +297,13 @@ RETRY:
 		return
 	}
 	_url := mediaCreateNewsURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	if err = c.postJSON(_url, news, &result); err != nil {
 		return
 	}
 
 	switch result.ErrCode {
 	case errCodeOK:
-		info = result.MediaInfo
+		resp = &result.UploadResponse
 		return
 
 	case errCodeTimeout:
@@ -329,7 +322,7 @@ RETRY:
 
 // 根据上传的视频文件 media_id 创建视频媒体, 群发视频消息应该用这个函数得到的 media_id.
 //  NOTE: title, description 可以为空
-func (c *Client) MediaCreateVideo(mediaId, title, description string) (info media.MediaInfo, err error) {
+func (c *Client) MediaCreateVideo(mediaId, title, description string) (resp *media.UploadResponse, err error) {
 	var request = struct {
 		MediaId     string `json:"media_id"`
 		Title       string `json:"title,omitempty"`
@@ -341,7 +334,7 @@ func (c *Client) MediaCreateVideo(mediaId, title, description string) (info medi
 	}
 
 	var result struct {
-		media.MediaInfo
+		media.UploadResponse
 		Error
 	}
 
@@ -358,7 +351,7 @@ RETRY:
 
 	switch result.ErrCode {
 	case errCodeOK:
-		info = result.MediaInfo
+		resp = &result.UploadResponse
 		return
 
 	case errCodeTimeout:

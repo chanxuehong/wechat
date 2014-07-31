@@ -45,6 +45,7 @@ package main
 
 import (
 	"github.com/chanxuehong/wechat/message/request"
+	"github.com/chanxuehong/wechat/message/response"
 	"github.com/chanxuehong/wechat/server"
 	"net/http"
 )
@@ -71,10 +72,11 @@ func init() {
 func TextRequestHandler(w http.ResponseWriter, r *http.Request, text *request.Text) {
 	//TODO: 添加你的代码，下面只是示例代码！
 
-	w.Header().Set("Content-Type", "application/xml; charset=utf-8") // 可选
-
 	// 把用户发送过来的文本原样的回复过去
-	server.WriteText(w, text.FromUserName, text.ToUserName, text.Content)
+	resp := response.NewText(text.FromUserName, text.ToUserName, text.Content)
+
+	w.Header().Set("Content-Type", "application/xml; charset=utf-8") // 可选
+	server.CopyText(w, resp)
 }
 
 func main() {

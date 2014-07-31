@@ -5,6 +5,11 @@
 
 package custom
 
+import (
+	"errors"
+	"fmt"
+)
+
 type CommonHead struct {
 	ToUser  string `json:"touser"`  // 接收方帐号(OpenID)
 	MsgType string `json:"msgtype"` // text, image, voice, video, music, news
@@ -27,6 +32,18 @@ type Text struct {
 	} `json:"text"`
 }
 
+func NewText(to, content string) (text *Text) {
+	text = &Text{
+		CommonHead: CommonHead{
+			ToUser:  to,
+			MsgType: MSG_TYPE_TEXT,
+		},
+	}
+	text.Text.Content = content
+
+	return
+}
+
 // 图片消息
 //
 //  {
@@ -44,6 +61,18 @@ type Image struct {
 	} `json:"image"`
 }
 
+func NewImage(to, mediaId string) (image *Image) {
+	image = &Image{
+		CommonHead: CommonHead{
+			ToUser:  to,
+			MsgType: MSG_TYPE_IMAGE,
+		},
+	}
+	image.Image.MediaId = mediaId
+
+	return
+}
+
 // 语音消息
 //
 //  {
@@ -59,6 +88,18 @@ type Voice struct {
 	Voice struct {
 		MediaId string `json:"media_id"` // 通过上传多媒体文件, 得到的id
 	} `json:"voice"`
+}
+
+func NewVoice(to, mediaId string) (voice *Voice) {
+	voice = &Voice{
+		CommonHead: CommonHead{
+			ToUser:  to,
+			MsgType: MSG_TYPE_VOICE,
+		},
+	}
+	voice.Voice.MediaId = mediaId
+
+	return
 }
 
 // 视频消息
@@ -80,6 +121,21 @@ type Video struct {
 		Title       string `json:"title,omitempty"`       // 视频消息的标题
 		Description string `json:"description,omitempty"` // 视频消息的描述
 	} `json:"video"`
+}
+
+// title, description 可以为 ""
+func NewVideo(to, mediaId, title, description string) (video *Video) {
+	video = &Video{
+		CommonHead: CommonHead{
+			ToUser:  to,
+			MsgType: MSG_TYPE_VIDEO,
+		},
+	}
+	video.Video.MediaId = mediaId
+	video.Video.Title = title
+	video.Video.Description = description
+
+	return
 }
 
 // 音乐消息
@@ -105,6 +161,23 @@ type Music struct {
 		HQMusicURL   string `json:"hqmusicurl"`            // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
 		ThumbMediaId string `json:"thumb_media_id"`        // 缩略图的媒体id, 通过上传多媒体文件, 得到的id
 	} `json:"music"`
+}
+
+// title, description 可以为 ""
+func NewMusic(to, thumbMediaId, musicURL, HQMusicURL, title, description string) (music *Music) {
+	music = &Music{
+		CommonHead: CommonHead{
+			ToUser:  to,
+			MsgType: MSG_TYPE_MUSIC,
+		},
+	}
+	music.Music.Title = title
+	music.Music.Description = description
+	music.Music.ThumbMediaId = thumbMediaId
+	music.Music.MusicURL = musicURL
+	music.Music.HQMusicURL = HQMusicURL
+
+	return
 }
 
 // 图文消息里的 Article
@@ -143,4 +216,31 @@ type News struct {
 	News struct {
 		Articles []NewsArticle `json:"articles,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
 	} `json:"news"`
+}
+
+// NOTE: articles 的长度不能超过 NewsArticleCountLimit
+func NewNews(to string, articles []NewsArticle) (news *News) {
+	news = &News{
+		CommonHead: CommonHead{
+			ToUser:  to,
+			MsgType: MSG_TYPE_NEWS,
+		},
+	}
+	news.News.Articles = articles
+
+	return
+}
+
+// 检查 News 是否有效，有效返回 nil，否则返回错误信息
+func (n *News) CheckValid() (err error) {
+	articleNum := len(n.News.Articles)
+	if articleNum == 0 {
+		err = errors.New("图文消息是空的")
+		return
+	}
+	if articleNum > NewsArticleCountLimit {
+		err = fmt.Errorf("图文消息的文章个数不能超过 %d, 现在为 %d", NewsArticleCountLimit, articleNum)
+		return
+	}
+	return
 }

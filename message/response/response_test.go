@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-func TestXMLMarshal(t *testing.T) {
+func TestMarshalAndNewFunc(t *testing.T) {
 	var expectBytes []byte
 
 	// 测试文本消息===============================================================
@@ -25,23 +25,16 @@ func TestXMLMarshal(t *testing.T) {
 		<Content>你好</Content>
 	</xml>`)
 
-	text := Text{
-		CommonHead: CommonHead{
-			ToUserName:   "toUser",
-			FromUserName: "fromUser",
-			CreateTime:   12345678,
-			MsgType:      MSG_TYPE_TEXT,
-		},
-	}
-	text.Content = "你好"
+	text := NewText("toUser", "fromUser", "你好")
+	text.CreateTime = 12345678
 
-	b, err := xml.Marshal(&text)
+	b, err := xml.Marshal(text)
 	if err != nil {
-		t.Errorf("xml.Marshal(%#q):\nError: %s\n", &text, err)
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", text, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", &text, b, want)
+			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", text, b, want)
 		}
 	}
 
@@ -57,23 +50,16 @@ func TestXMLMarshal(t *testing.T) {
 		</Image>
 	</xml>`)
 
-	image := Image{
-		CommonHead: CommonHead{
-			ToUserName:   "toUser",
-			FromUserName: "fromUser",
-			CreateTime:   12345678,
-			MsgType:      MSG_TYPE_IMAGE,
-		},
-	}
-	image.Image.MediaId = "media_id"
+	image := NewImage("toUser", "fromUser", "media_id")
+	image.CreateTime = 12345678
 
-	b, err = xml.Marshal(&image)
+	b, err = xml.Marshal(image)
 	if err != nil {
-		t.Errorf("xml.Marshal(%#q):\nError: %s\n", &image, err)
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", image, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", &image, b, want)
+			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", image, b, want)
 		}
 	}
 
@@ -89,23 +75,16 @@ func TestXMLMarshal(t *testing.T) {
 		</Voice>
 	</xml>`)
 
-	voice := Voice{
-		CommonHead: CommonHead{
-			ToUserName:   "toUser",
-			FromUserName: "fromUser",
-			CreateTime:   12345678,
-			MsgType:      MSG_TYPE_VOICE,
-		},
-	}
-	voice.Voice.MediaId = "media_id"
+	voice := NewVoice("toUser", "fromUser", "media_id")
+	voice.CreateTime = 12345678
 
-	b, err = xml.Marshal(&voice)
+	b, err = xml.Marshal(voice)
 	if err != nil {
-		t.Errorf("xml.Marshal(%#q):\nError: %s\n", &voice, err)
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", voice, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", &voice, b, want)
+			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", voice, b, want)
 		}
 	}
 
@@ -123,25 +102,16 @@ func TestXMLMarshal(t *testing.T) {
 		</Video> 
 	</xml>`)
 
-	video := Video{
-		CommonHead: CommonHead{
-			ToUserName:   "toUser",
-			FromUserName: "fromUser",
-			CreateTime:   12345678,
-			MsgType:      MSG_TYPE_VIDEO,
-		},
-	}
-	video.Video.Title = "title"
-	video.Video.Description = "description"
-	video.Video.MediaId = "media_id"
+	video := NewVideo("toUser", "fromUser", "media_id", "title", "description")
+	video.CreateTime = 12345678
 
-	b, err = xml.Marshal(&video)
+	b, err = xml.Marshal(video)
 	if err != nil {
-		t.Errorf("xml.Marshal(%#q):\nError: %s\n", &video, err)
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", video, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", &video, b, want)
+			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", video, b, want)
 		}
 	}
 
@@ -161,27 +131,16 @@ func TestXMLMarshal(t *testing.T) {
 		</Music>
 	</xml>`)
 
-	music := Music{
-		CommonHead: CommonHead{
-			ToUserName:   "toUser",
-			FromUserName: "fromUser",
-			CreateTime:   12345678,
-			MsgType:      MSG_TYPE_MUSIC,
-		},
-	}
-	music.Music.Title = "TITLE"
-	music.Music.Description = "DESCRIPTION"
-	music.Music.ThumbMediaId = "media_id"
-	music.Music.MusicURL = "MUSIC_Url"
-	music.Music.HQMusicURL = "HQ_MUSIC_Url"
+	music := NewMusic("toUser", "fromUser", "media_id", "MUSIC_Url", "HQ_MUSIC_Url", "TITLE", "DESCRIPTION")
+	music.CreateTime = 12345678
 
-	b, err = xml.Marshal(&music)
+	b, err = xml.Marshal(music)
 	if err != nil {
-		t.Errorf("xml.Marshal(%#q):\nError: %s\n", &music, err)
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", music, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", &music, b, want)
+			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", music, b, want)
 		}
 	}
 
@@ -198,24 +157,16 @@ func TestXMLMarshal(t *testing.T) {
 		</Articles>
 	</xml>`)
 
-	news := News{
-		CommonHead: CommonHead{
-			ToUserName:   "toUser",
-			FromUserName: "fromUser",
-			CreateTime:   12345678,
-			MsgType:      MSG_TYPE_NEWS,
-		},
-	}
-	news.Articles = make([]NewsArticle, 0, 2)
-	news.ArticleCount = len(news.Articles)
+	news := NewNews("toUser", "fromUser", make([]NewsArticle, 0, 2))
+	news.CreateTime = 12345678
 
-	b, err = xml.Marshal(&news)
+	b, err = xml.Marshal(news)
 	if err != nil {
-		t.Errorf("xml.Marshal(%#q):\nError: %s\n", &news, err)
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", news, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", &news, b, want)
+			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", news, b, want)
 		}
 	}
 
@@ -242,7 +193,7 @@ func TestXMLMarshal(t *testing.T) {
 		PicURL:      "picurl",
 		URL:         "url",
 	})
-	news.ArticleCount = len(news.Articles)
+	news.UpdateArticleCount()
 
 	b, err = xml.Marshal(news)
 	if err != nil {
@@ -283,7 +234,7 @@ func TestXMLMarshal(t *testing.T) {
 		PicURL:      "picurl",
 		URL:         "url",
 	})
-	news.ArticleCount = len(news.Articles)
+	news.UpdateArticleCount()
 
 	b, err = xml.Marshal(news)
 	if err != nil {
@@ -303,22 +254,16 @@ func TestXMLMarshal(t *testing.T) {
 		<MsgType>transfer_customer_service</MsgType>
 	</xml>`)
 
-	tcs := TransferCustomerService{
-		CommonHead: CommonHead{
-			ToUserName:   "touser",
-			FromUserName: "fromuser",
-			CreateTime:   1399197672,
-			MsgType:      MSG_TYPE_TRANSFER_CUSTOMER_SERVICE,
-		},
-	}
+	transToCS := NewTransferCustomerService("touser", "fromuser")
+	transToCS.CreateTime = 1399197672
 
-	b, err = xml.Marshal(&tcs)
+	b, err = xml.Marshal(transToCS)
 	if err != nil {
-		t.Errorf("xml.Marshal(%#q):\nError: %s\n", &tcs, err)
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", transToCS, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", &tcs, b, want)
+			t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", transToCS, b, want)
 		}
 	}
 }

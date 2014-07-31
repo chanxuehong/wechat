@@ -6,102 +6,59 @@
 package client
 
 import (
-	"fmt"
+	"errors"
 	"github.com/chanxuehong/wechat/message/custom"
 )
 
 // 发送客服消息, 文本.
-func (c *Client) MsgCustomSendText(toUser, content string) error {
-	text := custom.Text{
-		CommonHead: custom.CommonHead{
-			ToUser:  toUser,
-			MsgType: custom.MSG_TYPE_TEXT,
-		},
+func (c *Client) MsgCustomSendText(msg *custom.Text) error {
+	if msg == nil {
+		return errors.New("msg == nil")
 	}
-	text.Text.Content = content
-
-	return c.msgCustomSend(&text)
+	return c.msgCustomSend(msg)
 }
 
 // 发送客服消息, 图片.
-func (c *Client) MsgCustomSendImage(toUser, mediaId string) error {
-	image := custom.Image{
-		CommonHead: custom.CommonHead{
-			ToUser:  toUser,
-			MsgType: custom.MSG_TYPE_IMAGE,
-		},
+func (c *Client) MsgCustomSendImage(msg *custom.Image) error {
+	if msg == nil {
+		return errors.New("msg == nil")
 	}
-	image.Image.MediaId = mediaId
-
-	return c.msgCustomSend(&image)
+	return c.msgCustomSend(msg)
 }
 
 // 发送客服消息, 语音.
-func (c *Client) MsgCustomSendVoice(toUser, mediaId string) error {
-	voice := custom.Voice{
-		CommonHead: custom.CommonHead{
-			ToUser:  toUser,
-			MsgType: custom.MSG_TYPE_VOICE,
-		},
+func (c *Client) MsgCustomSendVoice(msg *custom.Voice) error {
+	if msg == nil {
+		return errors.New("msg == nil")
 	}
-	voice.Voice.MediaId = mediaId
-
-	return c.msgCustomSend(&voice)
+	return c.msgCustomSend(msg)
 }
 
 // 发送客服消息, 视频.
-//  title, description 可以为 ""
-func (c *Client) MsgCustomSendVideo(toUser, mediaId, title, description string) error {
-	video := custom.Video{
-		CommonHead: custom.CommonHead{
-			ToUser:  toUser,
-			MsgType: custom.MSG_TYPE_VIDEO,
-		},
+func (c *Client) MsgCustomSendVideo(msg *custom.Video) error {
+	if msg == nil {
+		return errors.New("msg == nil")
 	}
-	video.Video.Title = title
-	video.Video.Description = description
-	video.Video.MediaId = mediaId
-
-	return c.msgCustomSend(&video)
+	return c.msgCustomSend(msg)
 }
 
 // 发送客服消息, 音乐.
-//  title, description 可以为 ""
-func (c *Client) MsgCustomSendMusic(toUser, thumbMediaId, musicURL, HQMusicURL,
-	title, description string) error {
-
-	music := custom.Music{
-		CommonHead: custom.CommonHead{
-			ToUser:  toUser,
-			MsgType: custom.MSG_TYPE_MUSIC,
-		},
+func (c *Client) MsgCustomSendMusic(msg *custom.Music) error {
+	if msg == nil {
+		return errors.New("msg == nil")
 	}
-	music.Music.Title = title
-	music.Music.Description = description
-	music.Music.ThumbMediaId = thumbMediaId
-	music.Music.MusicURL = musicURL
-	music.Music.HQMusicURL = HQMusicURL
-
-	return c.msgCustomSend(&music)
+	return c.msgCustomSend(msg)
 }
 
 // 发送客服消息, 图文.
-//  len(articles) 不能大于 custom.NewsArticleCountLimit
-func (c *Client) MsgCustomSendNews(toUser string, articles []custom.NewsArticle) (err error) {
-	if len(articles) > custom.NewsArticleCountLimit {
-		err = fmt.Errorf("图文消息的文章个数不能超过 %d, 现在为 %d", custom.NewsArticleCountLimit, len(articles))
+func (c *Client) MsgCustomSendNews(msg *custom.News) (err error) {
+	if msg == nil {
+		return errors.New("msg == nil")
+	}
+	if err = msg.CheckValid(); err != nil {
 		return
 	}
-
-	news := custom.News{
-		CommonHead: custom.CommonHead{
-			ToUser:  toUser,
-			MsgType: custom.MSG_TYPE_NEWS,
-		},
-	}
-	news.News.Articles = articles
-
-	return c.msgCustomSend(&news)
+	return c.msgCustomSend(msg)
 }
 
 // 发送客服消息功能都一样, 之所以不暴露这个接口是因为怕接收到不合法的参数.
