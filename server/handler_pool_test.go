@@ -15,21 +15,35 @@ import (
 
 // 使用缓存
 func BenchmarkGetBufferUnitFromPool(b *testing.B) {
+	var buf1 *bytes.Buffer
+	var buf2 []byte
+	var x int
+
 	for i := 0; i < b.N; i++ {
 		func() {
-			unit := _test_handler.getBufferUnitFromPool()
-			defer _test_handler.putBufferUnitToPool(unit)
+			unit := testHandler.getBufferUnitFromPool()
+			defer testHandler.putBufferUnitToPool(unit)
+
+			buf1 = unit.msgBuf
+			buf2 = unit.signatureBuf[:]
+			x = unit.msgRequest.ErrorCount
 		}()
 	}
 }
 
 // 不使用缓存
 func BenchmarkGetBufferUnitFromNew(b *testing.B) {
+	var buf1 *bytes.Buffer
+	var buf2 []byte
+	var x int
+
 	for i := 0; i < b.N; i++ {
 		func() {
-			_ = bytes.NewBuffer(make([]byte, 512)) // Handler 平均收到消息的估计大小
-			_ = request.Request{}
-			_ = make([]byte, 128) // checkSignature 内申请切片平均估计大小
+			var req request.Request
+
+			buf1 = bytes.NewBuffer(make([]byte, 512)) // Handler 平均收到消息的估计大小
+			buf2 = make([]byte, 128)                  // checkSignature 内申请切片平均估计大小
+			x = req.ErrorCount
 		}()
 	}
 }

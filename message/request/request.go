@@ -81,12 +81,9 @@ type Request struct {
 
 var zeroRequest Request
 
-// 因为 Request 结构体比较大, 每次都申请比较不划算, 并且这个结构体一般都是过渡,
-// 不会常驻内存, 所以建议用对象池技术;
-// 用对象池最好都要每次都 清零, 以防旧数据干扰.
-func (req *Request) Zero() *Request {
+func (req *Request) Zero() {
 	*req = zeroRequest
-	return req
+	return
 }
 
 // 文本消息
@@ -107,15 +104,6 @@ type Text struct {
 	Content string `xml:"Content" json:"Content"` // 文本消息内容
 }
 
-func (req *Request) Text() (text *Text) {
-	text = &Text{
-		CommonHead: req.CommonHead,
-		MsgId:      req.MsgId,
-		Content:    req.Content,
-	}
-	return
-}
-
 // 图片消息
 //
 //  <xml>
@@ -134,16 +122,6 @@ type Image struct {
 	MsgId   int64  `xml:"MsgId"   json:"MsgId"`   // 消息id, 64位整型
 	MediaId string `xml:"MediaId" json:"MediaId"` // 图片消息媒体id，可以调用多媒体文件下载接口拉取数据。
 	PicURL  string `xml:"PicUrl"  json:"PicUrl"`  // 图片链接
-}
-
-func (req *Request) Image() (image *Image) {
-	image = &Image{
-		CommonHead: req.CommonHead,
-		MsgId:      req.MsgId,
-		MediaId:    req.MediaId,
-		PicURL:     req.PicURL,
-	}
-	return
 }
 
 // 语音消息
@@ -171,17 +149,6 @@ type Voice struct {
 	Recognition string `xml:"Recognition" json:"Recognition"`
 }
 
-func (req *Request) Voice() (voice *Voice) {
-	voice = &Voice{
-		CommonHead:  req.CommonHead,
-		MsgId:       req.MsgId,
-		MediaId:     req.MediaId,
-		Format:      req.Format,
-		Recognition: req.Recognition,
-	}
-	return
-}
-
 // 视频消息
 //
 //  <xml>
@@ -200,16 +167,6 @@ type Video struct {
 	MsgId        int64  `xml:"MsgId"        json:"MsgId"`        // 消息id, 64位整型
 	MediaId      string `xml:"MediaId"      json:"MediaId"`      // 视频消息媒体id，可以调用多媒体文件下载接口拉取数据。
 	ThumbMediaId string `xml:"ThumbMediaId" json:"ThumbMediaId"` // 视频消息缩略图的媒体id，可以调用多媒体文件下载接口拉取数据。
-}
-
-func (req *Request) Video() (video *Video) {
-	video = &Video{
-		CommonHead:   req.CommonHead,
-		MsgId:        req.MsgId,
-		MediaId:      req.MediaId,
-		ThumbMediaId: req.ThumbMediaId,
-	}
-	return
 }
 
 // 地理位置消息
@@ -236,18 +193,6 @@ type Location struct {
 	Label     string  `xml:"Label"      json:"Label"`      // 地理位置信息
 }
 
-func (req *Request) Location() (location *Location) {
-	location = &Location{
-		CommonHead: req.CommonHead,
-		MsgId:      req.MsgId,
-		LocationX:  req.LocationX,
-		LocationY:  req.LocationY,
-		Scale:      req.Scale,
-		Label:      req.Label,
-	}
-	return
-}
-
 // 链接消息
 //
 //  <xml>
@@ -270,17 +215,6 @@ type Link struct {
 	URL         string `xml:"Url"         json:"Url"`         // 消息链接
 }
 
-func (req *Request) Link() (link *Link) {
-	link = &Link{
-		CommonHead:  req.CommonHead,
-		MsgId:       req.MsgId,
-		Title:       req.Title,
-		Description: req.Description,
-		URL:         req.URL,
-	}
-	return
-}
-
 // 关注事件(普通关注)
 //
 //  <xml>
@@ -298,14 +232,6 @@ type SubscribeEvent struct {
 	Event string `xml:"Event" json:"Event"` // 事件类型，subscribe(订阅)
 }
 
-func (req *Request) SubscribeEvent() (event *SubscribeEvent) {
-	event = &SubscribeEvent{
-		CommonHead: req.CommonHead,
-		Event:      req.Event,
-	}
-	return
-}
-
 // 取消关注
 //
 //  <xml>
@@ -321,14 +247,6 @@ type UnsubscribeEvent struct {
 	CommonHead
 
 	Event string `xml:"Event" json:"Event"` // 事件类型，unsubscribe(取消订阅)
-}
-
-func (req *Request) UnsubscribeEvent() (event *UnsubscribeEvent) {
-	event = &UnsubscribeEvent{
-		CommonHead: req.CommonHead,
-		Event:      req.Event,
-	}
-	return
 }
 
 // 用户未关注时，扫描带参数二维码进行关注后的事件推送
@@ -349,16 +267,6 @@ type SubscribeByScanEvent struct {
 	Event    string `xml:"Event"    json:"Event"`    // 事件类型，subscribe
 	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值，qrscene_为前缀，后面为二维码的参数值
 	Ticket   string `xml:"Ticket"   json:"Ticket"`   // 二维码的ticket，可用来换取二维码图片
-}
-
-func (req *Request) SubscribeByScanEvent() (event *SubscribeByScanEvent) {
-	event = &SubscribeByScanEvent{
-		CommonHead: req.CommonHead,
-		Event:      req.Event,
-		EventKey:   req.EventKey,
-		Ticket:     req.Ticket,
-	}
-	return
 }
 
 // 获取二维码参数
@@ -398,16 +306,6 @@ type ScanEvent struct {
 	Ticket   string `xml:"Ticket"   json:"Ticket"`   // 二维码的ticket，可用来换取二维码图片
 }
 
-func (req *Request) ScanEvent() (event *ScanEvent) {
-	event = &ScanEvent{
-		CommonHead: req.CommonHead,
-		Event:      req.Event,
-		EventKey:   req.EventKey,
-		Ticket:     req.Ticket,
-	}
-	return
-}
-
 // 获取二维码参数
 func (event *ScanEvent) SceneId() (id uint32, err error) {
 	idUint64, err := strconv.ParseUint(event.EventKey, 10, 32)
@@ -440,17 +338,6 @@ type LocationEvent struct {
 	Precision float64 `xml:"Precision" json:"Precision"` // 地理位置精度
 }
 
-func (req *Request) LocationEvent() (event *LocationEvent) {
-	event = &LocationEvent{
-		CommonHead: req.CommonHead,
-		Event:      req.Event,
-		Latitude:   req.Latitude,
-		Longitude:  req.Longitude,
-		Precision:  req.Precision,
-	}
-	return
-}
-
 // 点击菜单拉取消息时的事件推送
 //
 //  <xml>
@@ -469,15 +356,6 @@ type MenuClickEvent struct {
 	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值，与自定义菜单接口中KEY值对应
 }
 
-func (req *Request) MenuClickEvent() (event *MenuClickEvent) {
-	event = &MenuClickEvent{
-		CommonHead: req.CommonHead,
-		Event:      req.Event,
-		EventKey:   req.EventKey,
-	}
-	return
-}
-
 // 点击菜单跳转链接时的事件推送
 //
 //  <xml>
@@ -494,15 +372,6 @@ type MenuViewEvent struct {
 
 	Event    string `xml:"Event"    json:"Event"`    // 事件类型，VIEW
 	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值，设置的跳转URL
-}
-
-func (req *Request) MenuViewEvent() (event *MenuViewEvent) {
-	event = &MenuViewEvent{
-		CommonHead: req.CommonHead,
-		Event:      req.Event,
-		EventKey:   req.EventKey,
-	}
-	return
 }
 
 // 高级群发消息, 事件推送群发结果
@@ -537,20 +406,6 @@ type MassSendJobFinishEvent struct {
 	ErrorCount  int `xml:"ErrorCount"  json:"ErrorCount"` // 发送失败的粉丝数
 }
 
-func (req *Request) MassSendJobFinishEvent() (event *MassSendJobFinishEvent) {
-	event = &MassSendJobFinishEvent{
-		CommonHead:  req.CommonHead,
-		Event:       req.Event,
-		MsgId:       req.MsgID, // NOTE
-		Status:      req.Status,
-		TotalCount:  req.TotalCount,
-		FilterCount: req.FilterCount,
-		SentCount:   req.SentCount,
-		ErrorCount:  req.ErrorCount,
-	}
-	return
-}
-
 // 微信小店, 订单付款通知
 type MerchantOrderEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
@@ -561,16 +416,4 @@ type MerchantOrderEvent struct {
 	OrderStatus int    `xml:"OrderStatus" json:"OrderStatus"` // 订单状态(2-待发货, 3-已发货, 5-已完成, 8-维权中)
 	ProductId   string `xml:"ProductId"   json:"ProductId"`   // 商品 id
 	SkuInfo     string `xml:"SkuInfo"     json:"SkuInfo"`     // sku 信息
-}
-
-func (req *Request) MerchantOrderEvent() (event *MerchantOrderEvent) {
-	event = &MerchantOrderEvent{
-		CommonHead:  req.CommonHead,
-		Event:       req.Event,
-		OrderId:     req.OrderId,
-		OrderStatus: req.OrderStatus,
-		ProductId:   req.ProductId,
-		SkuInfo:     req.SkuInfo,
-	}
-	return
 }

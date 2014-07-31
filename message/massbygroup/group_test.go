@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-func TestMarshalAndNewFunc(t *testing.T) {
+func TestJSONMarshal(t *testing.T) {
 	var expectBytes []byte
 
 	// 测试文本消息===============================================================
@@ -27,15 +27,18 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	text := NewText("2", "CONTENT")
+	var text Text
+	text.Filter.GroupId = 2
+	text.MsgType = MSG_TYPE_TEXT
+	text.Text.Content = "CONTENT"
 
-	b, err := json.Marshal(text)
+	b, err := json.Marshal(&text)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", text, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &text, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", text, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &text, b, want)
 		}
 	}
 
@@ -51,15 +54,18 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	image := NewImage("2", "123dsdajkasd231jhksad")
+	var image Image
+	image.Filter.GroupId = 2
+	image.MsgType = MSG_TYPE_IMAGE
+	image.Image.MediaId = "123dsdajkasd231jhksad"
 
-	b, err = json.Marshal(image)
+	b, err = json.Marshal(&image)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", image, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &image, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", image, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &image, b, want)
 		}
 	}
 
@@ -75,15 +81,18 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	voice := NewVoice("2", "123dsdajkasd231jhksad")
+	var voice Voice
+	voice.Filter.GroupId = 2
+	voice.MsgType = MSG_TYPE_VOICE
+	voice.Voice.MediaId = "123dsdajkasd231jhksad"
 
-	b, err = json.Marshal(voice)
+	b, err = json.Marshal(&voice)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", voice, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &voice, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", voice, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &voice, b, want)
 		}
 	}
 
@@ -99,15 +108,18 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	video := NewVideo("2", "IhdaAQXuvJtGzwwc0abfXnzeezfO0NgPK6AQYShD8RQYMTtfzbLdBIQkQziv2XJc")
+	var video Video
+	video.Filter.GroupId = 2
+	video.MsgType = MSG_TYPE_VIDEO
+	video.Video.MediaId = "IhdaAQXuvJtGzwwc0abfXnzeezfO0NgPK6AQYShD8RQYMTtfzbLdBIQkQziv2XJc"
 
-	b, err = json.Marshal(video)
+	b, err = json.Marshal(&video)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", video, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &video, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", video, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &video, b, want)
 		}
 	}
 
@@ -123,15 +135,18 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	news := NewNews("2", "123dsdajkasd231jhksad")
+	var news News
+	news.Filter.GroupId = 2
+	news.MsgType = MSG_TYPE_NEWS
+	news.News.MediaId = "123dsdajkasd231jhksad"
 
-	b, err = json.Marshal(news)
+	b, err = json.Marshal(&news)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", news, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &news, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", news, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &news, b, want)
 		}
 	}
 }

@@ -8,87 +8,156 @@ package server
 import (
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"github.com/chanxuehong/wechat/message/response"
 	"io"
+	"time"
 )
 
-// 把 text 回复消息 msg 写入 writer w
-func CopyText(w io.Writer, msg *response.Text) error {
+// 向 w io.Writer 写入文本回复消息
+func WriteText(w io.Writer, toUser, fromUser, content string) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
-	if msg == nil {
-		return errors.New("msg == nil")
+
+	text := response.Text{
+		CommonHead: response.CommonHead{
+			ToUserName:   toUser,
+			FromUserName: fromUser,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      response.MSG_TYPE_TEXT,
+		},
 	}
-	return copyResponse(w, msg)
+	text.Content = content
+
+	return writeResponse(w, &text)
 }
 
-// 把 image 回复消息 msg 写入 writer w
-func CopyImage(w io.Writer, msg *response.Image) error {
+// 向 w io.Writer 写入图片回复消息
+func WriteImage(w io.Writer, toUser, fromUser, mediaId string) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
-	if msg == nil {
-		return errors.New("msg == nil")
+
+	image := response.Image{
+		CommonHead: response.CommonHead{
+			ToUserName:   toUser,
+			FromUserName: fromUser,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      response.MSG_TYPE_IMAGE,
+		},
 	}
-	return copyResponse(w, msg)
+	image.Image.MediaId = mediaId
+
+	return writeResponse(w, &image)
 }
 
-// 把 voice 回复消息 msg 写入 writer w
-func CopyVoice(w io.Writer, msg *response.Voice) error {
+// 向 w io.Writer 写入语音回复消息
+func WriteVoice(w io.Writer, toUser, fromUser, mediaId string) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
-	if msg == nil {
-		return errors.New("msg == nil")
+
+	voice := response.Voice{
+		CommonHead: response.CommonHead{
+			ToUserName:   toUser,
+			FromUserName: fromUser,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      response.MSG_TYPE_VOICE,
+		},
 	}
-	return copyResponse(w, msg)
+	voice.Voice.MediaId = mediaId
+
+	return writeResponse(w, &voice)
 }
 
-// 把 video 回复消息 msg 写入 writer w
-func CopyVideo(w io.Writer, msg *response.Video) error {
+// 向 w io.Writer 写入视频回复消息
+func WriteVideo(w io.Writer, toUser, fromUser, mediaId, title, description string) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
-	if msg == nil {
-		return errors.New("msg == nil")
+
+	video := response.Video{
+		CommonHead: response.CommonHead{
+			ToUserName:   toUser,
+			FromUserName: fromUser,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      response.MSG_TYPE_VIDEO,
+		},
 	}
-	return copyResponse(w, msg)
+	video.Video.Title = title
+	video.Video.Description = description
+	video.Video.MediaId = mediaId
+
+	return writeResponse(w, &video)
 }
 
-// 把 music 回复消息 msg 写入 writer w
-func CopyMusic(w io.Writer, msg *response.Music) error {
+// 向 w io.Writer 写入音乐回复消息
+func WriteMusic(w io.Writer, toUser, fromUser, thumbMediaId, musicURL,
+	HQMusicURL, title, description string) error {
+
 	if w == nil {
 		return errors.New("w == nil")
 	}
-	if msg == nil {
-		return errors.New("msg == nil")
+
+	music := response.Music{
+		CommonHead: response.CommonHead{
+			ToUserName:   toUser,
+			FromUserName: fromUser,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      response.MSG_TYPE_MUSIC,
+		},
 	}
-	return copyResponse(w, msg)
+	music.Music.Title = title
+	music.Music.Description = description
+	music.Music.ThumbMediaId = thumbMediaId
+	music.Music.MusicURL = musicURL
+	music.Music.HQMusicURL = HQMusicURL
+
+	return writeResponse(w, &music)
 }
 
-// 把 news 回复消息 msg 写入 writer w
-func CopyNews(w io.Writer, msg *response.News) error {
+// 向 w io.Writer 写入图文回复消息
+func WriteNews(w io.Writer, toUser, fromUser string, articles []response.NewsArticle) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
-	if msg == nil {
-		return errors.New("msg == nil")
+	if len(articles) > response.NewsArticleCountLimit {
+		return fmt.Errorf("图文消息的文章个数不能超过 %d, 现在为 %d", response.NewsArticleCountLimit, len(articles))
 	}
-	return copyResponse(w, msg)
+
+	news := response.News{
+		CommonHead: response.CommonHead{
+			ToUserName:   toUser,
+			FromUserName: fromUser,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      response.MSG_TYPE_NEWS,
+		},
+	}
+	news.Articles = articles
+	news.ArticleCount = len(articles)
+
+	return writeResponse(w, &news)
 }
 
-// 把 TransferCustomerService 回复消息 msg 写入 writer w
-func CopyTransferCustomerService(w io.Writer, msg *response.TransferCustomerService) error {
+// 向 w io.Writer 写入转到多客服回复消息
+func WriteTransferCustomerService(w io.Writer, toUser, fromUser string) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
-	if msg == nil {
-		return errors.New("msg == nil")
+
+	tcs := response.TransferCustomerService{
+		CommonHead: response.CommonHead{
+			ToUserName:   toUser,
+			FromUserName: fromUser,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      response.MSG_TYPE_TRANSFER_CUSTOMER_SERVICE,
+		},
 	}
-	return copyResponse(w, msg)
+
+	return writeResponse(w, &tcs)
 }
 
-func copyResponse(w io.Writer, msg interface{}) error {
+func writeResponse(w io.Writer, msg interface{}) error {
 	return xml.NewEncoder(w).Encode(msg) // 只要 w 能正常的写, 不会返回错误
 }

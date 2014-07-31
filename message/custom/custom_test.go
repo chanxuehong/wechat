@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-func TestMarshalAndNewFunc(t *testing.T) {
+func TestJSONMarshal(t *testing.T) {
 	var expectBytes []byte
 
 	// 测试文本消息===============================================================
@@ -26,15 +26,21 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	text := NewText("toUser", "你好")
+	text := Text{
+		CommonHead: CommonHead{
+			ToUser:  "toUser",
+			MsgType: MSG_TYPE_TEXT,
+		},
+	}
+	text.Text.Content = "你好"
 
-	b, err := json.Marshal(text)
+	b, err := json.Marshal(&text)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", text, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &text, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", text, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &text, b, want)
 		}
 	}
 
@@ -49,15 +55,21 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	image := NewImage("toUser", "media_id")
+	image := Image{
+		CommonHead: CommonHead{
+			ToUser:  "toUser",
+			MsgType: MSG_TYPE_IMAGE,
+		},
+	}
+	image.Image.MediaId = "media_id"
 
-	b, err = json.Marshal(image)
+	b, err = json.Marshal(&image)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", image, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &image, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", image, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &image, b, want)
 		}
 	}
 
@@ -72,15 +84,21 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	voice := NewVoice("toUser", "media_id")
+	voice := Voice{
+		CommonHead: CommonHead{
+			ToUser:  "toUser",
+			MsgType: MSG_TYPE_VOICE,
+		},
+	}
+	voice.Voice.MediaId = "media_id"
 
-	b, err = json.Marshal(voice)
+	b, err = json.Marshal(&voice)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", voice, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &voice, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", voice, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &voice, b, want)
 		}
 	}
 
@@ -97,15 +115,23 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	video := NewVideo("toUser", "media_id", "title", "description")
+	video := Video{
+		CommonHead: CommonHead{
+			ToUser:  "toUser",
+			MsgType: MSG_TYPE_VIDEO,
+		},
+	}
+	video.Video.Title = "title"
+	video.Video.Description = "description"
+	video.Video.MediaId = "media_id"
 
-	b, err = json.Marshal(video)
+	b, err = json.Marshal(&video)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", video, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &video, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", video, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &video, b, want)
 		}
 	}
 
@@ -124,15 +150,25 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	music := NewMusic("toUser", "media_id", "MUSIC_Url", "HQ_MUSIC_Url", "TITLE", "DESCRIPTION")
+	music := Music{
+		CommonHead: CommonHead{
+			ToUser:  "toUser",
+			MsgType: MSG_TYPE_MUSIC,
+		},
+	}
+	music.Music.Title = "TITLE"
+	music.Music.Description = "DESCRIPTION"
+	music.Music.ThumbMediaId = "media_id"
+	music.Music.MusicURL = "MUSIC_Url"
+	music.Music.HQMusicURL = "HQ_MUSIC_Url"
 
-	b, err = json.Marshal(music)
+	b, err = json.Marshal(&music)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", music, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &music, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", music, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &music, b, want)
 		}
 	}
 
@@ -145,15 +181,21 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		"news":{}
 	}`)
 
-	news := NewNews("toUser", nil)
+	news := News{
+		CommonHead: CommonHead{
+			ToUser:  "toUser",
+			MsgType: MSG_TYPE_NEWS,
+		},
+	}
+	news.News.Articles = make([]NewsArticle, 0, 2)
 
-	b, err = json.Marshal(news)
+	b, err = json.Marshal(&news)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", news, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &news, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", news, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &news, b, want)
 		}
 	}
 
@@ -183,13 +225,13 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		},
 	)
 
-	b, err = json.Marshal(news)
+	b, err = json.Marshal(&news)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", news, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &news, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", news, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &news, b, want)
 		}
 	}
 
@@ -225,13 +267,13 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		},
 	)
 
-	b, err = json.Marshal(news)
+	b, err = json.Marshal(&news)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", news, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &news, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", news, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &news, b, want)
 		}
 	}
 }

@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-func TestMarshalAndNewFunc(t *testing.T) {
+func TestJSONMarshal(t *testing.T) {
 	var expectBytes []byte
 
 	// 测试文本消息===============================================================
@@ -28,16 +28,18 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	text := NewText([]string{"oR5Gjjl_eiZoUpGozMo7dbBJ362A"}, "hello from boxer.")
-	text.ToUser = append(text.ToUser, "oR5Gjjo5rXlMUocSEXKT7Q5RQ63Q")
+	var text Text
+	text.ToUser = []string{"oR5Gjjl_eiZoUpGozMo7dbBJ362A", "oR5Gjjo5rXlMUocSEXKT7Q5RQ63Q"}
+	text.MsgType = MSG_TYPE_TEXT
+	text.Text.Content = "hello from boxer."
 
-	b, err := json.Marshal(text)
+	b, err := json.Marshal(&text)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", text, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &text, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", text, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &text, b, want)
 		}
 	}
 
@@ -54,16 +56,18 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	image := NewImage([]string{"OPENID1"}, "BTgN0opcW3Y5zV_ZebbsD3NFKRWf6cb7OPswPi9Q83fOJHK2P67dzxn11Cp7THat")
-	image.ToUser = append(image.ToUser, "OPENID2")
+	var image Image
+	image.ToUser = []string{"OPENID1", "OPENID2"}
+	image.MsgType = MSG_TYPE_IMAGE
+	image.Image.MediaId = "BTgN0opcW3Y5zV_ZebbsD3NFKRWf6cb7OPswPi9Q83fOJHK2P67dzxn11Cp7THat"
 
-	b, err = json.Marshal(image)
+	b, err = json.Marshal(&image)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", image, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &image, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", image, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &image, b, want)
 		}
 	}
 
@@ -80,16 +84,18 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	voice := NewVoice([]string{"OPENID1"}, "mLxl6paC7z2Tl-NJT64yzJve8T9c8u9K2x-Ai6Ujd4lIH9IBuF6-2r66mamn_gIT")
-	voice.ToUser = append(voice.ToUser, "OPENID2")
+	var voice Voice
+	voice.ToUser = []string{"OPENID1", "OPENID2"}
+	voice.MsgType = MSG_TYPE_VOICE
+	voice.Voice.MediaId = "mLxl6paC7z2Tl-NJT64yzJve8T9c8u9K2x-Ai6Ujd4lIH9IBuF6-2r66mamn_gIT"
 
-	b, err = json.Marshal(voice)
+	b, err = json.Marshal(&voice)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", voice, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &voice, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", voice, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &voice, b, want)
 		}
 	}
 
@@ -108,20 +114,20 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	video := NewVideo(
-		[]string{"OPENID1", "OPENID2"},
-		"123dsdajkasd231jhksad",
-		"TITLE",
-		"DESCRIPTION",
-	)
+	var video Video
+	video.ToUser = []string{"OPENID1", "OPENID2"}
+	video.MsgType = MSG_TYPE_VIDEO
+	video.Video.MediaId = "123dsdajkasd231jhksad"
+	video.Video.Title = "TITLE"
+	video.Video.Description = "DESCRIPTION"
 
-	b, err = json.Marshal(video)
+	b, err = json.Marshal(&video)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", video, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &video, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", video, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &video, b, want)
 		}
 	}
 
@@ -138,18 +144,18 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		}
 	}`)
 
-	news := NewNews(
-		[]string{"OPENID1", "OPENID2"},
-		"123dsdajkasd231jhksad",
-	)
+	var news News
+	news.ToUser = []string{"OPENID1", "OPENID2"}
+	news.MsgType = MSG_TYPE_NEWS
+	news.News.MediaId = "123dsdajkasd231jhksad"
 
-	b, err = json.Marshal(news)
+	b, err = json.Marshal(&news)
 	if err != nil {
-		t.Errorf("json.Marshal(%#q):\nError: %s\n", news, err)
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", &news, err)
 	} else {
 		want := util.TrimSpace(expectBytes)
 		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", news, b, want)
+			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", &news, b, want)
 		}
 	}
 }

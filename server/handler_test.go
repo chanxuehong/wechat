@@ -5,7 +5,7 @@
 
 package server
 
-var _test_handler = func() *Handler {
+var testHandler = func() *Handler {
 	handler := NewHandler(&HandlerSetting{})
 	// 预热
 	unit := handler.getBufferUnitFromPool()

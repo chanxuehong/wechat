@@ -6,53 +6,90 @@
 package client
 
 import (
-	"errors"
+	"fmt"
 	"github.com/chanxuehong/wechat/message/massbyopenid"
 )
 
 // 根据用户列表群发文本消息.
-func (c *Client) MsgMassSendTextByOpenId(msg *massbyopenid.Text) (msgid int64, err error) {
-	if msg == nil {
-		err = errors.New("msg == nil")
+func (c *Client) MsgMassSendTextByOpenId(toUser []string, content string) (msgid int64, err error) {
+	if len(toUser) > massbyopenid.ToUserCountLimit {
+		err = fmt.Errorf("用户列表的长度不能超过 %d, 现在为 %d", massbyopenid.ToUserCountLimit, len(toUser))
 		return
 	}
-	return c.msgMassSendByOpenId(msg)
+
+	var text massbyopenid.Text
+	text.ToUser = toUser
+	text.MsgType = massbyopenid.MSG_TYPE_TEXT
+	text.Text.Content = content
+
+	return c.msgMassSendByOpenId(&text)
 }
 
 // 根据用户列表群发图片消息.
-func (c *Client) MsgMassSendImageByOpenId(msg *massbyopenid.Image) (msgid int64, err error) {
-	if msg == nil {
-		err = errors.New("msg == nil")
+func (c *Client) MsgMassSendImageByOpenId(toUser []string, mediaId string) (msgid int64, err error) {
+	if len(toUser) > massbyopenid.ToUserCountLimit {
+		err = fmt.Errorf("用户列表的长度不能超过 %d, 现在为 %d", massbyopenid.ToUserCountLimit, len(toUser))
 		return
 	}
-	return c.msgMassSendByOpenId(msg)
+
+	var image massbyopenid.Image
+	image.ToUser = toUser
+	image.MsgType = massbyopenid.MSG_TYPE_IMAGE
+	image.Image.MediaId = mediaId
+
+	return c.msgMassSendByOpenId(&image)
 }
 
 // 根据用户列表群发语音消息.
-func (c *Client) MsgMassSendVoiceByOpenId(msg *massbyopenid.Voice) (msgid int64, err error) {
-	if msg == nil {
-		err = errors.New("msg == nil")
+func (c *Client) MsgMassSendVoiceByOpenId(toUser []string, mediaId string) (msgid int64, err error) {
+	if len(toUser) > massbyopenid.ToUserCountLimit {
+		err = fmt.Errorf("用户列表的长度不能超过 %d, 现在为 %d", massbyopenid.ToUserCountLimit, len(toUser))
 		return
 	}
-	return c.msgMassSendByOpenId(msg)
+
+	var voice massbyopenid.Voice
+	voice.ToUser = toUser
+	voice.MsgType = massbyopenid.MSG_TYPE_VOICE
+	voice.Voice.MediaId = mediaId
+
+	return c.msgMassSendByOpenId(&voice)
 }
 
 // 根据用户列表群发视频消息.
-func (c *Client) MsgMassSendVideoByOpenId(msg *massbyopenid.Video) (msgid int64, err error) {
-	if msg == nil {
-		err = errors.New("msg == nil")
+//  title, description 可以为 ""
+//  NOTE: mediaId 应该通过 Client.MediaCreateVideo 得到
+func (c *Client) MsgMassSendVideoByOpenId(toUser []string, mediaId string,
+	title, description string) (msgid int64, err error) {
+
+	if len(toUser) > massbyopenid.ToUserCountLimit {
+		err = fmt.Errorf("用户列表的长度不能超过 %d, 现在为 %d", massbyopenid.ToUserCountLimit, len(toUser))
 		return
 	}
-	return c.msgMassSendByOpenId(msg)
+
+	var video massbyopenid.Video
+	video.ToUser = toUser
+	video.MsgType = massbyopenid.MSG_TYPE_VIDEO
+	video.Video.MediaId = mediaId
+	video.Video.Title = title
+	video.Video.Description = description
+
+	return c.msgMassSendByOpenId(&video)
 }
 
 // 根据用户列表群发图文消息.
-func (c *Client) MsgMassSendNewsByOpenId(msg *massbyopenid.News) (msgid int64, err error) {
-	if msg == nil {
-		err = errors.New("msg == nil")
+//  NOTE: mediaId 应该通过 Client.MediaCreateNews 得到
+func (c *Client) MsgMassSendNewsByOpenId(toUser []string, mediaId string) (msgid int64, err error) {
+	if len(toUser) > massbyopenid.ToUserCountLimit {
+		err = fmt.Errorf("用户列表的长度不能超过 %d, 现在为 %d", massbyopenid.ToUserCountLimit, len(toUser))
 		return
 	}
-	return c.msgMassSendByOpenId(msg)
+
+	var news massbyopenid.News
+	news.ToUser = toUser
+	news.MsgType = massbyopenid.MSG_TYPE_NEWS
+	news.News.MediaId = mediaId
+
+	return c.msgMassSendByOpenId(&news)
 }
 
 // 根据 OpenId列表 群发消息, 之所以不暴露这个接口是因为怕接收到不合法的参数.

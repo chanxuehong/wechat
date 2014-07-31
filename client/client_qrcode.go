@@ -15,7 +15,7 @@ import (
 )
 
 // 创建临时二维码
-func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (_qrcode *qrcode.TemporaryQRCode, err error) {
+func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (_qrcode qrcode.TemporaryQRCode, err error) {
 	var request struct {
 		ExpireSeconds int    `json:"expire_seconds"`
 		ActionName    string `json:"action_name"`
@@ -48,7 +48,7 @@ RETRY:
 	switch result.ErrCode {
 	case errCodeOK:
 		result.TemporaryQRCode.SceneId = sceneId
-		_qrcode = &result.TemporaryQRCode
+		_qrcode = result.TemporaryQRCode
 		return
 
 	case errCodeTimeout:
@@ -66,7 +66,7 @@ RETRY:
 }
 
 // 创建永久二维码
-func (c *Client) QRCodePermanentCreate(sceneId uint32) (_qrcode *qrcode.PermanentQRCode, err error) {
+func (c *Client) QRCodePermanentCreate(sceneId uint32) (_qrcode qrcode.PermanentQRCode, err error) {
 	var request struct {
 		ActionName string `json:"action_name"`
 		ActionInfo struct {
@@ -97,7 +97,7 @@ RETRY:
 	switch result.ErrCode {
 	case errCodeOK:
 		result.PermanentQRCode.SceneId = sceneId
-		_qrcode = &result.PermanentQRCode
+		_qrcode = result.PermanentQRCode
 		return
 
 	case errCodeTimeout:
