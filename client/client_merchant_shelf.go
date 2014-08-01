@@ -18,7 +18,19 @@ func (c *Client) MerchantShelfAdd(_shelf *shelf.Shelf) (shelfId int64, err error
 		return
 	}
 
-	_shelf.Id = 0 // 无需指定 Id 字段
+	var shelfx struct {
+		Id     int64  `json:"shelf_id,omitempty"`
+		Name   string `json:"shelf_name"`
+		Banner string `json:"shelf_banner,omitempty"`
+		Info   struct {
+			ModuleInfos []shelf.Module `json:"module_infos,omitempty"`
+		} `json:"shelf_data"`
+	}
+
+	// shelfx.Id = _shelf.Id
+	shelfx.Name = _shelf.Name
+	shelfx.Banner = _shelf.Banner
+	shelfx.Info.ModuleInfos = _shelf.Info.ModuleInfos
 
 	var result struct {
 		Error
@@ -32,7 +44,7 @@ RETRY:
 		return
 	}
 	_url := merchantShelfAddURL(token)
-	if err = c.postJSON(_url, _shelf, &result); err != nil {
+	if err = c.postJSON(_url, &shelfx, &result); err != nil {
 		return
 	}
 
@@ -100,6 +112,20 @@ func (c *Client) MerchantShelfModify(_shelf *shelf.Shelf) (err error) {
 		return errors.New("_shelf == nil")
 	}
 
+	var shelfx struct {
+		Id     int64  `json:"shelf_id,omitempty"`
+		Name   string `json:"shelf_name"`
+		Banner string `json:"shelf_banner,omitempty"`
+		Info   struct {
+			ModuleInfos []shelf.Module `json:"module_infos,omitempty"`
+		} `json:"shelf_data"`
+	}
+
+	shelfx.Id = _shelf.Id
+	shelfx.Name = _shelf.Name
+	shelfx.Banner = _shelf.Banner
+	shelfx.Info.ModuleInfos = _shelf.Info.ModuleInfos
+
 	var result Error
 
 	hasRetry := false
@@ -109,7 +135,7 @@ RETRY:
 		return
 	}
 	_url := merchantShelfModifyURL(token)
-	if err = c.postJSON(_url, _shelf, &result); err != nil {
+	if err = c.postJSON(_url, &shelfx, &result); err != nil {
 		return
 	}
 
@@ -132,12 +158,12 @@ RETRY:
 }
 
 // 获取所有货架
-func (c *Client) MerchantShelfGetAll() (shelves []shelf.ShelfX, err error) {
+func (c *Client) MerchantShelfGetAll() (shelves []shelf.Shelf, err error) {
 	var result = struct {
 		Error
-		Shelves []shelf.ShelfX `json:"shelves"`
+		Shelves []shelf.Shelf `json:"shelves"`
 	}{
-		Shelves: make([]shelf.ShelfX, 0, 16),
+		Shelves: make([]shelf.Shelf, 0, 16),
 	}
 
 	hasRetry := false
@@ -171,7 +197,7 @@ RETRY:
 }
 
 // 根据货架ID获取货架信息
-func (c *Client) MerchantShelfGetById(shelfId int64) (_shelf *shelf.ShelfX, err error) {
+func (c *Client) MerchantShelfGetById(shelfId int64) (_shelf *shelf.Shelf, err error) {
 	var request = struct {
 		ShelfId int64 `json:"shelf_id"`
 	}{
@@ -180,7 +206,7 @@ func (c *Client) MerchantShelfGetById(shelfId int64) (_shelf *shelf.ShelfX, err 
 
 	var result struct {
 		Error
-		shelf.ShelfX
+		shelf.Shelf
 	}
 
 	hasRetry := false
@@ -196,7 +222,7 @@ RETRY:
 
 	switch result.ErrCode {
 	case errCodeOK:
-		_shelf = &result.ShelfX
+		_shelf = &result.Shelf
 		return
 
 	case errCodeTimeout:

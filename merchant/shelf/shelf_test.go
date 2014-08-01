@@ -16,7 +16,7 @@ func TestShelfMarshal(t *testing.T) {
 	expectBytes := []byte(`{
 		"shelf_name":"测试货架",
 		"shelf_banner":"http://mmbiz.qpic.cn/mmbiz/4whpV1VZl2ibrWQn8zWFUh1YznsMV0XEiavFfLzDWYyvQOBBszXlMaiabGWzz5B2KhNn2IDemHa3iarmCyribYlZYyw/0",
-		"shelf_data":{
+		"shelf_info":{
 			"module_infos":[
 				{
 					"eid":1,
