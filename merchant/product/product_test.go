@@ -132,7 +132,7 @@ func TestProductMarshal(t *testing.T) {
 		IsUnderGuaranty:  0,
 		IsSupportReplace: 0,
 	}
-	_product.ProductSKUs = []ProductSKU{
+	_product.SKUList = []ProductSKU{
 		{
 			Id:            "1075741873:1079742386",
 			Price:         30,

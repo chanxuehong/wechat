@@ -144,7 +144,7 @@ func (srv *defaultTokenCacheService) getNewToken() (resp tokenResponse, err erro
 	}
 
 	if result.ErrCode != 0 {
-		err = result.Error
+		err = &result.Error
 		return
 	}
 

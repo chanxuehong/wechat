@@ -6,6 +6,29 @@
 package category
 
 // 获取指定分类的所有属性 成功时返回结果的数据结构
+//
+//  {
+//      "id": "1075741879",
+//      "name": "品牌",
+//      "property_value": [
+//          {
+//              "id": "200050867",
+//              "name": "VIC&"
+//          },
+//          {
+//              "id": "200050868",
+//              "name": "Kate&"
+//          },
+//          {
+//              "id": "200050971",
+//              "name": "M&"
+//          },
+//          {
+//              "id": "200050972",
+//              "name": "Black&"
+//          }
+//      ]
+//  }
 type Property struct {
 	Id     string `json:"id"`   // 属性id, int64?
 	Name   string `json:"name"` // 属性name

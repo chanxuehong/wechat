@@ -5,7 +5,27 @@
 
 package product
 
-// ProductSKU.Id 的组合个数必须和 Product.AttrBase.SKUInfo 的长度一致
+// 商品的 SKU 信息
+//  NOTE: ProductSKU.Id 的组合个数必须和 Product.AttrBase.SKUInfo 的长度一致
+//
+//  "sku_list": [
+//      {
+//          "sku_id": "1075741873:1079742386",
+//          "price": 30,
+//          "icon_url": "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl28bJj62XgfHPibY3ORKicN1oJ4CcoIr4BMbfA8LqyyjzOZzqrOGz3f5KWq1QGP3fo6TOTSYD3TBQjuw/0",
+//          "product_code": "testing",
+//          "ori_price": 9000000,
+//          "quantity": 800
+//      },
+//      {
+//          "sku_id": "1075741873:1079742363",
+//          "price": 30,
+//          "icon_url": "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl28bJj62XgfHPibY3ORKicN1oJ4CcoIr4BMbfA8LqyyjzOZzqrOGz3f5KWq1QGP3fo6TOTSYD3TBQjuw/0",
+//          "product_code": "testingtesting",
+//          "ori_price": 9000000,
+//          "quantity": 800
+//      }
+//  ],
 type ProductSKU struct {
 	// sku信息, 参照上述sku_table的定义;
 	// 格式 : "id1:vid1;id2:vid2"

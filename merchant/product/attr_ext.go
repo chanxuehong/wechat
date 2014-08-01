@@ -6,6 +6,19 @@
 package product
 
 // 商品的其他属性
+//
+//  "attrext": {
+//      "location": {
+//          "country": "中国",
+//          "province": "广东省",
+//          "city": "广州市",
+//          "address": "T.I.T创意园"
+//      },
+//      "isPostFree": 0,
+//      "isHasReceipt": 1,
+//      "isUnderGuaranty": 0,
+//      "isSupportReplace": 0
+//  },
 type AttrExt struct {
 	Location Location `json:"location"` // 商品所在地地址
 

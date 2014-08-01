@@ -61,7 +61,7 @@ RETRY:
 		fallthrough
 
 	default:
-		err = result.Error
+		err = &result.Error
 		return
 	}
 }
@@ -100,7 +100,7 @@ RETRY:
 		fallthrough
 
 	default:
-		err = result.Error
+		err = &result.Error
 		return
 	}
 }
@@ -146,7 +146,7 @@ RETRY:
 		fallthrough
 
 	default:
-		err = result
+		err = &result
 		return
 	}
 }
@@ -189,7 +189,7 @@ RETRY:
 		fallthrough
 
 	default:
-		err = result.Error
+		err = &result.Error
 		return
 	}
 }
@@ -230,7 +230,7 @@ RETRY:
 		fallthrough
 
 	default:
-		err = result
+		err = &result
 		return
 	}
 }
@@ -283,7 +283,7 @@ RETRY:
 		fallthrough
 
 	default:
-		err = result.Error
+		err = &result.Error
 		return
 	}
 }
@@ -332,7 +332,7 @@ RETRY:
 		fallthrough
 
 	default:
-		err = result.Error
+		err = &result.Error
 		return
 	}
 }

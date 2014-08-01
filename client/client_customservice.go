@@ -53,7 +53,7 @@ RETRY:
 		fallthrough
 
 	default:
-		err = result.Error
+		err = &result.Error
 		return
 	}
 }

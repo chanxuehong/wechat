@@ -5,6 +5,53 @@
 
 package product
 
+// 商品基本属性
+//
+//  "product_base": {
+//      "category_id": [
+//          "537074298"
+//      ],
+//      "property": [
+//          {
+//              "id": "1075741879",
+//              "vid": "1079749967"
+//          },
+//          {
+//              "id": "1075754127",
+//              "vid": "1079795198"
+//          },
+//          {
+//              "id": "1075777334",
+//              "vid": "1079837440"
+//          }
+//      ],
+//      "name": "testaddproduct",
+//      "sku_info": [
+//          {
+//              "id": "1075741873",
+//              "vid": [
+//                  "1079742386",
+//                  "1079742363"
+//              ]
+//          }
+//      ],
+//      "main_img": "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl2iccsvYbHvnphkyGtnvjD3ulEKogfsiaua49pvLfUS8Ym0GSYjViaLic0FD3vN0V8PILcibEGb2fPfEOmw/0",
+//      "img": [
+//          "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl2iccsvYbHvnphkyGtnvjD3ulEKogfsiaua49pvLfUS8Ym0GSYjViaLic0FD3vN0V8PILcibEGb2fPfEOmw/0"
+//      ],
+//      "detail": [
+//          {
+//              "text": "test first"
+//          },
+//          {
+//              "img": "http://mmbiz.qpic.cn/mmbiz/4whpV1VZl2iccsvYbHvnphkyGtnvjD3ul1UcLcwxrFdwTKYhH9Q5YZoCfX4Ncx655ZK6ibnlibCCErbKQtReySaVA/0"
+//          },
+//          {
+//              "text": "test again"
+//          }
+//      ],
+//      "buy_limit": 10
+//  },
 type AttrBase struct {
 	Name        string     `json:"name"`                  // 商品名称
 	CategoryIds []string   `json:"category_id,omitempty"` // 商品分类id，商品分类列表请通过《获取指定分类的所有子分类》获取

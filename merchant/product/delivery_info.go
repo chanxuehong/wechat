@@ -13,11 +13,30 @@ type Express struct {
 }
 
 // 运费信息
+//
+//  "delivery_info": {
+//      "delivery_type": 0,
+//      "template_id": 0,
+//      "express": [
+//          {
+//              "id": 10000027,
+//              "price": 100
+//          },
+//          {
+//              "id": 10000028,
+//              "price": 100
+//          },
+//          {
+//              "id": 10000029,
+//              "price": 100
+//          }
+//      ]
+//  }
 type DeliveryInfo struct {
 	// 运费类型(0-使用下面express字段的默认模板, 1-使用template_id代表的邮费模板, 详见邮费模板相关API)
 	DeliveryType int       `json:"delivery_type"`
-	Expresses    []Express `json:"express,omitempty"`
 	TemplateId   int64     `json:"template_id,omitempty"` // 邮费模板ID
+	Expresses    []Express `json:"express,omitempty"`
 }
 
 func (info *DeliveryInfo) SetWithExpresses(expresses []Express) {
