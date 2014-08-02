@@ -76,7 +76,7 @@ func TextRequestHandler(w http.ResponseWriter, r *http.Request, text *request.Te
 	resp := response.NewText(text.FromUserName, text.ToUserName, text.Content)
 
 	w.Header().Set("Content-Type", "application/xml; charset=utf-8") // 可选
-	server.CopyText(w, resp)
+	server.WriteText(w, resp)
 }
 
 func main() {

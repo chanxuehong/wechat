@@ -13,7 +13,7 @@ import (
 )
 
 // 把 text 回复消息 msg 写入 writer w
-func CopyText(w io.Writer, msg *response.Text) error {
+func WriteText(w io.Writer, msg *response.Text) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -24,7 +24,7 @@ func CopyText(w io.Writer, msg *response.Text) error {
 }
 
 // 把 image 回复消息 msg 写入 writer w
-func CopyImage(w io.Writer, msg *response.Image) error {
+func WriteImage(w io.Writer, msg *response.Image) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -35,7 +35,7 @@ func CopyImage(w io.Writer, msg *response.Image) error {
 }
 
 // 把 voice 回复消息 msg 写入 writer w
-func CopyVoice(w io.Writer, msg *response.Voice) error {
+func WriteVoice(w io.Writer, msg *response.Voice) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -46,7 +46,7 @@ func CopyVoice(w io.Writer, msg *response.Voice) error {
 }
 
 // 把 video 回复消息 msg 写入 writer w
-func CopyVideo(w io.Writer, msg *response.Video) error {
+func WriteVideo(w io.Writer, msg *response.Video) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -57,7 +57,7 @@ func CopyVideo(w io.Writer, msg *response.Video) error {
 }
 
 // 把 music 回复消息 msg 写入 writer w
-func CopyMusic(w io.Writer, msg *response.Music) error {
+func WriteMusic(w io.Writer, msg *response.Music) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -68,7 +68,7 @@ func CopyMusic(w io.Writer, msg *response.Music) error {
 }
 
 // 把 news 回复消息 msg 写入 writer w
-func CopyNews(w io.Writer, msg *response.News) (err error) {
+func WriteNews(w io.Writer, msg *response.News) (err error) {
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -82,7 +82,7 @@ func CopyNews(w io.Writer, msg *response.News) (err error) {
 }
 
 // 把 TransferCustomerService 回复消息 msg 写入 writer w
-func CopyTransferCustomerService(w io.Writer, msg *response.TransferCustomerService) error {
+func WriteTransferCustomerService(w io.Writer, msg *response.TransferCustomerService) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
