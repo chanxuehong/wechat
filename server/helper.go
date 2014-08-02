@@ -20,7 +20,7 @@ func WriteText(w io.Writer, msg *response.Text) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return copyResponse(w, msg)
+	return writeResponse(w, msg)
 }
 
 // 把 image 回复消息 msg 写入 writer w
@@ -31,7 +31,7 @@ func WriteImage(w io.Writer, msg *response.Image) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return copyResponse(w, msg)
+	return writeResponse(w, msg)
 }
 
 // 把 voice 回复消息 msg 写入 writer w
@@ -42,7 +42,7 @@ func WriteVoice(w io.Writer, msg *response.Voice) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return copyResponse(w, msg)
+	return writeResponse(w, msg)
 }
 
 // 把 video 回复消息 msg 写入 writer w
@@ -53,7 +53,7 @@ func WriteVideo(w io.Writer, msg *response.Video) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return copyResponse(w, msg)
+	return writeResponse(w, msg)
 }
 
 // 把 music 回复消息 msg 写入 writer w
@@ -64,7 +64,7 @@ func WriteMusic(w io.Writer, msg *response.Music) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return copyResponse(w, msg)
+	return writeResponse(w, msg)
 }
 
 // 把 news 回复消息 msg 写入 writer w
@@ -78,7 +78,7 @@ func WriteNews(w io.Writer, msg *response.News) (err error) {
 	if err = msg.CheckValid(); err != nil {
 		return
 	}
-	return copyResponse(w, msg)
+	return writeResponse(w, msg)
 }
 
 // 把 TransferCustomerService 回复消息 msg 写入 writer w
@@ -89,9 +89,9 @@ func WriteTransferCustomerService(w io.Writer, msg *response.TransferCustomerSer
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return copyResponse(w, msg)
+	return writeResponse(w, msg)
 }
 
-func copyResponse(w io.Writer, msg interface{}) error {
+func writeResponse(w io.Writer, msg interface{}) error {
 	return xml.NewEncoder(w).Encode(msg) // 只要 w 能正常的写, 不会返回错误
 }
