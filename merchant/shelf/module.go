@@ -25,6 +25,10 @@ func (md *Module) InitToModule1(groupId int64, count int) {
 
 	md._GroupInfo.Filter = &md._GroupInfo._Filter
 	md.GroupInfo = &md._GroupInfo
+
+	// 容错
+	md._GroupInfo.Image = ""
+	md.GroupInfos = nil
 }
 
 // 初始化 md 指向的 Module 为 控件2
@@ -39,6 +43,10 @@ func (md *Module) InitToModule2(groupIds []int64) {
 	md._GroupInfos.Groups = groups
 
 	md.GroupInfos = &md._GroupInfos
+
+	// 容错
+	md._GroupInfos.ImageBackground = ""
+	md.GroupInfo = nil
 }
 
 // 初始化 md 指向的 Module 为 控件3
@@ -49,6 +57,10 @@ func (md *Module) InitToModule3(groupId int64, image string) {
 	md._GroupInfo.Image = image
 
 	md.GroupInfo = &md._GroupInfo
+
+	// 容错
+	md._GroupInfo.Filter = nil
+	md.GroupInfos = nil
 }
 
 // 初始化 md 指向的 Module 为 控件4
@@ -58,6 +70,10 @@ func (md *Module) InitToModule4(groups []Group) {
 	md._GroupInfos.Groups = groups
 
 	md.GroupInfos = &md._GroupInfos
+
+	// 容错
+	md._GroupInfos.ImageBackground = ""
+	md.GroupInfo = nil
 }
 
 // 初始化 md 指向的 Module 为 控件5
@@ -73,6 +89,9 @@ func (md *Module) InitToModule5(groupIds []int64, imageBackground string) {
 	md._GroupInfos.ImageBackground = imageBackground
 
 	md.GroupInfos = &md._GroupInfos
+
+	// 容错
+	md.GroupInfo = nil
 }
 
 type Group struct {

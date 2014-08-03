@@ -76,33 +76,18 @@ type SKU struct {
 }
 
 // 商品详情的一个单元, 多个这样的 Detail 组成商品的详情.
-// 同一时刻只能设置一个值, 如果两个都设置则 json.Marshal 的时候只有 Text 有效
+//  NOTE: 同一时刻只能设置一个值, 建议使用 Detail.SetToTextDetail, Detail.SetToImageDetail
 type Detail struct {
 	Text  string `json:"text,omitempty"` // 文字描述
 	Image string `json:"img,omitempty"`  // 图片(图片需调用图片上传接口获得图片URL填写至此，否则无法添加商品)
 }
 
-// 实现 json.Marshaler.
-// text 和 image 同一时刻只 marshal 一个, 优先 marshal text.
-func (detail Detail) MarshalJSON() (result []byte, err error) {
-	if len(detail.Text) > 0 {
-		result = make([]byte, 0, 11+len(detail.Text))
-		result = append(result, `{"text":"`...)
-		result = append(result, detail.Text...)
-		result = append(result, `"}`...)
+func (d *Detail) SetToTextDetail(text string) {
+	d.Text = text
+	d.Image = ""
+}
 
-		return
-	}
-
-	if len(detail.Image) > 0 {
-		result = make([]byte, 0, 10+len(detail.Image))
-		result = append(result, `{"img":"`...)
-		result = append(result, detail.Image...)
-		result = append(result, `"}`...)
-
-		return
-	}
-
-	result = []byte(`{"text":""}`)
-	return
+func (d *Detail) SetToImageDetail(imageURL string) {
+	d.Text = ""
+	d.Image = imageURL
 }

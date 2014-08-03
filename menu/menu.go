@@ -55,6 +55,10 @@ func (btn *Button) InitToClickButton(name, key string) {
 	btn.Name = name
 	btn.Type = BUTTON_TYPE_CLICK
 	btn.Key = key
+
+	// 容错性考虑, 清除其他字段
+	btn.URL = ""
+	btn.SubButtons = nil
 }
 
 // 初始化 btn 指向的 Button 为 view 类型按钮
@@ -63,6 +67,10 @@ func (btn *Button) InitToViewButton(name, url string) {
 	btn.Name = name
 	btn.Type = BUTTON_TYPE_VIEW
 	btn.URL = url
+
+	// 容错性考虑, 清除其他字段
+	btn.Key = ""
+	btn.SubButtons = nil
 }
 
 // 初始化 btn 指向的 Button 为 子菜单 类型按钮
@@ -70,4 +78,9 @@ func (btn *Button) InitToViewButton(name, url string) {
 func (btn *Button) InitToSubMenuButton(name string, subButtons []Button) {
 	btn.Name = name
 	btn.SubButtons = subButtons
+
+	// 容错性考虑, 清除其他字段
+	btn.Type = ""
+	btn.Key = ""
+	btn.URL = ""
 }
