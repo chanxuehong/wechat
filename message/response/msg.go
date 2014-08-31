@@ -15,25 +15,19 @@ type CommonHead struct {
 	ToUserName   string `xml:"ToUserName"   json:"ToUserName"`   // 接收方帐号(OpenID)
 	FromUserName string `xml:"FromUserName" json:"FromUserName"` // 开发者微信号
 	CreateTime   int64  `xml:"CreateTime"   json:"CreateTime"`   // 消息创建时间(整型), unixtime
-	MsgType      string `xml:"MsgType"      json:"MsgType"`      // text, image, voice, video, music, news, transfer_customer_service
+	MsgType      string `xml:"MsgType"      json:"MsgType"`      // 消息类型
 }
 
 // 文本消息
-//
-//  <xml>
-//      <ToUserName>ovx6euNq-hN2do74jeVSqZB82DiE</ToUserName>
-//      <FromUserName>gh_xxxxxxxxxxxx</FromUserName>
-//      <CreateTime>1406609798</CreateTime>
-//      <MsgType>text</MsgType>
-//      <Content>文本回复测试</Content>
-//  </xml>
 type Text struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
 
-	Content string `xml:"Content" json:"Content"` // 回复的消息内容(换行：在content中能够换行, 微信客户端就支持换行显示)
+	Content string `xml:"Content" json:"Content"` // 回复的消息内容, 支持换行符
 }
 
+// 新建文本消息
+//  NOTE: content 支持换行符
 func NewText(to, from, content string) (text *Text) {
 	text = &Text{
 		CommonHead: CommonHead{
@@ -44,30 +38,21 @@ func NewText(to, from, content string) (text *Text) {
 		},
 	}
 	text.Content = content
-
 	return
 }
 
 // 图片消息
-//
-//  <xml>
-//      <ToUserName>os-IKuHd9pJ6xsn4mS7GyL4HxqI4</ToUserName>
-//      <FromUserName>gh_xxxxxxxxxxxx</FromUserName>
-//      <CreateTime>1406609903</CreateTime>
-//      <MsgType>image</MsgType>
-//      <Image>
-//          <MediaId>C-bBnTx9XFlVPTCMYWZ6_PeRBCWVfghkSJj2DXTG4faqgAyfjxqdHrtO0Jtpa7K-</MediaId>
-//      </Image>
-//  </xml>
 type Image struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
 
 	Image struct {
-		MediaId string `xml:"MediaId" json:"MediaId"` // 通过上传多媒体文件, 得到的id
+		MediaId string `xml:"MediaId" json:"MediaId"` // MediaId 通过上传多媒体文件得到
 	} `xml:"Image" json:"Image"`
 }
 
+// 新建图片消息
+//  MediaId 通过上传多媒体文件得到
 func NewImage(to, from, mediaId string) (image *Image) {
 	image = &Image{
 		CommonHead: CommonHead{
@@ -78,30 +63,21 @@ func NewImage(to, from, mediaId string) (image *Image) {
 		},
 	}
 	image.Image.MediaId = mediaId
-
 	return
 }
 
 // 语音消息
-//
-//  <xml>
-//      <ToUserName>os-IKuHd9pJ6xsn4mS7GyL4HxqI4</ToUserName>
-//      <FromUserName>gh_xxxxxxxxxxxx</FromUserName>
-//      <CreateTime>1406610000</CreateTime>
-//      <MsgType>voice</MsgType>
-//      <Voice>
-//          <MediaId>GxIcE7umAGoJU29636XgsilpZmNYsiXngcA_RjIV3JJNkFw9fo2muf-94QsC37MT</MediaId>
-//      </Voice>
-//  </xml>
 type Voice struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
 
 	Voice struct {
-		MediaId string `xml:"MediaId" json:"MediaId"` // 通过上传多媒体文件, 得到的id
+		MediaId string `xml:"MediaId" json:"MediaId"` // MediaId 通过上传多媒体文件得到
 	} `xml:"Voice" json:"Voice"`
 }
 
+// 新建语音消息
+//  MediaId 通过上传多媒体文件得到
 func NewVoice(to, from, mediaId string) (voice *Voice) {
 	voice = &Voice{
 		CommonHead: CommonHead{
@@ -112,35 +88,24 @@ func NewVoice(to, from, mediaId string) (voice *Voice) {
 		},
 	}
 	voice.Voice.MediaId = mediaId
-
 	return
 }
 
 // 视频消息
-//
-//  <xml>
-//      <ToUserName>os-IKuHd9pJ6xsn4mS7GyL4HxqI4</ToUserName>
-//      <FromUserName>gh_xxxxxxxxxxxx</FromUserName>
-//      <CreateTime>1406610204</CreateTime>
-//      <MsgType>video</MsgType>
-//      <Video>
-//          <Title>标题</Title>
-//          <Description>描述</Description>
-//          <MediaId>kZ9bccrQaFVq1aa3TbLNdXnocPz-LfrfrI8Vrs-pKts8QOmmF66tsoihEW3qhpeP</MediaId>
-//      </Video>
-//  </xml>
 type Video struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
 
 	Video struct {
+		MediaId     string `xml:"MediaId"               json:"MediaId"`               // MediaId 通过上传多媒体文件得到
 		Title       string `xml:"Title,omitempty"       json:"Title,omitempty"`       // 视频消息的标题
 		Description string `xml:"Description,omitempty" json:"Description,omitempty"` // 视频消息的描述
-		MediaId     string `xml:"MediaId"               json:"MediaId"`               // 通过上传多媒体文件, 得到的id
 	} `xml:"Video" json:"Video"`
 }
 
-// title, description 可以为 ""
+// 新建视频消息
+//  MediaId 通过上传多媒体文件得到
+//  title, description 可以为 ""
 func NewVideo(to, from, mediaId, title, description string) (video *Video) {
 	video = &Video{
 		CommonHead: CommonHead{
@@ -150,28 +115,13 @@ func NewVideo(to, from, mediaId, title, description string) (video *Video) {
 			MsgType:      MSG_TYPE_VIDEO,
 		},
 	}
+	video.Video.MediaId = mediaId
 	video.Video.Title = title
 	video.Video.Description = description
-	video.Video.MediaId = mediaId
-
 	return
 }
 
 // 音乐消息
-//
-//  <xml>
-//      <ToUserName>os-IKuHd9pJ6xsn4mS7GyL4HxqI4</ToUserName>
-//      <FromUserName>gh_xxxxxxxxxxxx</FromUserName>
-//      <CreateTime>1406610407</CreateTime>
-//      <MsgType>music</MsgType>
-//      <Music>
-//          <Title>标题</Title>
-//          <Description>描述</Description>
-//          <MusicUrl>http://music.baidu.com/song/2191061</MusicUrl>
-//          <HQMusicUrl>http://music.baidu.com/song/2191061</HQMusicUrl>
-//          <ThumbMediaId>4lasRoqC1ydjrq7VhU74mra7KVwacWDVdF6PlS3caQkYdYhrj3rkt7P59GOoSKzX</ThumbMediaId>
-//      </Music>
-//  </xml>
 type Music struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
@@ -181,11 +131,13 @@ type Music struct {
 		Description  string `xml:"Description,omitempty" json:"Description,omitempty"` // 音乐描述
 		MusicURL     string `xml:"MusicUrl"              json:"MusicUrl"`              // 音乐链接
 		HQMusicURL   string `xml:"HQMusicUrl"            json:"HQMusicUrl"`            // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
-		ThumbMediaId string `xml:"ThumbMediaId"          json:"ThumbMediaId"`          // 缩略图的媒体id, 通过上传多媒体文件, 得到的id
+		ThumbMediaId string `xml:"ThumbMediaId"          json:"ThumbMediaId"`          // 缩略图的媒体id, 通过上传多媒体文件得到
 	} `xml:"Music" json:"Music"`
 }
 
-// title, description 可以为 ""
+// 新建音乐消息
+//  thumbMediaId 通过上传多媒体文件得到
+//  title, description 可以为 ""
 func NewMusic(to, from, thumbMediaId, musicURL,
 	HQMusicURL, title, description string) (music *Music) {
 
@@ -199,10 +151,9 @@ func NewMusic(to, from, thumbMediaId, musicURL,
 	}
 	music.Music.Title = title
 	music.Music.Description = description
-	music.Music.ThumbMediaId = thumbMediaId
 	music.Music.MusicURL = musicURL
 	music.Music.HQMusicURL = HQMusicURL
-
+	music.Music.ThumbMediaId = thumbMediaId
 	return
 }
 
@@ -214,30 +165,15 @@ type NewsArticle struct {
 	URL         string `xml:"Url,omitempty"         json:"Url,omitempty"`         // 点击图文消息跳转链接
 }
 
+func (this *NewsArticle) Init(title, description, url, picURL string) {
+	this.Title = title
+	this.Description = description
+	this.URL = url
+	this.PicURL = picURL
+}
+
 // 图文消息.
 //  NOTE: Articles 赋值的同时也要更改 ArticleCount 字段, 建议用 NewNews() 和 News.AppendArticle()
-//
-//  <xml>
-//      <ToUserName>os-IKuHd9pJ6xsn4mS7GyL4HxqI4</ToUserName>
-//      <FromUserName>gh_xxxxxxxxxxxx</FromUserName>
-//      <CreateTime>1406611521</CreateTime>
-//      <MsgType>news</MsgType>
-//      <ArticleCount>2</ArticleCount>
-//      <Articles>
-//          <item>
-//              <Title>标题1</Title>
-//              <Description>描述1</Description>
-//              <PicUrl>http://news.baidu.com/resource/img/logo_news_137_46.png</PicUrl>
-//              <Url>http://news.baidu.com/</Url>
-//          </item>
-//          <item>
-//              <Title>标题2</Title>
-//              <Description>描述2</Description>
-//              <PicUrl>http://mat1.gtimg.com/news/news2013/LOGO.jpg</PicUrl>
-//              <Url>http://news.qq.com/</Url>
-//          </item>
-//      </Articles>
-//  </xml>
 type News struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
@@ -262,25 +198,31 @@ func NewNews(to, from string, articles []NewsArticle) (news *News) {
 	return
 }
 
-// n.ArticleCount = len(n.Articles)
-func (n *News) UpdateArticleCount() {
-	n.ArticleCount = len(n.Articles)
+// 更新 this.ArticleCount 字段, 使其等于 len(this.Articles)
+func (this *News) UpdateArticleCount() {
+	this.ArticleCount = len(this.Articles)
+}
+
+// 增加文章到图文消息中, 该方法会自动更新 News.ArticleCount 字段
+func (this *News) AppendArticle(article ...NewsArticle) {
+	this.Articles = append(this.Articles, article...)
+	this.ArticleCount = len(this.Articles)
 }
 
 // 检查 News 是否有效，有效返回 nil，否则返回错误信息
-func (n *News) CheckValid() (err error) {
-	articleNum := len(n.Articles)
+func (this *News) CheckValid() (err error) {
+	n := len(this.Articles)
 
-	if articleNum != n.ArticleCount {
-		err = fmt.Errorf("图文消息的 ArticleCount == %d, 实际文章个数为 %d", n.ArticleCount, articleNum)
+	if n != this.ArticleCount {
+		err = fmt.Errorf("图文消息的 ArticleCount == %d, 实际文章个数为 %d", this.ArticleCount, n)
 		return
 	}
-	if articleNum == 0 {
-		err = errors.New("图文消息是空的")
+	if n <= 0 {
+		err = errors.New("图文消息里没有文章")
 		return
 	}
-	if articleNum > NewsArticleCountLimit {
-		err = fmt.Errorf("图文消息的文章个数不能超过 %d, 现在为 %d", NewsArticleCountLimit, articleNum)
+	if n > NewsArticleCountLimit {
+		err = fmt.Errorf("图文消息的文章个数不能超过 %d, 现在为 %d", NewsArticleCountLimit, n)
 		return
 	}
 	return
