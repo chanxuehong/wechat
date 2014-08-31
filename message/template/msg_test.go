@@ -13,11 +13,9 @@ import (
 )
 
 func TestMarshalAndNewFunc(t *testing.T) {
-	var expectBytes []byte
-
 	// 纯文本模板消息==============================================================
 
-	expectBytes = []byte(`{
+	expectBytes := []byte(`{
 	    "touser":"OPENID",
 	    "template_id":"aygtGTLdrjHJP7Bu4EdkptNfYaeFKi98ygn2kitCJ6fAfdmN88naVvX6V5uIV5x0",
 	    "data":{

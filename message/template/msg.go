@@ -61,12 +61,14 @@ package template
 //          }
 //      }
 //  }
+//
 type Msg struct {
-	ToUser     string `json:"touser"`      // 接受者OpenID
+	ToUser string `json:"touser"` // 接受者OpenID
+
 	TemplateId string `json:"template_id"` // 模版ID
 
 	// 模版调用时需要的参数赋值内容，具体有哪些参数视模版内容而定
-	// 一般是一个 struct 或者 map, 要求这个 Data 被 encoding/json 格式化后满足上面注释的格式.
+	// 一般是一个 struct 或者 map, 要求这个 Data 被 encoding/json 格式化后满足特定的模板需求.
 	Data interface{} `json:"data"`
 
 	// 下面两个字段是 带链接模版消息 才有的
@@ -75,21 +77,24 @@ type Msg struct {
 }
 
 // 新建 纯文本模板消息
-func NewMsg(touser, templateId string, data interface{}) *Msg {
+func NewMsg(toUser, templateId string, data interface{}) *Msg {
 	return &Msg{
-		ToUser:     touser,
+		ToUser:     toUser,
 		TemplateId: templateId,
 		Data:       data,
 	}
 }
 
 // 新建 带链接的模板消息
-func NewMsgWithLink(touser, templateId string, data interface{}, url string, topcolor string) *Msg {
+//  NOTE:
+//  url 置空，则在发送后，点击模板消息会进入一个空白页面（ios），或无法点击（android）。
+//  topColor 可以为空
+func NewMsgWithLink(toUser, templateId string, data interface{}, url string, topColor string) *Msg {
 	return &Msg{
-		ToUser:     touser,
+		ToUser:     toUser,
 		TemplateId: templateId,
 		Data:       data,
 		URL:        url,
-		TopColor:   topcolor,
+		TopColor:   topColor,
 	}
 }

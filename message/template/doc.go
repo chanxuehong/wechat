@@ -3,5 +3,5 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 定义被动回复消息到微信服务器的消息数据结构.
+// 定义模板消息数据结构.
 package template
