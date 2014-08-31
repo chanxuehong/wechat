@@ -13,16 +13,6 @@ type CommonHead struct {
 }
 
 // 文本消息
-//
-//  {
-//      "filter": {
-//          "group_id": "2"
-//      },
-//      "msgtype": "text"
-//      "text": {
-//          "content": "CONTENT"
-//      },
-//  }
 type Text struct {
 	CommonHead
 
@@ -31,6 +21,7 @@ type Text struct {
 	} `json:"text"`
 }
 
+// 新建文本消息
 func NewText(groupId int64, content string) *Text {
 	var msg Text
 	msg.Filter.GroupId = groupId
@@ -41,24 +32,16 @@ func NewText(groupId int64, content string) *Text {
 }
 
 // 图片消息
-//
-//  {
-//      "filter": {
-//          "group_id": "2"
-//      },
-//      "msgtype": "image"
-//      "image": {
-//          "media_id": "123dsdajkasd231jhksad"
-//      },
-//  }
 type Image struct {
 	CommonHead
 
 	Image struct {
-		MediaId string `json:"media_id"`
+		MediaId string `json:"media_id"` // mediaId 通过上传多媒体文件得到
 	} `json:"image"`
 }
 
+// 新建图片消息
+//  mediaId 通过上传多媒体文件得到
 func NewImage(groupId int64, mediaId string) *Image {
 	var msg Image
 	msg.Filter.GroupId = groupId
@@ -69,24 +52,16 @@ func NewImage(groupId int64, mediaId string) *Image {
 }
 
 // 语音消息
-//
-//  {
-//      "filter": {
-//          "group_id": "2"
-//      },
-//      "msgtype": "voice"
-//      "voice": {
-//          "media_id": "123dsdajkasd231jhksad"
-//      },
-//  }
 type Voice struct {
 	CommonHead
 
 	Voice struct {
-		MediaId string `json:"media_id"`
+		MediaId string `json:"media_id"` // mediaId 通过上传多媒体文件得到
 	} `json:"voice"`
 }
 
+// 新建语音消息
+//  mediaId 通过上传多媒体文件得到
 func NewVoice(groupId int64, mediaId string) *Voice {
 	var msg Voice
 	msg.Filter.GroupId = groupId
@@ -97,25 +72,15 @@ func NewVoice(groupId int64, mediaId string) *Voice {
 }
 
 // 视频消息
-//  NOTE: MediaId 应该通过 Client.MediaCreateVideo 得到
-//
-//  {
-//      "filter": {
-//          "group_id": "2"
-//      },
-//      "msgtype": "mpvideo"
-//      "mpvideo": {
-//          "media_id": "IhdaAQXuvJtGzwwc0abfXnzeezfO0NgPK6AQYShD8RQYMTtfzbLdBIQkQziv2XJc"
-//      },
-//  }
 type Video struct {
 	CommonHead
 
 	Video struct {
-		MediaId string `json:"media_id"`
+		MediaId string `json:"media_id"` // NOTE: mediaId 应该通过 Client.MediaCreateVideo 得到
 	} `json:"mpvideo"`
 }
 
+// 新建视频消息
 //  NOTE: mediaId 应该通过 Client.MediaCreateVideo 得到
 func NewVideo(groupId int64, mediaId string) *Video {
 	var msg Video
@@ -127,25 +92,15 @@ func NewVideo(groupId int64, mediaId string) *Video {
 }
 
 // 图文消息
-//  NOTE: MediaId 应该通过 Client.MediaCreateNews 得到
-//
-//  {
-//      "filter": {
-//          "group_id": "2"
-//      },
-//      "msgtype": "mpnews"
-//      "mpnews": {
-//          "media_id": "123dsdajkasd231jhksad"
-//      },
-//  }
 type News struct {
 	CommonHead
 
 	News struct {
-		MediaId string `json:"media_id"`
+		MediaId string `json:"media_id"` // NOTE: mediaId 应该通过 Client.MediaCreateNews 得到
 	} `json:"mpnews"`
 }
 
+// 新建图文消息
 //  NOTE: mediaId 应该通过 Client.MediaCreateNews 得到
 func NewNews(groupId int64, mediaId string) *News {
 	var msg News

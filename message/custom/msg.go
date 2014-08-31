@@ -181,8 +181,8 @@ func NewNews(toUser string, articles []NewsArticle) (news *News) {
 // 检查 News 是否有效，有效返回 nil，否则返回错误信息
 func (this *News) CheckValid() (err error) {
 	n := len(this.News.Articles)
-	if n == 0 {
-		err = errors.New("图文消息是空的")
+	if n <= 0 {
+		err = errors.New("没有有效的图文消息")
 		return
 	}
 	if n > NewsArticleCountLimit {

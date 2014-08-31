@@ -13,9 +13,10 @@ import (
 )
 
 func TestMarshalAndNewFunc(t *testing.T) {
+
 	// 纯文本模板消息==============================================================
 
-	expectBytes := []byte(`{
+	want := util.TrimSpace([]byte(`{
 	    "touser":"OPENID",
 	    "template_id":"aygtGTLdrjHJP7Bu4EdkptNfYaeFKi98ygn2kitCJ6fAfdmN88naVvX6V5uIV5x0",
 	    "data":{
@@ -28,7 +29,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 	            "Recommend":"5颗星"
 	        }
 	    }
-	}`)
+	}`))
 
 	var data struct {
 		Goods      string
@@ -49,19 +50,16 @@ func TestMarshalAndNewFunc(t *testing.T) {
 
 	msg := NewMsg("OPENID", "aygtGTLdrjHJP7Bu4EdkptNfYaeFKi98ygn2kitCJ6fAfdmN88naVvX6V5uIV5x0", &data)
 
-	b, err := json.Marshal(msg)
+	have, err := json.Marshal(msg)
 	if err != nil {
 		t.Errorf("json.Marshal(%#q):\nError: %s\n", msg, err)
-	} else {
-		want := util.TrimSpace(expectBytes)
-		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", msg, b, want)
-		}
+	} else if !bytes.Equal(have, want) {
+		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", msg, have, want)
 	}
 
-	// 链接的模板消息==============================================================
+	// 带链接的模板消息==============================================================
 
-	expectBytes = []byte(`{
+	want = util.TrimSpace([]byte(`{
 	    "touser":"OPENID",
 	    "template_id":"ngqIpbwh8bUfcSsECmogfXcV14J0tQlEpBO27izEYtY",
 	    "data":{
@@ -96,7 +94,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 	    },
 		"url":"http://weixin.qq.com/download",
 	    "topcolor":"#FF0000"
-	}`)
+	}`))
 
 	type DateValue struct {
 		Value string `json:"value"`
@@ -129,13 +127,10 @@ func TestMarshalAndNewFunc(t *testing.T) {
 	msg1 := NewMsgWithLink("OPENID", "ngqIpbwh8bUfcSsECmogfXcV14J0tQlEpBO27izEYtY",
 		&data1, "http://weixin.qq.com/download", "#FF0000")
 
-	b, err = json.Marshal(msg1)
+	have, err = json.Marshal(msg1)
 	if err != nil {
 		t.Errorf("json.Marshal(%#q):\nError: %s\n", msg1, err)
-	} else {
-		want := util.TrimSpace(expectBytes)
-		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", msg1, b, want)
-		}
+	} else if !bytes.Equal(have, want) {
+		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", msg1, have, want)
 	}
 }

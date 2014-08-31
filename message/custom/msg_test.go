@@ -13,6 +13,7 @@ import (
 )
 
 func TestMarshalAndNewFunc(t *testing.T) {
+
 	// 测试文本消息===============================================================
 
 	want := util.TrimSpace([]byte(`{
@@ -115,6 +116,10 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", music, have, want)
 	}
 
+	articles := make([]NewsArticle, 2)
+	articles[0].Init("Happy Day1", "Is Really A Happy Day1", "URL1", "PIC_URL1")
+	articles[1].Init("Happy Day2", "Is Really A Happy Day2", "URL2", "PIC_URL2")
+
 	// 测试图文消息, 没有文章=======================================================
 
 	want = util.TrimSpace([]byte(`{
@@ -123,7 +128,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 	    "news":{}
 	}`))
 
-	news := NewNews("OPENID", make([]NewsArticle, 0, 2))
+	news := NewNews("OPENID", articles[:0])
 
 	have, err = json.Marshal(news)
 	if err != nil {
@@ -149,15 +154,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 	    }
 	}`))
 
-	news.News.Articles = append(
-		news.News.Articles,
-		NewsArticle{
-			Title:       "Happy Day1",
-			Description: "Is Really A Happy Day1",
-			PicURL:      "PIC_URL1",
-			URL:         "URL1",
-		},
-	)
+	news = NewNews("OPENID", articles[:1])
 
 	have, err = json.Marshal(news)
 	if err != nil {
@@ -189,15 +186,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 	    }
 	}`))
 
-	news.News.Articles = append(
-		news.News.Articles,
-		NewsArticle{
-			Title:       "Happy Day2",
-			Description: "Is Really A Happy Day2",
-			PicURL:      "PIC_URL2",
-			URL:         "URL2",
-		},
-	)
+	news = NewNews("OPENID", articles[:2])
 
 	have, err = json.Marshal(news)
 	if err != nil {

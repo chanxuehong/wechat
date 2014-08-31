@@ -5,9 +5,23 @@
 
 package template
 
-// 模板消息数据结构, 分为 纯文本模板消息 和 带链接的模板消息
+// 模板消息数据结构, 包括 纯文本模板消息 和 带链接的模板消息
+type Msg struct {
+	ToUser string `json:"touser"` // 接受者OpenID
+
+	TemplateId string `json:"template_id"` // 模版ID
+
+	// 模版调用时需要的参数赋值内容，具体有哪些参数视模版内容而定;
+	// Data 一般是一个 struct 或者 map, 要求被 encoding/json 格式化后满足特定的模板需求.
+	Data interface{} `json:"data"`
+
+	// 下面两个字段是 带链接模版消息 才有的
+	URL      string `json:"url,omitempty"`      // 用户点击后跳转的URL，该URL必须处于开发者在公众平台网站中设置的域中
+	TopColor string `json:"topcolor,omitempty"` // 整个消息的颜色, 可以不设置
+}
+
+// 新建 纯文本模板消息
 //
-//  纯文本模板消息:
 //  {
 //      "touser": "OPENID",
 //      "template_id": "aygtGTLdrjHJP7Bu4EdkptNfYaeFKi98ygn2kitCJ6fAfdmN88naVvX6V5uIV5x0",
@@ -23,8 +37,19 @@ package template
 //      }
 //  }
 //
+func NewMsg(toUser, templateId string, data interface{}) *Msg {
+	return &Msg{
+		ToUser:     toUser,
+		TemplateId: templateId,
+		Data:       data,
+	}
+}
+
+// 新建 带链接的模板消息
+//  NOTE:
+//  url 置空，则在发送后，点击模板消息会进入一个空白页面（ios），或无法点击（android）。
+//  topColor 可以为空
 //
-//  带链接的模板消息:
 //  {
 //      "touser": "OPENID",
 //      "template_id": "ngqIpbwh8bUfcSsECmogfXcV14J0tQlEpBO27izEYtY",
@@ -62,34 +87,7 @@ package template
 //      }
 //  }
 //
-type Msg struct {
-	ToUser string `json:"touser"` // 接受者OpenID
-
-	TemplateId string `json:"template_id"` // 模版ID
-
-	// 模版调用时需要的参数赋值内容，具体有哪些参数视模版内容而定
-	// 一般是一个 struct 或者 map, 要求这个 Data 被 encoding/json 格式化后满足特定的模板需求.
-	Data interface{} `json:"data"`
-
-	// 下面两个字段是 带链接模版消息 才有的
-	URL      string `json:"url,omitempty"`      // 用户点击后跳转的URL，该URL必须处于开发者在公众平台网站中设置的域中
-	TopColor string `json:"topcolor,omitempty"` // 整个消息的颜色, 可以不设置
-}
-
-// 新建 纯文本模板消息
-func NewMsg(toUser, templateId string, data interface{}) *Msg {
-	return &Msg{
-		ToUser:     toUser,
-		TemplateId: templateId,
-		Data:       data,
-	}
-}
-
-// 新建 带链接的模板消息
-//  NOTE:
-//  url 置空，则在发送后，点击模板消息会进入一个空白页面（ios），或无法点击（android）。
-//  topColor 可以为空
-func NewMsgWithLink(toUser, templateId string, data interface{}, url string, topColor string) *Msg {
+func NewMsgWithLink(toUser, templateId string, data interface{}, url, topColor string) *Msg {
 	return &Msg{
 		ToUser:     toUser,
 		TemplateId: templateId,
