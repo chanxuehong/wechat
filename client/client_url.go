@@ -143,8 +143,20 @@ func userGetURL(accesstoken, nextOpenId string) string {
 		nextOpenId
 }
 
+// https://api.weixin.qq.com/cgi-bin/user/info/updateremark?access_token=ACCESS_TOKEN
+func userUpdateRemarkURL(accesstoken string) string {
+	return "https://api.weixin.qq.com/cgi-bin/user/info/updateremark?access_token=" +
+		accesstoken
+}
+
 // https://api.weixin.qq.com/cgi-bin/customservice/getrecord?access_token=ACCESS_TOKEN
 func customServiceRecordGetURL(accesstoken string) string {
 	return "https://api.weixin.qq.com/cgi-bin/customservice/getrecord?access_token=" +
+		accesstoken
+}
+
+// https://api.weixin.qq.com/cgi-bin/shorturl?access_token=ACCESS_TOKEN
+func shortURLURL(accesstoken string) string {
+	return "https://api.weixin.qq.com/cgi-bin/shorturl?access_token=" +
 		accesstoken
 }

@@ -411,3 +411,45 @@ func (c *Client) UserIterator(beginOpenId string) (iter user.UserIterator, err e
 	}
 	return
 }
+
+// 开发者可以通过该接口对指定用户设置备注名
+//  NOTE: 该接口暂时开放给微信认证的服务号
+func (c *Client) UserUpdateRemark(openId, remark string) (err error) {
+	var request = struct {
+		OpenId string `json:"openid"`
+		Remark string `json:"remark"`
+	}{
+		OpenId: openId,
+		Remark: remark,
+	}
+
+	var result Error
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := userUpdateRemarkURL(token)
+	if err = c.postJSON(_url, &request, &result); err != nil {
+		return
+	}
+
+	switch result.ErrCode {
+	case errCodeOK:
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = &result
+		return
+	}
+}
