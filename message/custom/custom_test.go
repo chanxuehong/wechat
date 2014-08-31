@@ -13,225 +13,196 @@ import (
 )
 
 func TestMarshalAndNewFunc(t *testing.T) {
-	var expectBytes []byte
-
 	// 测试文本消息===============================================================
 
-	expectBytes = []byte(`{
-		"touser":"toUser",
-		"msgtype":"text",
-		"text":
-		{
-			"content":"你好"
-		}
-	}`)
+	want := util.TrimSpace([]byte(`{
+	    "touser":"OPENID", 
+	    "msgtype":"text", 
+	    "text":{
+	        "content":"Hello World"
+	    }
+	}`))
 
-	text := NewText("toUser", "你好")
+	text := NewText("OPENID", "Hello World")
 
-	b, err := json.Marshal(text)
+	have, err := json.Marshal(text)
 	if err != nil {
 		t.Errorf("json.Marshal(%#q):\nError: %s\n", text, err)
-	} else {
-		want := util.TrimSpace(expectBytes)
-		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", text, b, want)
-		}
+	} else if !bytes.Equal(have, want) {
+		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", text, have, want)
 	}
 
 	// 测试图片消息===============================================================
 
-	expectBytes = []byte(`{
-		"touser":"toUser",
-		"msgtype":"image",
-		"image":
-		{
-			"media_id":"media_id"
-		}
-	}`)
+	want = util.TrimSpace([]byte(`{
+	    "touser":"OPENID", 
+	    "msgtype":"image", 
+	    "image":{
+	        "media_id":"MEDIA_ID"
+	    }
+	}`))
 
-	image := NewImage("toUser", "media_id")
+	image := NewImage("OPENID", "MEDIA_ID")
 
-	b, err = json.Marshal(image)
+	have, err = json.Marshal(image)
 	if err != nil {
 		t.Errorf("json.Marshal(%#q):\nError: %s\n", image, err)
-	} else {
-		want := util.TrimSpace(expectBytes)
-		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", image, b, want)
-		}
+	} else if !bytes.Equal(have, want) {
+		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", image, have, want)
 	}
 
 	// 测试语音消息===============================================================
 
-	expectBytes = []byte(`{
-		"touser":"toUser",
-		"msgtype":"voice",
-		"voice":
-		{
-			"media_id":"media_id"
-		}
-	}`)
+	want = util.TrimSpace([]byte(`{
+	    "touser":"OPENID", 
+	    "msgtype":"voice", 
+	    "voice":{
+	        "media_id":"MEDIA_ID"
+	    }
+	}`))
 
-	voice := NewVoice("toUser", "media_id")
+	voice := NewVoice("OPENID", "MEDIA_ID")
 
-	b, err = json.Marshal(voice)
+	have, err = json.Marshal(voice)
 	if err != nil {
 		t.Errorf("json.Marshal(%#q):\nError: %s\n", voice, err)
-	} else {
-		want := util.TrimSpace(expectBytes)
-		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", voice, b, want)
-		}
+	} else if !bytes.Equal(have, want) {
+		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", voice, have, want)
 	}
 
 	// 测试视频消息===============================================================
 
-	expectBytes = []byte(`{
-		"touser":"toUser",
-		"msgtype":"video",
-		"video":
-		{
-			"media_id":"media_id",
-			"title":"title",
-			"description":"description"
-		}
-	}`)
+	want = util.TrimSpace([]byte(`{
+	    "touser":"OPENID", 
+	    "msgtype":"video", 
+	    "video":{
+	        "media_id":"MEDIA_ID", 
+	        "thumb_media_id":"THUMB_MEDIA_ID", 
+	        "title":"TITLE", 
+	        "description":"DESCRIPTION"
+	    }
+	}`))
 
-	video := NewVideo("toUser", "media_id", "title", "description")
+	video := NewVideo("OPENID", "MEDIA_ID", "THUMB_MEDIA_ID", "TITLE", "DESCRIPTION")
 
-	b, err = json.Marshal(video)
+	have, err = json.Marshal(video)
 	if err != nil {
 		t.Errorf("json.Marshal(%#q):\nError: %s\n", video, err)
-	} else {
-		want := util.TrimSpace(expectBytes)
-		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", video, b, want)
-		}
+	} else if !bytes.Equal(have, want) {
+		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", video, have, want)
 	}
 
 	// 测试音乐消息===============================================================
 
-	expectBytes = []byte(`{
-		"touser":"toUser",
-		"msgtype":"music",
-		"music":
-		{
-			"title":"TITLE",
-			"description":"DESCRIPTION",
-			"musicurl":"MUSIC_Url",
-			"hqmusicurl":"HQ_MUSIC_Url",
-			"thumb_media_id":"media_id" 
-		}
-	}`)
+	want = util.TrimSpace([]byte(`{
+	    "touser":"OPENID", 
+	    "msgtype":"music", 
+	    "music":{
+	        "title":"MUSIC_TITLE", 
+	        "description":"MUSIC_DESCRIPTION", 
+	        "musicurl":"MUSIC_URL", 
+	        "hqmusicurl":"HQ_MUSIC_URL", 
+	        "thumb_media_id":"THUMB_MEDIA_ID"
+	    }
+	}`))
 
-	music := NewMusic("toUser", "media_id", "MUSIC_Url", "HQ_MUSIC_Url", "TITLE", "DESCRIPTION")
+	music := NewMusic("OPENID", "THUMB_MEDIA_ID", "MUSIC_URL", "HQ_MUSIC_URL", "MUSIC_TITLE", "MUSIC_DESCRIPTION")
 
-	b, err = json.Marshal(music)
+	have, err = json.Marshal(music)
 	if err != nil {
 		t.Errorf("json.Marshal(%#q):\nError: %s\n", music, err)
-	} else {
-		want := util.TrimSpace(expectBytes)
-		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", music, b, want)
-		}
+	} else if !bytes.Equal(have, want) {
+		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", music, have, want)
 	}
 
-	// 测试图文消息===============================================================
+	// 测试图文消息, 没有文章=======================================================
 
-	// 没有文章
-	expectBytes = []byte(`{
-		"touser":"toUser",
-		"msgtype":"news",
-		"news":{}
-	}`)
+	want = util.TrimSpace([]byte(`{
+	    "touser":"OPENID", 
+	    "msgtype":"news", 
+	    "news":{}
+	}`))
 
-	news := NewNews("toUser", make([]NewsArticle, 0, 2))
+	news := NewNews("OPENID", make([]NewsArticle, 0, 2))
 
-	b, err = json.Marshal(news)
+	have, err = json.Marshal(news)
 	if err != nil {
 		t.Errorf("json.Marshal(%#q):\nError: %s\n", news, err)
-	} else {
-		want := util.TrimSpace(expectBytes)
-		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", news, b, want)
-		}
+	} else if !bytes.Equal(have, want) {
+		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", news, have, want)
 	}
 
-	// 增加一篇没有文章
-	expectBytes = []byte(`{
-		"touser":"toUser",
-		"msgtype":"news",
-		"news":{
-			"articles":[
-				{
-					"title":"title1",
-					"description":"description1",
-					"picurl":"picurl",
-					"url":"url"
-				}
-			]
-		}
-	}`)
+	// 测试图文消息, 1篇没有文章====================================================
+
+	want = util.TrimSpace([]byte(`{
+	    "touser":"OPENID", 
+	    "msgtype":"news", 
+	    "news":{
+	        "articles":[
+	            {
+	                "title":"Happy Day1", 
+	                "description":"Is Really A Happy Day1", 
+	                "url":"URL1", 
+	                "picurl":"PIC_URL1"
+	            }
+	        ]
+	    }
+	}`))
 
 	news.News.Articles = append(
 		news.News.Articles,
 		NewsArticle{
-			Title:       "title1",
-			Description: "description1",
-			PicURL:      "picurl",
-			URL:         "url",
+			Title:       "Happy Day1",
+			Description: "Is Really A Happy Day1",
+			PicURL:      "PIC_URL1",
+			URL:         "URL1",
 		},
 	)
 
-	b, err = json.Marshal(news)
+	have, err = json.Marshal(news)
 	if err != nil {
 		t.Errorf("json.Marshal(%#q):\nError: %s\n", news, err)
-	} else {
-		want := util.TrimSpace(expectBytes)
-		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", news, b, want)
-		}
+	} else if !bytes.Equal(have, want) {
+		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", news, have, want)
 	}
 
-	// 再增加一篇没有文章
-	expectBytes = []byte(`{
-		"touser":"toUser",
-		"msgtype":"news",
-		"news":{
-			"articles":[
-				{
-					"title":"title1",
-					"description":"description1",
-					"picurl":"picurl",
-					"url":"url"
-				},
-				{
-					"title":"title",
-					"description":"description",
-					"picurl":"picurl",
-					"url":"url"
-				}
-			]
-		}
-	}`)
+	// 测试图文消息, 2篇没有文章====================================================
+
+	want = util.TrimSpace([]byte(`{
+	    "touser":"OPENID", 
+	    "msgtype":"news", 
+	    "news":{
+	        "articles":[
+	            {
+	                "title":"Happy Day1", 
+	                "description":"Is Really A Happy Day1", 
+	                "url":"URL1", 
+	                "picurl":"PIC_URL1"
+	            }, 
+	            {
+	                "title":"Happy Day2", 
+	                "description":"Is Really A Happy Day2", 
+	                "url":"URL2", 
+	                "picurl":"PIC_URL2"
+	            }
+	        ]
+	    }
+	}`))
 
 	news.News.Articles = append(
 		news.News.Articles,
 		NewsArticle{
-			Title:       "title",
-			Description: "description",
-			PicURL:      "picurl",
-			URL:         "url",
+			Title:       "Happy Day2",
+			Description: "Is Really A Happy Day2",
+			PicURL:      "PIC_URL2",
+			URL:         "URL2",
 		},
 	)
 
-	b, err = json.Marshal(news)
+	have, err = json.Marshal(news)
 	if err != nil {
 		t.Errorf("json.Marshal(%#q):\nError: %s\n", news, err)
-	} else {
-		want := util.TrimSpace(expectBytes)
-		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", news, b, want)
-		}
+	} else if !bytes.Equal(have, want) {
+		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", news, have, want)
 	}
 }

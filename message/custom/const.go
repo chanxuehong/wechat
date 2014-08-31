@@ -10,7 +10,6 @@ const (
 )
 
 const (
-	// 主动回复的消息类型
 	MSG_TYPE_TEXT  = "text"  // 文本消息
 	MSG_TYPE_IMAGE = "image" // 图片消息
 	MSG_TYPE_VOICE = "voice" // 语音消息
