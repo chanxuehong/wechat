@@ -33,6 +33,7 @@ type LocationEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.
 type MenuClickEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuClickEvent)
 type MenuViewEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuViewEvent)
 type MassSendJobFinishEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MassSendJobFinishEvent)
+type TemplateSendJobFinishEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.TemplateSendJobFinishEvent)
 type MerchantOrderEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MerchantOrderEvent)
 
 type HandlerSetting struct {
@@ -53,15 +54,16 @@ type HandlerSetting struct {
 	LinkRequestHandler     LinkRequestHandlerFunc
 
 	// event handler
-	SubscribeEventHandler         SubscribeEventHandlerFunc
-	UnsubscribeEventHandler       UnsubscribeEventHandlerFunc
-	SubscribeByScanEventHandler   SubscribeByScanEventHandlerFunc
-	ScanEventHandler              ScanEventHandlerFunc
-	LocationEventHandler          LocationEventHandlerFunc
-	MenuClickEventHandler         MenuClickEventHandlerFunc
-	MenuViewEventHandler          MenuViewEventHandlerFunc
-	MassSendJobFinishEventHandler MassSendJobFinishEventHandlerFunc
-	MerchantOrderEventHandler     MerchantOrderEventHandlerFunc
+	SubscribeEventHandler             SubscribeEventHandlerFunc
+	UnsubscribeEventHandler           UnsubscribeEventHandlerFunc
+	SubscribeByScanEventHandler       SubscribeByScanEventHandlerFunc
+	ScanEventHandler                  ScanEventHandlerFunc
+	LocationEventHandler              LocationEventHandlerFunc
+	MenuClickEventHandler             MenuClickEventHandlerFunc
+	MenuViewEventHandler              MenuViewEventHandlerFunc
+	MassSendJobFinishEventHandler     MassSendJobFinishEventHandlerFunc
+	TemplateSendJobFinishEventHandler TemplateSendJobFinishEventHandlerFunc
+	MerchantOrderEventHandler         MerchantOrderEventHandlerFunc
 }
 
 // 根据另外一个 HandlerSetting 来初始化, 没有设置的函数将会被初始化为默认处理函数.
@@ -154,6 +156,11 @@ func (this *HandlerSetting) initialize(setting *HandlerSetting) {
 	} else {
 		this.MassSendJobFinishEventHandler = defaultMassSendJobFinishEventHandler
 	}
+	if setting.TemplateSendJobFinishEventHandler != nil {
+		this.TemplateSendJobFinishEventHandler = setting.TemplateSendJobFinishEventHandler
+	} else {
+		this.TemplateSendJobFinishEventHandler = defaultTemplateSendJobFinishEventHandler
+	}
 	if setting.MerchantOrderEventHandler != nil {
 		this.MerchantOrderEventHandler = setting.MerchantOrderEventHandler
 	} else {
@@ -180,6 +187,8 @@ func defaultLocationEventHandler(http.ResponseWriter, *http.Request, *request.Lo
 func defaultMenuClickEventHandler(http.ResponseWriter, *http.Request, *request.MenuClickEvent) {}
 func defaultMenuViewEventHandler(http.ResponseWriter, *http.Request, *request.MenuViewEvent)   {}
 func defaultMassSendJobFinishEventHandler(http.ResponseWriter, *http.Request, *request.MassSendJobFinishEvent) {
+}
+func defaultTemplateSendJobFinishEventHandler(http.ResponseWriter, *http.Request, *request.TemplateSendJobFinishEvent) {
 }
 func defaultMerchantOrderEventHandler(http.ResponseWriter, *http.Request, *request.MerchantOrderEvent) {
 }

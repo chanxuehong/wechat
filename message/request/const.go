@@ -18,12 +18,13 @@ const (
 
 const (
 	// 微信服务器推送过来的事件类型
-	EVENT_TYPE_SUBSCRIBE         = "subscribe"         // 订阅, 包括点击订阅和扫描二维码
-	EVENT_TYPE_UNSUBSCRIBE       = "unsubscribe"       // 取消订阅
-	EVENT_TYPE_SCAN              = "SCAN"              // 已经订阅用户扫描二维码事件
-	EVENT_TYPE_LOCATION          = "LOCATION"          // 上报地理位置事件
-	EVENT_TYPE_CLICK             = "CLICK"             // 点击菜单拉取消息时的事件推送
-	EVENT_TYPE_VIEW              = "VIEW"              // 点击菜单跳转链接时的事件推送
-	EVENT_TYPE_MASSSENDJOBFINISH = "MASSSENDJOBFINISH" // 微信服务器推送群发结果
-	EVENT_TYPE_MERCHANTORDER     = "merchant_order"    // 订单付款通知
+	EVENT_TYPE_SUBSCRIBE             = "subscribe"             // 订阅, 包括点击订阅和扫描二维码
+	EVENT_TYPE_UNSUBSCRIBE           = "unsubscribe"           // 取消订阅
+	EVENT_TYPE_SCAN                  = "SCAN"                  // 已经订阅用户扫描二维码事件
+	EVENT_TYPE_LOCATION              = "LOCATION"              // 上报地理位置事件
+	EVENT_TYPE_CLICK                 = "CLICK"                 // 点击菜单拉取消息时的事件推送
+	EVENT_TYPE_VIEW                  = "VIEW"                  // 点击菜单跳转链接时的事件推送
+	EVENT_TYPE_MASSSENDJOBFINISH     = "MASSSENDJOBFINISH"     // 微信服务器推送群发结果
+	EVENT_TYPE_TEMPLATESENDJOBFINISH = "TEMPLATESENDJOBFINISH" // 模板消息发送状态通知
+	EVENT_TYPE_MERCHANTORDER         = "merchant_order"        // 订单付款通知
 )

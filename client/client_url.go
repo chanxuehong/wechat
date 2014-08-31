@@ -15,6 +15,12 @@ func messageCustomSendURL(accesstoken string) string {
 		accesstoken
 }
 
+// https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=ACCESS_TOKEN
+func messageTemplateSendURL(accesstoken string) string {
+	return "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=" +
+		accesstoken
+}
+
 // https://api.weixin.qq.com/cgi-bin/message/mass/sendall?access_token=ACCESS_TOKEN
 func messageMassSendByGroupURL(accesstoken string) string {
 	return "https://api.weixin.qq.com/cgi-bin/message/mass/sendall?access_token=" +
