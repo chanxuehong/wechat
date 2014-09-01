@@ -36,6 +36,7 @@ package menu
 //          }
 //      ]
 //  }
+//
 type Menu struct {
 	Buttons []Button `json:"button,omitempty"` // 按钮个数不能超过 MenuButtonCountLimit
 }
@@ -50,7 +51,6 @@ type Button struct {
 }
 
 // 初始化 btn 指向的 Button 为 click 类型按钮
-//  NOTE: 要求 btn 指向的 Button 是 zero value, 即是刚创建的全0值, 否则有不可预料的错误!
 func (btn *Button) InitToClickButton(name, key string) {
 	btn.Name = name
 	btn.Type = BUTTON_TYPE_CLICK
@@ -62,7 +62,6 @@ func (btn *Button) InitToClickButton(name, key string) {
 }
 
 // 初始化 btn 指向的 Button 为 view 类型按钮
-//  NOTE: 要求 btn 指向的 Button 是 zero value, 即是刚创建的全0值, 否则有不可预料的错误!
 func (btn *Button) InitToViewButton(name, url string) {
 	btn.Name = name
 	btn.Type = BUTTON_TYPE_VIEW
@@ -74,7 +73,6 @@ func (btn *Button) InitToViewButton(name, url string) {
 }
 
 // 初始化 btn 指向的 Button 为 子菜单 类型按钮
-//  NOTE: 要求 btn 指向的 Button 是 zero value, 即是刚创建的全0值, 否则有不可预料的错误!
 func (btn *Button) InitToSubMenuButton(name string, subButtons []Button) {
 	btn.Name = name
 	btn.SubButtons = subButtons

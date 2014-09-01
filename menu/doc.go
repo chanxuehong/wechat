@@ -3,5 +3,5 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 自定义操作相关的数据结构.
+// 自定义菜单操作相关的数据结构.
 package menu

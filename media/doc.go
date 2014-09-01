@@ -4,6 +4,4 @@
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
 // 媒体操作相关的数据结构.
-// 1. 上传媒体(图片, 语音, 视频, 缩略图)成功时返回消息
-// 2. 创建图文媒体的文章数据结构
 package media

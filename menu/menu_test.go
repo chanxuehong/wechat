@@ -13,7 +13,7 @@ import (
 )
 
 func TestMenuMarshal(t *testing.T) {
-	expectBytes := []byte(`{
+	want := util.TrimSpace([]byte(`{
 		"button":[
 			{
 				"name":"今日歌曲",
@@ -46,27 +46,24 @@ func TestMenuMarshal(t *testing.T) {
 				]
 			}
 		]
-	}`)
+	}`))
 
-	var buttons = make([]Button, 3)
-	buttons[0].InitToViewButton("搜索", "http://www.soso.com/")
-	buttons[1].InitToViewButton("视频", "http://v.qq.com/")
-	buttons[2].InitToClickButton("赞一下我们", "V1001_GOOD")
+	var subButtons = make([]Button, 3)
+	subButtons[0].InitToViewButton("搜索", "http://www.soso.com/")
+	subButtons[1].InitToViewButton("视频", "http://v.qq.com/")
+	subButtons[2].InitToClickButton("赞一下我们", "V1001_GOOD")
 
 	var mn Menu
 	mn.Buttons = make([]Button, 3)
 	mn.Buttons[0].InitToClickButton("今日歌曲", "V1001_TODAY_MUSIC")
 	mn.Buttons[1].InitToClickButton("歌手简介", "V1001_TODAY_SINGER")
-	mn.Buttons[2].InitToSubMenuButton("菜单", buttons)
+	mn.Buttons[2].InitToSubMenuButton("菜单", subButtons)
 
-	b, err := json.Marshal(mn)
+	have, err := json.Marshal(mn)
 	if err != nil {
 		t.Errorf("json.Marshal(%#q):\nError: %s\n", mn, err)
-	} else {
-		want := util.TrimSpace(expectBytes)
-		if !bytes.Equal(b, want) {
-			t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", mn, b, want)
-		}
+	} else if !bytes.Equal(have, want) {
+		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", mn, have, want)
 	}
 }
 
@@ -115,16 +112,16 @@ func TestMenuUnmarshal(t *testing.T) {
 	if err := json.Unmarshal(src, &mn); err != nil {
 		t.Errorf("unmarshal(%#q):\nError: %s\n", src, err)
 	} else {
-		var buttons = make([]Button, 3)
-		buttons[0].InitToViewButton("搜索", "http://www.soso.com/")
-		buttons[1].InitToViewButton("视频", "http://v.qq.com/")
-		buttons[2].InitToClickButton("赞一下我们", "V1001_GOOD")
+		var subButtons = make([]Button, 3)
+		subButtons[0].InitToViewButton("搜索", "http://www.soso.com/")
+		subButtons[1].InitToViewButton("视频", "http://v.qq.com/")
+		subButtons[2].InitToClickButton("赞一下我们", "V1001_GOOD")
 
 		var mn1 Menu
 		mn1.Buttons = make([]Button, 3)
 		mn1.Buttons[0].InitToClickButton("今日歌曲", "V1001_TODAY_MUSIC")
 		mn1.Buttons[1].InitToClickButton("歌手简介", "V1001_TODAY_SINGER")
-		mn1.Buttons[2].InitToSubMenuButton("菜单", buttons)
+		mn1.Buttons[2].InitToSubMenuButton("菜单", subButtons)
 
 		if !menuEqual(mn1.Buttons, mn.Buttons) {
 			t.Errorf("unmarshal(%#q):\nhave %#q\nwant %#q\n", src, mn, mn1)

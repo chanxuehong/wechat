@@ -5,7 +5,12 @@
 
 package media
 
-const NewsArticleCountLimit = 10
+const (
+	NewsArticleCountLimit = 10
+
+	NewsArticleCoverPicTrue  = 1
+	NewsArticleCoverPicFalse = 0
+)
 
 const (
 	MEDIA_TYPE_IMAGE = "image"
