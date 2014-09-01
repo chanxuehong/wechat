@@ -149,11 +149,11 @@ type NewsArticle struct {
 	PicURL      string `json:"picurl,omitempty"`      // 图文消息的图片链接，支持JPG、PNG格式，较好的效果为大图640*320，小图80*80
 }
 
-func (a *NewsArticle) Init(title, description, url, picURL string) {
-	a.Title = title
-	a.Description = description
-	a.URL = url
-	a.PicURL = picURL
+func (this *NewsArticle) Init(title, description, url, picURL string) {
+	this.Title = title
+	this.Description = description
+	this.URL = url
+	this.PicURL = picURL
 }
 
 // 图文消息

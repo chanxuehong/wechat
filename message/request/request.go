@@ -15,7 +15,7 @@ type CommonHead struct {
 	ToUserName   string `xml:"ToUserName"   json:"ToUserName"`   // 开发者微信号
 	FromUserName string `xml:"FromUserName" json:"FromUserName"` // 发送方帐号(一个OpenID)
 	CreateTime   int64  `xml:"CreateTime"   json:"CreateTime"`   // 消息创建时间(整型), unixtime
-	MsgType      string `xml:"MsgType"      json:"MsgType"`      // text, image, voice, video, location, link, event
+	MsgType      string `xml:"MsgType"      json:"MsgType"`      // 消息类型
 }
 
 // 包括了微信服务器推送到开发者 URL 的所有的消息类型

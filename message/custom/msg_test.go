@@ -116,6 +116,8 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", music, have, want)
 	}
 
+	// 图文消息==================================================================
+
 	articles := make([]NewsArticle, 2)
 	articles[0].Init("Happy Day1", "Is Really A Happy Day1", "URL1", "PIC_URL1")
 	articles[1].Init("Happy Day2", "Is Really A Happy Day2", "URL2", "PIC_URL2")
@@ -137,7 +139,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", news, have, want)
 	}
 
-	// 测试图文消息, 1篇没有文章====================================================
+	// 测试图文消息, 1篇文章=======================================================
 
 	want = util.TrimSpace([]byte(`{
 	    "touser":"OPENID", 
@@ -163,7 +165,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", news, have, want)
 	}
 
-	// 测试图文消息, 2篇没有文章====================================================
+	// 测试图文消息, 2篇文章=======================================================
 
 	want = util.TrimSpace([]byte(`{
 	    "touser":"OPENID", 
