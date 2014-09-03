@@ -27,35 +27,35 @@ type Request struct {
 	MsgId int64 `xml:"MsgId,omitempty" json:"MsgId,omitempty"`
 	MsgID int64 `xml:"MsgID,omitempty" json:"MsgID,omitempty"`
 
-	Content      string  `xml:"Content,omitempty" json:"Content,omitempty"`
-	MediaId      string  `xml:"MediaId,omitempty" json:"MediaId,omitempty"`
-	PicURL       string  `xml:"PicUrl,omitempty" json:"PicUrl,omitempty"`
-	Format       string  `xml:"Format,omitempty" json:"Format,omitempty"`
-	Recognition  string  `xml:"Recognition,omitempty" json:"Recognition,omitempty"`
+	Content      string  `xml:"Content,omitempty"      json:"Content,omitempty"`
+	MediaId      string  `xml:"MediaId,omitempty"      json:"MediaId,omitempty"`
+	PicURL       string  `xml:"PicUrl,omitempty"       json:"PicUrl,omitempty"`
+	Format       string  `xml:"Format,omitempty"       json:"Format,omitempty"`
+	Recognition  string  `xml:"Recognition,omitempty"  json:"Recognition,omitempty"`
 	ThumbMediaId string  `xml:"ThumbMediaId,omitempty" json:"ThumbMediaId,omitempty"`
-	LocationX    float64 `xml:"Location_X,omitempty" json:"Location_X,omitempty"`
-	LocationY    float64 `xml:"Location_Y,omitempty" json:"Location_Y,omitempty"`
-	Scale        int     `xml:"Scale,omitempty" json:"Scale,omitempty"`
-	Label        string  `xml:"Label,omitempty" json:"Label,omitempty"`
-	Title        string  `xml:"Title,omitempty" json:"Title,omitempty"`
-	Description  string  `xml:"Description,omitempty" json:"Description,omitempty"`
-	URL          string  `xml:"Url,omitempty" json:"Url,omitempty"`
+	LocationX    float64 `xml:"Location_X,omitempty"   json:"Location_X,omitempty"`
+	LocationY    float64 `xml:"Location_Y,omitempty"   json:"Location_Y,omitempty"`
+	Scale        int     `xml:"Scale,omitempty"        json:"Scale,omitempty"`
+	Label        string  `xml:"Label,omitempty"        json:"Label,omitempty"`
+	Title        string  `xml:"Title,omitempty"        json:"Title,omitempty"`
+	Description  string  `xml:"Description,omitempty"  json:"Description,omitempty"`
+	URL          string  `xml:"Url,omitempty"          json:"Url,omitempty"`
 
-	Event       string  `xml:"Event,omitempty" json:"Event,omitempty"`
-	EventKey    string  `xml:"EventKey,omitempty" json:"EventKey,omitempty"`
-	Ticket      string  `xml:"Ticket,omitempty" json:"Ticket,omitempty"`
-	Latitude    float64 `xml:"Latitude,omitempty" json:"Latitude,omitempty"`
-	Longitude   float64 `xml:"Longitude,omitempty" json:"Longitude,omitempty"`
-	Precision   float64 `xml:"Precision,omitempty" json:"Precision,omitempty"`
-	Status      string  `xml:"Status,omitempty" json:"Status,omitempty"`
-	TotalCount  int     `xml:"TotalCount,omitempty" json:"TotalCount,omitempty"`
+	Event       string  `xml:"Event,omitempty"       json:"Event,omitempty"`
+	EventKey    string  `xml:"EventKey,omitempty"    json:"EventKey,omitempty"`
+	Ticket      string  `xml:"Ticket,omitempty"      json:"Ticket,omitempty"`
+	Latitude    float64 `xml:"Latitude,omitempty"    json:"Latitude,omitempty"`
+	Longitude   float64 `xml:"Longitude,omitempty"   json:"Longitude,omitempty"`
+	Precision   float64 `xml:"Precision,omitempty"   json:"Precision,omitempty"`
+	Status      string  `xml:"Status,omitempty"      json:"Status,omitempty"`
+	TotalCount  int     `xml:"TotalCount,omitempty"  json:"TotalCount,omitempty"`
 	FilterCount int     `xml:"FilterCount,omitempty" json:"FilterCount,omitempty"`
-	SentCount   int     `xml:"SentCount,omitempty" json:"SentCount,omitempty"`
-	ErrorCount  int     `xml:"ErrorCount,omitempty" json:"ErrorCount,omitempty"`
-	OrderId     string  `xml:"OrderId,omitempty" json:"OrderId,omitempty"`
+	SentCount   int     `xml:"SentCount,omitempty"   json:"SentCount,omitempty"`
+	ErrorCount  int     `xml:"ErrorCount,omitempty"  json:"ErrorCount,omitempty"`
+	OrderId     string  `xml:"OrderId,omitempty"     json:"OrderId,omitempty"`
 	OrderStatus int     `xml:"OrderStatus,omitempty" json:"OrderStatus,omitempty"`
-	ProductId   string  `xml:"ProductId,omitempty" json:"ProductId,omitempty"`
-	SkuInfo     string  `xml:"SkuInfo,omitempty" json:"SkuInfo,omitempty"`
+	ProductId   string  `xml:"ProductId,omitempty"   json:"ProductId,omitempty"`
+	SkuInfo     string  `xml:"SkuInfo,omitempty"     json:"SkuInfo,omitempty"`
 }
 
 var zeroRequest Request
