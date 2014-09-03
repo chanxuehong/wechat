@@ -59,7 +59,7 @@ func (c *Client) httpClient() *http.Client {
 
 // 通过code换取网页授权 access_token
 //  NOTE: 如果成功 c.OAuth2Token 字段也会得到更新,
-//        如果指定了 TokenCach, TokenCach.PutToken 也会被调用
+//        如果指定了 TokenCache, TokenCache.PutToken 也会被调用
 func (c *Client) Exchange(code string) (token *OAuth2Token, err error) {
 	if c.OAuth2Config == nil {
 		err = errors.New("没有提供 OAuth2Config")
@@ -90,7 +90,7 @@ func (c *Client) Exchange(code string) (token *OAuth2Token, err error) {
 
 // 刷新access_token（如果需要）
 //  NOTE: 如果成功 c.OAuth2Token 字段也会得到更新,
-//        如果指定了 TokenCach, TokenCach.PutToken 也会被调用
+//        如果指定了 TokenCache, TokenCache.PutToken 也会被调用
 func (c *Client) TokenRefresh() (token *OAuth2Token, err error) {
 	if c.OAuth2Config == nil {
 		err = errors.New("没有提供 OAuth2Config")

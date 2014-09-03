@@ -24,38 +24,38 @@ type Request struct {
 	CommonHead
 
 	// fuck weixin, MsgId != MsgID
-	MsgId int64 `xml:"MsgId"`
-	MsgID int64 `xml:"MsgID"`
+	MsgId int64 `xml:"MsgId,omitempty" json:"MsgId,omitempty"`
+	MsgID int64 `xml:"MsgID,omitempty" json:"MsgID,omitempty"`
 
-	Content      string  `xml:"Content"`
-	MediaId      string  `xml:"MediaId"`
-	PicURL       string  `xml:"PicUrl"`
-	Format       string  `xml:"Format"`
-	Recognition  string  `xml:"Recognition"`
-	ThumbMediaId string  `xml:"ThumbMediaId"`
-	LocationX    float64 `xml:"Location_X"`
-	LocationY    float64 `xml:"Location_Y"`
-	Scale        int     `xml:"Scale"`
-	Label        string  `xml:"Label"`
-	Title        string  `xml:"Title"`
-	Description  string  `xml:"Description"`
-	URL          string  `xml:"Url"`
+	Content      string  `xml:"Content,omitempty" json:"Content,omitempty"`
+	MediaId      string  `xml:"MediaId,omitempty" json:"MediaId,omitempty"`
+	PicURL       string  `xml:"PicUrl,omitempty" json:"PicUrl,omitempty"`
+	Format       string  `xml:"Format,omitempty" json:"Format,omitempty"`
+	Recognition  string  `xml:"Recognition,omitempty" json:"Recognition,omitempty"`
+	ThumbMediaId string  `xml:"ThumbMediaId,omitempty" json:"ThumbMediaId,omitempty"`
+	LocationX    float64 `xml:"Location_X,omitempty" json:"Location_X,omitempty"`
+	LocationY    float64 `xml:"Location_Y,omitempty" json:"Location_Y,omitempty"`
+	Scale        int     `xml:"Scale,omitempty" json:"Scale,omitempty"`
+	Label        string  `xml:"Label,omitempty" json:"Label,omitempty"`
+	Title        string  `xml:"Title,omitempty" json:"Title,omitempty"`
+	Description  string  `xml:"Description,omitempty" json:"Description,omitempty"`
+	URL          string  `xml:"Url,omitempty" json:"Url,omitempty"`
 
-	Event       string  `xml:"Event"`
-	EventKey    string  `xml:"EventKey"`
-	Ticket      string  `xml:"Ticket"`
-	Latitude    float64 `xml:"Latitude"`
-	Longitude   float64 `xml:"Longitude"`
-	Precision   float64 `xml:"Precision"`
-	Status      string  `xml:"Status"`
-	TotalCount  int     `xml:"TotalCount"`
-	FilterCount int     `xml:"FilterCount"`
-	SentCount   int     `xml:"SentCount"`
-	ErrorCount  int     `xml:"ErrorCount"`
-	OrderId     string  `xml:"OrderId"`
-	OrderStatus int     `xml:"OrderStatus"`
-	ProductId   string  `xml:"ProductId"`
-	SkuInfo     string  `xml:"SkuInfo"`
+	Event       string  `xml:"Event,omitempty" json:"Event,omitempty"`
+	EventKey    string  `xml:"EventKey,omitempty" json:"EventKey,omitempty"`
+	Ticket      string  `xml:"Ticket,omitempty" json:"Ticket,omitempty"`
+	Latitude    float64 `xml:"Latitude,omitempty" json:"Latitude,omitempty"`
+	Longitude   float64 `xml:"Longitude,omitempty" json:"Longitude,omitempty"`
+	Precision   float64 `xml:"Precision,omitempty" json:"Precision,omitempty"`
+	Status      string  `xml:"Status,omitempty" json:"Status,omitempty"`
+	TotalCount  int     `xml:"TotalCount,omitempty" json:"TotalCount,omitempty"`
+	FilterCount int     `xml:"FilterCount,omitempty" json:"FilterCount,omitempty"`
+	SentCount   int     `xml:"SentCount,omitempty" json:"SentCount,omitempty"`
+	ErrorCount  int     `xml:"ErrorCount,omitempty" json:"ErrorCount,omitempty"`
+	OrderId     string  `xml:"OrderId,omitempty" json:"OrderId,omitempty"`
+	OrderStatus int     `xml:"OrderStatus,omitempty" json:"OrderStatus,omitempty"`
+	ProductId   string  `xml:"ProductId,omitempty" json:"ProductId,omitempty"`
+	SkuInfo     string  `xml:"SkuInfo,omitempty" json:"SkuInfo,omitempty"`
 }
 
 var zeroRequest Request
