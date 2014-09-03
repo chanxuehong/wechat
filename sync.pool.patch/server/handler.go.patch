@@ -106,6 +106,12 @@ func (handler *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			case request.EVENT_TYPE_LOCATION:
 				handler.setting.LocationEventHandler(w, r, msgRqst.LocationEvent())
 
+			case request.EVENT_TYPE_TEMPLATESENDJOBFINISH:
+				handler.setting.TemplateSendJobFinishEventHandler(w, r, msgRqst.TemplateSendJobFinishEvent())
+
+			case request.EVENT_TYPE_MASSSENDJOBFINISH:
+				handler.setting.MassSendJobFinishEventHandler(w, r, msgRqst.MassSendJobFinishEvent())
+
 			case request.EVENT_TYPE_MERCHANTORDER:
 				handler.setting.MerchantOrderEventHandler(w, r, msgRqst.MerchantOrderEvent())
 
@@ -121,9 +127,6 @@ func (handler *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 			case request.EVENT_TYPE_SCAN:
 				handler.setting.ScanEventHandler(w, r, msgRqst.ScanEvent())
-
-			case request.EVENT_TYPE_MASSSENDJOBFINISH:
-				handler.setting.MassSendJobFinishEventHandler(w, r, msgRqst.MassSendJobFinishEvent())
 
 			default: // unknown event
 				// 因为 msgRqstBody 底层需要缓存, 所以这里需要一个副本
