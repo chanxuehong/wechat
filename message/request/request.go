@@ -346,11 +346,11 @@ func (event *SubscribeByScanEvent) SceneId() (id uint32, err error) {
 		return
 	}
 
-	idUint64, err := strconv.ParseUint(event.EventKey[len(prefix):], 10, 32)
+	id64, err := strconv.ParseUint(event.EventKey[len(prefix):], 10, 32)
 	if err != nil {
 		return
 	}
-	id = uint32(idUint64)
+	id = uint32(id64)
 	return
 }
 
@@ -386,11 +386,11 @@ func (req *Request) ScanEvent() (event *ScanEvent) {
 
 // 获取二维码参数
 func (event *ScanEvent) SceneId() (id uint32, err error) {
-	idUint64, err := strconv.ParseUint(event.EventKey, 10, 32)
+	id64, err := strconv.ParseUint(event.EventKey, 10, 32)
 	if err != nil {
 		return
 	}
-	id = uint32(idUint64)
+	id = uint32(id64)
 	return
 }
 

@@ -57,17 +57,17 @@ func HeadImageSize(headImageURL string) (size int, err error) {
 
 	sizeStr := headImageURL[index+1:]
 
-	sizeUint64, err := strconv.ParseUint(sizeStr, 10, 8)
+	size64, err := strconv.ParseUint(sizeStr, 10, 8)
 	if err != nil {
 		err = fmt.Errorf("invalid headImageURL: %s", headImageURL)
 		return
 	}
 
-	if sizeUint64 == 0 {
-		sizeUint64 = 640
+	if size64 == 0 {
+		size64 = 640
 	}
 
-	size = int(sizeUint64)
+	size = int(size64)
 	return
 }
 
