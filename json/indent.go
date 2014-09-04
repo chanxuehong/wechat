@@ -27,7 +27,6 @@ func compact(dst *bytes.Buffer, src []byte, escape bool) error {
 		//	dst.WriteByte(hex[c&0xF])
 		//	start = i + 1
 		//}
-
 		// Convert U+2028 and U+2029 (E2 80 A8 and E2 80 A9).
 		if c == 0xE2 && i+2 < len(src) && src[i+1] == 0x80 && src[i+2]&^1 == 0xA8 {
 			if start < i {
