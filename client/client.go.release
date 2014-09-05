@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	wechatjson "github.com/chanxuehong/wechat/json"
 	"net/http"
 	"sync"
 )
@@ -91,7 +92,7 @@ func (c *Client) postJSON(_url string, request interface{}, response interface{}
 	buf := c.getBufferFromPool() // *bytes.Buffer
 	defer c.putBufferToPool(buf)
 
-	if err = json.NewEncoder(buf).Encode(request); err != nil {
+	if err = wechatjson.NewEncoder(buf).Encode(request); err != nil {
 		return
 	}
 

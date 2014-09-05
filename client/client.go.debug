@@ -3,14 +3,13 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// debug
-
 package client
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	wechatjson "github.com/chanxuehong/wechat/json"
 	"io"
 	"net/http"
 	"sync"
@@ -94,10 +93,10 @@ func (c *Client) postJSON(_url string, request interface{}, response interface{}
 	buf := c.getBufferFromPool() // *bytes.Buffer
 	defer c.putBufferToPool(buf)
 
-	if err = json.NewEncoder(buf).Encode(request); err != nil {
+	if err = wechatjson.NewEncoder(buf).Encode(request); err != nil {
 		return
 	}
-
+	
 	// debug ===================================================================
 	fmt.Println("request:", string(buf.Bytes()))
 
@@ -115,10 +114,10 @@ func (c *Client) postJSON(_url string, request interface{}, response interface{}
 	buf.Reset()
 	io.Copy(buf, resp.Body)
 	fmt.Println("response:", string(buf.Bytes()))
-
 	if err = json.NewDecoder(buf).Decode(response); err != nil {
 		return
 	}
+
 
 	return
 }
@@ -140,7 +139,6 @@ func (c *Client) getJSON(_url string, response interface{}) (err error) {
 	defer c.putBufferToPool(buf)
 	io.Copy(buf, resp.Body)
 	fmt.Println("response:", string(buf.Bytes()))
-
 	if err = json.NewDecoder(buf).Decode(response); err != nil {
 		return
 	}
