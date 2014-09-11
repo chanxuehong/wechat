@@ -8,3 +8,9 @@ package customservice
 const (
 	RecordPageSizeLimit = 1000 // 客户聊天记录每页最多拉取1000条
 )
+
+const (
+	OnlineKfInfoStatusPC          = 1
+	OnlineKfInfoStatusMobile      = 2
+	OnlineKfInfoStatusPCAndMobile = 3
+)

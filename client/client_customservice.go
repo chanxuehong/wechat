@@ -11,7 +11,7 @@ import (
 )
 
 // 获取客服聊天记录
-func (c *Client) CustomServiceRecordGet(request *customservice.RecordGetRequest) (records []customservice.Record, err error) {
+func (c *Client) CustomServiceRecordGet(request *customservice.RecordGetRequest) (recordList []customservice.Record, err error) {
 	if request == nil {
 		err = errors.New("request == nil")
 		return
@@ -35,13 +35,14 @@ RETRY:
 		return
 	}
 	_url := customServiceRecordGetURL(token)
+
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
 
 	switch result.ErrCode {
 	case errCodeOK:
-		records = result.RecordList
+		recordList = result.RecordList
 		return
 
 	case errCodeTimeout:
@@ -59,7 +60,7 @@ RETRY:
 }
 
 // 该结构实现了 github.com/chanxuehong/wechat/customservice.RecordIterator 接口
-type csRecordIterator struct {
+type customServiceRecordIterator struct {
 	recordGetRequest  *customservice.RecordGetRequest // 上一次查询的 request
 	recordGetResponse []customservice.Record          // 上一次查询的 response
 
@@ -67,7 +68,7 @@ type csRecordIterator struct {
 	nextPageCalled bool    // NextPage() 是否调用过
 }
 
-func (iter *csRecordIterator) HasNext() bool {
+func (iter *customServiceRecordIterator) HasNext() bool {
 	// 第一批数据不需要通过 NextPage() 来获取, 在创建这个对象的时候就获取了;
 	if !iter.nextPageCalled {
 		return len(iter.recordGetResponse) > 0
@@ -76,7 +77,7 @@ func (iter *csRecordIterator) HasNext() bool {
 	return len(iter.recordGetResponse) == iter.recordGetRequest.PageSize
 }
 
-func (iter *csRecordIterator) NextPage() (records []customservice.Record, err error) {
+func (iter *customServiceRecordIterator) NextPage() (records []customservice.Record, err error) {
 	// 第一次调用 NextPage(), 因为在创建这个对象的时候已经获取了数据, 所以直接返回.
 	if !iter.nextPageCalled {
 		iter.nextPageCalled = true
@@ -102,10 +103,90 @@ func (c *Client) CustomServiceRecordIterator(request *customservice.RecordGetReq
 		return
 	}
 
-	iter = &csRecordIterator{
+	iter = &customServiceRecordIterator{
 		recordGetRequest:  request,
 		recordGetResponse: resp,
 		wechatClient:      c,
 	}
 	return
+}
+
+// 获取客服基本信息
+func (c *Client) CustomServiceKfList() (kfList []customservice.KfInfo, err error) {
+	var result struct {
+		KfList []customservice.KfInfo `json:"kf_list"`
+		Error
+	}
+	// 预分配一定的容量
+	result.KfList = make([]customservice.KfInfo, 0, 16)
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := customServiceKfListURL(token)
+
+	if err = c.getJSON(_url, &result); err != nil {
+		return
+	}
+
+	switch result.ErrCode {
+	case errCodeOK:
+		kfList = result.KfList
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = &result.Error
+		return
+	}
+}
+
+// 获取在线客服接待信息
+func (c *Client) CustomServiceOnlineKfList() (kfList []customservice.OnlineKfInfo, err error) {
+	var result struct {
+		KfList []customservice.OnlineKfInfo `json:"kf_online_list"`
+		Error
+	}
+	// 预分配一定的容量
+	result.KfList = make([]customservice.OnlineKfInfo, 0, 16)
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := customServiceOnlineKfListURL(token)
+
+	if err = c.getJSON(_url, &result); err != nil {
+		return
+	}
+
+	switch result.ErrCode {
+	case errCodeOK:
+		kfList = result.KfList
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = &result.Error
+		return
+	}
 }

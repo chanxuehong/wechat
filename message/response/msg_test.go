@@ -229,7 +229,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		<MsgType>transfer_customer_service</MsgType>
 	</xml>`))
 
-	transToCS := NewTransferCustomerService("touser", "fromuser")
+	transToCS := NewTransferToCustomerService("touser", "fromuser")
 	transToCS.CreateTime = 1399197672
 
 	have, err = xml.Marshal(transToCS)
@@ -237,5 +237,27 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		t.Errorf("xml.Marshal(%#q):\nError: %s\n", transToCS, err)
 	} else if !bytes.Equal(have, want) {
 		t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", transToCS, have, want)
+	}
+
+	// 测试将消息转发到指定客服=======================================================
+
+	want = util.TrimSpace([]byte(`<xml> 
+		<ToUserName>touser</ToUserName>  
+		<FromUserName>fromuser</FromUserName>  
+		<CreateTime>1399197672</CreateTime>  
+		<MsgType>transfer_customer_service</MsgType>  
+		<TransInfo> 
+			<KfAccount>test1@test</KfAccount> 
+		</TransInfo> 
+	</xml>`))
+
+	transToSCS := NewTransferToSpecialCustomerService("touser", "fromuser", "test1@test")
+	transToSCS.CreateTime = 1399197672
+
+	have, err = xml.Marshal(transToSCS)
+	if err != nil {
+		t.Errorf("xml.Marshal(%#q):\nError: %s\n", transToSCS, err)
+	} else if !bytes.Equal(have, want) {
+		t.Errorf("xml.Marshal(%#q):\nhave %#s\nwant %#s\n", transToSCS, have, want)
 	}
 }

@@ -229,13 +229,13 @@ func (this *News) CheckValid() (err error) {
 }
 
 // 将消息转发到多客服
-type TransferCustomerService struct {
+type TransferToCustomerService struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
 }
 
-func NewTransferCustomerService(to, from string) *TransferCustomerService {
-	return &TransferCustomerService{
+func NewTransferToCustomerService(to, from string) *TransferToCustomerService {
+	return &TransferToCustomerService{
 		CommonHead: CommonHead{
 			ToUserName:   to,
 			FromUserName: from,
@@ -243,4 +243,27 @@ func NewTransferCustomerService(to, from string) *TransferCustomerService {
 			MsgType:      MSG_TYPE_TRANSFER_CUSTOMER_SERVICE,
 		},
 	}
+}
+
+// 将消息转发到指定客服
+type TransferToSpecialCustomerService struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+	CommonHead
+
+	TransInfo struct {
+		KfAccount string `xml:"KfAccount"         json:"KfAccount"`
+	} `xml:"TransInfo"         json:"TransInfo"`
+}
+
+func NewTransferToSpecialCustomerService(to, from, KfAccount string) (msg *TransferToSpecialCustomerService) {
+	msg = &TransferToSpecialCustomerService{
+		CommonHead: CommonHead{
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      MSG_TYPE_TRANSFER_CUSTOMER_SERVICE,
+		},
+	}
+	msg.TransInfo.KfAccount = KfAccount
+	return
 }
