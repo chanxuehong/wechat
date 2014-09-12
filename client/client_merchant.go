@@ -44,8 +44,9 @@ func (c *Client) MerchantUploadImage(filename string, imageReader io.Reader) (im
 
 // 上传图片
 func (c *Client) merchantUploadImage(filename string, imageReader io.Reader) (imageURL string, err error) {
-	bodyBuf := c.getBufferFromPool() // io.ReadWriter
-	defer c.putBufferToPool(bodyBuf) // important!
+	bodyBuf := mediaBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
+	bodyBuf.Reset()                                  // important
+	defer mediaBufferPool.Put(bodyBuf)
 
 	bodyWriter := multipart.NewWriter(bodyBuf)
 	fileWriter, err := bodyWriter.CreateFormFile("file", filename)

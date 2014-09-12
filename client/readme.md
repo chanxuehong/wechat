@@ -1,16 +1,22 @@
 ## 简介
 
 这个 package 封装了微信公众平台的主动请求功能，如发送客服消息、群发消息、创建自定义菜单、
-创建二维码等等。
+创建二维码等等...
 
 ## 使用方法
 
-一般先全局创建一个 Client 实例，然后根据需要的功能调用这个实例相应的方法；
-详细可参见文档。
+大部分功能都是 Client 对象的方法, 根据对应的功能调用对应的方法.
+
+NewClient 函数的参数 TokenCache, TokenService 可以自己实现, 也可以用默认实现
+*DefaultTokenCacheService, 
+
+
+采用默认实现的时候要注意, 对于一个特定的 appid, 只能有一个 DefaultTokenCacheService 的实例,
+一般的做法就是把这个实例作为全局对象!!!
 
 ## 示例
 
-这个实例是创建一个临时的二维码
+这个实例是创建一个临时的二维码, TokenCache 和 TokenService 都是采用默认的实现.
 ```Go
 package main
 
@@ -19,17 +25,19 @@ import (
 	"github.com/chanxuehong/wechat/client"
 )
 
-// 一个应用一个实例
-var wechatClient *client.Client
-
-func init() {
-	// TODO: 获取必要数据的代码
-
-	// 初始化 wechatClient
-	wechatClient = client.NewClient("你的公众号-appid", "你的公众号-appsecret", nil)
-}
+// *DefaultTokenCacheService 实现了 TokenCache, TokenService 接口.
+// 当然你也可以不用默认的实现, 这个时候就需要你自己实现 TokenCache, TokenService 接口了,
+// 根据你自己的实现, tokenCacheService 不一定要求作为全局变量,
+// 但是如果用默认的实现 client.NewDefaultTokenCacheService, 一个 appid 只能有一个实例.
+var tokenCacheService = client.NewDefaultTokenCacheService(
+	"xxxxxxxxxxxxxxxxxx",               // 公众号 appid
+	"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // 公众号 appsecret
+	nil,
+)
 
 func main() {
+	wechatClient := client.NewClient(tokenCacheService, tokenCacheService, nil)
+
 	qrcode, err := wechatClient.QRCodeTemporaryCreate(100, 1000)
 	if err != nil {
 		fmt.Println(err)

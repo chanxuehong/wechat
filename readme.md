@@ -1,10 +1,10 @@
 # 微信公众平台 golang SDK
 
-#### 要求 go1.3+，如果你的环境是 go1.3 以下的，可以参考 github.com/chanxuehong/util/pool 来修改 client.Client 和 server.Handler，或者直接用 sync.pool.patch 里的文件覆盖。
+#### 因为使用了 sync.Pool, 所以要求 go1.3+; 如果你的环境是 go1.3 以下, 自己实现 sync.Pool 接口, 或者可以联系我!!!
 
 #### 因为目前我的公众号只有基本接口权限，所以大部分功能（特别是微信小店）没有经过测试，所以请大家使用过程中发现问题及时通知我，谢谢！
 
-Version:   0.8.9
+Version:   0.8.10
 
 NOTE:      在 v1.0.0 之前 API 都有可能微调
 

@@ -6,77 +6,39 @@
 package client
 
 import (
+	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	wechatjson "github.com/chanxuehong/wechat/json"
 	"io"
 	"net/http"
-	"sync"
 )
 
-// Client 封装了主动请求功能, 比如创建菜单, 回复客服消息等等.
-// Client 并发安全, 一般情况下一个应用维护一个 Client 实例即可!
+// Client 封装了主动请求功能, 比如创建菜单, 回复客服消息等等
 type Client struct {
 	tokenCache   TokenCache
 	tokenService TokenService
-
-	// 用于单进程环境, 和上面两个字段互斥
-	*defaultTokenCacheService
-
-	//  NOTE: require go1.3+ , 如果你的环境不满足这个条件, 可以自己实现一个简单的 Pool,
-	//        see github.com/chanxuehong/util/pool
-	bufferPool sync.Pool // 缓存的是 *bytes.Buffer
-
-	httpClient *http.Client
+	httpClient   *http.Client
 }
 
 // 创建一个新的 Client.
-//  NOTE: 用于单进程环境, 如果是多进程(多机器)环境, 请用 NewClientEx.
-//  如果 httpClient == nil 则默认用 http.DefaultClient,
-//  see ../CommonHttpClient 和 ../MediaHttpClient.
-func NewClient(appid, appsecret string, httpClient *http.Client) (clt *Client) {
-	clt = &Client{
-		defaultTokenCacheService: newDefaultTokenCacheService(appid, appsecret, httpClient),
-		bufferPool:               sync.Pool{New: newBuffer},
-	}
-	clt.defaultTokenCacheService.start()
-
-	if httpClient == nil {
-		clt.httpClient = http.DefaultClient
-	} else {
-		clt.httpClient = httpClient
-	}
-
-	return
-}
-
-// 只是实现了 TokenService 接口, 没有实现功能
-var defaultTokenService TokenService = incompleteTokenService(0)
-
-type incompleteTokenService int
-
-func (incompleteTokenService) TokenRefresh() (token string, err error) {
-	err = errors.New("没有实现 TokenRefresh 功能")
-	return
-}
-
-// 创建一个新的 Client.
-// tokenCache 必须实现, tokenService, httpClient 均可为 nil.
-//  如果 httpClient == nil 则默认用 http.DefaultClient，
-//  see ../CommonHttpClient 和 ../MediaHttpClient。
-func NewClientEx(tokenCache TokenCache, tokenService TokenService, httpClient *http.Client) (clt *Client) {
+//  NOTE:
+//  1. tokenCache 必须实现, tokenService, httpClient 均可为 nil.
+//  2. *DefaultTokenCacheService 同时实现了 TokenCache, TokenService 接口,
+//     请注意:
+//     A. 如果 tokenCache 的类型是 *DefaultTokenCacheService, 则 tokenService 要么为 nil,
+//        要么也必须是 *DefaultTokenCacheService
+//     B. 如果 tokenCache 的类型不是 *DefaultTokenCacheService, 则 tokenService 的
+//        类型也不能是 *DefaultTokenCacheService, 需要自己实现!
+//  3. 如果 httpClient == nil 则默认用 http.DefaultClient, see ../CommonHttpClient 和 ../MediaHttpClient.
+func NewClient(tokenCache TokenCache, tokenService TokenService, httpClient *http.Client) (clt *Client) {
 	if tokenCache == nil {
 		panic("tokenCache == nil")
-	}
-	if tokenService == nil {
-		tokenService = defaultTokenService
 	}
 
 	clt = &Client{
 		tokenCache:   tokenCache,
 		tokenService: tokenService,
-		bufferPool:   sync.Pool{New: newBuffer},
 	}
 
 	if httpClient == nil {
@@ -90,13 +52,14 @@ func NewClientEx(tokenCache TokenCache, tokenService TokenService, httpClient *h
 
 // Client 通用的 json post 请求
 func (c *Client) postJSON(_url string, request interface{}, response interface{}) (err error) {
-	buf := c.getBufferFromPool() // *bytes.Buffer
-	defer c.putBufferToPool(buf)
+	buf := textBufferPool.Get().(*bytes.Buffer) // *bytes.Buffer
+	buf.Reset()                                 // important
+	defer textBufferPool.Put(buf)
 
 	if err = wechatjson.NewEncoder(buf).Encode(request); err != nil {
 		return
 	}
-	
+
 	// debug ===================================================================
 	fmt.Println("request:", string(buf.Bytes()))
 
@@ -118,7 +81,6 @@ func (c *Client) postJSON(_url string, request interface{}, response interface{}
 		return
 	}
 
-
 	return
 }
 
@@ -135,8 +97,9 @@ func (c *Client) getJSON(_url string, response interface{}) (err error) {
 	}
 
 	// debug ===================================================================
-	buf := c.getBufferFromPool() // *bytes.Buffer
-	defer c.putBufferToPool(buf)
+	buf := textBufferPool.Get().(*bytes.Buffer) // *bytes.Buffer
+	buf.Reset()                                 // important
+	defer textBufferPool.Put(buf)
 	io.Copy(buf, resp.Body)
 	fmt.Println("response:", string(buf.Bytes()))
 	if err = json.NewDecoder(buf).Decode(response); err != nil {
