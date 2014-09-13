@@ -2,8 +2,7 @@ func QRCodeDownload(ticket string, writer io.Writer) (err error) 已测试
 func QRCodeDownloadToFile(ticket, _filepath string) (err error)  已测试
 func QRCodeURL(ticket string) string                             已测试
 type Client
-    func NewClient(appid, appsecret string, httpClient *http.Client) (clt *Client)
-    func NewClientEx(tokenCache TokenCache, tokenService TokenService, httpClient *http.Client) (clt *Client)
+    func NewClient(tokenService TokenService, httpClient *http.Client) (clt *Client)
     func (c *Client) CustomServiceRecordGet(request *customservice.RecordGetRequest) (records []customservice.Record, err error)
     func (c *Client) CustomServiceRecordIterator(request *customservice.RecordGetRequest) (iter customservice.RecordIterator, err error)
     func (c *Client) MediaCreateNews(news media.News) (resp *media.UploadResponse, err error)                          已测试

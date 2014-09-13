@@ -13,31 +13,27 @@ import (
 	"time"
 )
 
-// access token 缓存服务器接口, see token_cache_service.png
-type TokenCache interface {
-	// 获取 access token.
-	// 正常情况下 token != "" && err == nil, 否则 token == "" && err != nil
-	Token() (token string, err error)
-}
-
-// 请求"服务"刷新 access token 的接口, see token_cache_service.png
+// access token 伺服接口, see token_service.png
 type TokenService interface {
+	// 获取 access token, 该 token 一般缓存在某个地方.
+	// 正常情况下 token != "" && err == nil, 否则 token == "" && err != nil
+	// NOTE: 该方法一定要功能上实现!
+	Token() (token string, err error)
+
 	// 从微信服务器获取新的 access token.
 	// 正常情况下 token != "" && err == nil, 否则 token == "" && err != nil
-	//
 	//  NOTE:
 	//  1. 一般情况下无需调用该函数, 请使用 Token() 获取 access token.
-	//  2. 即使函数调用过程中返回了 access token 过期错误(错误代码 42001, 正常情况下不会出现),
-	//     也请谨慎调用 TokenRefresh, 建议直接返回错误! 因为很有可能造成雪崩效应!
-	//  3. 再次强调, 调用这个函数你应该知道发生了什么!!!
+	//  2. 该方法可以选择是否功能上实现, 如果没有需求可以在语法上实现即可!
+	//  3. 即使微信服务器返回了 access token 过期错误(错误代码 42001, 正常情况下不会出现),
+	//     也请谨慎调用 TokenRefresh, 建议直接返回错误! 因为很有可能高并发情况下造成雪崩效应!
+	//  4. 再次强调, 调用这个函数你应该知道发生了什么!!!
 	TokenRefresh() (token string, err error)
 }
 
-var _ TokenCache = new(DefaultTokenCacheService)
-var _ TokenService = new(DefaultTokenCacheService)
+var _ TokenService = new(DefaultTokenService)
 
-// DefaultTokenCacheService 是 TokenCache, TokenService 接口的简单实现
-type DefaultTokenCacheService struct {
+type DefaultTokenService struct {
 	appid, appsecret string
 
 	// goroutine tokenAutoUpdate() 里有个定时器, 每次触发都会更新 currentToken,
@@ -53,8 +49,8 @@ type DefaultTokenCacheService struct {
 	httpClient *http.Client
 }
 
-func NewDefaultTokenCacheService(appid, appsecret string, httpClient *http.Client) (srv *DefaultTokenCacheService) {
-	srv = &DefaultTokenCacheService{
+func NewDefaultTokenService(appid, appsecret string, httpClient *http.Client) (srv *DefaultTokenService) {
+	srv = &DefaultTokenService{
 		appid:                     appid,
 		appsecret:                 appsecret,
 		resetTokenRefreshTickChan: make(chan time.Duration),
@@ -79,8 +75,7 @@ func NewDefaultTokenCacheService(appid, appsecret string, httpClient *http.Clien
 	return
 }
 
-// 实现 TokenCache
-func (srv *DefaultTokenCacheService) Token() (token string, err error) {
+func (srv *DefaultTokenService) Token() (token string, err error) {
 	srv.currentToken.rwmutex.RLock()
 	token = srv.currentToken.token
 	err = srv.currentToken.err
@@ -88,8 +83,7 @@ func (srv *DefaultTokenCacheService) Token() (token string, err error) {
 	return
 }
 
-// 实现 TokenService
-func (srv *DefaultTokenCacheService) TokenRefresh() (token string, err error) {
+func (srv *DefaultTokenService) TokenRefresh() (token string, err error) {
 	srv.currentToken.rwmutex.Lock()
 	defer srv.currentToken.rwmutex.Unlock()
 
@@ -116,7 +110,7 @@ type tokenResponse struct {
 }
 
 // 从微信服务器获取新的 access_token
-func (srv *DefaultTokenCacheService) getNewToken() (resp *tokenResponse, err error) {
+func (srv *DefaultTokenService) getNewToken() (resp *tokenResponse, err error) {
 	_url := "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" +
 		srv.appid + "&secret=" + srv.appsecret
 
@@ -173,7 +167,7 @@ func (srv *DefaultTokenCacheService) getNewToken() (resp *tokenResponse, err err
 }
 
 // 单独一个 goroutine 来定时获取 access token
-func (srv *DefaultTokenCacheService) tokenAutoUpdate(tickDuration time.Duration) {
+func (srv *DefaultTokenService) tokenAutoUpdate(tickDuration time.Duration) {
 	const defaultTickDuration = time.Minute // 设置 44 秒以上就不会超过限制(2000次/日)
 	var ticker *time.Ticker
 
