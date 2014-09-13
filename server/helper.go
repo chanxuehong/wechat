@@ -81,8 +81,19 @@ func WriteNews(w io.Writer, msg *response.News) (err error) {
 	return writeResponse(w, msg)
 }
 
-// 把 TransferCustomerService 回复消息 msg 写入 writer w
-func WriteTransferCustomerService(w io.Writer, msg *response.TransferCustomerService) error {
+// 把 TransferToCustomerService 回复消息 msg 写入 writer w
+func WriteTransferToCustomerService(w io.Writer, msg *response.TransferToCustomerService) error {
+	if w == nil {
+		return errors.New("w == nil")
+	}
+	if msg == nil {
+		return errors.New("msg == nil")
+	}
+	return writeResponse(w, msg)
+}
+
+// 把 TransferToSpecialCustomerService 回复消息 msg 写入 writer w
+func WriteTransferToSpecialCustomerService(w io.Writer, msg *response.TransferToSpecialCustomerService) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
