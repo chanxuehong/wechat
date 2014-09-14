@@ -1,3 +1,8 @@
+# 首先来一个大广告哈哈
+我的个人订阅号，刚开始做，先帮我凑齐500人先，不管你有没有需求哈，感谢了！
+
+![产先生二维码](https://github.com/chanxuehong/wechat/blob/master/qrcode_cxs0556.jpg)
+
 # 微信公众平台 golang SDK
 
 #### 因为使用了 sync.Pool, 所以要求 go1.3+; 如果你的环境是 go1.3 以下, 自己实现 sync.Pool 接口, 或者可以联系我!!!
