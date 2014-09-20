@@ -8,8 +8,8 @@ package media
 const (
 	NewsArticleCountLimit = 10
 
-	NewsArticleCoverPicTrue  = 1
-	NewsArticleCoverPicFalse = 0
+	NewsArticleShowCoverPicTrue  = 1
+	NewsArticleShowCoverPicFalse = 0
 )
 
 const (
