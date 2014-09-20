@@ -11,6 +11,10 @@ const (
 )
 
 const (
+	MenuButtonLenLimit    = 16 // 菜单标题不超过16个字节
+	SubMenuButtonLenLimit = 40 // 子菜单标题不超过40个字节
+)
+const (
 	ButtonKeyLenLimit = 128 // 菜单KEY值不能超过128字节
 	ButtonURLLenLimit = 256 // 网页链接不能超过256字节
 )
