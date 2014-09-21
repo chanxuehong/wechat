@@ -48,12 +48,12 @@ type Request struct {
 		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"`
 	} `xml:"SendPicsInfo" json:"SendPicsInfo"`
 	SendLocationInfo struct {
-		LocationX string `xml:"Location_X"   json:"Location_X"`
-		LocationY string `xml:"Location_Y"   json:"Location_Y"`
-		Scale     string `xml:"Scale"   json:"Scale"`
-		Label     string `xml:"Label"   json:"Label"`
-		Poiname   string `xml:"Poiname"   json:"Poiname"`
-	} `xml:"SendLocationInfo" json:"SendLocationInfo"`
+		LocationX float64 `xml:"Location_X"   json:"Location_X"`
+		LocationY float64 `xml:"Location_Y"   json:"Location_Y"`
+		Scale     int     `xml:"Scale"   json:"Scale"`
+		Label     string  `xml:"Label"   json:"Label"`
+		Poiname   string  `xml:"Poiname,omitempty"   json:"Poiname,omitempty"`
+	} `xml:"SendLocationInfo" json:"SendLocationInfo"` // 发送的位置信息
 	Ticket      string  `xml:"Ticket,omitempty"      json:"Ticket,omitempty"`
 	Latitude    float64 `xml:"Latitude,omitempty"    json:"Latitude,omitempty"`
 	Longitude   float64 `xml:"Longitude,omitempty"   json:"Longitude,omitempty"`
