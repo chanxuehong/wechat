@@ -10,33 +10,32 @@ package menu
 //  {
 //      "button": [
 //          {
-//              "name": "click",
 //              "type": "click",
-//              "key": "key"
+//              "name": "今日歌曲",
+//              "key": "V1001_TODAY_MUSIC"
 //          },
 //          {
-//              "name": "view",
-//              "type": "view",
-//              "url": "http://www.qq.com"
-//          },
-//          {
-//              "name": "sub_menu",
+//              "name": "菜单",
 //              "sub_button": [
 //                  {
-//                      "name": "sub_click",
-//                      "type": "click",
-//                      "key": "key"
+//                      "type": "view",
+//                      "name": "搜索",
+//                      "url": "http://www.soso.com/"
 //                  },
 //                  {
-//                      "name": "sub_view",
 //                      "type": "view",
-//                      "url": "http://www.qq.com"
+//                      "name": "视频",
+//                      "url": "http://v.qq.com/"
+//                  },
+//                  {
+//                      "type": "click",
+//                      "name": "赞一下我们",
+//                      "key": "V1001_GOOD"
 //                  }
 //              ]
 //          }
 //      ]
 //  }
-//
 //
 //  {
 //      "button": [
@@ -89,16 +88,16 @@ package menu
 //  }
 
 type Menu struct {
-	Buttons []Button `json:"button,omitempty"` // 按钮个数不能超过 MenuButtonCountLimit
+	Buttons []Button `json:"button,omitempty"` // 一级菜单数组，个数应为1~3个
 }
 
 // 菜单的按钮
 type Button struct {
+	Type       string   `json:"type,omitempty"`       // 菜单的响应动作类型
 	Name       string   `json:"name"`                 // 菜单标题，不超过16个字节，子菜单不超过40个字节
-	Type       string   `json:"type,omitempty"`       // 菜单的响应动作类型，目前有click、view两种类型
-	Key        string   `json:"key,omitempty"`        // click类型必须; 菜单KEY值, 用于消息接口推送, 不超过128字节
-	URL        string   `json:"url,omitempty"`        // view类型必须; 网页链接, 用户点击菜单可打开链接, 不超过256字节
-	SubButtons []Button `json:"sub_button,omitempty"` // 二级菜单, 按钮个数不能超过 SubMenuButtonCountLimit
+	Key        string   `json:"key,omitempty"`        // 菜单KEY值，用于消息接口推送，不超过128字节
+	URL        string   `json:"url,omitempty"`        // 网页链接，用户点击菜单可打开链接，不超过256字节
+	SubButtons []Button `json:"sub_button,omitempty"` // 二级菜单数组，个数应为1~5个
 }
 
 // 初始化 btn 指向的 Button 为 子菜单 类型按钮
