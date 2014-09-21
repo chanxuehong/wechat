@@ -26,11 +26,12 @@ func (c *Client) UserGroupCreate(name string) (_group *user.Group, err error) {
 	request.Group.Name = name
 
 	var result struct {
+		Error
+
 		Group struct {
 			Id   int64  `json:"id"`
 			Name string `json:"name"`
 		} `json:"group"`
-		Error
 	}
 
 	hasRetry := false
@@ -40,6 +41,7 @@ RETRY:
 		return
 	}
 	_url := userGroupCreateURL(token)
+
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
@@ -69,8 +71,8 @@ RETRY:
 // 查询所有分组
 func (c *Client) UserGroupGet() (groups []user.Group, err error) {
 	var result = struct {
-		Groups []user.Group `json:"groups"`
 		Error
+		Groups []user.Group `json:"groups"`
 	}{
 		Groups: make([]user.Group, 0, 16),
 	}
@@ -82,6 +84,7 @@ RETRY:
 		return
 	}
 	_url := userGroupGetURL(token)
+
 	if err = c.getJSON(_url, &result); err != nil {
 		return
 	}
@@ -129,6 +132,7 @@ RETRY:
 		return
 	}
 	_url := userGroupRenameURL(token)
+
 	if err = c.postJSON(_url, &request, &result); err != nil {
 		return
 	}
@@ -153,6 +157,11 @@ RETRY:
 
 // 查询用户所在分组
 func (c *Client) UserInWhichGroup(openid string) (groupid int64, err error) {
+	if len(openid) == 0 {
+		err = errors.New(`openid == ""`)
+		return
+	}
+
 	var request = struct {
 		OpenId string `json:"openid"`
 	}{
@@ -160,8 +169,8 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int64, err error) {
 	}
 
 	var result struct {
-		GroupId int64 `json:"groupid"`
 		Error
+		GroupId int64 `json:"groupid"`
 	}
 
 	hasRetry := false
@@ -171,6 +180,7 @@ RETRY:
 		return
 	}
 	_url := userInWhichGroupURL(token)
+
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
@@ -196,6 +206,11 @@ RETRY:
 
 // 移动用户分组
 func (c *Client) UserMoveToGroup(openid string, toGroupId int64) (err error) {
+	if len(openid) == 0 {
+		err = errors.New(`openid == ""`)
+		return
+	}
+
 	var request = struct {
 		OpenId    string `json:"openid"`
 		ToGroupId int64  `json:"to_groupid"`
@@ -213,6 +228,7 @@ RETRY:
 		return
 	}
 	_url := userMoveToGroupURL(token)
+
 	if err = c.postJSON(_url, &request, &result); err != nil {
 		return
 	}
@@ -235,9 +251,62 @@ RETRY:
 	}
 }
 
-// 获取用户基本信息.
+// 开发者可以通过该接口对指定用户设置备注名
+//  NOTE: 该接口暂时开放给微信认证的服务号
+func (c *Client) UserUpdateRemark(openId, remark string) (err error) {
+	if len(openId) == 0 {
+		err = errors.New(`openId == ""`)
+		return
+	}
+
+	var request = struct {
+		OpenId string `json:"openid"`
+		Remark string `json:"remark"`
+	}{
+		OpenId: openId,
+		Remark: remark,
+	}
+
+	var result Error
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := userUpdateRemarkURL(token)
+
+	if err = c.postJSON(_url, &request, &result); err != nil {
+		return
+	}
+
+	switch result.ErrCode {
+	case errCodeOK:
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = &result
+		return
+	}
+}
+
+// 获取用户基本信息, 如果用户没有订阅公众号, 返回 user.ErrNotSubscribe 错误.
 //  lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
 func (c *Client) UserInfo(openid string, lang string) (userinfo *user.UserInfo, err error) {
+	if openid == "" {
+		err = errors.New(`openid == ""`)
+		return
+	}
+
 	switch lang {
 	case "":
 		lang = user.Language_zh_CN
@@ -249,9 +318,9 @@ func (c *Client) UserInfo(openid string, lang string) (userinfo *user.UserInfo, 
 	}
 
 	var result struct {
+		Error
 		Subscribe int `json:"subscribe"` // 用户是否订阅该公众号标识，值为0时，代表此用户没有关注该公众号，拉取不到其余信息。
 		user.UserInfo
-		Error
 	}
 
 	hasRetry := false
@@ -261,6 +330,7 @@ RETRY:
 		return
 	}
 	_url := userInfoURL(token, openid, lang)
+
 	if err = c.getJSON(_url, &result); err != nil {
 		return
 	}
@@ -268,7 +338,7 @@ RETRY:
 	switch result.ErrCode {
 	case errCodeOK:
 		if result.Subscribe == 0 {
-			err = fmt.Errorf("该用户 %s 没有订阅这个公众号", openid)
+			err = user.ErrNotSubscribe
 			return
 		}
 		userinfo = &result.UserInfo
@@ -288,24 +358,13 @@ RETRY:
 	}
 }
 
-// 获取关注者返回的数据结构
-type userGetResponse struct {
-	TotalCount int `json:"total"` // 关注该公众账号的总用户数
-	GetCount   int `json:"count"` // 拉取的OPENID个数，最大值为10000
-	Data       struct {
-		OpenId []string `json:"openid"`
-	} `json:"data"` // 列表数据，OPENID的列表
-	// 拉取列表的后一个用户的OPENID, 如果 next_openid == "" 则表示没有了用户数据
-	NextOpenId string `json:"next_openid"`
-}
-
-// 获取关注者列表, 如果 beginOpenId == "" 则表示从头遍历
-func (c *Client) userGet(beginOpenId string) (resp *userGetResponse, err error) {
+// 获取关注者列表, 每次最多能获取 10000 个用户, 如果 beginOpenId == "" 则表示从头获取
+func (c *Client) UserGet(beginOpenId string) (data *user.UserGetData, err error) {
 	var result struct {
-		userGetResponse
 		Error
+		user.UserGetData
 	}
-	result.userGetResponse.Data.OpenId = make([]string, 0, 256)
+	result.UserGetData.Data.OpenId = make([]string, 0, 256)
 
 	hasRetry := false
 RETRY:
@@ -314,13 +373,14 @@ RETRY:
 		return
 	}
 	_url := userGetURL(token, beginOpenId)
+
 	if err = c.getJSON(_url, &result); err != nil {
 		return
 	}
 
 	switch result.ErrCode {
 	case errCodeOK:
-		resp = &result.userGetResponse
+		data = &result.UserGetData
 		return
 
 	case errCodeTimeout:
@@ -338,25 +398,24 @@ RETRY:
 }
 
 // 该结构实现了 user.UserIterator 接口
-type userGetIterator struct {
-	userGetResponse *userGetResponse // 最近一次获取的用户数据
+type userIterator struct {
+	lastUserGetData *user.UserGetData // 最近一次获取的用户数据
 
 	wechatClient   *Client // 关联的微信 Client
 	nextPageCalled bool    // NextPage() 是否调用过
 }
 
-func (iter *userGetIterator) Total() int {
-	return iter.userGetResponse.TotalCount
+func (iter *userIterator) Total() int {
+	return iter.lastUserGetData.TotalCount
 }
 
-func (iter *userGetIterator) HasNext() bool {
-	// 第一批数据不需要通过 NextPage() 来获取, 因为在创建这个对象的时候就获取了;
-	if !iter.nextPageCalled {
-		return iter.userGetResponse.GetCount > 0
+func (iter *userIterator) HasNext() bool {
+	if !iter.nextPageCalled { // 还没有调用 NextPage(), 从创建的时候获取的数据来判断
+		return iter.lastUserGetData.GetCount > 0
 	}
 
-	// 后面的判断都要根据上一次获取的数据来判断
-
+	// 已经调用过 NextPage(), 根据 next_openid 字段是否为空来判断
+	//
 	// 跟文档的描述貌似有点不一样, 即使后续没有用户, 貌似 next_openid 还是不为空!
 	// 所以增加了一个判断 iter.userGetResponse.GetCount == user.UserPageCountLimit
 	//
@@ -376,80 +435,38 @@ func (iter *userGetIterator) HasNext() bool {
 	//     },
 	//     "next_openid": "os-IKuHd9pJ6xsn4mS7GyL4HxqI4"
 	// }
-	return iter.userGetResponse.GetCount == user.UserPageCountLimit &&
-		len(iter.userGetResponse.NextOpenId) != 0
+	return len(iter.lastUserGetData.NextOpenId) != 0 &&
+		iter.lastUserGetData.GetCount == user.UserPageCountLimit
 }
-func (iter *userGetIterator) NextPage() (openids []string, err error) {
-	// 第一次调用 NextPage(), 因为在创建这个对象的时候已经获取了数据, 所以直接返回.
-	if !iter.nextPageCalled {
+
+func (iter *userIterator) NextPage() (openids []string, err error) {
+	if !iter.nextPageCalled { // 还没有调用 NextPage(), 从创建的时候获取的数据中获取
 		iter.nextPageCalled = true
-		openids = iter.userGetResponse.Data.OpenId
+		openids = iter.lastUserGetData.Data.OpenId
 		return
 	}
 
 	// 不是第一次调用的都要从服务器拉取数据
-	resp, err := iter.wechatClient.userGet(iter.userGetResponse.NextOpenId)
+	data, err := iter.wechatClient.UserGet(iter.lastUserGetData.NextOpenId)
 	if err != nil {
 		return
 	}
 
-	iter.userGetResponse = resp // 覆盖老数据
-	openids = resp.Data.OpenId
+	iter.lastUserGetData = data // 覆盖老数据
+	openids = data.Data.OpenId
 	return
 }
 
 // 关注用户遍历器, 如果 beginOpenId == "" 则表示从头遍历
 func (c *Client) UserIterator(beginOpenId string) (iter user.UserIterator, err error) {
-	resp, err := c.userGet(beginOpenId)
+	data, err := c.UserGet(beginOpenId)
 	if err != nil {
 		return
 	}
 
-	iter = &userGetIterator{
-		userGetResponse: resp,
+	iter = &userIterator{
+		lastUserGetData: data,
 		wechatClient:    c,
 	}
 	return
-}
-
-// 开发者可以通过该接口对指定用户设置备注名
-//  NOTE: 该接口暂时开放给微信认证的服务号
-func (c *Client) UserUpdateRemark(openId, remark string) (err error) {
-	var request = struct {
-		OpenId string `json:"openid"`
-		Remark string `json:"remark"`
-	}{
-		OpenId: openId,
-		Remark: remark,
-	}
-
-	var result Error
-
-	hasRetry := false
-RETRY:
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-	_url := userUpdateRemarkURL(token)
-	if err = c.postJSON(_url, &request, &result); err != nil {
-		return
-	}
-
-	switch result.ErrCode {
-	case errCodeOK:
-		return
-
-	case errCodeTimeout:
-		if !hasRetry {
-			hasRetry = true
-			timeoutRetryWait()
-			goto RETRY
-		}
-		fallthrough
-
-	default:
-		err = &result
-		return
-	}
 }

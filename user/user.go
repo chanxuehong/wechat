@@ -6,6 +6,7 @@
 package user
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -17,6 +18,8 @@ type Group struct {
 	Name      string `json:"name"`  // 分组名字，UTF8编码
 	UserCount int    `json:"count"` // 分组内用户数量
 }
+
+var ErrNotSubscribe = errors.New("没有订阅公众号")
 
 type UserInfo struct {
 	OpenId   string `json:"openid"`   // 用户的标识，对当前公众号唯一
@@ -37,7 +40,7 @@ type UserInfo struct {
 	// 只有在用户将公众号绑定到微信开放平台帐号后，才会出现该字段。
 	UnionId string `json:"unionid,omitempty"`
 
-	// 下面这个字段文档中没有，但是实际返回的数据里有这个字段
+	// 备注名; 这个字段文档中没有，但是实际返回的数据里有这个字段
 	Remark string `json:"remark,omitempty"`
 }
 
@@ -71,6 +74,19 @@ func HeadImageSize(headImageURL string) (size int, err error) {
 	return
 }
 
+// 获取关注者返回的数据结构
+type UserGetData struct {
+	TotalCount int `json:"total"` // 关注该公众账号的总用户数
+	GetCount   int `json:"count"` // 拉取的OPENID个数，最大值为10000
+
+	Data struct {
+		OpenId []string `json:"openid"`
+	} `json:"data"` // 列表数据，OPENID的列表
+
+	// 拉取列表的后一个用户的OPENID, 如果 next_openid == "" 则表示没有了用户数据
+	NextOpenId string `json:"next_openid"`
+}
+
 // 关注者列表的遍历器
 //
 //  iter, err := Client.UserIterator("beginOpenId")
@@ -86,7 +102,7 @@ func HeadImageSize(headImageURL string) (size int, err error) {
 //      // TODO: 增加你的代码
 //  }
 type UserIterator interface {
+	Total() int // 用户总的个数
 	HasNext() bool
 	NextPage() (openids []string, err error)
-	Total() int // 用户总的个数
 }
