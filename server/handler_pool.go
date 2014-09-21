@@ -7,7 +7,7 @@ package server
 
 import (
 	"bytes"
-	"github.com/chanxuehong/wechat/message/request"
+	"github.com/chanxuehong/wechat/message/passive/request"
 )
 
 // 对于 Handler, 处理 request 消息每次都会用到一些中间变量, 可以缓存起来

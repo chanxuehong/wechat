@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/chanxuehong/wechat/message/template"
+	"github.com/chanxuehong/wechat/message/active/template"
 	"net/http"
 )
 

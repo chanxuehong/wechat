@@ -45,7 +45,7 @@ type Request struct {
 		Count   int `xml:"Count"   json:"Count"`
 		PicList []struct {
 			PicMD5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"`
-		} `xml:"PicList>item" json:"PicList"`
+		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"`
 	} `xml:"SendPicsInfo" json:"SendPicsInfo"`
 	SendLocationInfo struct {
 		LocationX string `xml:"Location_X"   json:"Location_X"`

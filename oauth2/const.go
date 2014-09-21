@@ -3,18 +3,16 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package sns
+package oauth2
 
-import (
-	"fmt"
+const (
+	Language_zh_CN = "zh_CN" // 简体中文
+	Language_zh_TW = "zh_TW" // 繁体中文
+	Language_en    = "en"    // 英文
 )
 
-// 微信服务器返回的错误都是这个格式
-type Error struct {
-	ErrCode int    `json:"errcode"`
-	ErrMsg  string `json:"errmsg"`
-}
-
-func (e *Error) Error() string {
-	return fmt.Sprintf("errcode: %d, errmsg: %s", e.ErrCode, e.ErrMsg)
-}
+const (
+	SEX_UNKNOWN = 0 // 未知
+	SEX_MALE    = 1 // 男性
+	SEX_FEMALE  = 2 // 女性
+)

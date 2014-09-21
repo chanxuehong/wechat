@@ -8,7 +8,7 @@ package server
 import (
 	"encoding/xml"
 	"errors"
-	"github.com/chanxuehong/wechat/message/response"
+	"github.com/chanxuehong/wechat/message/passive/response"
 	"io"
 )
 

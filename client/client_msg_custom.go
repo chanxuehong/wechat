@@ -7,7 +7,7 @@ package client
 
 import (
 	"errors"
-	"github.com/chanxuehong/wechat/message/custom"
+	"github.com/chanxuehong/wechat/message/active/custom"
 )
 
 // 发送客服消息, 文本.

@@ -101,7 +101,7 @@ type MenuPicSysPhotoEvent struct {
 		Count   int `xml:"Count"   json:"Count"` // 发送的图片数量
 		PicList []struct {
 			PicMD5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"` // 图片的MD5值，开发者若需要，可用于验证接收到图片
-		} `xml:"PicList>item" json:"PicList"` // 图片列表
+		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"` // 图片列表
 	} `xml:"SendPicsInfo" json:"SendPicsInfo"` // 发送的图片信息
 }
 
@@ -127,7 +127,7 @@ type MenuPicPhotoOrAlbumEvent struct {
 		Count   int `xml:"Count"   json:"Count"` // 发送的图片数量
 		PicList []struct {
 			PicMD5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"` // 图片的MD5值，开发者若需要，可用于验证接收到图片
-		} `xml:"PicList>item" json:"PicList"` // 图片列表
+		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"` // 图片列表
 	} `xml:"SendPicsInfo" json:"SendPicsInfo"` // 发送的图片信息
 }
 
@@ -153,7 +153,7 @@ type MenuPicWeixinEvent struct {
 		Count   int `xml:"Count"   json:"Count"` // 发送的图片数量
 		PicList []struct {
 			PicMD5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"` // 图片的MD5值，开发者若需要，可用于验证接收到图片
-		} `xml:"PicList>item" json:"PicList"` // 图片列表
+		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"` // 图片列表
 	} `xml:"SendPicsInfo" json:"SendPicsInfo"` // 发送的图片信息
 }
 

@@ -8,12 +8,12 @@
 package main
 
 import (
-	"github.com/chanxuehong/wechat/sns"
+	"github.com/chanxuehong/wechat/oauth2"
 	"net/http"
 )
 
 // 一个应用只用一个全局变量（实际应用中根据自己的参数填写）
-var oauth2Config = sns.NewOAuth2Config("appid", "appsecret", "redirectURL", "scope0", "scope1")
+var oauth2Config = oauth2.NewOAuth2Config("appid", "appsecret", "redirectURL", "scope0", "scope1")
 
 // 在需要用户授权的时候引导用户到授权页面
 func SomeHandler(w http.ResponseWriter, r *http.Request) {
@@ -21,10 +21,10 @@ func SomeHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: 判断 session 里是否有 openid 字段，如果有则表明已经授权，没有则没有授权
 
 	if hasAuth {
-		var info *sns.OAuth2Info
-		// TODO: 根据 openid 字段 找到 info(type == *sns.OAuth2Info)
+		var info *oauth2.OAuth2Info
+		// TODO: 根据 openid 字段 找到 info(type == *oauth2.OAuth2Info)
 
-		client := sns.Client{
+		client := oauth2.Client{
 			OAuth2Config: oauth2Config,
 			OAuth2Info:   info,
 		}
@@ -67,7 +67,7 @@ func RedirectURLHandler(w http.ResponseWriter, r *http.Request) {
 
 	if code := r.FormValue("code"); code != "" { // 授权
 
-		client := sns.Client{
+		client := oauth2.Client{
 			OAuth2Config: oauth2Config,
 		}
 		info, err := client.Exchange(code)

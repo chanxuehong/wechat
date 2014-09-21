@@ -6,7 +6,7 @@
 package server
 
 import (
-	"github.com/chanxuehong/wechat/message/request"
+	"github.com/chanxuehong/wechat/message/passive/request"
 	"net/http"
 )
 

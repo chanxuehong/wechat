@@ -7,7 +7,7 @@ package server
 
 import (
 	"bytes"
-	"github.com/chanxuehong/wechat/message/request"
+	"github.com/chanxuehong/wechat/message/passive/request"
 	"testing"
 )
 

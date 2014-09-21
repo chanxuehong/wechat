@@ -7,7 +7,7 @@ package client
 
 import (
 	"errors"
-	"github.com/chanxuehong/wechat/message/massbyopenid"
+	"github.com/chanxuehong/wechat/message/active/massbyopenid"
 )
 
 // 根据用户列表群发文本消息.

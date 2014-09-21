@@ -7,7 +7,7 @@ package client
 
 import (
 	"errors"
-	"github.com/chanxuehong/wechat/message/massbygroup"
+	"github.com/chanxuehong/wechat/message/active/massbygroup"
 )
 
 // 根据分组群发文本消息.

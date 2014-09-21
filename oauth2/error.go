@@ -3,5 +3,18 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 封装网页授权获取用户基本信息的支持.
-package sns
+package oauth2
+
+import (
+	"fmt"
+)
+
+// 微信服务器返回的错误都是这个格式
+type Error struct {
+	ErrCode int    `json:"errcode"`
+	ErrMsg  string `json:"errmsg"`
+}
+
+func (e *Error) Error() string {
+	return fmt.Sprintf("errcode: %d, errmsg: %s", e.ErrCode, e.ErrMsg)
+}
