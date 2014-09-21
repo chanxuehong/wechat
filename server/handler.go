@@ -99,14 +99,32 @@ func (handler *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		case request.MSG_TYPE_EVENT:
 			// event router
 			switch msgRqst.Event {
+			case request.EVENT_TYPE_LOCATION:
+				handler.setting.LocationEventHandler(w, r, msgRqst.LocationEvent())
+
 			case request.EVENT_TYPE_CLICK:
 				handler.setting.MenuClickEventHandler(w, r, msgRqst.MenuClickEvent())
 
 			case request.EVENT_TYPE_VIEW:
 				handler.setting.MenuViewEventHandler(w, r, msgRqst.MenuViewEvent())
 
-			case request.EVENT_TYPE_LOCATION:
-				handler.setting.LocationEventHandler(w, r, msgRqst.LocationEvent())
+			case request.EVENT_TYPE_SCANCODE_PUSH:
+				handler.setting.MenuScanCodePushEventHandler(w, r, msgRqst.MenuScanCodePushEvent())
+
+			case request.EVENT_TYPE_SCANCODE_WAITMSG:
+				handler.setting.MenuScanCodeWaitMsgEventHandler(w, r, msgRqst.MenuScanCodeWaitMsgEvent())
+
+			case request.EVENT_TYPE_PIC_SYSPHOTO:
+				handler.setting.MenuPicSysPhotoEventHandler(w, r, msgRqst.MenuPicSysPhotoEvent())
+
+			case request.EVENT_TYPE_PIC_PHOTO_OR_ALBUM:
+				handler.setting.MenuPicPhotoOrAlbumEventHandler(w, r, msgRqst.MenuPicPhotoOrAlbumEvent())
+
+			case request.EVENT_TYPE_PIC_WEIXIN:
+				handler.setting.MenuPicWeixinEventHandler(w, r, msgRqst.MenuPicWeixinEvent())
+
+			case request.EVENT_TYPE_LOCATION_SELECT:
+				handler.setting.MenuLocationSelectEventHandler(w, r, msgRqst.MenuLocationSelectEvent())
 
 			case request.EVENT_TYPE_TEMPLATESENDJOBFINISH:
 				handler.setting.TemplateSendJobFinishEventHandler(w, r, msgRqst.TemplateSendJobFinishEvent())

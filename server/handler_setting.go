@@ -32,6 +32,12 @@ type ScanEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.Scan
 type LocationEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.LocationEvent)
 type MenuClickEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuClickEvent)
 type MenuViewEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuViewEvent)
+type MenuScanCodePushEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuScanCodePushEvent)
+type MenuScanCodeWaitMsgEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuScanCodeWaitMsgEvent)
+type MenuPicSysPhotoEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuPicSysPhotoEvent)
+type MenuPicPhotoOrAlbumEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuPicPhotoOrAlbumEvent)
+type MenuPicWeixinEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuPicWeixinEvent)
+type MenuLocationSelectEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuLocationSelectEvent)
 type MassSendJobFinishEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MassSendJobFinishEvent)
 type TemplateSendJobFinishEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.TemplateSendJobFinishEvent)
 type MerchantOrderEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MerchantOrderEvent)
@@ -61,6 +67,12 @@ type HandlerSetting struct {
 	LocationEventHandler              LocationEventHandlerFunc
 	MenuClickEventHandler             MenuClickEventHandlerFunc
 	MenuViewEventHandler              MenuViewEventHandlerFunc
+	MenuScanCodePushEventHandler      MenuScanCodePushEventHandlerFunc
+	MenuScanCodeWaitMsgEventHandler   MenuScanCodeWaitMsgEventHandlerFunc
+	MenuPicSysPhotoEventHandler       MenuPicSysPhotoEventHandlerFunc
+	MenuPicPhotoOrAlbumEventHandler   MenuPicPhotoOrAlbumEventHandlerFunc
+	MenuPicWeixinEventHandler         MenuPicWeixinEventHandlerFunc
+	MenuLocationSelectEventHandler    MenuLocationSelectEventHandlerFunc
 	MassSendJobFinishEventHandler     MassSendJobFinishEventHandlerFunc
 	TemplateSendJobFinishEventHandler TemplateSendJobFinishEventHandlerFunc
 	MerchantOrderEventHandler         MerchantOrderEventHandlerFunc
@@ -151,6 +163,36 @@ func (this *HandlerSetting) initialize(setting *HandlerSetting) {
 	} else {
 		this.MenuViewEventHandler = defaultMenuViewEventHandler
 	}
+	if setting.MenuScanCodePushEventHandler != nil {
+		this.MenuScanCodePushEventHandler = setting.MenuScanCodePushEventHandler
+	} else {
+		this.MenuScanCodePushEventHandler = defaultMenuScanCodePushEventHandler
+	}
+	if setting.MenuScanCodeWaitMsgEventHandler != nil {
+		this.MenuScanCodeWaitMsgEventHandler = setting.MenuScanCodeWaitMsgEventHandler
+	} else {
+		this.MenuScanCodeWaitMsgEventHandler = defaultMenuScanCodeWaitMsgEventHandler
+	}
+	if setting.MenuPicSysPhotoEventHandler != nil {
+		this.MenuPicSysPhotoEventHandler = setting.MenuPicSysPhotoEventHandler
+	} else {
+		this.MenuPicSysPhotoEventHandler = defaultMenuPicSysPhotoEventHandler
+	}
+	if setting.MenuPicPhotoOrAlbumEventHandler != nil {
+		this.MenuPicPhotoOrAlbumEventHandler = setting.MenuPicPhotoOrAlbumEventHandler
+	} else {
+		this.MenuPicPhotoOrAlbumEventHandler = defaultMenuPicPhotoOrAlbumEventHandler
+	}
+	if setting.MenuPicWeixinEventHandler != nil {
+		this.MenuPicWeixinEventHandler = setting.MenuPicWeixinEventHandler
+	} else {
+		this.MenuPicWeixinEventHandler = defaultMenuPicWeixinEventHandler
+	}
+	if setting.MenuLocationSelectEventHandler != nil {
+		this.MenuLocationSelectEventHandler = setting.MenuLocationSelectEventHandler
+	} else {
+		this.MenuLocationSelectEventHandler = defaultMenuLocationSelectEventHandler
+	}
 	if setting.MassSendJobFinishEventHandler != nil {
 		this.MassSendJobFinishEventHandler = setting.MassSendJobFinishEventHandler
 	} else {
@@ -186,6 +228,18 @@ func defaultScanEventHandler(http.ResponseWriter, *http.Request, *request.ScanEv
 func defaultLocationEventHandler(http.ResponseWriter, *http.Request, *request.LocationEvent)   {}
 func defaultMenuClickEventHandler(http.ResponseWriter, *http.Request, *request.MenuClickEvent) {}
 func defaultMenuViewEventHandler(http.ResponseWriter, *http.Request, *request.MenuViewEvent)   {}
+func defaultMenuScanCodePushEventHandler(http.ResponseWriter, *http.Request, *request.MenuScanCodePushEvent) {
+}
+func defaultMenuScanCodeWaitMsgEventHandler(http.ResponseWriter, *http.Request, *request.MenuScanCodeWaitMsgEvent) {
+}
+func defaultMenuPicSysPhotoEventHandler(http.ResponseWriter, *http.Request, *request.MenuPicSysPhotoEvent) {
+}
+func defaultMenuPicPhotoOrAlbumEventHandler(http.ResponseWriter, *http.Request, *request.MenuPicPhotoOrAlbumEvent) {
+}
+func defaultMenuPicWeixinEventHandler(http.ResponseWriter, *http.Request, *request.MenuPicWeixinEvent) {
+}
+func defaultMenuLocationSelectEventHandler(http.ResponseWriter, *http.Request, *request.MenuLocationSelectEvent) {
+}
 func defaultMassSendJobFinishEventHandler(http.ResponseWriter, *http.Request, *request.MassSendJobFinishEvent) {
 }
 func defaultTemplateSendJobFinishEventHandler(http.ResponseWriter, *http.Request, *request.TemplateSendJobFinishEvent) {

@@ -31,7 +31,14 @@ type ScanEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.Scan
 type LocationEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.LocationEvent)
 type MenuClickEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuClickEvent)
 type MenuViewEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuViewEvent)
+type MenuScanCodePushEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuScanCodePushEvent)
+type MenuScanCodeWaitMsgEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuScanCodeWaitMsgEvent)
+type MenuPicSysPhotoEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuPicSysPhotoEvent)
+type MenuPicPhotoOrAlbumEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuPicPhotoOrAlbumEvent)
+type MenuPicWeixinEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuPicWeixinEvent)
+type MenuLocationSelectEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MenuLocationSelectEvent)
 type MassSendJobFinishEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MassSendJobFinishEvent)
+type TemplateSendJobFinishEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.TemplateSendJobFinishEvent)
 type MerchantOrderEventHandlerFunc func(http.ResponseWriter, *http.Request, *request.MerchantOrderEvent)
 ```
 

@@ -37,6 +37,57 @@ package menu
 //      ]
 //  }
 //
+//
+//  {
+//      "button": [
+//          {
+//              "name": "扫码",
+//              "sub_button": [
+//                  {
+//                      "type": "scancode_waitmsg",
+//                      "name": "扫码带提示",
+//                      "key": "rselfmenu_0_0",
+//                      "sub_button": [ ]
+//                  },
+//                  {
+//                      "type": "scancode_push",
+//                      "name": "扫码推事件",
+//                      "key": "rselfmenu_0_1",
+//                      "sub_button": [ ]
+//                  }
+//              ]
+//          },
+//          {
+//              "name": "发图",
+//              "sub_button": [
+//                  {
+//                      "type": "pic_sysphoto",
+//                      "name": "系统拍照发图",
+//                      "key": "rselfmenu_1_0",
+//                      "sub_button": [ ]
+//                  },
+//                  {
+//                      "type": "pic_photo_or_album",
+//                      "name": "拍照或者相册发图",
+//                      "key": "rselfmenu_1_1",
+//                      "sub_button": [ ]
+//                  },
+//                  {
+//                      "type": "pic_weixin",
+//                      "name": "微信相册发图",
+//                      "key": "rselfmenu_1_2",
+//                      "sub_button": [ ]
+//                  }
+//              ]
+//          },
+//          {
+//              "name": "发送位置",
+//              "type": "location_select",
+//              "key": "rselfmenu_2_0"
+//          }
+//      ]
+//  }
+
 type Menu struct {
 	Buttons []Button `json:"button,omitempty"` // 按钮个数不能超过 MenuButtonCountLimit
 }
@@ -48,6 +99,17 @@ type Button struct {
 	Key        string   `json:"key,omitempty"`        // click类型必须; 菜单KEY值, 用于消息接口推送, 不超过128字节
 	URL        string   `json:"url,omitempty"`        // view类型必须; 网页链接, 用户点击菜单可打开链接, 不超过256字节
 	SubButtons []Button `json:"sub_button,omitempty"` // 二级菜单, 按钮个数不能超过 SubMenuButtonCountLimit
+}
+
+// 初始化 btn 指向的 Button 为 子菜单 类型按钮
+func (btn *Button) InitToSubMenuButton(name string, subButtons []Button) {
+	btn.Name = name
+	btn.SubButtons = subButtons
+
+	// 容错性考虑, 清除其他字段
+	btn.Type = ""
+	btn.Key = ""
+	btn.URL = ""
 }
 
 // 初始化 btn 指向的 Button 为 click 类型按钮
@@ -72,13 +134,68 @@ func (btn *Button) InitToViewButton(name, url string) {
 	btn.SubButtons = nil
 }
 
-// 初始化 btn 指向的 Button 为 子菜单 类型按钮
-func (btn *Button) InitToSubMenuButton(name string, subButtons []Button) {
+// 初始化 btn 指向的 Button 为 扫码推事件 类型按钮
+func (btn *Button) InitToScanCodePushButton(name, key string) {
 	btn.Name = name
-	btn.SubButtons = subButtons
+	btn.Type = BUTTON_TYPE_SCANCODE_PUSH
+	btn.Key = key
 
 	// 容错性考虑, 清除其他字段
-	btn.Type = ""
-	btn.Key = ""
 	btn.URL = ""
+	btn.SubButtons = nil
+}
+
+// 初始化 btn 指向的 Button 为 扫码推事件且弹出“消息接收中”提示框 类型按钮
+func (btn *Button) InitToScanCodeWaitMsgButton(name, key string) {
+	btn.Name = name
+	btn.Type = BUTTON_TYPE_SCANCODE_WAITMSG
+	btn.Key = key
+
+	// 容错性考虑, 清除其他字段
+	btn.URL = ""
+	btn.SubButtons = nil
+}
+
+// 初始化 btn 指向的 Button 为 弹出系统拍照发图 类型按钮
+func (btn *Button) InitToPicSysPhotoButton(name, key string) {
+	btn.Name = name
+	btn.Type = BUTTON_TYPE_PIC_SYSPHOTO
+	btn.Key = key
+
+	// 容错性考虑, 清除其他字段
+	btn.URL = ""
+	btn.SubButtons = nil
+}
+
+// 初始化 btn 指向的 Button 为 弹出拍照或者相册发图 类型按钮
+func (btn *Button) InitToPicPhotoOrAlbumButton(name, key string) {
+	btn.Name = name
+	btn.Type = BUTTON_TYPE_PIC_PHOTO_OR_ALBUM
+	btn.Key = key
+
+	// 容错性考虑, 清除其他字段
+	btn.URL = ""
+	btn.SubButtons = nil
+}
+
+// 初始化 btn 指向的 Button 为 弹出微信相册发图器 类型按钮
+func (btn *Button) InitToPicWeixinButton(name, key string) {
+	btn.Name = name
+	btn.Type = BUTTON_TYPE_PIC_WEIXIN
+	btn.Key = key
+
+	// 容错性考虑, 清除其他字段
+	btn.URL = ""
+	btn.SubButtons = nil
+}
+
+// 初始化 btn 指向的 Button 为 弹出地理位置选择器 类型按钮
+func (btn *Button) InitToLocationSelectButton(name, key string) {
+	btn.Name = name
+	btn.Type = BUTTON_TYPE_LOCATION_SELECT
+	btn.Key = key
+
+	// 容错性考虑, 清除其他字段
+	btn.URL = ""
+	btn.SubButtons = nil
 }
