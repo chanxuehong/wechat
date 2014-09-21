@@ -12,7 +12,7 @@ type CommonHead struct {
 	MsgType      string `xml:"MsgType"      json:"MsgType"`      // 消息类型
 }
 
-// 包括了微信服务器推送到开发者 URL 的所有的消息类型
+// 微信服务器推送到开发者 URL 的所有已知的消息类型的组合体
 type Request struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	CommonHead
@@ -44,7 +44,7 @@ type Request struct {
 	SendPicsInfo struct {
 		Count   int `xml:"Count"   json:"Count"`
 		PicList []struct {
-			PicMD5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"`
+			PicMd5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"`
 		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"`
 	} `xml:"SendPicsInfo" json:"SendPicsInfo"`
 	SendLocationInfo struct {
@@ -52,8 +52,8 @@ type Request struct {
 		LocationY float64 `xml:"Location_Y"   json:"Location_Y"`
 		Scale     int     `xml:"Scale"   json:"Scale"`
 		Label     string  `xml:"Label"   json:"Label"`
-		Poiname   string  `xml:"Poiname,omitempty"   json:"Poiname,omitempty"`
-	} `xml:"SendLocationInfo" json:"SendLocationInfo"` // 发送的位置信息
+		Poiname   string  `xml:"Poiname"   json:"Poiname"`
+	} `xml:"SendLocationInfo" json:"SendLocationInfo"`
 	Ticket      string  `xml:"Ticket,omitempty"      json:"Ticket,omitempty"`
 	Latitude    float64 `xml:"Latitude,omitempty"    json:"Latitude,omitempty"`
 	Longitude   float64 `xml:"Longitude,omitempty"   json:"Longitude,omitempty"`

@@ -100,7 +100,7 @@ type MenuPicSysPhotoEvent struct {
 	SendPicsInfo struct {
 		Count   int `xml:"Count"   json:"Count"` // 发送的图片数量
 		PicList []struct {
-			PicMD5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"` // 图片的MD5值，开发者若需要，可用于验证接收到图片
+			PicMd5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"` // 图片的MD5值，开发者若需要，可用于验证接收到图片
 		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"` // 图片列表
 	} `xml:"SendPicsInfo" json:"SendPicsInfo"` // 发送的图片信息
 }
@@ -126,7 +126,7 @@ type MenuPicPhotoOrAlbumEvent struct {
 	SendPicsInfo struct {
 		Count   int `xml:"Count"   json:"Count"` // 发送的图片数量
 		PicList []struct {
-			PicMD5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"` // 图片的MD5值，开发者若需要，可用于验证接收到图片
+			PicMd5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"` // 图片的MD5值，开发者若需要，可用于验证接收到图片
 		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"` // 图片列表
 	} `xml:"SendPicsInfo" json:"SendPicsInfo"` // 发送的图片信息
 }
@@ -152,7 +152,7 @@ type MenuPicWeixinEvent struct {
 	SendPicsInfo struct {
 		Count   int `xml:"Count"   json:"Count"` // 发送的图片数量
 		PicList []struct {
-			PicMD5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"` // 图片的MD5值，开发者若需要，可用于验证接收到图片
+			PicMd5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"` // 图片的MD5值，开发者若需要，可用于验证接收到图片
 		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"` // 图片列表
 	} `xml:"SendPicsInfo" json:"SendPicsInfo"` // 发送的图片信息
 }
@@ -176,11 +176,11 @@ type MenuLocationSelectEvent struct {
 	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值，由开发者在创建菜单时设定
 
 	SendLocationInfo struct {
-		LocationX float64 `xml:"Location_X"   json:"Location_X"`               // 地理位置纬度
-		LocationY float64 `xml:"Location_Y"   json:"Location_Y"`               // 地理位置经度
-		Scale     int     `xml:"Scale"   json:"Scale"`                         // 精度，可理解为精度或者比例尺、越精细的话 scale越高
-		Label     string  `xml:"Label"   json:"Label"`                         // 地理位置的字符串信息
-		Poiname   string  `xml:"Poiname,omitempty"   json:"Poiname,omitempty"` // 朋友圈POI的名字，可能为空
+		LocationX float64 `xml:"Location_X"   json:"Location_X"` // 地理位置纬度
+		LocationY float64 `xml:"Location_Y"   json:"Location_Y"` // 地理位置经度
+		Scale     int     `xml:"Scale"   json:"Scale"`           // 精度，可理解为精度或者比例尺、越精细的话 scale越高
+		Label     string  `xml:"Label"   json:"Label"`           // 地理位置的字符串信息
+		Poiname   string  `xml:"Poiname"   json:"Poiname"`       // 朋友圈POI的名字，可能为空
 	} `xml:"SendLocationInfo" json:"SendLocationInfo"` // 发送的位置信息
 }
 
