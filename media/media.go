@@ -7,9 +7,9 @@ package media
 
 // 上传(创建)媒体成功时的回复报文
 type MediaInfo struct {
-	MediaType string `json:"type"` // 图片（image）、语音（voice）、视频（video）、缩略图（thumb）和 图文消息（news）
-	MediaId   string `json:"media_id"`
-	CreatedAt int64  `json:"created_at"`
+	MediaType string `json:"type"`       // 图片（image）、语音（voice）、视频（video）、缩略图（thumb）和 图文消息（news）
+	MediaId   string `json:"media_id"`   // 媒体文件上传后，获取时的唯一标识
+	CreatedAt int64  `json:"created_at"` // 媒体文件上传时间戳
 }
 
 // 图文消息里的 Article
