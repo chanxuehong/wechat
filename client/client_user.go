@@ -359,7 +359,7 @@ RETRY:
 }
 
 // 获取关注者列表, 每次最多能获取 10000 个用户, 如果 beginOpenId == "" 则表示从头获取
-func (c *Client) UserGet(beginOpenId string) (data *user.UserGetData, err error) {
+func (c *Client) UserList(beginOpenId string) (data *user.UserGetData, err error) {
 	var result struct {
 		Error
 		user.UserGetData
@@ -447,7 +447,7 @@ func (iter *userIterator) NextPage() (openids []string, err error) {
 	}
 
 	// 不是第一次调用的都要从服务器拉取数据
-	data, err := iter.wechatClient.UserGet(iter.lastUserGetData.NextOpenId)
+	data, err := iter.wechatClient.UserList(iter.lastUserGetData.NextOpenId)
 	if err != nil {
 		return
 	}
@@ -459,7 +459,7 @@ func (iter *userIterator) NextPage() (openids []string, err error) {
 
 // 关注用户遍历器, 如果 beginOpenId == "" 则表示从头遍历
 func (c *Client) UserIterator(beginOpenId string) (iter user.UserIterator, err error) {
-	data, err := c.UserGet(beginOpenId)
+	data, err := c.UserList(beginOpenId)
 	if err != nil {
 		return
 	}

@@ -3,8 +3,6 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 今天才发现这个也要求 go1.3+, 如果你的环境不满足, 自己实现一个吧.
-
 package wechat
 
 import (
@@ -13,18 +11,16 @@ import (
 	"time"
 )
 
-/*
-net/http:
-
-var DefaultTransport RoundTripper = &Transport{
-    Proxy: ProxyFromEnvironment,
-    Dial: (&net.Dialer{
-        Timeout:   30 * time.Second,
-        KeepAlive: 30 * time.Second,
-    }).Dial,
-    TLSHandshakeTimeout: 10 * time.Second,
-}
-*/
+// net/http:
+//
+// var DefaultTransport RoundTripper = &Transport{
+//     Proxy: ProxyFromEnvironment,
+//     Dial: (&net.Dialer{
+//         Timeout:   30 * time.Second,
+//         KeepAlive: 30 * time.Second,
+//     }).Dial,
+//     TLSHandshakeTimeout: 10 * time.Second,
+// }
 
 // 一般请求的 http.Client
 var CommonHttpClient = &http.Client{
