@@ -20,39 +20,39 @@ import (
 )
 
 // 上传多媒体图片
-func (c *Client) MediaUploadImageFromFile(_filepath string) (info *media.MediaInfo, err error) {
-	return c.mediaUploadFromFile(media.MEDIA_TYPE_IMAGE, _filepath)
-}
-
-// 上传多媒体缩略图
-func (c *Client) MediaUploadThumbFromFile(_filepath string) (info *media.MediaInfo, err error) {
-	return c.mediaUploadFromFile(media.MEDIA_TYPE_THUMB, _filepath)
+func (c *Client) MediaUploadImage(filepath_ string) (info *media.MediaInfo, err error) {
+	return c.mediaUpload(media.MEDIA_TYPE_IMAGE, filepath_)
 }
 
 // 上传多媒体语音
-func (c *Client) MediaUploadVoiceFromFile(_filepath string) (info *media.MediaInfo, err error) {
-	return c.mediaUploadFromFile(media.MEDIA_TYPE_VOICE, _filepath)
+func (c *Client) MediaUploadVoice(filepath_ string) (info *media.MediaInfo, err error) {
+	return c.mediaUpload(media.MEDIA_TYPE_VOICE, filepath_)
 }
 
 // 上传多媒体视频
-func (c *Client) MediaUploadVideoFromFile(_filepath string) (info *media.MediaInfo, err error) {
-	return c.mediaUploadFromFile(media.MEDIA_TYPE_VIDEO, _filepath)
+func (c *Client) MediaUploadVideo(filepath_ string) (info *media.MediaInfo, err error) {
+	return c.mediaUpload(media.MEDIA_TYPE_VIDEO, filepath_)
+}
+
+// 上传多媒体缩略图
+func (c *Client) MediaUploadThumb(filepath_ string) (info *media.MediaInfo, err error) {
+	return c.mediaUpload(media.MEDIA_TYPE_THUMB, filepath_)
 }
 
 // 上传多媒体
-func (c *Client) mediaUploadFromFile(mediaType, _filepath string) (info *media.MediaInfo, err error) {
-	file, err := os.Open(_filepath)
+func (c *Client) mediaUpload(mediaType, filepath_ string) (info *media.MediaInfo, err error) {
+	file, err := os.Open(filepath_)
 	if err != nil {
 		return
 	}
 	defer file.Close()
 
-	return c.mediaUpload(mediaType, filepath.Base(_filepath), file)
+	return c.mediaUploadFromReader(mediaType, filepath.Base(filepath_), file)
 }
 
 // 上传多媒体图片
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart form 里面文件名称
-func (c *Client) MediaUploadImage(filename string, mediaReader io.Reader) (info *media.MediaInfo, err error) {
+func (c *Client) MediaUploadImageFromReader(filename string, mediaReader io.Reader) (info *media.MediaInfo, err error) {
 	if filename == "" {
 		err = errors.New(`filename == ""`)
 		return
@@ -61,26 +61,12 @@ func (c *Client) MediaUploadImage(filename string, mediaReader io.Reader) (info 
 		err = errors.New("mediaReader == nil")
 		return
 	}
-	return c.mediaUpload(media.MEDIA_TYPE_IMAGE, filename, mediaReader)
-}
-
-// 上传多媒体缩略图
-//  NOTE: 参数 filename 不是文件路径, 是指定 multipart form 里面文件名称
-func (c *Client) MediaUploadThumb(filename string, mediaReader io.Reader) (info *media.MediaInfo, err error) {
-	if filename == "" {
-		err = errors.New(`filename == ""`)
-		return
-	}
-	if mediaReader == nil {
-		err = errors.New("mediaReader == nil")
-		return
-	}
-	return c.mediaUpload(media.MEDIA_TYPE_THUMB, filename, mediaReader)
+	return c.mediaUploadFromReader(media.MEDIA_TYPE_IMAGE, filename, mediaReader)
 }
 
 // 上传多媒体语音
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart form 里面文件名称
-func (c *Client) MediaUploadVoice(filename string, mediaReader io.Reader) (info *media.MediaInfo, err error) {
+func (c *Client) MediaUploadVoiceFromReader(filename string, mediaReader io.Reader) (info *media.MediaInfo, err error) {
 	if filename == "" {
 		err = errors.New(`filename == ""`)
 		return
@@ -89,12 +75,12 @@ func (c *Client) MediaUploadVoice(filename string, mediaReader io.Reader) (info 
 		err = errors.New("mediaReader == nil")
 		return
 	}
-	return c.mediaUpload(media.MEDIA_TYPE_VOICE, filename, mediaReader)
+	return c.mediaUploadFromReader(media.MEDIA_TYPE_VOICE, filename, mediaReader)
 }
 
 // 上传多媒体视频
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart form 里面文件名称
-func (c *Client) MediaUploadVideo(filename string, mediaReader io.Reader) (info *media.MediaInfo, err error) {
+func (c *Client) MediaUploadVideoFromReader(filename string, mediaReader io.Reader) (info *media.MediaInfo, err error) {
 	if filename == "" {
 		err = errors.New(`filename == ""`)
 		return
@@ -103,16 +89,31 @@ func (c *Client) MediaUploadVideo(filename string, mediaReader io.Reader) (info 
 		err = errors.New("mediaReader == nil")
 		return
 	}
-	return c.mediaUpload(media.MEDIA_TYPE_VIDEO, filename, mediaReader)
+	return c.mediaUploadFromReader(media.MEDIA_TYPE_VIDEO, filename, mediaReader)
+}
+
+// 上传多媒体缩略图
+//  NOTE: 参数 filename 不是文件路径, 是指定 multipart form 里面文件名称
+func (c *Client) MediaUploadThumbFromReader(filename string, mediaReader io.Reader) (info *media.MediaInfo, err error) {
+	if filename == "" {
+		err = errors.New(`filename == ""`)
+		return
+	}
+	if mediaReader == nil {
+		err = errors.New("mediaReader == nil")
+		return
+	}
+	return c.mediaUploadFromReader(media.MEDIA_TYPE_THUMB, filename, mediaReader)
 }
 
 // 上传多媒体
-func (c *Client) mediaUpload(mediaType, filename string, mediaReader io.Reader) (info *media.MediaInfo, err error) {
+func (c *Client) mediaUploadFromReader(mediaType, filename string, mediaReader io.Reader) (info *media.MediaInfo, err error) {
 	bodyBuf := mediaBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
 	bodyBuf.Reset()                                  // important
 	defer mediaBufferPool.Put(bodyBuf)
 
 	bodyWriter := multipart.NewWriter(bodyBuf)
+
 	fileWriter, err := bodyWriter.CreateFormFile("file", filename)
 	if err != nil {
 		return
@@ -136,6 +137,7 @@ RETRY:
 		return
 	}
 	_url := mediaUploadURL(token, mediaType)
+
 	httpResp, err := c.httpClient.Post(_url, bodyContentType, bytes.NewReader(postContent))
 	if err != nil {
 		return
@@ -210,29 +212,27 @@ RETRY:
 	}
 }
 
-// 下载多媒体文件.
-//  NOTE: 视频文件不支持下载.
-func (c *Client) MediaDownloadToFile(mediaId, _filepath string) (err error) {
-	file, err := os.Create(_filepath)
+// 下载多媒体文件
+func (c *Client) MediaDownload(mediaId, filepath_ string) (err error) {
+	file, err := os.Create(filepath_)
 	if err != nil {
 		return
 	}
 	defer file.Close()
 
-	return c.mediaDownload(mediaId, file)
+	return c.mediaDownloadToWriter(mediaId, file)
 }
 
-// 下载多媒体文件.
-//  NOTE: 视频文件不支持下载.
-func (c *Client) MediaDownload(mediaId string, writer io.Writer) error {
+// 下载多媒体文件
+func (c *Client) MediaDownloadToWriter(mediaId string, writer io.Writer) error {
 	if writer == nil {
 		return errors.New("writer == nil")
 	}
-	return c.mediaDownload(mediaId, writer)
+	return c.mediaDownloadToWriter(mediaId, writer)
 }
 
 // 下载多媒体文件.
-func (c *Client) mediaDownload(mediaId string, writer io.Writer) (err error) {
+func (c *Client) mediaDownloadToWriter(mediaId string, writer io.Writer) (err error) {
 	hasRetry := false
 RETRY:
 	token, err := c.Token()
@@ -240,25 +240,26 @@ RETRY:
 		return
 	}
 	_url := mediaDownloadURL(token, mediaId)
-	resp, err := c.httpClient.Get(_url)
+
+	httpResp, err := c.httpClient.Get(_url)
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
+	defer httpResp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("http.Status: %s", resp.Status)
+	if httpResp.StatusCode != http.StatusOK {
+		return fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
 
-	contentType, _, _ := mime.ParseMediaType(resp.Header.Get("Content-Type"))
+	contentType, _, _ := mime.ParseMediaType(httpResp.Header.Get("Content-Type"))
 	if contentType != "text/plain" && contentType != "application/json" {
-		_, err = io.Copy(writer, resp.Body)
+		_, err = io.Copy(writer, httpResp.Body)
 		return
 	}
 
 	// 返回的是错误信息
 	var result Error
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 		return
 	}
 
