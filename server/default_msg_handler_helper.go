@@ -13,62 +13,62 @@ import (
 )
 
 // 把 text 回复消息 msg 写入 writer w
-func WriteText(w io.Writer, msg *response.Text) error {
+func (handler DefaultMsgHandler) WriteText(w io.Writer, msg *response.Text) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return writeResponse(w, msg)
+	return handler.writeResponse(w, msg)
 }
 
 // 把 image 回复消息 msg 写入 writer w
-func WriteImage(w io.Writer, msg *response.Image) error {
+func (handler DefaultMsgHandler) WriteImage(w io.Writer, msg *response.Image) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return writeResponse(w, msg)
+	return handler.writeResponse(w, msg)
 }
 
 // 把 voice 回复消息 msg 写入 writer w
-func WriteVoice(w io.Writer, msg *response.Voice) error {
+func (handler DefaultMsgHandler) WriteVoice(w io.Writer, msg *response.Voice) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return writeResponse(w, msg)
+	return handler.writeResponse(w, msg)
 }
 
 // 把 video 回复消息 msg 写入 writer w
-func WriteVideo(w io.Writer, msg *response.Video) error {
+func (handler DefaultMsgHandler) WriteVideo(w io.Writer, msg *response.Video) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return writeResponse(w, msg)
+	return handler.writeResponse(w, msg)
 }
 
 // 把 music 回复消息 msg 写入 writer w
-func WriteMusic(w io.Writer, msg *response.Music) error {
+func (handler DefaultMsgHandler) WriteMusic(w io.Writer, msg *response.Music) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return writeResponse(w, msg)
+	return handler.writeResponse(w, msg)
 }
 
 // 把 news 回复消息 msg 写入 writer w
-func WriteNews(w io.Writer, msg *response.News) (err error) {
+func (handler DefaultMsgHandler) WriteNews(w io.Writer, msg *response.News) (err error) {
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -78,31 +78,31 @@ func WriteNews(w io.Writer, msg *response.News) (err error) {
 	if err = msg.CheckValid(); err != nil {
 		return
 	}
-	return writeResponse(w, msg)
+	return handler.writeResponse(w, msg)
 }
 
 // 把 TransferToCustomerService 回复消息 msg 写入 writer w
-func WriteTransferToCustomerService(w io.Writer, msg *response.TransferToCustomerService) error {
+func (handler DefaultMsgHandler) WriteTransferToCustomerService(w io.Writer, msg *response.TransferToCustomerService) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return writeResponse(w, msg)
+	return handler.writeResponse(w, msg)
 }
 
 // 把 TransferToSpecialCustomerService 回复消息 msg 写入 writer w
-func WriteTransferToSpecialCustomerService(w io.Writer, msg *response.TransferToSpecialCustomerService) error {
+func (handler DefaultMsgHandler) WriteTransferToSpecialCustomerService(w io.Writer, msg *response.TransferToSpecialCustomerService) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return writeResponse(w, msg)
+	return handler.writeResponse(w, msg)
 }
 
-func writeResponse(w io.Writer, msg interface{}) error {
+func (handler DefaultMsgHandler) writeResponse(w io.Writer, msg interface{}) error {
 	return xml.NewEncoder(w).Encode(msg) // 只要 w 能正常的写, 不会返回错误
 }
