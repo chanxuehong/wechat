@@ -34,8 +34,6 @@ func (handler DefaultMsgHandler) Signature(timestamp, nonce string) (signature s
 	return hex.EncodeToString(hashSumArray[:])
 }
 
-func (handler DefaultMsgHandler) InvalidRequestHandler(w http.ResponseWriter, r *http.Request, err error) {
-}
 func (handler DefaultMsgHandler) UnknownMsgHandler(w http.ResponseWriter, r *http.Request, rawXMLMsg []byte, timestamp int64) {
 }
 func (handler DefaultMsgHandler) TextMsgHandler(w http.ResponseWriter, r *http.Request, msg *request.Text, rawXMLMsg []byte, timestamp int64) {

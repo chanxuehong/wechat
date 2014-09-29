@@ -15,10 +15,14 @@ type MsgHandler interface {
 	// 生成签名
 	Signature(timestamp, nonce string) (signature string)
 
-	InvalidRequestHandler(w http.ResponseWriter, r *http.Request, err error)
-
+	// 未知类型的消息处理方法
+	//  rawXMLMsg 是 xml 消息体
+	//  timestamp 是请求中的时间戳
 	UnknownMsgHandler(w http.ResponseWriter, r *http.Request, rawXMLMsg []byte, timestamp int64)
 
+	// 消息处理函数
+	//  rawXMLMsg 是 xml 消息体
+	//  timestamp 是请求中的时间戳
 	TextMsgHandler(w http.ResponseWriter, r *http.Request, msg *request.Text, rawXMLMsg []byte, timestamp int64)
 	ImageMsgHandler(w http.ResponseWriter, r *http.Request, msg *request.Image, rawXMLMsg []byte, timestamp int64)
 	VoiceMsgHandler(w http.ResponseWriter, r *http.Request, msg *request.Voice, rawXMLMsg []byte, timestamp int64)
@@ -26,6 +30,9 @@ type MsgHandler interface {
 	LocationMsgHandler(w http.ResponseWriter, r *http.Request, msg *request.Location, rawXMLMsg []byte, timestamp int64)
 	LinkMsgHandler(w http.ResponseWriter, r *http.Request, msg *request.Link, rawXMLMsg []byte, timestamp int64)
 
+	// 事件处理函数
+	//  rawXMLMsg 是 xml 消息体
+	//  timestamp 是请求中的时间戳
 	SubscribeEventHandler(w http.ResponseWriter, r *http.Request, msg *request.SubscribeEvent, rawXMLMsg []byte, timestamp int64)
 	UnsubscribeEventHandler(w http.ResponseWriter, r *http.Request, msg *request.UnsubscribeEvent, rawXMLMsg []byte, timestamp int64)
 	SubscribeByScanEventHandler(w http.ResponseWriter, r *http.Request, msg *request.SubscribeByScanEvent, rawXMLMsg []byte, timestamp int64)

@@ -8,7 +8,6 @@ package response
 import (
 	"errors"
 	"fmt"
-	"time"
 )
 
 type CommonHead struct {
@@ -28,12 +27,12 @@ type Text struct {
 
 // 新建文本消息
 //  NOTE: content 支持换行符
-func NewText(to, from, content string) (text *Text) {
+func NewText(to, from, content string, timestamp int64) (text *Text) {
 	text = &Text{
 		CommonHead: CommonHead{
 			ToUserName:   to,
 			FromUserName: from,
-			CreateTime:   time.Now().Unix(),
+			CreateTime:   timestamp,
 			MsgType:      MSG_TYPE_TEXT,
 		},
 	}
@@ -53,12 +52,12 @@ type Image struct {
 
 // 新建图片消息
 //  MediaId 通过上传多媒体文件得到
-func NewImage(to, from, mediaId string) (image *Image) {
+func NewImage(to, from, mediaId string, timestamp int64) (image *Image) {
 	image = &Image{
 		CommonHead: CommonHead{
 			ToUserName:   to,
 			FromUserName: from,
-			CreateTime:   time.Now().Unix(),
+			CreateTime:   timestamp,
 			MsgType:      MSG_TYPE_IMAGE,
 		},
 	}
@@ -78,12 +77,12 @@ type Voice struct {
 
 // 新建语音消息
 //  MediaId 通过上传多媒体文件得到
-func NewVoice(to, from, mediaId string) (voice *Voice) {
+func NewVoice(to, from, mediaId string, timestamp int64) (voice *Voice) {
 	voice = &Voice{
 		CommonHead: CommonHead{
 			ToUserName:   to,
 			FromUserName: from,
-			CreateTime:   time.Now().Unix(),
+			CreateTime:   timestamp,
 			MsgType:      MSG_TYPE_VOICE,
 		},
 	}
@@ -106,12 +105,12 @@ type Video struct {
 // 新建视频消息
 //  MediaId 通过上传多媒体文件得到
 //  title, description 可以为 ""
-func NewVideo(to, from, mediaId, title, description string) (video *Video) {
+func NewVideo(to, from, mediaId, title, description string, timestamp int64) (video *Video) {
 	video = &Video{
 		CommonHead: CommonHead{
 			ToUserName:   to,
 			FromUserName: from,
-			CreateTime:   time.Now().Unix(),
+			CreateTime:   timestamp,
 			MsgType:      MSG_TYPE_VIDEO,
 		},
 	}
@@ -139,13 +138,13 @@ type Music struct {
 //  thumbMediaId 通过上传多媒体文件得到
 //  title, description 可以为 ""
 func NewMusic(to, from, thumbMediaId, musicURL,
-	HQMusicURL, title, description string) (music *Music) {
+	HQMusicURL, title, description string, timestamp int64) (music *Music) {
 
 	music = &Music{
 		CommonHead: CommonHead{
 			ToUserName:   to,
 			FromUserName: from,
-			CreateTime:   time.Now().Unix(),
+			CreateTime:   timestamp,
 			MsgType:      MSG_TYPE_MUSIC,
 		},
 	}
@@ -183,12 +182,12 @@ type News struct {
 }
 
 // NOTE: articles 的长度不能超过 NewsArticleCountLimit
-func NewNews(to, from string, articles []NewsArticle) (news *News) {
+func NewNews(to, from string, articles []NewsArticle, timestamp int64) (news *News) {
 	news = &News{
 		CommonHead: CommonHead{
 			ToUserName:   to,
 			FromUserName: from,
-			CreateTime:   time.Now().Unix(),
+			CreateTime:   timestamp,
 			MsgType:      MSG_TYPE_NEWS,
 		},
 	}
@@ -234,12 +233,12 @@ type TransferToCustomerService struct {
 	CommonHead
 }
 
-func NewTransferToCustomerService(to, from string) *TransferToCustomerService {
+func NewTransferToCustomerService(to, from string, timestamp int64) *TransferToCustomerService {
 	return &TransferToCustomerService{
 		CommonHead: CommonHead{
 			ToUserName:   to,
 			FromUserName: from,
-			CreateTime:   time.Now().Unix(),
+			CreateTime:   timestamp,
 			MsgType:      MSG_TYPE_TRANSFER_CUSTOMER_SERVICE,
 		},
 	}
@@ -255,12 +254,12 @@ type TransferToSpecialCustomerService struct {
 	} `xml:"TransInfo"         json:"TransInfo"`
 }
 
-func NewTransferToSpecialCustomerService(to, from, KfAccount string) (msg *TransferToSpecialCustomerService) {
+func NewTransferToSpecialCustomerService(to, from, KfAccount string, timestamp int64) (msg *TransferToSpecialCustomerService) {
 	msg = &TransferToSpecialCustomerService{
 		CommonHead: CommonHead{
 			ToUserName:   to,
 			FromUserName: from,
-			CreateTime:   time.Now().Unix(),
+			CreateTime:   timestamp,
 			MsgType:      MSG_TYPE_TRANSFER_CUSTOMER_SERVICE,
 		},
 	}

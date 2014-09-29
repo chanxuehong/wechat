@@ -24,8 +24,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		<Content>你好</Content>
 	</xml>`))
 
-	text := NewText("toUser", "fromUser", "你好")
-	text.CreateTime = 12345678
+	text := NewText("toUser", "fromUser", "你好", 12345678)
 
 	have, err := xml.Marshal(text)
 	if err != nil {
@@ -46,8 +45,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		</Image>
 	</xml>`))
 
-	image := NewImage("toUser", "fromUser", "media_id")
-	image.CreateTime = 12345678
+	image := NewImage("toUser", "fromUser", "media_id", 12345678)
 
 	have, err = xml.Marshal(image)
 	if err != nil {
@@ -68,8 +66,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		</Voice>
 	</xml>`))
 
-	voice := NewVoice("toUser", "fromUser", "media_id")
-	voice.CreateTime = 12345678
+	voice := NewVoice("toUser", "fromUser", "media_id", 12345678)
 
 	have, err = xml.Marshal(voice)
 	if err != nil {
@@ -92,8 +89,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		</Video> 
 	</xml>`))
 
-	video := NewVideo("toUser", "fromUser", "media_id", "title", "description")
-	video.CreateTime = 12345678
+	video := NewVideo("toUser", "fromUser", "media_id", "title", "description", 12345678)
 
 	have, err = xml.Marshal(video)
 	if err != nil {
@@ -118,8 +114,8 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		</Music>
 	</xml>`))
 
-	music := NewMusic("toUser", "fromUser", "media_id", "MUSIC_Url", "HQ_MUSIC_Url", "TITLE", "DESCRIPTION")
-	music.CreateTime = 12345678
+	music := NewMusic("toUser", "fromUser", "media_id",
+		"MUSIC_Url", "HQ_MUSIC_Url", "TITLE", "DESCRIPTION", 12345678)
 
 	have, err = xml.Marshal(music)
 	if err != nil {
@@ -140,8 +136,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		</Articles>
 	</xml>`))
 
-	news := NewNews("toUser", "fromUser", make([]NewsArticle, 0, 2))
-	news.CreateTime = 12345678
+	news := NewNews("toUser", "fromUser", make([]NewsArticle, 0, 2), 12345678)
 
 	have, err = xml.Marshal(news)
 	if err != nil {
@@ -229,8 +224,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		<MsgType>transfer_customer_service</MsgType>
 	</xml>`))
 
-	transToCS := NewTransferToCustomerService("touser", "fromuser")
-	transToCS.CreateTime = 1399197672
+	transToCS := NewTransferToCustomerService("touser", "fromuser", 1399197672)
 
 	have, err = xml.Marshal(transToCS)
 	if err != nil {
@@ -251,8 +245,7 @@ func TestMarshalAndNewFunc(t *testing.T) {
 		</TransInfo> 
 	</xml>`))
 
-	transToSCS := NewTransferToSpecialCustomerService("touser", "fromuser", "test1@test")
-	transToSCS.CreateTime = 1399197672
+	transToSCS := NewTransferToSpecialCustomerService("touser", "fromuser", "test1@test", 1399197672)
 
 	have, err = xml.Marshal(transToSCS)
 	if err != nil {
