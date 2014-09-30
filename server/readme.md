@@ -2,6 +2,16 @@
 
 封装微信服务器推送到回调 URL 的消息(事件)处理 Handler.
 
+## 注意
+
+这里提供了三种 HttpHandler: SingleHttpHandler, CSMultiHttpHandler, NCSMultiHttpHandler，
+
+正常情况下使用 SingleHttpHandler 即可，即一个回调 URL 只能接受一个公众号的消息（事件），如果需要处理多个公众号的消息（事件），可以调用 net/http.Handle 来动态增加 URL，SingleHttpHandler 对。
+
+如果某些特殊情况下，给你的 URL 只有一个，但是你又想处理多个公众号的消息（事件），我们这里提供了 CSMultiHttpHandler 和 NCSMultiHttpHandler，这两个的区别就是一个并发安全，一个并发不安全，
+CSMultiHttpHandler 可以动态的增加 MsgHandler，NCSMultiHttpHandler 只能在初始化的时候增加
+MsgHandler，运行中不能动态增加，因为并发不安全！
+
 ## 示例
 
 ```golang
@@ -46,9 +56,9 @@ func init() {
 	MsgHandler.DefaultMsgHandler.Token = "Token" // 这里填上你自己的 Token
 
 	// 这里创建的是非并发安全的 HttpHandler, 所有的配置工作都要在注册到 URL 之前完成,
-	// 如果想动态增加/删除 MsgHandler, 请使用 server.CSHttpHandler
+	// 如果想动态增加/删除 MsgHandler, 请使用 server.CSMultiHttpHandler
 	// 如果你只有一个公众号, 也可以直接使用 server.SingleHttpHandler
-	var HttpHandler server.NCSHttpHandler
+	var HttpHandler server.NCSMultiHttpHandler
 	HttpHandler.SetInvalidRequestHandler(server.InvalidRequestHandlerFunc(CustomInvalidRequestHandlerFunc))
 	HttpHandler.SetMsgHandler("WechatMPId", &MsgHandler) // 微信号公众原始ID，在后台中能看到
 

@@ -22,14 +22,14 @@ import (
 
 // net/http.Handler 的实现
 //  NOTE: 并发安全, 可以根据需要动态添加/删除 MsgHandler
-type CSHttpHandler struct {
+type CSMultiHttpHandler struct {
 	rwmutex               sync.RWMutex
 	invalidRequestHandler InvalidRequestHandler
 	msgHandlerMap         map[string]MsgHandler
 }
 
 // 设置 InvalidRequestHandler, 如果 handler == nil 则使用默认的 DefaultInvalidRequestHandlerFunc
-func (this *CSHttpHandler) SetInvalidRequestHandler(handler InvalidRequestHandler) {
+func (this *CSMultiHttpHandler) SetInvalidRequestHandler(handler InvalidRequestHandler) {
 	if handler == nil {
 		this.rwmutex.Lock()
 		this.invalidRequestHandler = InvalidRequestHandlerFunc(DefaultInvalidRequestHandlerFunc)
@@ -42,7 +42,7 @@ func (this *CSHttpHandler) SetInvalidRequestHandler(handler InvalidRequestHandle
 }
 
 // 添加或设置 WechatMPId 对应的 MsgHandler, 如果 handler == nil 则不做任何操作
-func (this *CSHttpHandler) SetMsgHandler(WechatMPId string, handler MsgHandler) {
+func (this *CSMultiHttpHandler) SetMsgHandler(WechatMPId string, handler MsgHandler) {
 	if handler == nil {
 		return
 	}
@@ -56,20 +56,20 @@ func (this *CSHttpHandler) SetMsgHandler(WechatMPId string, handler MsgHandler) 
 }
 
 // 删除 WechatMPId 对应的 MsgHandler
-func (this *CSHttpHandler) DeleteMsgHandler(WechatMPId string) {
+func (this *CSMultiHttpHandler) DeleteMsgHandler(WechatMPId string) {
 	this.rwmutex.Lock()
 	delete(this.msgHandlerMap, WechatMPId)
 	this.rwmutex.Unlock()
 }
 
 // 清除所有的 MsgHandler
-func (this *CSHttpHandler) ClearMsgHandler() {
+func (this *CSMultiHttpHandler) ClearMsgHandler() {
 	this.rwmutex.Lock()
 	this.msgHandlerMap = nil
 	this.rwmutex.Unlock()
 }
 
-func (this *CSHttpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (this *CSMultiHttpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	this.rwmutex.RLock()
 	defer this.rwmutex.RUnlock()
 

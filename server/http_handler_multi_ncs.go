@@ -21,13 +21,13 @@ import (
 
 // net/http.Handler 的实现
 //  NOTE: 非并发安全, 要求注册到 URL 之前全部设置好, 注册之后不能再更改设置了.
-type NCSHttpHandler struct {
+type NCSMultiHttpHandler struct {
 	invalidRequestHandler InvalidRequestHandler
 	msgHandlerMap         map[string]MsgHandler
 }
 
 // 设置 InvalidRequestHandler, 如果 handler == nil 则使用默认的 DefaultInvalidRequestHandlerFunc
-func (this *NCSHttpHandler) SetInvalidRequestHandler(handler InvalidRequestHandler) {
+func (this *NCSMultiHttpHandler) SetInvalidRequestHandler(handler InvalidRequestHandler) {
 	if handler == nil {
 		this.invalidRequestHandler = InvalidRequestHandlerFunc(DefaultInvalidRequestHandlerFunc)
 	} else {
@@ -36,7 +36,7 @@ func (this *NCSHttpHandler) SetInvalidRequestHandler(handler InvalidRequestHandl
 }
 
 // 添加或设置 WechatMPId 对应的 MsgHandler, 如果 handler == nil 则不做任何操作
-func (this *NCSHttpHandler) SetMsgHandler(WechatMPId string, handler MsgHandler) {
+func (this *NCSMultiHttpHandler) SetMsgHandler(WechatMPId string, handler MsgHandler) {
 	if handler == nil {
 		return
 	}
@@ -48,16 +48,16 @@ func (this *NCSHttpHandler) SetMsgHandler(WechatMPId string, handler MsgHandler)
 }
 
 // 删除 WechatMPId 对应的 MsgHandler
-func (this *NCSHttpHandler) DeleteMsgHandler(WechatMPId string) {
+func (this *NCSMultiHttpHandler) DeleteMsgHandler(WechatMPId string) {
 	delete(this.msgHandlerMap, WechatMPId)
 }
 
 // 清除所有的 MsgHandler
-func (this *NCSHttpHandler) ClearMsgHandler() {
+func (this *NCSMultiHttpHandler) ClearMsgHandler() {
 	this.msgHandlerMap = nil
 }
 
-func (this *NCSHttpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (this *NCSMultiHttpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	invalidRequestHandler := this.invalidRequestHandler
 	if invalidRequestHandler == nil {
 		invalidRequestHandler = InvalidRequestHandlerFunc(DefaultInvalidRequestHandlerFunc)
