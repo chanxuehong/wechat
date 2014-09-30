@@ -29,11 +29,9 @@ func (this *OAuth2Token) accessTokenExpired() bool {
 var _ TokenCache = new(OAuth2Token)
 
 func (this *OAuth2Token) Token() (tk *OAuth2Token, err error) {
-	if this == nil {
-		err = ErrNotFound
-		return
-	}
-	tk = this
+	// 防止用户不小心修改了 tk 而影响了原始的, 返回拷贝
+	tk = new(OAuth2Token)
+	*tk = *this
 	return
 }
 
