@@ -42,7 +42,9 @@ func (c *Client) httpClient() *http.Client {
 }
 
 // 通过code换取网页授权 access_token
-//  NOTE: Client 需要指定 OAuth2Config
+//  NOTE:
+//  1. Client 需要指定 OAuth2Config
+//  2. 如果指定了 TokenCache 则会调用 TokenCache.PutToken
 func (c *Client) Exchange(code string) (token *OAuth2Token, err error) {
 	if c.OAuth2Config == nil {
 		err = errors.New("没有提供 OAuth2Config")
