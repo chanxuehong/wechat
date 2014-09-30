@@ -12,8 +12,10 @@ import (
 	"net/http"
 )
 
-// 获取用户信息(需scope为 snsapi_userinfo).
-//  lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
+// 获取用户信息(需scope为 snsapi_userinfo)
+//  NOTE:
+//  1. Client 需要指定 OAuth2Config, TokenCache
+//  2. lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
 func (c *Client) UserInfo(lang string) (info *UserInfo, err error) {
 	switch lang {
 	case "":
@@ -25,20 +27,32 @@ func (c *Client) UserInfo(lang string) (info *UserInfo, err error) {
 		return
 	}
 
-	tok := c.OAuth2Token
-	if tok == nil {
-		if c.TokenCache == nil {
-			err = errors.New("OAuth2Token 和 TokenCache 都没有提供")
-			return
-		}
-		if tok, err = c.TokenCache.Token(); err != nil {
-			return
-		}
-	}
-	if tok == nil {
-		err = errors.New("没有有效的 OAuth2Token")
+	if c.OAuth2Config == nil {
+		err = errors.New("没有提供 OAuth2Config")
 		return
 	}
+	if c.TokenCache == nil {
+		err = errors.New("没有提供 TokenCache")
+		return
+	}
+
+	tok, err := c.Token()
+	if err != nil {
+		return
+	}
+	// 保险起见还是判断一下
+	if tok == nil {
+		err = errors.New("没有获取到有效的 OAuth2Token")
+		return
+	}
+
+	// 如果过期则自动刷新 access token
+	if tok.accessTokenExpired() {
+		if tok, err = c.TokenRefresh(); err != nil {
+			return
+		}
+	}
+
 	if len(tok.AccessToken) == 0 {
 		err = errors.New("没有有效的 AccessToken")
 		return
@@ -48,16 +62,7 @@ func (c *Client) UserInfo(lang string) (info *UserInfo, err error) {
 		return
 	}
 
-	c.OAuth2Token = tok // tok 有可能是从缓存读取的
-
-	// Refresh the OAuth2Token if it has expired.
-	if c.accessTokenExpired() {
-		if _, err = c.TokenRefresh(); err != nil {
-			return
-		}
-	}
-
-	resp, err := c.httpClient().Get(userInfoURL(c.AccessToken, c.OpenId, lang))
+	resp, err := c.httpClient().Get(userInfoURL(tok.AccessToken, tok.OpenId, lang))
 	if err != nil {
 		return
 	}
@@ -69,8 +74,8 @@ func (c *Client) UserInfo(lang string) (info *UserInfo, err error) {
 	}
 
 	var result struct {
-		UserInfo
 		Error
+		UserInfo
 	}
 
 	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
