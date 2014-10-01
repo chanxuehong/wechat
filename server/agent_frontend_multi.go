@@ -18,13 +18,15 @@ import (
 	"sync"
 )
 
+// 定义回调 URL 上指定 Agent 的查询参数名
 const URLQueryAgentKey = "agentkey"
 
 // 多个 Agent 的前端, 负责处理 http 请求, net/http.Handler 的实现
 //
 //  NOTE:
 //  MultiAgentFrontend 可以处理多个公众号的消息（事件），但是要求在回调 URL 上加上一个查询
-//  参数 URLQueryAgentKey = "agentkey"（可以自定义），这个参数的值就是索引 Agent 的 key。
+//  参数，一般为 agentkey（参考常量 URLQueryAgentKey），这个参数的值就是 MultiAgentFrontend
+//  索引 Agent 的 key。
 //  例如回调 URL 为 http://www.xxx.com/weixin?agentkey=1234567890，那么就可以在后端调用
 //
 //    MultiAgentFrontend.SetAgent("1234567890", agent)
@@ -98,6 +100,12 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 			return
 		}
 
+		timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
+		if err != nil {
+			invalidRequestHandler.ServeInvalidRequest(w, r, err)
+			return
+		}
+
 		agent := this.agentMap[agentkey]
 		if agent == nil {
 			invalidRequestHandler.ServeInvalidRequest(w, r, fmt.Errorf("Not found Agent for %s == %s", URLQueryAgentKey, agentkey))
@@ -107,12 +115,6 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 		signature2 := signature(agent.GetToken(), timestampStr, nonce)
 		if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
 			invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("check signature failed"))
-			return
-		}
-
-		timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
-		if err != nil {
-			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
 		}
 
@@ -128,8 +130,10 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 			return
 		}
 
-		if wantToUserName := agent.GetId(); msgReq.ToUserName != wantToUserName {
+		wantToUserName := agent.GetId()
+		if subtle.ConstantTimeCompare([]byte(msgReq.ToUserName), []byte(wantToUserName)) != 1 {
 			err = fmt.Errorf("the message Request's ToUserName mismatch, have: %s, want: %s", msgReq.ToUserName, wantToUserName)
+			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
 		}
 

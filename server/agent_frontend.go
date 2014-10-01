@@ -50,15 +50,15 @@ func (this *AgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		signature2 := signature(agent.GetToken(), timestampStr, nonce)
-		if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
-			invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("check signature failed"))
-			return
-		}
-
 		timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
 		if err != nil {
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
+			return
+		}
+
+		signature2 := signature(agent.GetToken(), timestampStr, nonce)
+		if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
+			invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("check signature failed"))
 			return
 		}
 
@@ -74,8 +74,10 @@ func (this *AgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if wantToUserName := agent.GetId(); msgReq.ToUserName != wantToUserName {
+		wantToUserName := agent.GetId()
+		if subtle.ConstantTimeCompare([]byte(msgReq.ToUserName), []byte(wantToUserName)) != 1 {
 			err = fmt.Errorf("the message Request's ToUserName mismatch, have: %s, want: %s", msgReq.ToUserName, wantToUserName)
+			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
 		}
 

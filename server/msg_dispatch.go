@@ -67,7 +67,7 @@ func msgDispatch(w http.ResponseWriter, r *http.Request, msg *request.Request, r
 		case request.EVENT_TYPE_SCAN:
 			agent.ServeScanEvent(w, r, msg.ScanEvent(), rawXMLMsg, timestamp)
 
-		default: // unknown event
+		default: // unknown event type
 			agent.ServeUnknownMsg(w, r, rawXMLMsg, timestamp)
 		}
 
@@ -86,7 +86,7 @@ func msgDispatch(w http.ResponseWriter, r *http.Request, msg *request.Request, r
 	case request.MSG_TYPE_VIDEO:
 		agent.ServeVideoMsg(w, r, msg.Video(), rawXMLMsg, timestamp)
 
-	default: // unknown request message type
+	default: // unknown message type
 		agent.ServeUnknownMsg(w, r, rawXMLMsg, timestamp)
 	}
 }

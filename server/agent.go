@@ -12,11 +12,8 @@ import (
 
 // 公众号对外暴露的接口
 type Agent interface {
-	// 获取公众号的原始ID, 等于后台中的 公众号设置-->帐号详情-->原始ID
-	GetId() string
-
-	// 获取公众号的 Token, 和后台中的设置相等
-	GetToken() string
+	GetId() string    // 获取公众号的原始ID, 等于后台中的 公众号设置-->帐号详情-->原始ID
+	GetToken() string // 获取公众号的 Token, 和后台中的设置相等
 
 	// 未知类型的消息处理方法
 	//  rawXMLMsg 是 xml 消息体
