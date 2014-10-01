@@ -64,7 +64,7 @@ func (this *MultiAgentFrontend) SetAgent(agentkey string, agent Agent) {
 }
 
 // 删除 agentkey 对应的 Agent
-func (this *MultiAgentFrontend) DeleteMsgHandler(agentkey string) {
+func (this *MultiAgentFrontend) DeleteAgent(agentkey string) {
 	this.rwmutex.Lock()
 	delete(this.agentMap, agentkey)
 	this.rwmutex.Unlock()
@@ -92,7 +92,7 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 
 	switch r.Method {
 	case "POST": // 处理从微信服务器推送过来的消息(事件) ==============================
-		agentkey, signature, timestampStr, nonce, err := ParsePostURLQueryEx(r.URL)
+		agentkey, signature1, timestampStr, nonce, err := parsePostURLQueryEx(r.URL)
 		if err != nil {
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
@@ -104,8 +104,8 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 			return
 		}
 
-		signaturex := Signature(agent.GetToken(), timestampStr, nonce)
-		if subtle.ConstantTimeCompare([]byte(signature), []byte(signaturex)) != 1 {
+		signature2 := signature(agent.GetToken(), timestampStr, nonce)
+		if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
 			invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("check signature failed"))
 			return
 		}
@@ -136,7 +136,7 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 		msgDispatch(w, r, &msgReq, rawXMLMsg, timestamp, agent)
 
 	case "GET": // 首次验证 ======================================================
-		agentkey, signature, timestamp, nonce, echostr, err := ParseGetURLQueryEx(r.URL)
+		agentkey, signature1, timestamp, nonce, echostr, err := parseGetURLQueryEx(r.URL)
 		if err != nil {
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
@@ -148,8 +148,8 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 			return
 		}
 
-		signaturex := Signature(agent.GetToken(), timestamp, nonce)
-		if subtle.ConstantTimeCompare([]byte(signature), []byte(signaturex)) != 1 {
+		signature2 := signature(agent.GetToken(), timestamp, nonce)
+		if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
 			invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("check signature failed"))
 			return
 		}

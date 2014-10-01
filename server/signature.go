@@ -11,7 +11,7 @@ import (
 	"sort"
 )
 
-func Signature(token, timestamp, nonce string) (signature string) {
+func signature(token, timestamp, nonce string) (signature string) {
 	strArray := sort.StringSlice{token, timestamp, nonce}
 	strArray.Sort()
 

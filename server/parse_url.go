@@ -12,7 +12,7 @@ import (
 	"net/url"
 )
 
-func ParsePostURLQuery(URL *url.URL) (signature, timestamp, nonce string, err error) {
+func parsePostURLQuery(URL *url.URL) (signature, timestamp, nonce string, err error) {
 	if URL == nil {
 		err = errors.New("URL == nil")
 		return
@@ -50,7 +50,7 @@ func ParsePostURLQuery(URL *url.URL) (signature, timestamp, nonce string, err er
 	return
 }
 
-func ParsePostURLQueryEx(URL *url.URL) (agentkey, signature, timestamp, nonce string, err error) {
+func parsePostURLQueryEx(URL *url.URL) (agentkey, signature, timestamp, nonce string, err error) {
 	if URL == nil {
 		err = errors.New("URL == nil")
 		return
@@ -94,7 +94,7 @@ func ParsePostURLQueryEx(URL *url.URL) (agentkey, signature, timestamp, nonce st
 	return
 }
 
-func ParseGetURLQuery(URL *url.URL) (signature, timestamp, nonce, echostr string, err error) {
+func parseGetURLQuery(URL *url.URL) (signature, timestamp, nonce, echostr string, err error) {
 	if URL == nil {
 		err = errors.New("URL == nil")
 		return
@@ -138,7 +138,7 @@ func ParseGetURLQuery(URL *url.URL) (signature, timestamp, nonce, echostr string
 	return
 }
 
-func ParseGetURLQueryEx(URL *url.URL) (agentkey, signature, timestamp, nonce, echostr string, err error) {
+func parseGetURLQueryEx(URL *url.URL) (agentkey, signature, timestamp, nonce, echostr string, err error) {
 	if URL == nil {
 		err = errors.New("URL == nil")
 		return

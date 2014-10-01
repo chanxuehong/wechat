@@ -44,14 +44,14 @@ func (this *AgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "POST": // 处理从微信服务器推送过来的消息(事件) ==============================
-		signature, timestampStr, nonce, err := ParsePostURLQuery(r.URL)
+		signature1, timestampStr, nonce, err := parsePostURLQuery(r.URL)
 		if err != nil {
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
 		}
 
-		signaturex := Signature(agent.GetToken(), timestampStr, nonce)
-		if subtle.ConstantTimeCompare([]byte(signature), []byte(signaturex)) != 1 {
+		signature2 := signature(agent.GetToken(), timestampStr, nonce)
+		if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
 			invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("check signature failed"))
 			return
 		}
@@ -82,14 +82,14 @@ func (this *AgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		msgDispatch(w, r, &msgReq, rawXMLMsg, timestamp, agent)
 
 	case "GET": // 首次验证 ======================================================
-		signature, timestamp, nonce, echostr, err := ParseGetURLQuery(r.URL)
+		signature1, timestamp, nonce, echostr, err := parseGetURLQuery(r.URL)
 		if err != nil {
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
 		}
 
-		signaturex := Signature(agent.GetToken(), timestamp, nonce)
-		if subtle.ConstantTimeCompare([]byte(signature), []byte(signaturex)) != 1 {
+		signature2 := signature(agent.GetToken(), timestamp, nonce)
+		if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
 			invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("check signature failed"))
 			return
 		}
