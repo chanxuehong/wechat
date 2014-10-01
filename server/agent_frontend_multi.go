@@ -42,7 +42,7 @@ type MultiAgentFrontend struct {
 func (this *MultiAgentFrontend) SetInvalidRequestHandler(handler InvalidRequestHandler) {
 	this.rwmutex.Lock()
 	if handler == nil {
-		this.invalidRequestHandler = InvalidRequestHandlerFunc(DefaultInvalidRequestHandlerFunc)
+		this.invalidRequestHandler = InvalidRequestHandlerFunc(defaultInvalidRequestHandlerFunc)
 	} else {
 		this.invalidRequestHandler = handler
 	}
@@ -83,7 +83,7 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 
 	invalidRequestHandler := this.invalidRequestHandler
 	if invalidRequestHandler == nil {
-		invalidRequestHandler = InvalidRequestHandlerFunc(DefaultInvalidRequestHandlerFunc)
+		invalidRequestHandler = InvalidRequestHandlerFunc(defaultInvalidRequestHandlerFunc)
 	}
 	if len(this.agentMap) == 0 {
 		invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("no Agent"))

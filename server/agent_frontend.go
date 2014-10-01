@@ -29,7 +29,7 @@ func NewAgentFrontend(agent Agent, invalidRequestHandler InvalidRequestHandler) 
 		panic("agent == nil")
 	}
 	if invalidRequestHandler == nil {
-		invalidRequestHandler = InvalidRequestHandlerFunc(DefaultInvalidRequestHandlerFunc)
+		invalidRequestHandler = InvalidRequestHandlerFunc(defaultInvalidRequestHandlerFunc)
 	}
 
 	return &AgentFrontend{
