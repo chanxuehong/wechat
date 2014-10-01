@@ -4,13 +4,20 @@
 
 ## 注意
 
-这里提供了三种 HttpHandler: SingleHttpHandler, CSMultiHttpHandler, NCSMultiHttpHandler，
+server 提供了 AgentFrontend，MultiAgentFrontend
 
-正常情况下使用 SingleHttpHandler 即可，即一个回调 URL 只能接受一个公众号的消息（事件），如果需要处理多个公众号的消息（事件），可以调用 net/http.Handle 来动态增加 URL，SingleHttpHandler 对。
+正常情况下使用 AgentFrontend 即可，即一个回调 URL 只能接受一个公众号的消息（事件），
+如果需要处理多个公众号的消息（事件），可以调用 net/http.Handle 来动态增加 URL<-->AgentFrontend pair。
 
-如果某些特殊情况下，给你的 URL 只有一个，但是你又想处理多个公众号的消息（事件），我们这里提供了 CSMultiHttpHandler 和 NCSMultiHttpHandler，这两个的区别就是一个并发安全，一个并发不安全，
-CSMultiHttpHandler 可以动态的增加 MsgHandler，NCSMultiHttpHandler 只能在初始化的时候增加
-MsgHandler，运行中不能动态增加，因为并发不安全！
+如果某些特殊情况下，给你的 URL 只有一个，但是你又想处理多个公众号的消息（事件），我们这里提供了
+MultiAgentFrontend，这时公众号的回调 URL 就要增加一个查询参数 agentkey（根据需要你也可以
+更改这个参数名称，如果更改了同时也要修改 URLQueryAgentKey 的值），这样回调 URL 的格式一般为
+
+http://abc.xyz.com/weixin?agentkey=agentkey_value
+
+MultiAgentFrontend 是并发安全的，可以动态增加（删除）Agent，如果你没有动态需求，
+只是在初始化的时候配置各种参数，可以自己把 MultiAgentFrontend 里面的带有 rwmutex 的代码
+都去掉，高并发没有锁的开销。
 
 ## 示例
 
@@ -26,21 +33,21 @@ import (
 	"time"
 )
 
-// 实现 server.MsgHandler
-type CustomMsgHandler struct {
-	server.DefaultMsgHandler // 可选, 不是必须!!! 提供了默认实现
+// 实现 server.Agent
+type CustomAgent struct {
+	server.DefaultAgent // 可选, 不是必须!!! 提供了默认实现
 }
 
 // 文本消息处理函数, 覆盖默认的实现
-func (handler *CustomMsgHandler) TextMsgHandler(w http.ResponseWriter, r *http.Request, msg *request.Text, rawXMLMsg []byte, timestamp int64) {
-	// TODO: 示例代码
+func (this *CustomAgent) ServeTextMsg(w http.ResponseWriter, r *http.Request, msg *request.Text, rawXMLMsg []byte, timestamp int64) {
+	// TODO: 示例代码, 把用户发送过来的文本原样回复过去
 
 	w.Header().Set("Content-Type", "application/xml; charset=utf-8") // 可选
 
-	// 时间戳也可以用传入的参数 timestamp, 即微信服务器请求的 timestamp
+	// NOTE: 时间戳也可以用传入的参数 timestamp, 即微信服务器请求 URL 中的 timestamp
 	resp := response.NewText(msg.FromUserName, msg.ToUserName, msg.Content, time.Now().Unix())
 
-	if err := handler.WriteText(w, resp); err != nil {
+	if err := this.WriteText(w, resp); err != nil {
 		// TODO: 错误处理代码
 	}
 }
@@ -52,19 +59,16 @@ func CustomInvalidRequestHandlerFunc(w http.ResponseWriter, r *http.Request, err
 }
 
 func init() {
-	var MsgHandler CustomMsgHandler
-	MsgHandler.DefaultMsgHandler.Token = "Token" // 这里填上你自己的 Token
+	var agent CustomAgent
+	agent.DefaultAgent.Id = "Id"       // 参考 公众号设置-->帐号详情-->原始ID
+	agent.DefaultAgent.Token = "Token" // 这里填上你自己的 Token
 
-	// 这里创建的是非并发安全的 HttpHandler, 所有的配置工作都要在注册到 URL 之前完成,
-	// 如果想动态增加/删除 MsgHandler, 请使用 server.CSMultiHttpHandler
-	// 如果你只有一个公众号, 也可以直接使用 server.SingleHttpHandler
-	var HttpHandler server.NCSMultiHttpHandler
-	HttpHandler.SetInvalidRequestHandler(server.InvalidRequestHandlerFunc(CustomInvalidRequestHandlerFunc))
-	HttpHandler.SetMsgHandler("WechatMPId", &MsgHandler) // 微信号公众原始ID，在后台中能看到
+	// InvalidRequestHandler == nil 则会默认什么都不做
+	agentFrontend := server.NewAgentFrontend(&agent, nil)
 
-	// 注册这个 handler 到回调 URL 上
-	// 比如你在公众平台后台注册的回调地址是 http://abc.xxx.com/weixin，那么可以这样注册
-	http.Handle("/weixin", &HttpHandler)
+	// 注册这个 agentFrontend 到回调 URL 上
+	// 比如你在公众平台后台注册的回调地址是 http://abc.xyz.com/weixin，那么可以这样注册
+	http.Handle("/weixin", agentFrontend)
 }
 
 func main() {
