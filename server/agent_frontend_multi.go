@@ -19,13 +19,13 @@ import (
 )
 
 // 定义回调 URL 上指定 Agent 的查询参数名
-const URLQueryAgentKey = "agentkey"
+const URLQueryAgentKeyName = "agentkey"
 
 // 多个 Agent 的前端, 负责处理 http 请求, net/http.Handler 的实现
 //
 //  NOTE:
 //  MultiAgentFrontend 可以处理多个公众号的消息（事件），但是要求在回调 URL 上加上一个查询
-//  参数，一般为 agentkey（参考常量 URLQueryAgentKey），这个参数的值就是 MultiAgentFrontend
+//  参数，一般为 agentkey（参考常量 URLQueryAgentKeyName），这个参数的值就是 MultiAgentFrontend
 //  索引 Agent 的 key。
 //  例如回调 URL 为 http://www.xxx.com/weixin?agentkey=1234567890，那么就可以在后端调用
 //
@@ -108,7 +108,7 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 
 		agent := this.agentMap[agentkey]
 		if agent == nil {
-			invalidRequestHandler.ServeInvalidRequest(w, r, fmt.Errorf("Not found Agent for %s == %s", URLQueryAgentKey, agentkey))
+			invalidRequestHandler.ServeInvalidRequest(w, r, fmt.Errorf("Not found Agent for %s == %s", URLQueryAgentKeyName, agentkey))
 			return
 		}
 
@@ -148,7 +148,7 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 
 		agent := this.agentMap[agentkey]
 		if agent == nil {
-			invalidRequestHandler.ServeInvalidRequest(w, r, fmt.Errorf("Not found Agent for %s == %s", URLQueryAgentKey, agentkey))
+			invalidRequestHandler.ServeInvalidRequest(w, r, fmt.Errorf("Not found Agent for %s == %s", URLQueryAgentKeyName, agentkey))
 			return
 		}
 

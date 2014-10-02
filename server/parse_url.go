@@ -61,9 +61,9 @@ func parsePostURLQueryEx(URL *url.URL) (agentkey, signature, timestamp, nonce st
 		return
 	}
 
-	agentkey = urlValues.Get(URLQueryAgentKey)
+	agentkey = urlValues.Get(URLQueryAgentKeyName)
 	if agentkey == "" {
-		err = errors.New(URLQueryAgentKey + " is empty")
+		err = errors.New(URLQueryAgentKeyName + " is empty")
 		return
 	}
 
@@ -149,9 +149,9 @@ func parseGetURLQueryEx(URL *url.URL) (agentkey, signature, timestamp, nonce, ec
 		return
 	}
 
-	agentkey = urlValues.Get(URLQueryAgentKey)
+	agentkey = urlValues.Get(URLQueryAgentKeyName)
 	if agentkey == "" {
-		err = errors.New(URLQueryAgentKey + " is empty")
+		err = errors.New(URLQueryAgentKeyName + " is empty")
 		return
 	}
 
