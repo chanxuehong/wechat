@@ -359,12 +359,12 @@ RETRY:
 }
 
 // 获取关注者列表, 每次最多能获取 10000 个用户, 如果 beginOpenId == "" 则表示从头获取
-func (c *Client) UserList(beginOpenId string) (data *user.UserGetData, err error) {
+func (c *Client) UserList(beginOpenId string) (data *user.UserListResult, err error) {
 	var result struct {
 		Error
-		user.UserGetData
+		user.UserListResult
 	}
-	result.UserGetData.Data.OpenId = make([]string, 0, 256)
+	result.UserListResult.Data.OpenId = make([]string, 0, 256)
 
 	hasRetry := false
 RETRY:
@@ -380,7 +380,7 @@ RETRY:
 
 	switch result.ErrCode {
 	case errCodeOK:
-		data = &result.UserGetData
+		data = &result.UserListResult
 		return
 
 	case errCodeTimeout:
@@ -399,19 +399,19 @@ RETRY:
 
 // 该结构实现了 user.UserIterator 接口
 type userIterator struct {
-	lastUserGetData *user.UserGetData // 最近一次获取的用户数据
+	lastUserListData *user.UserListResult // 最近一次获取的用户数据
 
 	wechatClient   *Client // 关联的微信 Client
 	nextPageCalled bool    // NextPage() 是否调用过
 }
 
 func (iter *userIterator) Total() int {
-	return iter.lastUserGetData.TotalCount
+	return iter.lastUserListData.TotalCount
 }
 
 func (iter *userIterator) HasNext() bool {
 	if !iter.nextPageCalled { // 还没有调用 NextPage(), 从创建的时候获取的数据来判断
-		return iter.lastUserGetData.GetCount > 0
+		return iter.lastUserListData.GotCount > 0
 	}
 
 	// 已经调用过 NextPage(), 根据 next_openid 字段是否为空来判断
@@ -435,24 +435,24 @@ func (iter *userIterator) HasNext() bool {
 	//     },
 	//     "next_openid": "os-IKuHd9pJ6xsn4mS7GyL4HxqI4"
 	// }
-	return len(iter.lastUserGetData.NextOpenId) != 0 &&
-		iter.lastUserGetData.GetCount == user.UserPageCountLimit
+	return len(iter.lastUserListData.NextOpenId) != 0 &&
+		iter.lastUserListData.GotCount == user.PageUserCountLimit
 }
 
 func (iter *userIterator) NextPage() (openids []string, err error) {
 	if !iter.nextPageCalled { // 还没有调用 NextPage(), 从创建的时候获取的数据中获取
 		iter.nextPageCalled = true
-		openids = iter.lastUserGetData.Data.OpenId
+		openids = iter.lastUserListData.Data.OpenId
 		return
 	}
 
 	// 不是第一次调用的都要从服务器拉取数据
-	data, err := iter.wechatClient.UserList(iter.lastUserGetData.NextOpenId)
+	data, err := iter.wechatClient.UserList(iter.lastUserListData.NextOpenId)
 	if err != nil {
 		return
 	}
 
-	iter.lastUserGetData = data // 覆盖老数据
+	iter.lastUserListData = data // 覆盖老数据
 	openids = data.Data.OpenId
 	return
 }
@@ -465,8 +465,8 @@ func (c *Client) UserIterator(beginOpenId string) (iter user.UserIterator, err e
 	}
 
 	iter = &userIterator{
-		lastUserGetData: data,
-		wechatClient:    c,
+		lastUserListData: data,
+		wechatClient:     c,
 	}
 	return
 }

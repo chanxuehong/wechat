@@ -19,7 +19,8 @@ type Group struct {
 	UserCount int    `json:"count"` // 分组内用户数量
 }
 
-var ErrNotSubscribe = errors.New("没有订阅公众号")
+// 获取用户信息时，如果用户没有关注该公众号时，返回 ErrNotSubscribe 错误
+var ErrNotSubscribe = errors.New("用户没有订阅公众号")
 
 type UserInfo struct {
 	OpenId   string `json:"openid"`   // 用户的标识，对当前公众号唯一
@@ -40,29 +41,36 @@ type UserInfo struct {
 	// 只有在用户将公众号绑定到微信开放平台帐号后，才会出现该字段。
 	UnionId string `json:"unionid,omitempty"`
 
-	// 备注名; 这个字段文档中没有，但是实际返回的数据里有这个字段
+	// 备注名
 	Remark string `json:"remark,omitempty"`
 }
 
-// 获取用户图像的大小
-//  @headImageURL: 用户头像URL，最后一个数值代表正方形头像大小（有0、46、64、96、132数值可选，0代表640*640正方形头像）
-//  NOTE: 请确保 headImageURL 不为空
-func HeadImageSize(headImageURL string) (size int, err error) {
-	index := strings.LastIndex(headImageURL, "/")
-	if index == -1 {
-		err = fmt.Errorf("invalid headImageURL: %s", headImageURL)
-		return
-	}
-	if index+1 == len(headImageURL) { // "/" 在最后面
-		err = fmt.Errorf("invalid headImageURL: %s", headImageURL)
+var ErrNoHeadImage = errors.New("没有图像")
+
+// 获取用户图像的大小, 如果用户没有图像则返回 ErrNoHeadImage 错误.
+func (this *UserInfo) HeadImageSize() (size int, err error) {
+	HeadImageURL := this.HeadImageURL
+	if HeadImageURL == "" {
+		err = ErrNoHeadImage
 		return
 	}
 
-	sizeStr := headImageURL[index+1:]
+	index := strings.LastIndex(HeadImageURL, "/")
+	if index == -1 {
+		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
+		return
+	}
+	HeadImageIndex := index + 1
+	if HeadImageIndex == len(HeadImageURL) {
+		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
+		return
+	}
+
+	sizeStr := HeadImageURL[HeadImageIndex:]
 
 	size64, err := strconv.ParseUint(sizeStr, 10, 8)
 	if err != nil {
-		err = fmt.Errorf("invalid headImageURL: %s", headImageURL)
+		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
 		return
 	}
 
@@ -74,10 +82,10 @@ func HeadImageSize(headImageURL string) (size int, err error) {
 	return
 }
 
-// 获取关注者返回的数据结构
-type UserGetData struct {
+// 获取关注者列表返回的数据结构
+type UserListResult struct {
 	TotalCount int `json:"total"` // 关注该公众账号的总用户数
-	GetCount   int `json:"count"` // 拉取的OPENID个数，最大值为10000
+	GotCount   int `json:"count"` // 拉取的OPENID个数，最大值为10000
 
 	Data struct {
 		OpenId []string `json:"openid"`
@@ -87,7 +95,7 @@ type UserGetData struct {
 	NextOpenId string `json:"next_openid"`
 }
 
-// 关注者列表的遍历器
+// 关注者的遍历器
 //
 //  iter, err := Client.UserIterator("beginOpenId")
 //  if err != nil {

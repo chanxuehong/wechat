@@ -6,6 +6,7 @@
 package oauth2
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -30,25 +31,32 @@ type UserInfo struct {
 	UnionId string `json:"unionid"`
 }
 
-// 获取用户图像的大小
-//  @headImageURL: 用户头像URL，最后一个数值代表正方形头像大小（有0、46、64、96、132数值可选，0代表640*640正方形头像）
-//  NOTE: 请确保 headImageURL 不为空
-func HeadImageSize(headImageURL string) (size int, err error) {
-	index := strings.LastIndex(headImageURL, "/")
-	if index == -1 {
-		err = fmt.Errorf("invalid headImageURL: %s", headImageURL)
-		return
-	}
-	if index+1 == len(headImageURL) { // "/" 在最后面
-		err = fmt.Errorf("invalid headImageURL: %s", headImageURL)
+var ErrNoHeadImage = errors.New("没有图像")
+
+// 获取用户图像的大小, 如果用户没有图像则返回 ErrNoHeadImage 错误.
+func (this *UserInfo) HeadImageSize() (size int, err error) {
+	HeadImageURL := this.HeadImageURL
+	if HeadImageURL == "" {
+		err = ErrNoHeadImage
 		return
 	}
 
-	sizeStr := headImageURL[index+1:]
+	index := strings.LastIndex(HeadImageURL, "/")
+	if index == -1 {
+		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
+		return
+	}
+	HeadImageIndex := index + 1
+	if HeadImageIndex == len(HeadImageURL) {
+		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
+		return
+	}
+
+	sizeStr := HeadImageURL[HeadImageIndex:]
 
 	size64, err := strconv.ParseUint(sizeStr, 10, 8)
 	if err != nil {
-		err = fmt.Errorf("invalid headImageURL: %s", headImageURL)
+		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
 		return
 	}
 
