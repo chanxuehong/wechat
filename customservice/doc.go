@@ -3,6 +3,6 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 客户服务相关的数据结构.
+// 多客户服务相关的数据结构.
 //  参考 http://dkf.qq.com
 package customservice

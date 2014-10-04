@@ -436,7 +436,7 @@ func (iter *userIterator) HasNext() bool {
 	//     "next_openid": "os-IKuHd9pJ6xsn4mS7GyL4HxqI4"
 	// }
 	return len(iter.lastUserListData.NextOpenId) != 0 &&
-		iter.lastUserListData.GotCount == user.PageUserCountLimit
+		iter.lastUserListData.GotCount == user.UserPageSizeLimit
 }
 
 func (iter *userIterator) NextPage() (openids []string, err error) {

@@ -41,12 +41,12 @@ func (this *UserInfo) HeadImageSize() (size int, err error) {
 		return
 	}
 
-	index := strings.LastIndex(HeadImageURL, "/")
-	if index == -1 {
+	lastSlashIndex := strings.LastIndex(HeadImageURL, "/")
+	if lastSlashIndex == -1 {
 		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
 		return
 	}
-	HeadImageIndex := index + 1
+	HeadImageIndex := lastSlashIndex + 1
 	if HeadImageIndex == len(HeadImageURL) {
 		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
 		return

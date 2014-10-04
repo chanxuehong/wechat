@@ -18,8 +18,8 @@ func (c *Client) CustomServiceRecordGet(request *customservice.RecordGetRequest)
 	}
 
 	var result struct {
-		RecordList []customservice.Record `json:"recordlist"`
 		Error
+		RecordList []customservice.Record `json:"recordlist"`
 	}
 	// 预分配一定的容量
 	if size := request.PageSize; size >= 64 {
@@ -61,64 +61,63 @@ RETRY:
 
 // 该结构实现了 github.com/chanxuehong/wechat/customservice.RecordIterator 接口
 type customServiceRecordIterator struct {
-	recordGetRequest  *customservice.RecordGetRequest // 上一次查询的 request
-	recordGetResponse []customservice.Record          // 上一次查询的 response
+	lastRecordGetRequest *customservice.RecordGetRequest // 上一次查询的 request
+	lastRecordGetResult  []customservice.Record          // 上一次查询的 result
 
 	wechatClient   *Client // 关联的微信 Client
 	nextPageCalled bool    // NextPage() 是否调用过
 }
 
 func (iter *customServiceRecordIterator) HasNext() bool {
-	// 第一批数据不需要通过 NextPage() 来获取, 在创建这个对象的时候就获取了;
-	if !iter.nextPageCalled {
-		return len(iter.recordGetResponse) > 0
+	if !iter.nextPageCalled { // 还没有调用 NextPage(), 从创建的时候获取的数据来判断
+		return len(iter.lastRecordGetResult) > 0
 	}
-	// 如果上一次读取的数据等于 PageSize, 则*有可能*还有数据; 否则肯定是没有数据了.
-	return len(iter.recordGetResponse) == iter.recordGetRequest.PageSize
+
+	// 如果上一次读取的数据等于 PageSize, 则***有可能***还有数据; 否则肯定是没有数据了.
+	return len(iter.lastRecordGetResult) == iter.lastRecordGetRequest.PageSize
 }
 
 func (iter *customServiceRecordIterator) NextPage() (records []customservice.Record, err error) {
-	// 第一次调用 NextPage(), 因为在创建这个对象的时候已经获取了数据, 所以直接返回.
-	if !iter.nextPageCalled {
+	if !iter.nextPageCalled { // 还没有调用 NextPage(), 从创建的时候获取的数据中获取
 		iter.nextPageCalled = true
-		records = iter.recordGetResponse
+		records = iter.lastRecordGetResult
 		return
 	}
 
 	// 不是第一次调用的都要从服务器拉取数据
-	iter.recordGetRequest.PageIndex++
-	records, err = iter.wechatClient.CustomServiceRecordGet(iter.recordGetRequest)
+	iter.lastRecordGetRequest.PageIndex++
+	records, err = iter.wechatClient.CustomServiceRecordGet(iter.lastRecordGetRequest)
 	if err != nil {
 		return
 	}
 
-	iter.recordGetResponse = records
+	iter.lastRecordGetResult = records
 	return
 }
 
 // 聊天记录遍历器
 func (c *Client) CustomServiceRecordIterator(request *customservice.RecordGetRequest) (iter customservice.RecordIterator, err error) {
-	resp, err := c.CustomServiceRecordGet(request)
+	records, err := c.CustomServiceRecordGet(request)
 	if err != nil {
 		return
 	}
 
 	iter = &customServiceRecordIterator{
-		recordGetRequest:  request,
-		recordGetResponse: resp,
-		wechatClient:      c,
+		lastRecordGetRequest: request,
+		lastRecordGetResult:  records,
+		wechatClient:         c,
 	}
 	return
 }
 
 // 获取客服基本信息
-func (c *Client) CustomServiceKfList() (kfList []customservice.KfInfo, err error) {
+func (c *Client) CustomServiceKfList() (kfList []customservice.KFInfo, err error) {
 	var result struct {
-		KfList []customservice.KfInfo `json:"kf_list"`
 		Error
+		KfList []customservice.KFInfo `json:"kf_list"`
 	}
 	// 预分配一定的容量
-	result.KfList = make([]customservice.KfInfo, 0, 16)
+	result.KfList = make([]customservice.KFInfo, 0, 16)
 
 	hasRetry := false
 RETRY:
@@ -152,13 +151,13 @@ RETRY:
 }
 
 // 获取在线客服接待信息
-func (c *Client) CustomServiceOnlineKfList() (kfList []customservice.OnlineKfInfo, err error) {
+func (c *Client) CustomServiceOnlineKfList() (kfList []customservice.OnlineKFInfo, err error) {
 	var result struct {
-		KfList []customservice.OnlineKfInfo `json:"kf_online_list"`
 		Error
+		KfList []customservice.OnlineKFInfo `json:"kf_online_list"`
 	}
 	// 预分配一定的容量
-	result.KfList = make([]customservice.OnlineKfInfo, 0, 16)
+	result.KfList = make([]customservice.OnlineKFInfo, 0, 16)
 
 	hasRetry := false
 RETRY:

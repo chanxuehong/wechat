@@ -6,8 +6,8 @@
 package user
 
 const (
-	GroupCountLimit    = 500   // 每个公众号分组个数不能超过 500
-	PageUserCountLimit = 10000 // 每次拉取的OPENID个数最大值为10000
+	GroupCountLimit   = 500   // 每个公众号分组个数不能超过 500
+	UserPageSizeLimit = 10000 // 每次拉取的OPENID个数最大值为10000
 )
 
 const (

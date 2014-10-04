@@ -10,7 +10,7 @@ const (
 )
 
 const (
-	OnlineKfInfoStatusPC          = 1
-	OnlineKfInfoStatusMobile      = 2
-	OnlineKfInfoStatusPCAndMobile = 3
+	OnlineKFInfoStatusPC          = 1
+	OnlineKFInfoStatusMobile      = 2
+	OnlineKFInfoStatusPCAndMobile = 3
 )
