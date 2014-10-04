@@ -120,13 +120,18 @@ func QRCodeURL(ticket string) string {
 }
 
 // 通过 ticket 换取二维码到 writer
-func QRCodeDownload(ticket string, writer io.Writer) (err error) {
+//  如果 httpClient == nil 则默认用 http.DefaultClient,
+//  see ../CommonHttpClient 和 ../MediaHttpClient.
+func QRCodeDownloadToWriter(ticket string, writer io.Writer, httpClient *http.Client) (err error) {
 	if writer == nil {
 		return errors.New("writer == nil")
 	}
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
 
 	_url := qrcodeURL(ticket)
-	resp, err := http.Get(_url)
+	resp, err := httpClient.Get(_url)
 	if err != nil {
 		return
 	}
@@ -143,7 +148,7 @@ func QRCodeDownload(ticket string, writer io.Writer) (err error) {
 }
 
 // 通过 ticket 换取二维码到 writer
-func (c *Client) QRCodeDownload(ticket string, writer io.Writer) (err error) {
+func (c *Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (err error) {
 	if writer == nil {
 		return errors.New("writer == nil")
 	}
@@ -165,24 +170,26 @@ func (c *Client) QRCodeDownload(ticket string, writer io.Writer) (err error) {
 	return fmt.Errorf("qrcode with ticket %s not found", ticket)
 }
 
-// 通过 ticket 换取二维码到文件 _filepath
-func QRCodeDownloadToFile(ticket, _filepath string) (err error) {
-	file, err := os.Create(_filepath)
+// 通过 ticket 换取二维码到文件 filepath_
+//  如果 httpClient == nil 则默认用 http.DefaultClient,
+//  see ../CommonHttpClient 和 ../MediaHttpClient.
+func QRCodeDownload(ticket, filepath_ string, httpClient *http.Client) (err error) {
+	file, err := os.Create(filepath_)
 	if err != nil {
 		return
 	}
 	defer file.Close()
 
-	return QRCodeDownload(ticket, file)
+	return QRCodeDownloadToWriter(ticket, file, httpClient)
 }
 
-// 通过 ticket 换取二维码到文件 _filepath
-func (c *Client) QRCodeDownloadToFile(ticket, _filepath string) (err error) {
-	file, err := os.Create(_filepath)
+// 通过 ticket 换取二维码到文件 filepath_
+func (c *Client) QRCodeDownload(ticket, filepath_ string) (err error) {
+	file, err := os.Create(filepath_)
 	if err != nil {
 		return
 	}
 	defer file.Close()
 
-	return c.QRCodeDownload(ticket, file)
+	return c.QRCodeDownloadToWriter(ticket, file)
 }

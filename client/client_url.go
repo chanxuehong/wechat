@@ -162,13 +162,13 @@ func customServiceRecordGetURL(accesstoken string) string {
 }
 
 // https://api.weixin.qq.com/cgi-bin/customservice/getkflist?access_token= ACCESS_TOKEN
-func customServiceKfListURL(accesstoken string) string {
+func customServiceKFListURL(accesstoken string) string {
 	return "https://api.weixin.qq.com/cgi-bin/customservice/getkflist?access_token=" +
 		accesstoken
 }
 
 // https://api.weixin.qq.com/cgi-bin/customservice/getonlinekflist?access_token= ACCESS_TOKEN
-func customServiceOnlineKfListURL(accesstoken string) string {
+func customServiceOnlineKFListURL(accesstoken string) string {
 	return "https://api.weixin.qq.com/cgi-bin/customservice/getonlinekflist?access_token=" +
 		accesstoken
 }

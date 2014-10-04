@@ -111,13 +111,13 @@ func (c *Client) CustomServiceRecordIterator(request *customservice.RecordGetReq
 }
 
 // 获取客服基本信息
-func (c *Client) CustomServiceKfList() (kfList []customservice.KFInfo, err error) {
+func (c *Client) CustomServiceKFList() (kfList []customservice.KFInfo, err error) {
 	var result struct {
 		Error
-		KfList []customservice.KFInfo `json:"kf_list"`
+		KFList []customservice.KFInfo `json:"kf_list"`
 	}
 	// 预分配一定的容量
-	result.KfList = make([]customservice.KFInfo, 0, 16)
+	result.KFList = make([]customservice.KFInfo, 0, 16)
 
 	hasRetry := false
 RETRY:
@@ -125,7 +125,7 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := customServiceKfListURL(token)
+	_url := customServiceKFListURL(token)
 
 	if err = c.getJSON(_url, &result); err != nil {
 		return
@@ -133,7 +133,7 @@ RETRY:
 
 	switch result.ErrCode {
 	case errCodeOK:
-		kfList = result.KfList
+		kfList = result.KFList
 		return
 
 	case errCodeTimeout:
@@ -151,13 +151,13 @@ RETRY:
 }
 
 // 获取在线客服接待信息
-func (c *Client) CustomServiceOnlineKfList() (kfList []customservice.OnlineKFInfo, err error) {
+func (c *Client) CustomServiceOnlineKFList() (kfList []customservice.OnlineKFInfo, err error) {
 	var result struct {
 		Error
-		KfList []customservice.OnlineKFInfo `json:"kf_online_list"`
+		KFList []customservice.OnlineKFInfo `json:"kf_online_list"`
 	}
 	// 预分配一定的容量
-	result.KfList = make([]customservice.OnlineKFInfo, 0, 16)
+	result.KFList = make([]customservice.OnlineKFInfo, 0, 16)
 
 	hasRetry := false
 RETRY:
@@ -165,7 +165,7 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := customServiceOnlineKfListURL(token)
+	_url := customServiceOnlineKFListURL(token)
 
 	if err = c.getJSON(_url, &result); err != nil {
 		return
@@ -173,7 +173,7 @@ RETRY:
 
 	switch result.ErrCode {
 	case errCodeOK:
-		kfList = result.KfList
+		kfList = result.KFList
 		return
 
 	case errCodeTimeout:
