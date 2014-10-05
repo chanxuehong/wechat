@@ -88,7 +88,7 @@ type UserListResult struct {
 	GotCount   int `json:"count"` // 拉取的OPENID个数，最大值为10000
 
 	Data struct {
-		OpenId []string `json:"openid"`
+		OpenId []string `json:"openid,omitempty"`
 	} `json:"data"` // 列表数据，OPENID的列表
 
 	// 拉取列表的后一个用户的OPENID, 如果 next_openid == "" 则表示没有了用户数据
