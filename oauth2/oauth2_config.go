@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// oauth2 相关配置 ( 一般全局只用保存一个变量 )
+// oauth2 相关配置
 type OAuth2Config struct {
 	AppId     string
 	AppSecret string
@@ -35,5 +35,5 @@ func NewOAuth2Config(appid, appsecret, redirectURL string, scope ...string) *OAu
 
 // 请求用户授权时跳转的地址.
 func (cfg *OAuth2Config) AuthCodeURL(state string) string {
-	return oauth2AuthURL(cfg.AppId, cfg.RedirectURL, cfg.Scope, state)
+	return OAuth2AuthURL(cfg.AppId, cfg.RedirectURL, cfg.Scope, state)
 }
