@@ -17,13 +17,13 @@ QQ群：     297489459
 # change log:
 
 ### v0.8.14
-Client 包里更改了qrcode相关的函数和方法
+client 包里更改了qrcode相关的函数和方法
 ### v0.8.13
-Server 里的数据结构命名做了调整
+server 里的数据结构命名做了调整
 ### v0.8.12
-Server 消息处理方式重构了
+server 消息处理方式重构了
 ### v0.8.11
-Client 的 Media 系列方法名称做了个调整
+client 的 Media 系列方法名称做了个调整
 
 # 简介
 wechat 包主要分为三个部分，client、server 和 oauth2
@@ -34,8 +34,8 @@ client 主要实现的是“主动”请求功能，如发送客服消息，群�
 server 主要实现的是“被动”接收消息和处理功能，如被动接收文本消息及回复，被动接收语音消息及回复等等，
 详见 https://github.com/chanxuehong/wechat/blob/master/server/readme.md
 
-oauth2 主要实现的是网页授权获取用户基本信息功能，即微信扫描网页上的二维码实现 OAuth2 授权登录和获取用户信息，
-详见 https://github.com/chanxuehong/wechat/blob/master/oauth2/readme.md
+oauth2 主要实现的是网页授权获取用户基本信息功能，微信公众号可以引导（自定义菜单或者网页）到一个页面，
+请求用户授权，详见 https://github.com/chanxuehong/wechat/blob/master/oauth2/readme.md
 
 # 安装
 通过执行下列语句就可以完成安装
