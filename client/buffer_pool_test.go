@@ -22,7 +22,7 @@ func BenchmarkGetMediaBufferFromPool(b *testing.B) {
 func BenchmarkGetMediaBufferFromNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		func() {
-			_ = bytes.NewBuffer(make([]byte, 10<<20))
+			_ = bytes.NewBuffer(make([]byte, 0, 10<<20))
 		}()
 	}
 }
@@ -39,7 +39,7 @@ func BenchmarkGetTextBufferFromPool(b *testing.B) {
 func BenchmarkGetTextBufferFromNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		func() {
-			_ = bytes.NewBuffer(make([]byte, 64<<10))
+			_ = bytes.NewBuffer(make([]byte, 0, 64<<10))
 		}()
 	}
 }

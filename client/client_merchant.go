@@ -18,19 +18,19 @@ import (
 )
 
 // 上传图片
-func (c *Client) MerchantUploadImageFromFile(_filepath string) (imageURL string, err error) {
-	file, err := os.Open(_filepath)
+func (c *Client) MerchantUploadImage(filepath_ string) (imageURL string, err error) {
+	file, err := os.Open(filepath_)
 	if err != nil {
 		return
 	}
 	defer file.Close()
 
-	return c.merchantUploadImage(filepath.Base(_filepath), file)
+	return c.merchantUploadImageFromReader(filepath.Base(filepath_), file)
 }
 
 // 上传图片
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart form 里面文件名称
-func (c *Client) MerchantUploadImage(filename string, imageReader io.Reader) (imageURL string, err error) {
+func (c *Client) MerchantUploadImageFromReader(filename string, imageReader io.Reader) (imageURL string, err error) {
 	if filename == "" {
 		err = errors.New(`filename == ""`)
 		return
@@ -39,149 +39,73 @@ func (c *Client) MerchantUploadImage(filename string, imageReader io.Reader) (im
 		err = errors.New("imageReader == nil")
 		return
 	}
-	return c.merchantUploadImage(filename, imageReader)
+
+	return c.merchantUploadImageFromReader(filename, imageReader)
 }
 
 // 上传图片
-func (c *Client) merchantUploadImage(filename string, imageReader io.Reader) (imageURL string, err error) {
-	const boundary = "--------wvm6LNx=y4rEq?BUD(k_:0Pj2V.M'J)t957K-Sh/Q1ZA+ceWFunTRdfGaXgY"
-	const ContentType = "multipart/form-data; boundary=" + boundary
+func (c *Client) merchantUploadImageFromReader(filename string, reader io.Reader) (imageURL string, err error) {
+	switch v := reader.(type) {
+	case *os.File:
+		return c.merchantUploadImageFromOSFile(filename, v)
+	case *bytes.Buffer:
+		return c.merchantUploadImageFromBytesBuffer(filename, v)
+	case *bytes.Reader:
+		return c.merchantUploadImageFromBytesReader(filename, v)
+	case *strings.Reader:
+		return c.merchantUploadImageFromStringsReader(filename, v)
+	default:
+		return c.merchantUploadImageFromIOReader(filename, v)
+	}
+}
 
-	// ----------wvm6LNx=y4rEq?BUD(k_:0Pj2V.M'J)t957K-Sh/Q1ZA+ceWFunTRdfGaXgY
-	// Content-Disposition: form-data; name="filename"; filename="filename"
-	// Content-Type: application/octet-stream
-	//
-	// imageReader
-	// ----------wvm6LNx=y4rEq?BUD(k_:0Pj2V.M'J)t957K-Sh/Q1ZA+ceWFunTRdfGaXgY--
-	//
-	const formDataFront = "--" + boundary + "\r\nContent-Disposition: form-data; name=\"filename\"; filename=\""
-	filename = escapeQuotes(filename)
-	const formDataMiddle = "\"\r\nContent-Type: application/octet-stream\r\n\r\n"
-	// imageReader
-	const formDataEnd = "\r\n--" + boundary + "--\r\n"
+func (c *Client) merchantUploadImageFromOSFile(filename string, file *os.File) (imageURL string, err error) {
+	fi, err := file.Stat()
+	if err != nil {
+		return
+	}
 
+	// 非常规文件, FileInfo.Size() 不一定准确
+	if !fi.Mode().IsRegular() {
+		return c.merchantUploadImageFromIOReader(filename, file)
+	}
+
+	originalOffset, err := file.Seek(0, 1)
+	if err != nil {
+		return
+	}
+
+	FormDataFileName := escapeQuotes(filename)
+	ContentLength := int64(multipart_constPartLen+len(FormDataFileName)) +
+		fi.Size() - originalOffset
+
+	hasRetry := false
+RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
 	url_ := merchantUploadImageURL(token, filename)
 
-	var httpReq *http.Request
-
-	switch v := imageReader.(type) {
-	case *os.File:
-		var fileinfo os.FileInfo
-		if fileinfo, err = v.Stat(); err != nil {
+	if hasRetry {
+		if _, err = file.Seek(originalOffset, 0); err != nil {
 			return
 		}
-
-		if fileinfo.Mode().IsRegular() {
-			mr := io.MultiReader(
-				strings.NewReader(formDataFront),
-				strings.NewReader(filename),
-				strings.NewReader(formDataMiddle),
-				imageReader,
-				strings.NewReader(formDataEnd),
-			)
-
-			httpReq, err = http.NewRequest("POST", url_, mr)
-			if err != nil {
-				return
-			}
-			httpReq.Header.Set("Content-Type", ContentType)
-			httpReq.ContentLength = int64(len(formDataFront)+len(filename)+
-				len(formDataMiddle)+len(formDataEnd)) + fileinfo.Size()
-
-		} else {
-			bodyBuf := mediaBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
-			bodyBuf.Reset()                                  // important
-			defer mediaBufferPool.Put(bodyBuf)               // important
-
-			bodyBuf.WriteString(formDataFront)
-			bodyBuf.WriteString(filename)
-			bodyBuf.WriteString(formDataMiddle)
-			if _, err = io.Copy(bodyBuf, imageReader); err != nil {
-				return
-			}
-			bodyBuf.WriteString(formDataEnd)
-
-			httpReq, err = http.NewRequest("POST", url_, bodyBuf)
-			if err != nil {
-				return
-			}
-			httpReq.Header.Set("Content-Type", ContentType)
-		}
-
-	case *bytes.Buffer:
-		mr := io.MultiReader(
-			strings.NewReader(formDataFront),
-			strings.NewReader(filename),
-			strings.NewReader(formDataMiddle),
-			imageReader,
-			strings.NewReader(formDataEnd),
-		)
-
-		httpReq, err = http.NewRequest("POST", url_, mr)
-		if err != nil {
-			return
-		}
-		httpReq.Header.Set("Content-Type", ContentType)
-		httpReq.ContentLength = int64(len(formDataFront) + len(filename) +
-			len(formDataMiddle) + len(formDataEnd) + v.Len())
-
-	case *bytes.Reader:
-		mr := io.MultiReader(
-			strings.NewReader(formDataFront),
-			strings.NewReader(filename),
-			strings.NewReader(formDataMiddle),
-			imageReader,
-			strings.NewReader(formDataEnd),
-		)
-
-		httpReq, err = http.NewRequest("POST", url_, mr)
-		if err != nil {
-			return
-		}
-		httpReq.Header.Set("Content-Type", ContentType)
-		httpReq.ContentLength = int64(len(formDataFront) + len(filename) +
-			len(formDataMiddle) + len(formDataEnd) + v.Len())
-
-	case *strings.Reader:
-		mr := io.MultiReader(
-			strings.NewReader(formDataFront),
-			strings.NewReader(filename),
-			strings.NewReader(formDataMiddle),
-			imageReader,
-			strings.NewReader(formDataEnd),
-		)
-
-		httpReq, err = http.NewRequest("POST", url_, mr)
-		if err != nil {
-			return
-		}
-		httpReq.Header.Set("Content-Type", ContentType)
-		httpReq.ContentLength = int64(len(formDataFront) + len(filename) +
-			len(formDataMiddle) + len(formDataEnd) + v.Len())
-
-	default:
-		bodyBuf := mediaBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
-		bodyBuf.Reset()                                  // important
-		defer mediaBufferPool.Put(bodyBuf)               // important
-
-		bodyBuf.WriteString(formDataFront)
-		bodyBuf.WriteString(filename)
-		bodyBuf.WriteString(formDataMiddle)
-		if _, err = io.Copy(bodyBuf, imageReader); err != nil {
-			return
-		}
-		bodyBuf.WriteString(formDataEnd)
-
-		httpReq, err = http.NewRequest("POST", url_, bodyBuf)
-		if err != nil {
-			return
-		}
-		httpReq.Header.Set("Content-Type", ContentType)
 	}
+	mr := io.MultiReader(
+		strings.NewReader(multipart_formDataFront),
+		strings.NewReader(FormDataFileName),
+		strings.NewReader(multipart_formDataMiddle),
+		file,
+		strings.NewReader(multipart_formDataEnd),
+	)
+
+	httpReq, err := http.NewRequest("POST", url_, mr)
+	if err != nil {
+		return
+	}
+	httpReq.Header.Set("Content-Type", multipart_ContentType)
+	httpReq.ContentLength = ContentLength
 
 	httpResp, err := c.httpClient.Do(httpReq)
 	if err != nil {
@@ -206,6 +130,292 @@ func (c *Client) merchantUploadImage(filename string, imageReader io.Reader) (im
 	case errCodeOK:
 		imageURL = result.ImageURL
 		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = &result.Error
+		return
+	}
+}
+
+func (c *Client) merchantUploadImageFromBytesBuffer(filename string, buffer *bytes.Buffer) (imageURL string, err error) {
+	fileBytes := buffer.Bytes()
+
+	FormDataFileName := escapeQuotes(filename)
+	ContentLength := int64(multipart_constPartLen + len(FormDataFileName) + len(fileBytes))
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	url_ := merchantUploadImageURL(token, filename)
+
+	mr := io.MultiReader(
+		strings.NewReader(multipart_formDataFront),
+		strings.NewReader(FormDataFileName),
+		strings.NewReader(multipart_formDataMiddle),
+		bytes.NewReader(fileBytes),
+		strings.NewReader(multipart_formDataEnd),
+	)
+
+	httpReq, err := http.NewRequest("POST", url_, mr)
+	if err != nil {
+		return
+	}
+	httpReq.Header.Set("Content-Type", multipart_ContentType)
+	httpReq.ContentLength = ContentLength
+
+	httpResp, err := c.httpClient.Do(httpReq)
+	if err != nil {
+		return
+	}
+	defer httpResp.Body.Close()
+
+	if httpResp.StatusCode != http.StatusOK {
+		err = fmt.Errorf("http.Status: %s", httpResp.Status)
+		return
+	}
+
+	var result struct {
+		Error
+		ImageURL string `json:"image_url"`
+	}
+	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
+		return
+	}
+
+	switch result.ErrCode {
+	case errCodeOK:
+		imageURL = result.ImageURL
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = &result.Error
+		return
+	}
+}
+
+func (c *Client) merchantUploadImageFromBytesReader(filename string, reader *bytes.Reader) (imageURL string, err error) {
+	originalOffset, err := reader.Seek(0, 1)
+	if err != nil {
+		return
+	}
+
+	FormDataFileName := escapeQuotes(filename)
+	ContentLength := int64(multipart_constPartLen + len(FormDataFileName) + reader.Len())
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	url_ := merchantUploadImageURL(token, filename)
+
+	if hasRetry {
+		if _, err = reader.Seek(originalOffset, 0); err != nil {
+			return
+		}
+	}
+	mr := io.MultiReader(
+		strings.NewReader(multipart_formDataFront),
+		strings.NewReader(FormDataFileName),
+		strings.NewReader(multipart_formDataMiddle),
+		reader,
+		strings.NewReader(multipart_formDataEnd),
+	)
+
+	httpReq, err := http.NewRequest("POST", url_, mr)
+	if err != nil {
+		return
+	}
+	httpReq.Header.Set("Content-Type", multipart_ContentType)
+	httpReq.ContentLength = ContentLength
+
+	httpResp, err := c.httpClient.Do(httpReq)
+	if err != nil {
+		return
+	}
+	defer httpResp.Body.Close()
+
+	if httpResp.StatusCode != http.StatusOK {
+		err = fmt.Errorf("http.Status: %s", httpResp.Status)
+		return
+	}
+
+	var result struct {
+		Error
+		ImageURL string `json:"image_url"`
+	}
+	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
+		return
+	}
+
+	switch result.ErrCode {
+	case errCodeOK:
+		imageURL = result.ImageURL
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = &result.Error
+		return
+	}
+}
+
+func (c *Client) merchantUploadImageFromStringsReader(filename string, reader *strings.Reader) (imageURL string, err error) {
+	originalOffset, err := reader.Seek(0, 1)
+	if err != nil {
+		return
+	}
+
+	FormDataFileName := escapeQuotes(filename)
+	ContentLength := int64(multipart_constPartLen + len(FormDataFileName) + reader.Len())
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	url_ := merchantUploadImageURL(token, filename)
+
+	if hasRetry {
+		if _, err = reader.Seek(originalOffset, 0); err != nil {
+			return
+		}
+	}
+	mr := io.MultiReader(
+		strings.NewReader(multipart_formDataFront),
+		strings.NewReader(FormDataFileName),
+		strings.NewReader(multipart_formDataMiddle),
+		reader,
+		strings.NewReader(multipart_formDataEnd),
+	)
+
+	httpReq, err := http.NewRequest("POST", url_, mr)
+	if err != nil {
+		return
+	}
+	httpReq.Header.Set("Content-Type", multipart_ContentType)
+	httpReq.ContentLength = ContentLength
+
+	httpResp, err := c.httpClient.Do(httpReq)
+	if err != nil {
+		return
+	}
+	defer httpResp.Body.Close()
+
+	if httpResp.StatusCode != http.StatusOK {
+		err = fmt.Errorf("http.Status: %s", httpResp.Status)
+		return
+	}
+
+	var result struct {
+		Error
+		ImageURL string `json:"image_url"`
+	}
+	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
+		return
+	}
+
+	switch result.ErrCode {
+	case errCodeOK:
+		imageURL = result.ImageURL
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = &result.Error
+		return
+	}
+}
+
+func (c *Client) merchantUploadImageFromIOReader(filename string, reader io.Reader) (imageURL string, err error) {
+	bodyBuf := mediaBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
+	bodyBuf.Reset()                                  // important
+	defer mediaBufferPool.Put(bodyBuf)               // important
+
+	bodyBuf.WriteString(multipart_formDataFront)
+	bodyBuf.WriteString(escapeQuotes(filename))
+	bodyBuf.WriteString(multipart_formDataMiddle)
+	if _, err = io.Copy(bodyBuf, reader); err != nil {
+		return
+	}
+	bodyBuf.WriteString(multipart_formDataEnd)
+
+	bodyBytes := bodyBuf.Bytes()
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	url_ := merchantUploadImageURL(token, filename)
+
+	httpResp, err := c.httpClient.Post(url_, multipart_ContentType, bytes.NewReader(bodyBytes))
+	if err != nil {
+		return
+	}
+	defer httpResp.Body.Close()
+
+	if httpResp.StatusCode != http.StatusOK {
+		err = fmt.Errorf("http.Status: %s", httpResp.Status)
+		return
+	}
+
+	var result struct {
+		Error
+		ImageURL string `json:"image_url"`
+	}
+	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
+		return
+	}
+
+	switch result.ErrCode {
+	case errCodeOK:
+		imageURL = result.ImageURL
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
 
 	default:
 		err = &result.Error
