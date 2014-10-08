@@ -75,6 +75,11 @@ func (this *AgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		wantToUserName := agent.GetId()
+		if len(msgReq.ToUserName) != len(wantToUserName) {
+			err = fmt.Errorf("the message Request's ToUserName mismatch, have: %s, want: %s", msgReq.ToUserName, wantToUserName)
+			invalidRequestHandler.ServeInvalidRequest(w, r, err)
+			return
+		}
 		if subtle.ConstantTimeCompare([]byte(msgReq.ToUserName), []byte(wantToUserName)) != 1 {
 			err = fmt.Errorf("the message Request's ToUserName mismatch, have: %s, want: %s", msgReq.ToUserName, wantToUserName)
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
