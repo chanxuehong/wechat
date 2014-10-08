@@ -11,10 +11,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // 上传图片
@@ -44,42 +44,132 @@ func (c *Client) MerchantUploadImage(filename string, imageReader io.Reader) (im
 
 // 上传图片
 func (c *Client) merchantUploadImage(filename string, imageReader io.Reader) (imageURL string, err error) {
-	bodyBuf := mediaBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
-	bodyBuf.Reset()                                  // important
-	defer mediaBufferPool.Put(bodyBuf)
+	const boundary = "--------wvm6LNx=y4rEq?BUD(k_:0Pj2V.M'J)t957K-Sh/Q1ZA+ceWFunTRdfGaXgY"
+	const ContentType = "multipart/form-data; boundary=" + boundary
 
-	bodyWriter := multipart.NewWriter(bodyBuf)
-	fileWriter, err := bodyWriter.CreateFormFile("file", filename)
-	if err != nil {
-		return
-	}
-	if _, err = io.Copy(fileWriter, imageReader); err != nil {
-		return
-	}
+	// ----------wvm6LNx=y4rEq?BUD(k_:0Pj2V.M'J)t957K-Sh/Q1ZA+ceWFunTRdfGaXgY
+	// Content-Disposition: form-data; name="filename"; filename="filename"
+	// Content-Type: application/octet-stream
+	//
+	// imageReader
+	// ----------wvm6LNx=y4rEq?BUD(k_:0Pj2V.M'J)t957K-Sh/Q1ZA+ceWFunTRdfGaXgY--
+	//
+	const formDataFront = "--" + boundary + "\r\nContent-Disposition: form-data; name=\"filename\"; filename=\""
+	filename = escapeQuotes(filename)
+	const formDataMiddle = "\"\r\nContent-Type: application/octet-stream\r\n\r\n"
+	// imageReader
+	const formDataEnd = "\r\n--" + boundary + "--\r\n"
 
-	bodyContentType := bodyWriter.FormDataContentType()
-
-	if err = bodyWriter.Close(); err != nil {
-		return
-	}
-
-	postContent := bodyBuf.Bytes() // 这么绕一下是为了 RETRY 的时候能正常工作
-
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	_url := merchantUploadImageURL(token, filename)
-	resp, err := c.httpClient.Post(_url, bodyContentType, bytes.NewReader(postContent))
+	url_ := merchantUploadImageURL(token, filename)
+
+	var httpReq *http.Request
+
+	switch v := imageReader.(type) {
+	case *os.File:
+		var fi os.FileInfo
+		if fi, err = v.Stat(); err != nil {
+			return
+		}
+
+		mr := io.MultiReader(
+			strings.NewReader(formDataFront),
+			strings.NewReader(filename),
+			strings.NewReader(formDataMiddle),
+			imageReader,
+			strings.NewReader(formDataEnd),
+		)
+
+		httpReq, err = http.NewRequest("POST", url_, mr)
+		if err != nil {
+			return
+		}
+		httpReq.Header.Set("Content-Type", ContentType)
+		httpReq.ContentLength = int64(len(formDataFront)+len(filename)+
+			len(formDataMiddle)+len(formDataEnd)) + fi.Size()
+
+	case *bytes.Buffer:
+		mr := io.MultiReader(
+			strings.NewReader(formDataFront),
+			strings.NewReader(filename),
+			strings.NewReader(formDataMiddle),
+			imageReader,
+			strings.NewReader(formDataEnd),
+		)
+
+		httpReq, err = http.NewRequest("POST", url_, mr)
+		if err != nil {
+			return
+		}
+		httpReq.Header.Set("Content-Type", ContentType)
+		httpReq.ContentLength = int64(len(formDataFront) + len(filename) +
+			len(formDataMiddle) + len(formDataEnd) + v.Len())
+
+	case *bytes.Reader:
+		mr := io.MultiReader(
+			strings.NewReader(formDataFront),
+			strings.NewReader(filename),
+			strings.NewReader(formDataMiddle),
+			imageReader,
+			strings.NewReader(formDataEnd),
+		)
+
+		httpReq, err = http.NewRequest("POST", url_, mr)
+		if err != nil {
+			return
+		}
+		httpReq.Header.Set("Content-Type", ContentType)
+		httpReq.ContentLength = int64(len(formDataFront) + len(filename) +
+			len(formDataMiddle) + len(formDataEnd) + v.Len())
+
+	case *strings.Reader:
+		mr := io.MultiReader(
+			strings.NewReader(formDataFront),
+			strings.NewReader(filename),
+			strings.NewReader(formDataMiddle),
+			imageReader,
+			strings.NewReader(formDataEnd),
+		)
+
+		httpReq, err = http.NewRequest("POST", url_, mr)
+		if err != nil {
+			return
+		}
+		httpReq.Header.Set("Content-Type", ContentType)
+		httpReq.ContentLength = int64(len(formDataFront) + len(filename) +
+			len(formDataMiddle) + len(formDataEnd) + v.Len())
+
+	default:
+		bodyBuf := mediaBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
+		bodyBuf.Reset()                                  // important
+		defer mediaBufferPool.Put(bodyBuf)               // important
+
+		bodyBuf.WriteString(formDataFront)
+		bodyBuf.WriteString(filename)
+		bodyBuf.WriteString(formDataMiddle)
+		if _, err = io.Copy(bodyBuf, imageReader); err != nil {
+			return
+		}
+		bodyBuf.WriteString(formDataEnd)
+
+		httpReq, err = http.NewRequest("POST", url_, bodyBuf)
+		if err != nil {
+			return
+		}
+		httpReq.Header.Set("Content-Type", ContentType)
+	}
+
+	httpResp, err := c.httpClient.Do(httpReq)
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
+	defer httpResp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		err = fmt.Errorf("http.Status: %s", resp.Status)
+	if httpResp.StatusCode != http.StatusOK {
+		err = fmt.Errorf("http.Status: %s", httpResp.Status)
 		return
 	}
 
@@ -87,7 +177,7 @@ RETRY:
 		Error
 		ImageURL string `json:"image_url"`
 	}
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 		return
 	}
 
@@ -95,14 +185,6 @@ RETRY:
 	case errCodeOK:
 		imageURL = result.ImageURL
 		return
-
-	case errCodeTimeout:
-		if !hasRetry {
-			hasRetry = true
-			timeoutRetryWait()
-			goto RETRY
-		}
-		fallthrough
 
 	default:
 		err = &result.Error
