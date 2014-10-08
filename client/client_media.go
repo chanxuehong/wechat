@@ -141,27 +141,48 @@ func (c *Client) mediaUploadFromReader(mediaType, filename string, mediaReader i
 	var httpReq *http.Request
 
 	switch v := mediaReader.(type) {
-	//case *os.File:
-	//	var fi os.FileInfo
-	//	if fi, err = v.Stat(); err != nil {
-	//		return
-	//	}
+	case *os.File:
+		var fileinfo os.FileInfo
+		if fileinfo, err = v.Stat(); err != nil {
+			return
+		}
 
-	//	mr := io.MultiReader(
-	//		strings.NewReader(formDataFront),
-	//		strings.NewReader(filename),
-	//		strings.NewReader(formDataMiddle),
-	//		mediaReader,
-	//		strings.NewReader(formDataEnd),
-	//	)
+		if fileinfo.Mode().IsRegular() {
+			mr := io.MultiReader(
+				strings.NewReader(formDataFront),
+				strings.NewReader(filename),
+				strings.NewReader(formDataMiddle),
+				mediaReader,
+				strings.NewReader(formDataEnd),
+			)
 
-	//	httpReq, err = http.NewRequest("POST", url_, mr)
-	//	if err != nil {
-	//		return
-	//	}
-	//	httpReq.Header.Set("Content-Type", ContentType)
-	//	httpReq.ContentLength = int64(len(formDataFront)+len(filename)+
-	//		len(formDataMiddle)+len(formDataEnd)) + fi.Size()
+			httpReq, err = http.NewRequest("POST", url_, mr)
+			if err != nil {
+				return
+			}
+			httpReq.Header.Set("Content-Type", ContentType)
+			httpReq.ContentLength = int64(len(formDataFront)+len(filename)+
+				len(formDataMiddle)+len(formDataEnd)) + fileinfo.Size()
+
+		} else {
+			bodyBuf := mediaBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
+			bodyBuf.Reset()                                  // important
+			defer mediaBufferPool.Put(bodyBuf)               // important
+
+			bodyBuf.WriteString(formDataFront)
+			bodyBuf.WriteString(filename)
+			bodyBuf.WriteString(formDataMiddle)
+			if _, err = io.Copy(bodyBuf, mediaReader); err != nil {
+				return
+			}
+			bodyBuf.WriteString(formDataEnd)
+
+			httpReq, err = http.NewRequest("POST", url_, bodyBuf)
+			if err != nil {
+				return
+			}
+			httpReq.Header.Set("Content-Type", ContentType)
+		}
 
 	case *bytes.Buffer:
 		mr := io.MultiReader(
