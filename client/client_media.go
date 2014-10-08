@@ -141,27 +141,27 @@ func (c *Client) mediaUploadFromReader(mediaType, filename string, mediaReader i
 	var httpReq *http.Request
 
 	switch v := mediaReader.(type) {
-	case *os.File:
-		var fi os.FileInfo
-		if fi, err = v.Stat(); err != nil {
-			return
-		}
+	//case *os.File:
+	//	var fi os.FileInfo
+	//	if fi, err = v.Stat(); err != nil {
+	//		return
+	//	}
 
-		mr := io.MultiReader(
-			strings.NewReader(formDataFront),
-			strings.NewReader(filename),
-			strings.NewReader(formDataMiddle),
-			mediaReader,
-			strings.NewReader(formDataEnd),
-		)
+	//	mr := io.MultiReader(
+	//		strings.NewReader(formDataFront),
+	//		strings.NewReader(filename),
+	//		strings.NewReader(formDataMiddle),
+	//		mediaReader,
+	//		strings.NewReader(formDataEnd),
+	//	)
 
-		httpReq, err = http.NewRequest("POST", url_, mr)
-		if err != nil {
-			return
-		}
-		httpReq.Header.Set("Content-Type", ContentType)
-		httpReq.ContentLength = int64(len(formDataFront)+len(filename)+
-			len(formDataMiddle)+len(formDataEnd)) + fi.Size()
+	//	httpReq, err = http.NewRequest("POST", url_, mr)
+	//	if err != nil {
+	//		return
+	//	}
+	//	httpReq.Header.Set("Content-Type", ContentType)
+	//	httpReq.ContentLength = int64(len(formDataFront)+len(filename)+
+	//		len(formDataMiddle)+len(formDataEnd)) + fi.Size()
 
 	case *bytes.Buffer:
 		mr := io.MultiReader(
