@@ -35,10 +35,10 @@ func decodeNetworkBytesOrder(orderBytes []byte) (n int) {
 	return
 }
 
-func encryptMsg(random, rawXMLMsg []byte, CorpId string, AESKey []byte) (encryptMsg []byte) {
+func encryptMsg(random, rawXMLMsg []byte, AppId string, AESKey []byte) (encryptMsg []byte) {
 	const BLOCK_SIZE = 32
 
-	buf := make([]byte, 20+len(rawXMLMsg)+len(CorpId)+BLOCK_SIZE)
+	buf := make([]byte, 20+len(rawXMLMsg)+len(AppId)+BLOCK_SIZE)
 	plain := buf[:20]
 	pad := buf[len(buf)-BLOCK_SIZE:]
 
@@ -46,7 +46,7 @@ func encryptMsg(random, rawXMLMsg []byte, CorpId string, AESKey []byte) (encrypt
 	copy(plain, random)
 	encodeNetworkBytesOrder(len(rawXMLMsg), plain[16:20])
 	plain = append(plain, rawXMLMsg...)
-	plain = append(plain, CorpId...)
+	plain = append(plain, AppId...)
 
 	// PKCS#7 补位
 	amountToPad := BLOCK_SIZE - len(plain)%BLOCK_SIZE
@@ -68,7 +68,7 @@ func encryptMsg(random, rawXMLMsg []byte, CorpId string, AESKey []byte) (encrypt
 	return
 }
 
-func decryptMsg(encryptMsg []byte, CorpId string, AESKey []byte) (random, rawXMLMsg []byte, err error) {
+func decryptMsg(encryptMsg []byte, AppId string, AESKey []byte) (random, rawXMLMsg []byte, err error) {
 	const BLOCK_SIZE = 32
 
 	// 解密
@@ -114,9 +114,9 @@ func decryptMsg(encryptMsg []byte, CorpId string, AESKey []byte) (random, rawXML
 		return
 	}
 
-	CorpIdHave := string(plain[msgEnd:])
-	if CorpIdHave != CorpId { // crypto/subtle.ConstantTimeCompare ???
-		err = errors.New("CorpId mismatch")
+	AppIdHave := string(plain[msgEnd:])
+	if AppIdHave != AppId { // crypto/subtle.ConstantTimeCompare ???
+		err = errors.New("AppId mismatch")
 		return
 	}
 
