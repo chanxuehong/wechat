@@ -15,62 +15,62 @@ import (
 )
 
 // 把 text 回复消息 msg 写入 writer w
-func (this *DefaultAgent) WriteAESEncryptedText(w io.Writer, msg *response.Text, timestamp int64, nonce string, AESKey, random []byte) error {
+func (this *DefaultAgent) WriteAESText(w io.Writer, msg *response.Text, timestamp int64, nonce string, AESKey, random []byte) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return this.writeAESEncryptedResponse(w, msg, timestamp, nonce, AESKey, random)
+	return this.writeAESResponse(w, msg, timestamp, nonce, AESKey, random)
 }
 
 // 把 image 回复消息 msg 写入 writer w
-func (this *DefaultAgent) WriteAESEncryptedImage(w io.Writer, msg *response.Image, timestamp int64, nonce string, AESKey, random []byte) error {
+func (this *DefaultAgent) WriteAESImage(w io.Writer, msg *response.Image, timestamp int64, nonce string, AESKey, random []byte) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return this.writeAESEncryptedResponse(w, msg, timestamp, nonce, AESKey, random)
+	return this.writeAESResponse(w, msg, timestamp, nonce, AESKey, random)
 }
 
 // 把 voice 回复消息 msg 写入 writer w
-func (this *DefaultAgent) WriteAESEncryptedVoice(w io.Writer, msg *response.Voice, timestamp int64, nonce string, AESKey, random []byte) error {
+func (this *DefaultAgent) WriteAESVoice(w io.Writer, msg *response.Voice, timestamp int64, nonce string, AESKey, random []byte) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return this.writeAESEncryptedResponse(w, msg, timestamp, nonce, AESKey, random)
+	return this.writeAESResponse(w, msg, timestamp, nonce, AESKey, random)
 }
 
 // 把 video 回复消息 msg 写入 writer w
-func (this *DefaultAgent) WriteAESEncryptedVideo(w io.Writer, msg *response.Video, timestamp int64, nonce string, AESKey, random []byte) error {
+func (this *DefaultAgent) WriteAESVideo(w io.Writer, msg *response.Video, timestamp int64, nonce string, AESKey, random []byte) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return this.writeAESEncryptedResponse(w, msg, timestamp, nonce, AESKey, random)
+	return this.writeAESResponse(w, msg, timestamp, nonce, AESKey, random)
 }
 
 // 把 music 回复消息 msg 写入 writer w
-func (this *DefaultAgent) WriteAESEncryptedMusic(w io.Writer, msg *response.Music, timestamp int64, nonce string, AESKey, random []byte) error {
+func (this *DefaultAgent) WriteAESMusic(w io.Writer, msg *response.Music, timestamp int64, nonce string, AESKey, random []byte) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return this.writeAESEncryptedResponse(w, msg, timestamp, nonce, AESKey, random)
+	return this.writeAESResponse(w, msg, timestamp, nonce, AESKey, random)
 }
 
 // 把 news 回复消息 msg 写入 writer w
-func (this *DefaultAgent) WriteAESEncryptedNews(w io.Writer, msg *response.News, timestamp int64, nonce string, AESKey, random []byte) (err error) {
+func (this *DefaultAgent) WriteAESNews(w io.Writer, msg *response.News, timestamp int64, nonce string, AESKey, random []byte) (err error) {
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -80,32 +80,32 @@ func (this *DefaultAgent) WriteAESEncryptedNews(w io.Writer, msg *response.News,
 	if err = msg.CheckValid(); err != nil {
 		return
 	}
-	return this.writeAESEncryptedResponse(w, msg, timestamp, nonce, AESKey, random)
+	return this.writeAESResponse(w, msg, timestamp, nonce, AESKey, random)
 }
 
 // 把 TransferToCustomerService 回复消息 msg 写入 writer w
-func (this *DefaultAgent) WriteAESEncryptedTransferToCustomerService(w io.Writer, msg *response.TransferToCustomerService, timestamp int64, nonce string, AESKey, random []byte) error {
+func (this *DefaultAgent) WriteAESTransferToCustomerService(w io.Writer, msg *response.TransferToCustomerService, timestamp int64, nonce string, AESKey, random []byte) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return this.writeAESEncryptedResponse(w, msg, timestamp, nonce, AESKey, random)
+	return this.writeAESResponse(w, msg, timestamp, nonce, AESKey, random)
 }
 
 // 把 TransferToSpecialCustomerService 回复消息 msg 写入 writer w
-func (this *DefaultAgent) WriteAESEncryptedTransferToSpecialCustomerService(w io.Writer, msg *response.TransferToSpecialCustomerService, timestamp int64, nonce string, AESKey, random []byte) error {
+func (this *DefaultAgent) WriteAESTransferToSpecialCustomerService(w io.Writer, msg *response.TransferToSpecialCustomerService, timestamp int64, nonce string, AESKey, random []byte) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return this.writeAESEncryptedResponse(w, msg, timestamp, nonce, AESKey, random)
+	return this.writeAESResponse(w, msg, timestamp, nonce, AESKey, random)
 }
 
-func (this *DefaultAgent) writeAESEncryptedResponse(w io.Writer, msg interface{}, timestamp int64, nonce string, AESKey, random []byte) (err error) {
+func (this *DefaultAgent) writeAESResponse(w io.Writer, msg interface{}, timestamp int64, nonce string, AESKey, random []byte) (err error) {
 	rawXMLMsg, err := xml.Marshal(msg)
 	if err != nil {
 		return

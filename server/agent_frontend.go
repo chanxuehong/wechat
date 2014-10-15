@@ -100,7 +100,7 @@ func (this *AgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			msgDispatch(w, r, &msgReq, rawXMLMsg, timestamp, agent)
+			rawMsgDispatch(w, r, &msgReq, rawXMLMsg, timestamp, agent)
 
 		case "aes": // 兼容模式, 安全模式
 			const signatureLen = sha1.Size * 2
