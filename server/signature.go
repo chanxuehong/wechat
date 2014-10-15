@@ -25,3 +25,19 @@ func signature(token, timestamp, nonce string) (signature string) {
 	hashSumArray := sha1.Sum(buf)
 	return hex.EncodeToString(hashSumArray[:])
 }
+
+func msgSignature(token, timestamp, nonce, encryptMsg string) (signature string) {
+	strArray := sort.StringSlice{token, timestamp, nonce, encryptMsg}
+	strArray.Sort()
+
+	n := len(token) + len(timestamp) + len(nonce) + len(encryptMsg)
+	buf := make([]byte, 0, n)
+
+	buf = append(buf, strArray[0]...)
+	buf = append(buf, strArray[1]...)
+	buf = append(buf, strArray[2]...)
+	buf = append(buf, strArray[3]...)
+
+	hashSumArray := sha1.Sum(buf)
+	return hex.EncodeToString(hashSumArray[:])
+}

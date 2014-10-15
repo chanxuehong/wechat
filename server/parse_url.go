@@ -6,13 +6,11 @@
 package server
 
 import (
-	"crypto/sha1"
 	"errors"
-	"fmt"
 	"net/url"
 )
 
-func parsePostURLQuery(URL *url.URL) (signature, timestamp, nonce string, err error) {
+func parsePostURLQuery(URL *url.URL) (signature, timestamp, nonce, encryptType, msgSignature string, err error) {
 	if URL == nil {
 		err = errors.New("URL == nil")
 		return
@@ -24,16 +22,10 @@ func parsePostURLQuery(URL *url.URL) (signature, timestamp, nonce string, err er
 	}
 
 	signature = urlValues.Get("signature")
-	if signature == "" {
-		err = errors.New("signature is empty")
-		return
-	}
-
-	const signatureLen = sha1.Size * 2
-	if len(signature) != signatureLen {
-		err = fmt.Errorf("the length of signature mismatch, have: %d, want: %d", len(signature), signatureLen)
-		return
-	}
+	//if signature == "" {
+	//	err = errors.New("signature is empty")
+	//	return
+	//}
 
 	timestamp = urlValues.Get("timestamp")
 	if timestamp == "" {
@@ -47,10 +39,13 @@ func parsePostURLQuery(URL *url.URL) (signature, timestamp, nonce string, err er
 		return
 	}
 
+	encryptType = urlValues.Get("encrypt_type")
+	msgSignature = urlValues.Get("msg_signature")
+
 	return
 }
 
-func parsePostURLQueryEx(URL *url.URL) (agentkey, signature, timestamp, nonce string, err error) {
+func parsePostURLQueryEx(URL *url.URL) (agentkey, signature, timestamp, nonce, encryptType, msgSignature string, err error) {
 	if URL == nil {
 		err = errors.New("URL == nil")
 		return
@@ -68,16 +63,10 @@ func parsePostURLQueryEx(URL *url.URL) (agentkey, signature, timestamp, nonce st
 	}
 
 	signature = urlValues.Get("signature")
-	if signature == "" {
-		err = errors.New("signature is empty")
-		return
-	}
-
-	const signatureLen = sha1.Size * 2
-	if len(signature) != signatureLen {
-		err = fmt.Errorf("the length of signature mismatch, have: %d, want: %d", len(signature), signatureLen)
-		return
-	}
+	//if signature == "" {
+	//	err = errors.New("signature is empty")
+	//	return
+	//}
 
 	timestamp = urlValues.Get("timestamp")
 	if timestamp == "" {
@@ -90,6 +79,9 @@ func parsePostURLQueryEx(URL *url.URL) (agentkey, signature, timestamp, nonce st
 		err = errors.New("nonce is empty")
 		return
 	}
+
+	encryptType = urlValues.Get("encrypt_type")
+	msgSignature = urlValues.Get("msg_signature")
 
 	return
 }
@@ -106,16 +98,10 @@ func parseGetURLQuery(URL *url.URL) (signature, timestamp, nonce, echostr string
 	}
 
 	signature = urlValues.Get("signature")
-	if signature == "" {
-		err = errors.New("signature is empty")
-		return
-	}
-
-	const signatureLen = sha1.Size * 2
-	if len(signature) != signatureLen {
-		err = fmt.Errorf("the length of signature mismatch, have: %d, want: %d", len(signature), signatureLen)
-		return
-	}
+	//if signature == "" {
+	//	err = errors.New("signature is empty")
+	//	return
+	//}
 
 	timestamp = urlValues.Get("timestamp")
 	if timestamp == "" {
@@ -156,16 +142,10 @@ func parseGetURLQueryEx(URL *url.URL) (agentkey, signature, timestamp, nonce, ec
 	}
 
 	signature = urlValues.Get("signature")
-	if signature == "" {
-		err = errors.New("signature is empty")
-		return
-	}
-
-	const signatureLen = sha1.Size * 2
-	if len(signature) != signatureLen {
-		err = fmt.Errorf("the length of signature mismatch, have: %d, want: %d", len(signature), signatureLen)
-		return
-	}
+	//if signature == "" {
+	//	err = errors.New("signature is empty")
+	//	return
+	//}
 
 	timestamp = urlValues.Get("timestamp")
 	if timestamp == "" {

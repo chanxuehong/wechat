@@ -11,7 +11,7 @@ server 提供了 AgentFrontend，MultiAgentFrontend
 
 如果某些特殊情况下，给你的 URL 只有一个，但是你又想处理多个公众号的消息（事件），我们这里提供了
 MultiAgentFrontend，这时公众号的回调 URL 就要增加一个查询参数 agentkey（根据需要你也可以
-更改这个参数名称，如果更改了同时也要修改 URLQueryAgentKey 的值），这样回调 URL 的格式一般为
+更改这个参数名称，如果更改了同时也要修改 URLQueryAgentKeyName 的值），这样回调 URL 的格式一般为
 
 http://abc.xyz.com/weixin?agentkey=agentkey_value
 
