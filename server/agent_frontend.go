@@ -176,7 +176,7 @@ func (this *AgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			encryptedMsgDispatch(w, r, &msgReq, rawXMLMsg, timestamp, nonce, encryptType, AESKey[:], random, agent)
+			aesMsgDispatch(w, r, &msgReq, rawXMLMsg, timestamp, nonce, AESKey[:], random, agent)
 
 		default: // 未知的加密类型
 			invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("unknown encrypt_type"))

@@ -106,51 +106,51 @@ func (this *DefaultAgent) ServeMerchantOrderEvent(w http.ResponseWriter, r *http
 
 // 兼容模式, 安全模式 ==============================================================================================================================================================
 
-func (this *DefaultAgent) ServeEncryptedUnknownMsg(w http.ResponseWriter, r *http.Request, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESUnknownMsg(w http.ResponseWriter, r *http.Request, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
 
-func (this *DefaultAgent) ServeEncryptedTextMsg(w http.ResponseWriter, r *http.Request, msg *request.Text, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESTextMsg(w http.ResponseWriter, r *http.Request, msg *request.Text, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedImageMsg(w http.ResponseWriter, r *http.Request, msg *request.Image, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESImageMsg(w http.ResponseWriter, r *http.Request, msg *request.Image, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedVoiceMsg(w http.ResponseWriter, r *http.Request, msg *request.Voice, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESVoiceMsg(w http.ResponseWriter, r *http.Request, msg *request.Voice, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedVideoMsg(w http.ResponseWriter, r *http.Request, msg *request.Video, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESVideoMsg(w http.ResponseWriter, r *http.Request, msg *request.Video, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedLocationMsg(w http.ResponseWriter, r *http.Request, msg *request.Location, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESLocationMsg(w http.ResponseWriter, r *http.Request, msg *request.Location, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedLinkMsg(w http.ResponseWriter, r *http.Request, msg *request.Link, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESLinkMsg(w http.ResponseWriter, r *http.Request, msg *request.Link, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
 
-func (this *DefaultAgent) ServeEncryptedSubscribeEvent(w http.ResponseWriter, r *http.Request, msg *request.SubscribeEvent, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESSubscribeEvent(w http.ResponseWriter, r *http.Request, msg *request.SubscribeEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedUnsubscribeEvent(w http.ResponseWriter, r *http.Request, msg *request.UnsubscribeEvent, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESUnsubscribeEvent(w http.ResponseWriter, r *http.Request, msg *request.UnsubscribeEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedSubscribeByScanEvent(w http.ResponseWriter, r *http.Request, msg *request.SubscribeByScanEvent, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESSubscribeByScanEvent(w http.ResponseWriter, r *http.Request, msg *request.SubscribeByScanEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedScanEvent(w http.ResponseWriter, r *http.Request, msg *request.ScanEvent, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESScanEvent(w http.ResponseWriter, r *http.Request, msg *request.ScanEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedLocationEvent(w http.ResponseWriter, r *http.Request, msg *request.LocationEvent, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESLocationEvent(w http.ResponseWriter, r *http.Request, msg *request.LocationEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedMenuClickEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuClickEvent, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESMenuClickEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuClickEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedMenuViewEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuViewEvent, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESMenuViewEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuViewEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedMenuScanCodePushEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuScanCodePushEvent, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESMenuScanCodePushEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuScanCodePushEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedMenuScanCodeWaitMsgEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuScanCodeWaitMsgEvent, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESMenuScanCodeWaitMsgEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuScanCodeWaitMsgEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedMenuPicSysPhotoEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuPicSysPhotoEvent, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESMenuPicSysPhotoEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuPicSysPhotoEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedMenuPicPhotoOrAlbumEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuPicPhotoOrAlbumEvent, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESMenuPicPhotoOrAlbumEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuPicPhotoOrAlbumEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedMenuPicWeixinEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuPicWeixinEvent, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESMenuPicWeixinEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuPicWeixinEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedMenuLocationSelectEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuLocationSelectEvent, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESMenuLocationSelectEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuLocationSelectEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedMassSendJobFinishEvent(w http.ResponseWriter, r *http.Request, msg *request.MassSendJobFinishEvent, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESMassSendJobFinishEvent(w http.ResponseWriter, r *http.Request, msg *request.MassSendJobFinishEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedTemplateSendJobFinishEvent(w http.ResponseWriter, r *http.Request, msg *request.TemplateSendJobFinishEvent, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESTemplateSendJobFinishEvent(w http.ResponseWriter, r *http.Request, msg *request.TemplateSendJobFinishEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
-func (this *DefaultAgent) ServeEncryptedMerchantOrderEvent(w http.ResponseWriter, r *http.Request, msg *request.MerchantOrderEvent, rawXMLMsg []byte, timestamp int64, nonce, encryptType string, AESKey, random []byte) {
+func (this *DefaultAgent) ServeAESMerchantOrderEvent(w http.ResponseWriter, r *http.Request, msg *request.MerchantOrderEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey, random []byte) {
 }
