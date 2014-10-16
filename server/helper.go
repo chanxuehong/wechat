@@ -10,16 +10,7 @@ import (
 	"errors"
 )
 
-func AESKeyEncode(AESKey []byte) (encodedAESKey string, err error) {
-	if len(AESKey) != 32 {
-		err = errors.New("the length of AESKey must be equal to 32")
-		return
-	}
-	tmp := base64.StdEncoding.EncodeToString(AESKey)
-	encodedAESKey = tmp[:len(tmp)-1]
-	return
-}
-
+// encodedAESKey 由 a-z,A-Z,0-9 组成
 func AESKeyDecode(encodedAESKey string) (AESKey []byte, err error) {
 	if len(encodedAESKey) != 43 {
 		err = errors.New("the length of encodedAESKey must be equal to 43")

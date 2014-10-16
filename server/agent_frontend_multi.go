@@ -103,17 +103,17 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 			return
 		}
 
+		timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
+		if err != nil {
+			invalidRequestHandler.ServeInvalidRequest(w, r, err)
+			return
+		}
+
 		switch encryptType {
 		case "", "raw": // 明文模式
 			const signatureLen = sha1.Size * 2
 			if len(signature1) != signatureLen {
 				err = fmt.Errorf("the length of signature mismatch, have: %d, want: %d", len(signature1), signatureLen)
-				invalidRequestHandler.ServeInvalidRequest(w, r, err)
-				return
-			}
-
-			timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
-			if err != nil {
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
@@ -169,27 +169,21 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 				return
 			}
 
-			timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
-			if err != nil {
-				invalidRequestHandler.ServeInvalidRequest(w, r, err)
-				return
-			}
-
 			agent := this.agentMap[agentkey]
 			if agent == nil {
 				invalidRequestHandler.ServeInvalidRequest(w, r, fmt.Errorf("Not found Agent for %s == %s", URLQueryAgentKeyName, agentkey))
 				return
 			}
 
+			//signature2 := signature(agent.GetToken(), timestampStr, nonce)
+			//if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
+			//	invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("check signature failed"))
+			//	return
+			//}
+
 			var requestHttpBody request.RequestHttpBody
 			if err := xml.NewDecoder(r.Body).Decode(&requestHttpBody); err != nil {
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
-				return
-			}
-
-			msgSignature2 := msgSignature(agent.GetToken(), timestampStr, nonce, requestHttpBody.EncryptedMsg)
-			if subtle.ConstantTimeCompare([]byte(msgSignature1), []byte(msgSignature2)) != 1 {
-				invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("check signature failed"))
 				return
 			}
 
@@ -202,6 +196,12 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 			if subtle.ConstantTimeCompare([]byte(requestHttpBody.ToUserName), []byte(wantToUserName)) != 1 {
 				err = fmt.Errorf("the message RequestHttpBody's ToUserName mismatch, have: %s, want: %s", requestHttpBody.ToUserName, wantToUserName)
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
+				return
+			}
+
+			msgSignature2 := msgSignature(agent.GetToken(), timestampStr, nonce, requestHttpBody.EncryptedMsg)
+			if subtle.ConstantTimeCompare([]byte(msgSignature1), []byte(msgSignature2)) != 1 {
+				invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("check signature failed"))
 				return
 			}
 
@@ -232,6 +232,12 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 
 			var msgReq request.Request
 			if err = xml.Unmarshal(rawXMLMsg, &msgReq); err != nil {
+				invalidRequestHandler.ServeInvalidRequest(w, r, err)
+				return
+			}
+
+			if requestHttpBody.ToUserName != msgReq.ToUserName {
+				err = fmt.Errorf("the RequestHttpBody's ToUserName(==%d) mismatch the Request's ToUserName(==%d)", requestHttpBody.ToUserName, msgReq.ToUserName)
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
