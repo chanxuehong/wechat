@@ -35,7 +35,7 @@ func decodeNetworkBytesOrder(orderBytes []byte) (n int) {
 	return
 }
 
-func aesEncryptMsg(random [16]byte, rawXMLMsg []byte, AppId string, AESKey [32]byte) (encryptedMsg []byte) {
+func aesEncryptMsg(random, rawXMLMsg []byte, AppId string, AESKey [32]byte) (encryptedMsg []byte) {
 	const BLOCK_SIZE = 32 // PKCS#7
 
 	buf := make([]byte, 20+len(rawXMLMsg)+len(AppId)+BLOCK_SIZE)
@@ -43,7 +43,7 @@ func aesEncryptMsg(random [16]byte, rawXMLMsg []byte, AppId string, AESKey [32]b
 	pad := buf[len(buf)-BLOCK_SIZE:]
 
 	// 拼接
-	copy(plain, random[:])
+	copy(plain, random)
 	encodeNetworkBytesOrder(len(rawXMLMsg), plain[16:20])
 	plain = append(plain, rawXMLMsg...)
 	plain = append(plain, AppId...)
