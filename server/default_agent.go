@@ -21,10 +21,13 @@ type DefaultAgent struct {
 	CurrentAESKey [32]byte // 当前的 AES Key
 }
 
-func (this *DefaultAgent) Init(Id, Token string, AESKey [32]byte) {
+func (this *DefaultAgent) Init(Id, Token string, AESKey []byte) {
+	if len(AESKey) != 32 {
+		panic("the length of AESKey must equal to 32")
+	}
 	this.Id = Id
 	this.Token = Token
-	this.CurrentAESKey = AESKey
+	copy(this.CurrentAESKey[:], AESKey)
 }
 
 func (this *DefaultAgent) GetId() string {
