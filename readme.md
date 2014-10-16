@@ -1,5 +1,5 @@
 # 微信公众平台 golang SDK
-Version:   0.8.15
+Version:   0.8.16
 
 NOTE:      在 v1.0.0 之前 API 都有可能微调
 
@@ -16,6 +16,8 @@ QQ群：     297489459
 
 # change log:
 
+### v0.8.16
+server WriteXXX 系列方法独立成函数
 ### v0.8.15
 server 增加消息体签名及加解密
 ### v0.8.14

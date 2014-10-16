@@ -47,7 +47,7 @@ func (this *CustomAgent) ServeTextMsg(w http.ResponseWriter, r *http.Request, ms
 	// NOTE: 时间戳也可以用传入的参数 timestamp, 即微信服务器请求 URL 中的 timestamp
 	resp := response.NewText(msg.FromUserName, msg.ToUserName, msg.Content, time.Now().Unix())
 
-	if err := this.WriteText(w, resp); err != nil {
+	if err := server.WriteText(w, resp); err != nil {
 		// TODO: 错误处理代码
 	}
 }

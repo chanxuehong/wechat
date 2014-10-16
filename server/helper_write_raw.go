@@ -13,62 +13,62 @@ import (
 )
 
 // 把 text 回复消息 msg 写入 writer w
-func (this *DefaultAgent) WriteText(w io.Writer, msg *response.Text) error {
+func WriteText(w io.Writer, msg *response.Text) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return this.writeResponse(w, msg)
+	return writeResponse(w, msg)
 }
 
 // 把 image 回复消息 msg 写入 writer w
-func (this *DefaultAgent) WriteImage(w io.Writer, msg *response.Image) error {
+func WriteImage(w io.Writer, msg *response.Image) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return this.writeResponse(w, msg)
+	return writeResponse(w, msg)
 }
 
 // 把 voice 回复消息 msg 写入 writer w
-func (this *DefaultAgent) WriteVoice(w io.Writer, msg *response.Voice) error {
+func WriteVoice(w io.Writer, msg *response.Voice) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return this.writeResponse(w, msg)
+	return writeResponse(w, msg)
 }
 
 // 把 video 回复消息 msg 写入 writer w
-func (this *DefaultAgent) WriteVideo(w io.Writer, msg *response.Video) error {
+func WriteVideo(w io.Writer, msg *response.Video) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return this.writeResponse(w, msg)
+	return writeResponse(w, msg)
 }
 
 // 把 music 回复消息 msg 写入 writer w
-func (this *DefaultAgent) WriteMusic(w io.Writer, msg *response.Music) error {
+func WriteMusic(w io.Writer, msg *response.Music) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return this.writeResponse(w, msg)
+	return writeResponse(w, msg)
 }
 
 // 把 news 回复消息 msg 写入 writer w
-func (this *DefaultAgent) WriteNews(w io.Writer, msg *response.News) (err error) {
+func WriteNews(w io.Writer, msg *response.News) (err error) {
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -78,31 +78,31 @@ func (this *DefaultAgent) WriteNews(w io.Writer, msg *response.News) (err error)
 	if err = msg.CheckValid(); err != nil {
 		return
 	}
-	return this.writeResponse(w, msg)
+	return writeResponse(w, msg)
 }
 
 // 把 TransferToCustomerService 回复消息 msg 写入 writer w
-func (this *DefaultAgent) WriteTransferToCustomerService(w io.Writer, msg *response.TransferToCustomerService) error {
+func WriteTransferToCustomerService(w io.Writer, msg *response.TransferToCustomerService) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return this.writeResponse(w, msg)
+	return writeResponse(w, msg)
 }
 
 // 把 TransferToSpecialCustomerService 回复消息 msg 写入 writer w
-func (this *DefaultAgent) WriteTransferToSpecialCustomerService(w io.Writer, msg *response.TransferToSpecialCustomerService) error {
+func WriteTransferToSpecialCustomerService(w io.Writer, msg *response.TransferToSpecialCustomerService) error {
 	if w == nil {
 		return errors.New("w == nil")
 	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return this.writeResponse(w, msg)
+	return writeResponse(w, msg)
 }
 
-func (this *DefaultAgent) writeResponse(w io.Writer, msg interface{}) error {
+func writeResponse(w io.Writer, msg interface{}) error {
 	return xml.NewEncoder(w).Encode(msg) // 只要 w 能正常的写, 不会返回错误
 }
