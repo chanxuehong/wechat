@@ -9,5 +9,5 @@ package request
 type RequestHttpBody struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	Request
-	EncryptMsg string `xml:"Encrypt" json:"Encrypt"`
+	EncryptedMsg string `xml:"Encrypt" json:"Encrypt"`
 }

@@ -187,7 +187,7 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 				return
 			}
 
-			msgSignature2 := msgSignature(agent.GetToken(), timestampStr, nonce, requestHttpBody.EncryptMsg)
+			msgSignature2 := msgSignature(agent.GetToken(), timestampStr, nonce, requestHttpBody.EncryptedMsg)
 			if subtle.ConstantTimeCompare([]byte(msgSignature1), []byte(msgSignature2)) != 1 {
 				invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("check signature failed"))
 				return
@@ -205,7 +205,7 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 				return
 			}
 
-			EncryptMsgBytes, err := base64.StdEncoding.DecodeString(requestHttpBody.EncryptMsg)
+			EncryptedMsgBytes, err := base64.StdEncoding.DecodeString(requestHttpBody.EncryptedMsg)
 			if err != nil {
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
@@ -213,7 +213,7 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 
 			AESKey := agent.GetCurrentAESKey()
 
-			random, rawXMLMsg, err := decryptMsg(EncryptMsgBytes, agent.GetId(), AESKey)
+			random, rawXMLMsg, err := aesDecryptMsg(EncryptedMsgBytes, agent.GetId(), AESKey)
 			if err != nil {
 				LastAESKey := agent.GetLastAESKey()
 				if bytes.Equal(zeroAESKey[:], LastAESKey[:]) || bytes.Equal(AESKey[:], LastAESKey[:]) {
@@ -223,7 +223,7 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 
 				AESKey = LastAESKey // !!!
 
-				random, rawXMLMsg, err = decryptMsg(EncryptMsgBytes, agent.GetId(), AESKey)
+				random, rawXMLMsg, err = aesDecryptMsg(EncryptedMsgBytes, agent.GetId(), AESKey)
 				if err != nil {
 					invalidRequestHandler.ServeInvalidRequest(w, r, err)
 					return

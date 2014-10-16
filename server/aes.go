@@ -35,7 +35,7 @@ func decodeNetworkBytesOrder(orderBytes []byte) (n int) {
 	return
 }
 
-func encryptMsg(random [16]byte, rawXMLMsg []byte, AppId string, AESKey [32]byte) (encryptMsg []byte) {
+func aesEncryptMsg(random [16]byte, rawXMLMsg []byte, AppId string, AESKey [32]byte) (encryptedMsg []byte) {
 	const BLOCK_SIZE = 32 // PKCS#7
 
 	buf := make([]byte, 20+len(rawXMLMsg)+len(AppId)+BLOCK_SIZE)
@@ -64,20 +64,20 @@ func encryptMsg(random [16]byte, rawXMLMsg []byte, AppId string, AESKey [32]byte
 	mode := cipher.NewCBCEncrypter(block, AESKey[:16])
 	mode.CryptBlocks(plain, plain)
 
-	encryptMsg = plain
+	encryptedMsg = plain
 	return
 }
 
-func decryptMsg(encryptMsg []byte, AppId string, AESKey [32]byte) (random [16]byte, rawXMLMsg []byte, err error) {
+func aesDecryptMsg(encryptedMsg []byte, AppId string, AESKey [32]byte) (random [16]byte, rawXMLMsg []byte, err error) {
 	const BLOCK_SIZE = 32 // PKCS#7
 
 	// 解密
-	if len(encryptMsg) < BLOCK_SIZE {
-		err = errors.New("encryptMsg too short")
+	if len(encryptedMsg) < BLOCK_SIZE {
+		err = errors.New("encryptedMsg too short")
 		return
 	}
-	if len(encryptMsg)%BLOCK_SIZE != 0 {
-		err = errors.New("encryptMsg is not a multiple of the block size")
+	if len(encryptedMsg)%BLOCK_SIZE != 0 {
+		err = errors.New("encryptedMsg is not a multiple of the block size")
 		return
 	}
 
@@ -87,8 +87,8 @@ func decryptMsg(encryptMsg []byte, AppId string, AESKey [32]byte) (random [16]by
 	}
 	mode := cipher.NewCBCDecrypter(block, AESKey[:16])
 
-	plain := make([]byte, len(encryptMsg))
-	mode.CryptBlocks(plain, encryptMsg)
+	plain := make([]byte, len(encryptedMsg))
+	mode.CryptBlocks(plain, encryptedMsg)
 
 	// PKCS#7 去除补位
 	amountToPad := int(plain[len(plain)-1])

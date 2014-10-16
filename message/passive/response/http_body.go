@@ -7,9 +7,9 @@ package response
 
 // 安全模式, 回复微信请求的 http body
 type ResponseHttpBody struct {
-	XMLName    struct{} `xml:"xml" json:"-"`
-	EncryptMsg string   `xml:"Encrypt"`
-	Signature  string   `xml:"MsgSignature"`
-	TimeStamp  int64    `xml:"TimeStamp"`
-	Nonce      string   `xml:"Nonce"`
+	XMLName      struct{} `xml:"xml" json:"-"`
+	EncryptedMsg string   `xml:"Encrypt"`
+	MsgSignature string   `xml:"MsgSignature"`
+	TimeStamp    int64    `xml:"TimeStamp"`
+	Nonce        string   `xml:"Nonce"`
 }

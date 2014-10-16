@@ -26,11 +26,11 @@ func signature(token, timestamp, nonce string) (signature string) {
 	return hex.EncodeToString(hashSumArray[:])
 }
 
-func msgSignature(token, timestamp, nonce, encryptMsg string) (signature string) {
-	strArray := sort.StringSlice{token, timestamp, nonce, encryptMsg}
+func msgSignature(token, timestamp, nonce, encryptedMsg string) (signature string) {
+	strArray := sort.StringSlice{token, timestamp, nonce, encryptedMsg}
 	strArray.Sort()
 
-	n := len(token) + len(timestamp) + len(nonce) + len(encryptMsg)
+	n := len(token) + len(timestamp) + len(nonce) + len(encryptedMsg)
 	buf := make([]byte, 0, n)
 
 	buf = append(buf, strArray[0]...)

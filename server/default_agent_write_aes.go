@@ -111,16 +111,16 @@ func (this *DefaultAgent) writeAESResponse(w io.Writer, msg interface{}, timesta
 		return
 	}
 
-	EncryptMsg := encryptMsg(random, rawXMLMsg, this.Id, AESKey)
-	base64EncryptMsg := base64.StdEncoding.EncodeToString(EncryptMsg)
+	EncryptedMsg := aesEncryptMsg(random, rawXMLMsg, this.Id, AESKey)
+	base64EncryptedMsg := base64.StdEncoding.EncodeToString(EncryptedMsg)
 
 	var responseHttpBody response.ResponseHttpBody
-	responseHttpBody.EncryptMsg = base64EncryptMsg
+	responseHttpBody.EncryptedMsg = base64EncryptedMsg
 	responseHttpBody.TimeStamp = timestamp
 	responseHttpBody.Nonce = nonce
 
 	timestampStr := strconv.FormatInt(timestamp, 10)
-	responseHttpBody.Signature = msgSignature(this.Token, timestampStr, nonce, base64EncryptMsg)
+	responseHttpBody.MsgSignature = msgSignature(this.Token, timestampStr, nonce, base64EncryptedMsg)
 
 	return xml.NewEncoder(w).Encode(&responseHttpBody)
 }
