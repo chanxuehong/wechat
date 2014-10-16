@@ -15,7 +15,9 @@ import (
 )
 
 // 把 text 回复消息 msg 写入 writer w
-func WriteAESText(w io.Writer, msg *response.Text, timestamp int64, nonce string, AESKey [32]byte, random []byte, AppId, Token string) error {
+func WriteAESText(w io.Writer, msg *response.Text, timestamp int64, nonce string,
+	AESKey [32]byte, random []byte, AppId, Token string) error {
+
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -26,7 +28,9 @@ func WriteAESText(w io.Writer, msg *response.Text, timestamp int64, nonce string
 }
 
 // 把 image 回复消息 msg 写入 writer w
-func WriteAESImage(w io.Writer, msg *response.Image, timestamp int64, nonce string, AESKey [32]byte, random []byte, AppId, Token string) error {
+func WriteAESImage(w io.Writer, msg *response.Image, timestamp int64, nonce string,
+	AESKey [32]byte, random []byte, AppId, Token string) error {
+
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -37,7 +41,9 @@ func WriteAESImage(w io.Writer, msg *response.Image, timestamp int64, nonce stri
 }
 
 // 把 voice 回复消息 msg 写入 writer w
-func WriteAESVoice(w io.Writer, msg *response.Voice, timestamp int64, nonce string, AESKey [32]byte, random []byte, AppId, Token string) error {
+func WriteAESVoice(w io.Writer, msg *response.Voice, timestamp int64, nonce string,
+	AESKey [32]byte, random []byte, AppId, Token string) error {
+
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -48,7 +54,9 @@ func WriteAESVoice(w io.Writer, msg *response.Voice, timestamp int64, nonce stri
 }
 
 // 把 video 回复消息 msg 写入 writer w
-func WriteAESVideo(w io.Writer, msg *response.Video, timestamp int64, nonce string, AESKey [32]byte, random []byte, AppId, Token string) error {
+func WriteAESVideo(w io.Writer, msg *response.Video, timestamp int64, nonce string,
+	AESKey [32]byte, random []byte, AppId, Token string) error {
+
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -59,7 +67,9 @@ func WriteAESVideo(w io.Writer, msg *response.Video, timestamp int64, nonce stri
 }
 
 // 把 music 回复消息 msg 写入 writer w
-func WriteAESMusic(w io.Writer, msg *response.Music, timestamp int64, nonce string, AESKey [32]byte, random []byte, AppId, Token string) error {
+func WriteAESMusic(w io.Writer, msg *response.Music, timestamp int64, nonce string,
+	AESKey [32]byte, random []byte, AppId, Token string) error {
+
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -70,7 +80,9 @@ func WriteAESMusic(w io.Writer, msg *response.Music, timestamp int64, nonce stri
 }
 
 // 把 news 回复消息 msg 写入 writer w
-func WriteAESNews(w io.Writer, msg *response.News, timestamp int64, nonce string, AESKey [32]byte, random []byte, AppId, Token string) (err error) {
+func WriteAESNews(w io.Writer, msg *response.News, timestamp int64, nonce string,
+	AESKey [32]byte, random []byte, AppId, Token string) (err error) {
+
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -84,7 +96,9 @@ func WriteAESNews(w io.Writer, msg *response.News, timestamp int64, nonce string
 }
 
 // 把 TransferToCustomerService 回复消息 msg 写入 writer w
-func WriteAESTransferToCustomerService(w io.Writer, msg *response.TransferToCustomerService, timestamp int64, nonce string, AESKey [32]byte, random []byte, AppId, Token string) error {
+func WriteAESTransferToCustomerService(w io.Writer, msg *response.TransferToCustomerService,
+	timestamp int64, nonce string, AESKey [32]byte, random []byte, AppId, Token string) error {
+
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -95,7 +109,9 @@ func WriteAESTransferToCustomerService(w io.Writer, msg *response.TransferToCust
 }
 
 // 把 TransferToSpecialCustomerService 回复消息 msg 写入 writer w
-func WriteAESTransferToSpecialCustomerService(w io.Writer, msg *response.TransferToSpecialCustomerService, timestamp int64, nonce string, AESKey [32]byte, random []byte, AppId, Token string) error {
+func WriteAESTransferToSpecialCustomerService(w io.Writer, msg *response.TransferToSpecialCustomerService,
+	timestamp int64, nonce string, AESKey [32]byte, random []byte, AppId, Token string) error {
+
 	if w == nil {
 		return errors.New("w == nil")
 	}
@@ -105,7 +121,9 @@ func WriteAESTransferToSpecialCustomerService(w io.Writer, msg *response.Transfe
 	return writeAESResponse(w, msg, timestamp, nonce, AESKey, random, AppId, Token)
 }
 
-func writeAESResponse(w io.Writer, msg interface{}, timestamp int64, nonce string, AESKey [32]byte, random []byte, AppId, Token string) (err error) {
+func writeAESResponse(w io.Writer, msg interface{}, timestamp int64, nonce string,
+	AESKey [32]byte, random []byte, AppId, Token string) (err error) {
+
 	rawXMLMsg, err := xml.Marshal(msg)
 	if err != nil {
 		return
