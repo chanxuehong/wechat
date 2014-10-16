@@ -35,15 +35,15 @@ func decodeNetworkBytesOrder(orderBytes []byte) (n int) {
 	return
 }
 
-func encryptMsg(random, rawXMLMsg []byte, AppId string, AESKey []byte) (encryptMsg []byte) {
-	const BLOCK_SIZE = 32
+func encryptMsg(random [16]byte, rawXMLMsg []byte, AppId string, AESKey [32]byte) (encryptMsg []byte) {
+	const BLOCK_SIZE = 32 // PKCS#7
 
 	buf := make([]byte, 20+len(rawXMLMsg)+len(AppId)+BLOCK_SIZE)
 	plain := buf[:20]
 	pad := buf[len(buf)-BLOCK_SIZE:]
 
 	// 拼接
-	copy(plain, random)
+	copy(plain, random[:])
 	encodeNetworkBytesOrder(len(rawXMLMsg), plain[16:20])
 	plain = append(plain, rawXMLMsg...)
 	plain = append(plain, AppId...)
@@ -57,7 +57,7 @@ func encryptMsg(random, rawXMLMsg []byte, AppId string, AESKey []byte) (encryptM
 	plain = append(plain, pad...)
 
 	// 加密
-	block, err := aes.NewCipher(AESKey)
+	block, err := aes.NewCipher(AESKey[:])
 	if err != nil {
 		panic(err)
 	}
@@ -68,8 +68,8 @@ func encryptMsg(random, rawXMLMsg []byte, AppId string, AESKey []byte) (encryptM
 	return
 }
 
-func decryptMsg(encryptMsg []byte, AppId string, AESKey []byte) (random, rawXMLMsg []byte, err error) {
-	const BLOCK_SIZE = 32
+func decryptMsg(encryptMsg []byte, AppId string, AESKey [32]byte) (random [16]byte, rawXMLMsg []byte, err error) {
+	const BLOCK_SIZE = 32 // PKCS#7
 
 	// 解密
 	if len(encryptMsg) < BLOCK_SIZE {
@@ -81,7 +81,7 @@ func decryptMsg(encryptMsg []byte, AppId string, AESKey []byte) (random, rawXMLM
 		return
 	}
 
-	block, err := aes.NewCipher(AESKey)
+	block, err := aes.NewCipher(AESKey[:])
 	if err != nil {
 		panic(err)
 	}
@@ -120,7 +120,23 @@ func decryptMsg(encryptMsg []byte, AppId string, AESKey []byte) (random, rawXMLM
 		return
 	}
 
-	random = plain[:16]
+	random[0] = plain[0]
+	random[1] = plain[1]
+	random[2] = plain[2]
+	random[3] = plain[3]
+	random[4] = plain[4]
+	random[5] = plain[5]
+	random[6] = plain[6]
+	random[7] = plain[7]
+	random[8] = plain[8]
+	random[9] = plain[9]
+	random[10] = plain[10]
+	random[11] = plain[11]
+	random[12] = plain[12]
+	random[13] = plain[13]
+	random[14] = plain[14]
+	random[15] = plain[15]
+
 	rawXMLMsg = plain[20:msgEnd]
 	return
 }

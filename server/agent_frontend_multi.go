@@ -213,7 +213,7 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 
 			AESKey := agent.GetCurrentAESKey()
 
-			random, rawXMLMsg, err := decryptMsg(EncryptMsgBytes, agent.GetId(), AESKey[:])
+			random, rawXMLMsg, err := decryptMsg(EncryptMsgBytes, agent.GetId(), AESKey)
 			if err != nil {
 				LastAESKey := agent.GetLastAESKey()
 				if bytes.Equal(zeroAESKey[:], LastAESKey[:]) || bytes.Equal(AESKey[:], LastAESKey[:]) {
@@ -223,7 +223,7 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 
 				AESKey = LastAESKey // !!!
 
-				random, rawXMLMsg, err = decryptMsg(EncryptMsgBytes, agent.GetId(), AESKey[:])
+				random, rawXMLMsg, err = decryptMsg(EncryptMsgBytes, agent.GetId(), AESKey)
 				if err != nil {
 					invalidRequestHandler.ServeInvalidRequest(w, r, err)
 					return
@@ -236,7 +236,7 @@ func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 				return
 			}
 
-			aesMsgDispatch(w, r, &msgReq, rawXMLMsg, timestamp, nonce, AESKey[:], random, agent)
+			aesMsgDispatch(w, r, &msgReq, rawXMLMsg, timestamp, nonce, AESKey, random, agent)
 
 		default: // 未知的加密类型
 			invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("unknown encrypt_type"))
