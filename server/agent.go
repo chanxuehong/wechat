@@ -16,6 +16,7 @@ type Agent interface {
 	GetToken() string // 获取公众号的 Token, 和后台中的设置相等
 
 	// 兼容模式, 安全模式 情况下需要实现的方法
+	GetAppId() string           // fuck, 貌似需要认证才会有的???
 	GetLastAESKey() [32]byte    // 获取最后一个有效的 AES 加密 Key
 	GetCurrentAESKey() [32]byte // 获取当前有效的 AES 加密 Key
 

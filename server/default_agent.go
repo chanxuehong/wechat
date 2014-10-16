@@ -17,16 +17,18 @@ type DefaultAgent struct {
 	RWMutex       sync.RWMutex
 	Id            string   // 公众号原始ID, 等于后台中的 公众号设置-->帐号详情-->原始ID
 	Token         string   // 公众号的 Token, 和后台中的设置相等
+	AppId         string   // 貌似需要认证才会有的???
 	LastAESKey    [32]byte // 最后一个 AES Key
 	CurrentAESKey [32]byte // 当前的 AES Key
 }
 
-func (this *DefaultAgent) Init(Id, Token string, AESKey []byte) {
+func (this *DefaultAgent) Init(Id, Token, AppId string, AESKey []byte) {
 	if len(AESKey) != 32 {
 		panic("the length of AESKey must equal to 32")
 	}
 	this.Id = Id
 	this.Token = Token
+	this.AppId = AppId
 	copy(this.CurrentAESKey[:], AESKey)
 }
 
@@ -35,6 +37,9 @@ func (this *DefaultAgent) GetId() string {
 }
 func (this *DefaultAgent) GetToken() string {
 	return this.Token
+}
+func (this *DefaultAgent) GetAppId() string {
+	return this.AppId
 }
 func (this *DefaultAgent) GetLastAESKey() (key [32]byte) {
 	this.RWMutex.RLock()
