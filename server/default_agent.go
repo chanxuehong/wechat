@@ -22,6 +22,9 @@ type DefaultAgent struct {
 	CurrentAESKey [32]byte // 当前的 AES Key
 }
 
+// 初始化 DefaultAgent
+//  如果不知道自己的 AppId 是多少, 可以先随便填入一个字符串,
+//  这样正常情况下会出现 AppId mismatch 错误, 错误中 have 后面的就是正确的 AppId
 func (this *DefaultAgent) Init(Id, Token, AppId string, AESKey []byte) {
 	if len(AESKey) != 32 {
 		panic("the length of AESKey must equal to 32")

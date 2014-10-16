@@ -116,7 +116,7 @@ func aesDecryptMsg(encryptedMsg []byte, AppId string, AESKey [32]byte) (random [
 
 	AppIdHave := string(plain[msgEnd:])
 	if AppIdHave != AppId { // crypto/subtle.ConstantTimeCompare ???
-		err = errors.New("AppId mismatch")
+		err = fmt.Errorf("AppId mismatch, have: %s, want: %s", AppIdHave, AppId)
 		return
 	}
 
