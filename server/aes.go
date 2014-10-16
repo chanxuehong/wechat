@@ -120,23 +120,7 @@ func decryptMsg(encryptMsg []byte, AppId string, AESKey [32]byte) (random [16]by
 		return
 	}
 
-	random[0] = plain[0]
-	random[1] = plain[1]
-	random[2] = plain[2]
-	random[3] = plain[3]
-	random[4] = plain[4]
-	random[5] = plain[5]
-	random[6] = plain[6]
-	random[7] = plain[7]
-	random[8] = plain[8]
-	random[9] = plain[9]
-	random[10] = plain[10]
-	random[11] = plain[11]
-	random[12] = plain[12]
-	random[13] = plain[13]
-	random[14] = plain[14]
-	random[15] = plain[15]
-
+	copy(random[:], plain[:16])
 	rawXMLMsg = plain[20:msgEnd]
 	return
 }
