@@ -4,7 +4,7 @@
 创建二维码等等...
 
 ## access token 逻辑图
-![产先生二维码](https://github.com/chanxuehong/wechat/blob/master/mp/client/token_service.png)
+![逻辑图](https://github.com/chanxuehong/wechat/blob/master/mp/client/token_service.png)
 
 ## 使用方法
 

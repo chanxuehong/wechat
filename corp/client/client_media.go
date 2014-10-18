@@ -6,14 +6,12 @@
 package client
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/chanxuehong/wechat/corp/media"
 	"io"
 	"mime"
-	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -123,118 +121,6 @@ func (c *Client) MediaUploadFileFromReader(filename string, mediaReader io.Reade
 		return
 	}
 	return c.mediaUploadFromReader(media.MEDIA_TYPE_FILE, filename, mediaReader)
-}
-
-// 上传多媒体
-func (c *Client) mediaUploadFromReader(mediaType, filename string, mediaReader io.Reader) (info *media.MediaInfo, err error) {
-	bodyBuf := mediaBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
-	bodyBuf.Reset()                                  // important
-	defer mediaBufferPool.Put(bodyBuf)
-
-	bodyWriter := multipart.NewWriter(bodyBuf)
-	fileWriter, err := bodyWriter.CreateFormFile("file", filename)
-	if err != nil {
-		return
-	}
-	if _, err = io.Copy(fileWriter, mediaReader); err != nil {
-		return
-	}
-
-	bodyContentType := bodyWriter.FormDataContentType()
-
-	if err = bodyWriter.Close(); err != nil {
-		return
-	}
-
-	postContent := bodyBuf.Bytes() // 这么绕一下是为了 RETRY 的时候不会出错
-
-	token, err := c.Token()
-	if err != nil {
-		return
-	}
-
-	hasRetry := false
-RETRY:
-	httpResp, err := c.httpClient.Post(_MediaUploadURL(token, mediaType), bodyContentType, bytes.NewReader(postContent))
-	if err != nil {
-		return
-	}
-	defer httpResp.Body.Close()
-
-	if httpResp.StatusCode != http.StatusOK {
-		err = fmt.Errorf("http.Status: %s", httpResp.Status)
-		return
-	}
-
-	switch mediaType {
-	case media.MEDIA_TYPE_THUMB: // 返回的是 thumb_media_id 而不是 media_id
-		var result struct {
-			Error
-			MediaType string `json:"type"`
-			MediaId   string `json:"thumb_media_id"`
-			CreatedAt int64  `json:"created_at"`
-		}
-
-		if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
-			return
-		}
-
-		switch result.ErrCode {
-		case errCodeOK:
-			info = &media.MediaInfo{
-				MediaType: result.MediaType,
-				MediaId:   result.MediaId,
-				CreatedAt: result.CreatedAt,
-			}
-			return
-
-		case errCodeTimeout:
-			if !hasRetry {
-				hasRetry = true
-
-				if token, err = c.TokenRefresh(); err != nil {
-					return
-				}
-				goto RETRY
-			}
-			fallthrough
-
-		default:
-			err = &result.Error
-			return
-		}
-
-	default:
-		var result struct {
-			Error
-			media.MediaInfo
-		}
-
-		if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
-			return
-		}
-
-		switch result.ErrCode {
-		case errCodeOK:
-			info = &result.MediaInfo
-			return
-
-		case errCodeTimeout:
-			if !hasRetry {
-				hasRetry = true
-
-				if token, err = c.TokenRefresh(); err != nil {
-					return
-				}
-				goto RETRY
-			}
-			fallthrough
-
-		default:
-			err = &result.Error
-			return
-		}
-	}
 }
 
 // 下载多媒体文件
