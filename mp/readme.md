@@ -20,7 +20,7 @@ server 消息处理方式重构了
 client 的 Media 系列方法名称做了个调整
 
 ## 简介
-wechat 包主要分为三个部分，client、server 和 oauth2
+mp 包主要分为三个部分，client、server 和 oauth2
 
 client 主要实现的是“主动”请求功能，如发送客服消息，群发消息，创建菜单，创建二维码等等，
 详见 https://github.com/chanxuehong/wechat/blob/master/mp/client/readme.md
