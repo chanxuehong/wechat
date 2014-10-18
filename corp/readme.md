@@ -5,7 +5,11 @@ Version:   0.1.0
 NOTE:      在 v1.0.0 之前 API 都有可能微调
 
 ## 简介
+<<<<<<< HEAD
 wechatcorp 包主要分为2个部分，client 和 server
+=======
+corp 包主要分为2个部分，client 和 server
+>>>>>>> origin/dev
 
 client 主要实现的是“主动”请求功能，如创建自定义菜单，创建部门等等，
 详见 https://github.com/chanxuehong/wechat/blob/master/corp/client/readme.md
