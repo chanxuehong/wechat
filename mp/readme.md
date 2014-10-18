@@ -7,7 +7,7 @@ NOTE:      在 v1.0.0 之前 API 都有可能微调
 
 QQ群：     297489459
 
-企业号移步到 https://github.com/chanxuehong/wechat/corp
+企业号移步到 https://github.com/chanxuehong/wechat/tree/dev/corp
 
 # 首先来一个大广告哈哈
 我的个人订阅号，刚开始做，先帮我凑齐500人先，不管你有没有需求哈，感谢了！
@@ -33,13 +33,14 @@ client 的 Media 系列方法名称做了个调整
 wechat 包主要分为三个部分，client、server 和 oauth2
 
 client 主要实现的是“主动”请求功能，如发送客服消息，群发消息，创建菜单，创建二维码等等，
-详见 https://github.com/chanxuehong/wechat/mp/blob/master/client/readme.md
+详见 https://github.com/chanxuehong/wechat/blob/dev/mp/client/readme.md
 
 server 主要实现的是“被动”接收消息和处理功能，如被动接收文本消息及回复，被动接收语音消息及回复等等，
-详见 https://github.com/chanxuehong/wechat/mp/blob/master/server/readme.md
+详见 https://github.com/chanxuehong/wechat/blob/dev/mp/server/readme.md
 
 oauth2 主要实现的是网页授权获取用户基本信息功能，微信公众号可以引导（自定义菜单或者网页）到一个页面，
-请求用户授权，详见 https://github.com/chanxuehong/wechat/mp/blob/master/oauth2/readme.md
+请求用户授权，详见 https://github.com/chanxuehong/wechat/blob/dev/mp/oauth2/readme.md
+
 
 # 安装
 通过执行下列语句就可以完成安装
