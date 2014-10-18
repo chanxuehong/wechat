@@ -9,7 +9,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/chanxuehong/wechat/mp/media"
+	"github.com/chanxuehong/wechat/corp/media"
 	"io"
 	"net/http"
 	"os"
@@ -80,13 +80,14 @@ func (c *Client) mediaUploadFromOSFile(mediaType, filename string, file *os.File
 	ContentLength := int64(multipart_constPartLen+len(filename)) +
 		fi.Size() - originalOffset
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	url_ := mediaUploadURL(token, mediaType)
+
+	hasRetry := false
+RETRY:
+	url_ := _MediaUploadURL(token, mediaType)
 
 	if hasRetry {
 		if _, err = file.Seek(originalOffset, 0); err != nil {
@@ -127,6 +128,7 @@ RETRY:
 			MediaId   string `json:"thumb_media_id"`
 			CreatedAt int64  `json:"created_at"`
 		}
+
 		if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 			return
 		}
@@ -143,7 +145,10 @@ RETRY:
 		case errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = c.TokenRefresh(); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -158,6 +163,7 @@ RETRY:
 			Error
 			media.MediaInfo
 		}
+
 		if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 			return
 		}
@@ -170,7 +176,10 @@ RETRY:
 		case errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = c.TokenRefresh(); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -186,13 +195,14 @@ func (c *Client) mediaUploadFromBytesBuffer(mediaType, filename string, buffer *
 	fileBytes := buffer.Bytes()
 	ContentLength := int64(multipart_constPartLen + len(filename) + len(fileBytes))
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	url_ := mediaUploadURL(token, mediaType)
+
+	hasRetry := false
+RETRY:
+	url_ := _MediaUploadURL(token, mediaType)
 
 	mr := io.MultiReader(
 		strings.NewReader(multipart_formDataFront),
@@ -228,6 +238,7 @@ RETRY:
 			MediaId   string `json:"thumb_media_id"`
 			CreatedAt int64  `json:"created_at"`
 		}
+
 		if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 			return
 		}
@@ -244,7 +255,10 @@ RETRY:
 		case errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = c.TokenRefresh(); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -259,6 +273,7 @@ RETRY:
 			Error
 			media.MediaInfo
 		}
+
 		if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 			return
 		}
@@ -271,7 +286,10 @@ RETRY:
 		case errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = c.TokenRefresh(); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -290,13 +308,14 @@ func (c *Client) mediaUploadFromBytesReader(mediaType, filename string, reader *
 	}
 	ContentLength := int64(multipart_constPartLen + len(filename) + reader.Len())
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	url_ := mediaUploadURL(token, mediaType)
+
+	hasRetry := false
+RETRY:
+	url_ := _MediaUploadURL(token, mediaType)
 
 	if hasRetry {
 		if _, err = reader.Seek(originalOffset, 0); err != nil {
@@ -337,6 +356,7 @@ RETRY:
 			MediaId   string `json:"thumb_media_id"`
 			CreatedAt int64  `json:"created_at"`
 		}
+
 		if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 			return
 		}
@@ -353,7 +373,10 @@ RETRY:
 		case errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = c.TokenRefresh(); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -368,6 +391,7 @@ RETRY:
 			Error
 			media.MediaInfo
 		}
+
 		if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 			return
 		}
@@ -380,7 +404,10 @@ RETRY:
 		case errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = c.TokenRefresh(); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -399,13 +426,14 @@ func (c *Client) mediaUploadFromStringsReader(mediaType, filename string, reader
 	}
 	ContentLength := int64(multipart_constPartLen + len(filename) + reader.Len())
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	url_ := mediaUploadURL(token, mediaType)
+
+	hasRetry := false
+RETRY:
+	url_ := _MediaUploadURL(token, mediaType)
 
 	if hasRetry {
 		if _, err = reader.Seek(originalOffset, 0); err != nil {
@@ -446,6 +474,7 @@ RETRY:
 			MediaId   string `json:"thumb_media_id"`
 			CreatedAt int64  `json:"created_at"`
 		}
+
 		if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 			return
 		}
@@ -462,7 +491,10 @@ RETRY:
 		case errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = c.TokenRefresh(); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -477,6 +509,7 @@ RETRY:
 			Error
 			media.MediaInfo
 		}
+
 		if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 			return
 		}
@@ -489,7 +522,10 @@ RETRY:
 		case errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = c.TokenRefresh(); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -516,13 +552,14 @@ func (c *Client) mediaUploadFromIOReader(mediaType, filename string, reader io.R
 
 	bodyBytes := bodyBuf.Bytes()
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
-	url_ := mediaUploadURL(token, mediaType)
+
+	hasRetry := false
+RETRY:
+	url_ := _MediaUploadURL(token, mediaType)
 
 	httpResp, err := c.httpClient.Post(url_, multipart_ContentType, bytes.NewReader(bodyBytes))
 	if err != nil {
@@ -543,6 +580,7 @@ RETRY:
 			MediaId   string `json:"thumb_media_id"`
 			CreatedAt int64  `json:"created_at"`
 		}
+
 		if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 			return
 		}
@@ -559,7 +597,10 @@ RETRY:
 		case errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = c.TokenRefresh(); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -574,6 +615,7 @@ RETRY:
 			Error
 			media.MediaInfo
 		}
+
 		if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 			return
 		}
@@ -586,7 +628,10 @@ RETRY:
 		case errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = c.TokenRefresh(); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
