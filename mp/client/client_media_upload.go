@@ -28,7 +28,7 @@ const (
 	// ----------wvm6LNx=y4rEq?BUD(k_:0Pj2V.M'J)t957K-Sh/Q1ZA+ceWFunTRdfGaXgY--
 	//
 	multipart_formDataFront = "--" + multipart_boundary +
-		"\r\nContent-Disposition: form-data; name=\"filename\"; filename=\""
+		"\r\nContent-Disposition: form-data; name=\"upload\"; filename=\""
 	multipart_formDataMiddle = "\"\r\nContent-Type: application/octet-stream\r\n\r\n"
 	multipart_formDataEnd    = "\r\n--" + multipart_boundary + "--\r\n"
 
