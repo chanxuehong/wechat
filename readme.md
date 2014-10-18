@@ -7,7 +7,7 @@ NOTE:      在 v1.0.0 之前 API 都有可能微调
 
 QQ群：     297489459
 
-企业号移步到 https://github.com/chanxuehong/wechatcorp
+企业号移步到 https://github.com/chanxuehong/wechat/tree/dev
 
 # 首先来一个大广告哈哈
 我的个人订阅号，刚开始做，先帮我凑齐500人先，不管你有没有需求哈，感谢了！
