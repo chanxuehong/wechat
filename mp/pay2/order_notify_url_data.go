@@ -12,11 +12,10 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"net/url"
-	//"sort"
 	"github.com/chanxuehong/wechat/util"
+	"net/url"
+	"sort"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -102,51 +101,28 @@ func (data *OrderNotifyURLData) CheckAndInit(RawQuery string, partnerKey string)
 			return
 		}
 
+		urlValues.Del("sign") // sign 不参与签名
+
+		keys := make([]string, 0, len(urlValues))
+		for key := range urlValues {
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
+
 		Hash := md5.New()
+		for _, key := range keys {
+			// len(urlValues[key]) == 1, 都是单值
+			value := urlValues[key][0]
+			if len(value) == 0 {
+				continue
+			}
 
-		signIndex := strings.Index(RawQuery, "&sign=") // signIndex 肯定有效, why?
-		string1 := RawQuery[:signIndex]
-		string1, err = url.QueryUnescape(string1)
-		if err != nil {
-			return
+			Hash.Write([]byte(key))
+			Hash.Write([]byte{'='})
+			Hash.Write([]byte(value))
+			Hash.Write([]byte{'&'})
 		}
-		hasWrite := false
-		if len(string1) > 0 {
-			hasWrite = true
-			Hash.Write([]byte(string1))
-		}
-
-		//urlValues.Del("sign") // sign 不参与签名
-		//keys := make([]string, 0, len(urlValues))
-		//for key := range urlValues {
-		//	keys = append(keys, key)
-		//}
-		//sort.Strings(keys)
-
-		//hasWrite := false
-		//for _, key := range keys {
-		//	vs := urlValues[key]
-
-		//	// 传入的 url query 的 key 都是单值
-		//	if hasWrite {
-		//		Hash.Write([]byte{'&'})
-		//		Hash.Write([]byte(key))
-		//		Hash.Write([]byte{'='})
-		//		Hash.Write([]byte(vs[0]))
-		//	} else {
-		//		hasWrite = true
-
-		//		Hash.Write([]byte(key))
-		//		Hash.Write([]byte{'='})
-		//		Hash.Write([]byte(vs[0]))
-		//	}
-		//}
-
-		if hasWrite {
-			Hash.Write([]byte("&key="))
-		} else {
-			Hash.Write([]byte("key="))
-		}
+		Hash.Write([]byte("key="))
 		Hash.Write([]byte(partnerKey))
 
 		SignatureHave := make([]byte, md5.Size*2)

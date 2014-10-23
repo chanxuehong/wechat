@@ -12,11 +12,11 @@ import (
 func TestPayPackagePackage(t *testing.T) {
 	var payPackage PayPackage
 	payPackage.BankType = BANK_TYPE_WX
-	payPackage.FeeType = FEE_TYPE_RMB
+	payPackage.SetFeeType(FEE_TYPE_RMB)
 	payPackage.Body = "支付测试"
 	payPackage.Charset = CHARSET_UTF8
 	payPackage.PartnerId = "1900000109"
-	payPackage.TotalFee = 1
+	payPackage.SetTotalFee(1)
 	payPackage.BillCreateIP = "196.168.1.1"
 	payPackage.OutTradeNo = "7240b65810859cbf2a8d9f76a638c0a3"
 	payPackage.NotifyURL = "http://weixin.qq.com"
