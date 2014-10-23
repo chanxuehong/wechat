@@ -63,6 +63,7 @@ func (this *PayPackage) Package(partnerKey string) (package_ []byte) {
 	vs1 := make([]string, 0, 16) // 包含不为空值的字段的 value,
 	vs2 := make([]string, 0, 16) // 包含不为空值的字段的 value, 经过了 URLEscape
 
+	// 字典序
 	// attach
 	// bank_type
 	// body
@@ -153,9 +154,9 @@ func (this *PayPackage) Package(partnerKey string) (package_ []byte) {
 		vs1 = append(vs1, this.TransportFee)
 		vs2 = append(vs2, util.URLEscape(this.TransportFee))
 	}
-	// 去掉第一个 key 的首字母 &
+
 	if len(ks) > 0 {
-		ks[0] = ks[0][1:] // len(ks[0]) > 0
+		ks[0] = ks[0][1:] // len(ks[0]) > 0, 去掉 ks[0] 的首字母 &
 	}
 
 	ksTotalLen := 0
@@ -196,19 +197,16 @@ func (this *PayPackage) Package(partnerKey string) (package_ []byte) {
 
 	if len(ks) > 0 {
 		string1 = append(string1, "&key="...)
-		string1 = append(string1, partnerKey...)
 		string2 = append(string2, "&sign="...)
-		md5sum := md5.Sum(string1)
-		hex.Encode(signature, md5sum[:])
-		copy(signature, bytes.ToUpper(signature))
+
 	} else {
 		string1 = append(string1, "key="...)
-		string1 = append(string1, partnerKey...)
 		string2 = append(string2, "sign="...)
-		md5sum := md5.Sum(string1)
-		hex.Encode(signature, md5sum[:])
-		copy(signature, bytes.ToUpper(signature))
 	}
+	string1 = append(string1, partnerKey...)
+	md5sum := md5.Sum(string1)
+	hex.Encode(signature, md5sum[:])
+	copy(signature, bytes.ToUpper(signature))
 
 	return
 }
