@@ -54,23 +54,23 @@ func (resp *UnifiedOrderResponse) CheckSignature(appKey string) (err error) {
 
 	// 字典序
 	// appid
-	// code_url // resp.RetCode == RET_CODE_SUCCESS && resp.ResultCode == RESULT_CODE_SUCCESS
+	// code_url
 	// device_info
 	// err_code
 	// err_code_des
 	// mch_id
 	// nonce_str
-	// prepay_id // resp.RetCode == RET_CODE_SUCCESS && resp.ResultCode == RESULT_CODE_SUCCESS
+	// prepay_id
 	// result_code
 	// return_code
 	// return_msg
-	// trade_type // resp.RetCode == RET_CODE_SUCCESS && resp.ResultCode == RESULT_CODE_SUCCESS
+	// trade_type
 	if len(resp.AppId) > 0 {
 		Hash.Write([]byte("appid="))
 		Hash.Write([]byte(resp.AppId))
 		Hash.Write([]byte{'&'})
 	}
-	if len(resp.CodeURL) > 0 && resp.ResultCode == RESULT_CODE_SUCCESS {
+	if len(resp.CodeURL) > 0 {
 		Hash.Write([]byte("code_url="))
 		Hash.Write([]byte(resp.CodeURL))
 		Hash.Write([]byte{'&'})
@@ -100,7 +100,7 @@ func (resp *UnifiedOrderResponse) CheckSignature(appKey string) (err error) {
 		Hash.Write([]byte(resp.NonceStr))
 		Hash.Write([]byte{'&'})
 	}
-	if len(resp.PrepayId) > 0 && resp.ResultCode == RESULT_CODE_SUCCESS {
+	if len(resp.PrepayId) > 0 {
 		Hash.Write([]byte("prepay_id="))
 		Hash.Write([]byte(resp.PrepayId))
 		Hash.Write([]byte{'&'})
@@ -120,7 +120,7 @@ func (resp *UnifiedOrderResponse) CheckSignature(appKey string) (err error) {
 		Hash.Write([]byte(resp.RetMsg))
 		Hash.Write([]byte{'&'})
 	}
-	if len(resp.TradeType) > 0 && resp.ResultCode == RESULT_CODE_SUCCESS {
+	if len(resp.TradeType) > 0 {
 		Hash.Write([]byte("trade_type="))
 		Hash.Write([]byte(resp.TradeType))
 		Hash.Write([]byte{'&'})
