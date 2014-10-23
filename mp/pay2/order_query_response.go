@@ -10,8 +10,8 @@ package pay2
 //
 // 这是订单查询成功时返回的数据结构
 type OrderQueryResponse struct {
-	ErrCode       int    `json:"ret_code"`             // 查询结果状态码, 0表明成功, 其他表明错误
-	ErrMsg        string `json:"ret_msg"`              // 查询结果出错信息
+	RetCode       int    `json:"ret_code"`             // 查询结果状态码, 0表明成功, 其他表明错误
+	RetMsg        string `json:"ret_msg"`              // 查询结果出错信息
 	Charset       string `json:"input_charset"`        // 返回信息中的编码方式
 	TradeMode     int    `json:"trade_mode,string"`    // 订单状态, 0为成功, 其他为失败
 	TradeState    int    `json:"trade_state,string"`   // 交易模式, 1为即时到帐, 其他保留
