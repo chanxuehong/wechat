@@ -3,5 +3,5 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 维权接口相关数据结构, 适用于文档 v1.6
-package feedback
+// 定义微信支付相关数据结构和 helper 函数, 微信支付接口 v3.3.6
+package pay3

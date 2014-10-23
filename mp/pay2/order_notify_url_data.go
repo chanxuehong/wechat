@@ -12,10 +12,10 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/chanxuehong/wechat/util"
 	"net/url"
-	//"sort"
+	"sort"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -95,43 +95,34 @@ func (data *OrderNotifyURLData) CheckAndInit(RawQuery string, partnerKey string)
 
 	switch signMethod {
 	case "MD5", "md5":
-		Hash := md5.New()
-
-		signIndex := strings.Index(RawQuery, "&sign=") // signIndex 肯定有效, why?
-		string1 := RawQuery[:signIndex]
-		string1, err = url.QueryUnescape(string1)
-		if err != nil {
+		if len(signature) != md5.Size*2 {
+			err = fmt.Errorf(`不正确的签名: %q, 长度不对, have: %d, want: %d`,
+				signature, len(signature), md5.Size*2)
 			return
 		}
-		Hash.Write([]byte(string1))
 
-		//urlValues.Del("sign") // sign 不参与签名
-		//keys := make([]string, 0, len(urlValues))
-		//for key := range urlValues {
-		//	keys = append(keys, key)
-		//}
-		//sort.Strings(keys)
+		urlValues.Del("sign") // sign 不参与签名
 
-		//hasWrite := false
-		//for _, key := range keys {
-		//	vs := urlValues[key]
+		keys := make([]string, 0, len(urlValues))
+		for key := range urlValues {
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
 
-		//	// 传入的 url query 的 key 都是单值
-		//	if hasWrite {
-		//		Hash.Write([]byte{'&'})
-		//		Hash.Write([]byte(key))
-		//		Hash.Write([]byte{'='})
-		//		Hash.Write([]byte(vs[0]))
-		//	} else {
-		//		hasWrite = true
+		Hash := md5.New()
+		for _, key := range keys {
+			// len(urlValues[key]) == 1, 都是单值
+			value := urlValues[key][0]
+			if len(value) == 0 {
+				continue
+			}
 
-		//		Hash.Write([]byte(key))
-		//		Hash.Write([]byte{'='})
-		//		Hash.Write([]byte(vs[0]))
-		//	}
-		//}
-
-		Hash.Write([]byte("&key="))
+			Hash.Write([]byte(key))
+			Hash.Write([]byte{'='})
+			Hash.Write([]byte(value))
+			Hash.Write([]byte{'&'})
+		}
+		Hash.Write([]byte("key="))
 		Hash.Write([]byte(partnerKey))
 
 		SignatureHave := make([]byte, md5.Size*2)
@@ -195,7 +186,7 @@ func (data *OrderNotifyURLData) CheckAndInit(RawQuery string, partnerKey string)
 	}
 
 	if vs := urlValues["time_end"]; len(vs) > 0 && len(vs[0]) > 0 {
-		v0, err := ParseTime(vs[0])
+		v0, err := util.ParseTime(vs[0])
 		if err != nil {
 			return err
 		}

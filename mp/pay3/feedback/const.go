@@ -3,5 +3,10 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 维权接口相关数据结构, 适用于文档 v1.6
 package feedback
+
+const (
+	MSG_TYPE_COMPLAIN = "request" // 用户提交投诉消息
+	MSG_TYPE_CONFIRM  = "confirm" // 用户确认消除投诉
+	MSG_TYPE_REJECT   = "reject"  // 用户拒绝消除投诉
+)

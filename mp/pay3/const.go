@@ -3,5 +3,20 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 维权接口相关数据结构, 适用于文档 v1.6
-package feedback
+package pay3
+
+const (
+	RET_CODE_SUCCESS = "SUCCESS"
+	RET_CODE_FAIL    = "FAIL"
+)
+
+const (
+	RESULT_CODE_SUCCESS = "SUCCESS"
+	RESULT_CODE_FAIL    = "FAIL"
+)
+
+const (
+	TRADE_TYPE_JS     = "JSAPI"
+	TRADE_TYPE_NATIVE = "NATIVE"
+	TRADE_TYPE_APP    = "APP"
+)

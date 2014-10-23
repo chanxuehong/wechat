@@ -98,8 +98,8 @@ type PayPackageResponse struct {
 	Package string `xml:"Package" json:"Package"` // 必须, 订单详情组合成的字符串, 4096个字符以内, see ../PayPackage.Package
 
 	// 可以自己定义错误信息
-	ErrCode int    `xml:"RetCode"   json:"RetCode"`   // 可选, 0 表示正确
-	ErrMsg  string `xml:"RetErrMsg" json:"RetErrMsg"` // 可选, 错误信息, 要求 utf8 编码格式
+	RetCode int    `xml:"RetCode"   json:"RetCode"`   // 必须, 0 表示正确
+	RetMsg  string `xml:"RetErrMsg" json:"RetErrMsg"` // 必须, 错误信息, 要求 utf8 编码格式
 
 	Signature  string `xml:"AppSignature" json:"AppSignature"` // 必须, 该 PayPackageResponse 自身的签名. see PayPackageResponse.SetSignature
 	SignMethod string `xml:"SignMethod"   json:"SignMethod"`   // 必须, 签名方式, 目前只支持 "sha1"
@@ -138,9 +138,9 @@ func (resp *PayPackageResponse) SetSignature(appKey string) (err error) {
 	Hash.Write([]byte("&package="))
 	Hash.Write([]byte(resp.Package))
 	Hash.Write([]byte("&retcode="))
-	Hash.Write([]byte(strconv.FormatInt(int64(resp.ErrCode), 10)))
+	Hash.Write([]byte(strconv.FormatInt(int64(resp.RetCode), 10)))
 	Hash.Write([]byte("&reterrmsg="))
-	Hash.Write([]byte(resp.ErrMsg))
+	Hash.Write([]byte(resp.RetMsg))
 	Hash.Write([]byte("&timestamp="))
 	Hash.Write([]byte(strconv.FormatInt(resp.TimeStamp, 10)))
 
