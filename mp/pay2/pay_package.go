@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
+	"github.com/chanxuehong/wechat/util"
 	"strconv"
 	"time"
 )
@@ -50,13 +51,13 @@ func (this *PayPackage) Package(partnerKey string) (package_ []byte) {
 	var (
 		// 最终结果所有字段的 value 都要经过 urlencode
 		//  NOTE: 虽然有些字段, 比如 BankType, 无需 urlencode, 但是安全着想都做了 urlencode
-		BankTypeURLEscapedStr     string = URLEscape(this.BankType)
-		BodyURLEscapedStr         string = URLEscape(this.Body)
-		PartnerIdURLEscapedStr    string = URLEscape(this.PartnerId)
-		OutTradeNoURLEscapedStr   string = URLEscape(this.OutTradeNo)
-		NotifyURLEscapedStr       string = URLEscape(this.NotifyURL)
-		BillCreateIPURLEscapedStr string = URLEscape(this.BillCreateIP)
-		CharsetURLEscapedStr      string = URLEscape(this.Charset)
+		BankTypeURLEscapedStr     string = util.URLEscape(this.BankType)
+		BodyURLEscapedStr         string = util.URLEscape(this.Body)
+		PartnerIdURLEscapedStr    string = util.URLEscape(this.PartnerId)
+		OutTradeNoURLEscapedStr   string = util.URLEscape(this.OutTradeNo)
+		NotifyURLEscapedStr       string = util.URLEscape(this.NotifyURL)
+		BillCreateIPURLEscapedStr string = util.URLEscape(this.BillCreateIP)
+		CharsetURLEscapedStr      string = util.URLEscape(this.Charset)
 		AttachURLEscapedStr       string
 		ProductTagURLEscapedStr   string
 
@@ -82,21 +83,21 @@ func (this *PayPackage) Package(partnerKey string) (package_ []byte) {
 		len(BillCreateIPURLEscapedStr) + len(TotalFeeStr)
 
 	if len(this.Attach) > 0 {
-		AttachURLEscapedStr = URLEscape(this.Attach)
+		AttachURLEscapedStr = util.URLEscape(this.Attach)
 
 		// &attach=
 		n1 += 8 + len(this.Attach)
 		n2 += 8 + len(AttachURLEscapedStr)
 	}
 	if !this.TimeStart.IsZero() {
-		TimeStartStr = FormatTime(this.TimeStart)
+		TimeStartStr = util.FormatTime(this.TimeStart)
 
 		// &time_start=
 		n1 += 12 + len(TimeStartStr)
 		n2 += 12 + len(TimeStartStr)
 	}
 	if !this.TimeExpire.IsZero() {
-		TimeExpireStr = FormatTime(this.TimeExpire)
+		TimeExpireStr = util.FormatTime(this.TimeExpire)
 
 		// &time_expire=
 		n1 += 13 + len(TimeExpireStr)
@@ -117,7 +118,7 @@ func (this *PayPackage) Package(partnerKey string) (package_ []byte) {
 		n2 += 13 + len(ProductFeeStr)
 	}
 	if len(this.ProductTag) > 0 {
-		ProductTagURLEscapedStr = URLEscape(this.ProductTag)
+		ProductTagURLEscapedStr = util.URLEscape(this.ProductTag)
 
 		// &goods_tag=
 		n1 += 11 + len(this.ProductTag)

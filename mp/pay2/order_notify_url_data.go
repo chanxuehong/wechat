@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"net/url"
 	//"sort"
+	"github.com/chanxuehong/wechat/util"
 	"strconv"
 	"strings"
 	"time"
@@ -95,6 +96,12 @@ func (data *OrderNotifyURLData) CheckAndInit(RawQuery string, partnerKey string)
 
 	switch signMethod {
 	case "MD5", "md5":
+		if len(signature) != md5.Size*2 {
+			err = fmt.Errorf(`不正确的签名: %q, 长度不对, have: %d, want: %d`,
+				signature, len(signature), md5.Size*2)
+			return
+		}
+
 		Hash := md5.New()
 
 		signIndex := strings.Index(RawQuery, "&sign=") // signIndex 肯定有效, why?
@@ -103,7 +110,11 @@ func (data *OrderNotifyURLData) CheckAndInit(RawQuery string, partnerKey string)
 		if err != nil {
 			return
 		}
-		Hash.Write([]byte(string1))
+		hasWrite := false
+		if len(string1) > 0 {
+			hasWrite = true
+			Hash.Write([]byte(string1))
+		}
 
 		//urlValues.Del("sign") // sign 不参与签名
 		//keys := make([]string, 0, len(urlValues))
@@ -131,7 +142,11 @@ func (data *OrderNotifyURLData) CheckAndInit(RawQuery string, partnerKey string)
 		//	}
 		//}
 
-		Hash.Write([]byte("&key="))
+		if hasWrite {
+			Hash.Write([]byte("&key="))
+		} else {
+			Hash.Write([]byte("key="))
+		}
 		Hash.Write([]byte(partnerKey))
 
 		SignatureHave := make([]byte, md5.Size*2)
@@ -195,7 +210,7 @@ func (data *OrderNotifyURLData) CheckAndInit(RawQuery string, partnerKey string)
 	}
 
 	if vs := urlValues["time_end"]; len(vs) > 0 && len(vs[0]) > 0 {
-		v0, err := ParseTime(vs[0])
+		v0, err := util.ParseTime(vs[0])
 		if err != nil {
 			return err
 		}
