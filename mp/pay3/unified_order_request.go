@@ -9,7 +9,9 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
+	"github.com/chanxuehong/wechat/util"
 	"strconv"
+	"time"
 )
 
 // 统一支付接口 请求参数
@@ -30,12 +32,22 @@ type UnifiedOrderRequest struct {
 	ProductTag   string `xml:"goods_tag,omitempty"   json:"goods_tag,omitempty"`   // 可选, 商品标记，该字段不能随便填，不使用请填空
 	Body         string `xml:"body"                  json:"body"`                  // 必须, 商品描述
 	Attach       string `xml:"attach,omitempty"      json:"attach,omitempty"`      // 可选, 附加数据，原样返回
-	TotalFee     int    `xml:"total_fee"             json:"total_fee"`             // 必须, 订单总金额，单位为分，不能带小数点
-	TimeStart    string `xml:"time_start,omitempty"  json:"time_start,omitempty"`  // 可选, 订单生成时间, see github.com/chanxuehong/wechat/util/FormatTime
-	TimeExpire   string `xml:"time_expire,omitempty" json:"time_expire,omitempty"` // 可选, 订单失效时间, see github.com/chanxuehong/wechat/util/FormatTime
+	TotalFee     *int   `xml:"total_fee"             json:"total_fee,omitempty"`   // 必须, 订单总金额，单位为分，不能带小数点
+	TimeStart    string `xml:"time_start,omitempty"  json:"time_start,omitempty"`  // 可选, 订单生成时间
+	TimeExpire   string `xml:"time_expire,omitempty" json:"time_expire,omitempty"` // 可选, 订单失效时间
 
 	NonceStr  string `xml:"nonce_str" json:"nonce_str"` // 必须, 随机字符串，不长于32 位
 	Signature string `xml:"sign"      json:"sign"`      // 必须, 签名
+}
+
+func (this *UnifiedOrderRequest) SetTotalFee(n int) {
+	this.TotalFee = &n
+}
+func (this *UnifiedOrderRequest) SetTimeStart(t time.Time) {
+	this.TimeStart = util.FormatTime(t)
+}
+func (this *UnifiedOrderRequest) SetTimeExpire(t time.Time) {
+	this.TimeExpire = util.FormatTime(t)
 }
 
 // 设置签名字段.
@@ -63,145 +75,88 @@ func (req *UnifiedOrderRequest) SetSignature(appKey string) (err error) {
 	// time_start
 	// total_fee
 	// trade_type
-	hasWrite := false
 	if len(req.AppId) > 0 {
-		hasWrite = true // 第一个不用判断
-
 		Hash.Write([]byte("appid="))
 		Hash.Write([]byte(req.AppId))
-	}
-	if len(req.Attach) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("attach="))
-		Hash.Write([]byte(req.Attach))
-	}
-	if len(req.Body) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("body="))
-		Hash.Write([]byte(req.Body))
-	}
-	if len(req.DeviceInfo) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("device_info="))
-		Hash.Write([]byte(req.DeviceInfo))
-	}
-	if len(req.ProductTag) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("goods_tag="))
-		Hash.Write([]byte(req.ProductTag))
-	}
-	if len(req.MerchantId) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("mch_id="))
-		Hash.Write([]byte(req.MerchantId))
-	}
-	if len(req.NonceStr) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("nonce_str="))
-		Hash.Write([]byte(req.NonceStr))
-	}
-	if len(req.NotifyURL) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("notify_url="))
-		Hash.Write([]byte(req.NotifyURL))
-	}
-	if len(req.OpenId) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("openid="))
-		Hash.Write([]byte(req.OpenId))
-	}
-	if len(req.OutTradeNo) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("out_trade_no="))
-		Hash.Write([]byte(req.OutTradeNo))
-	}
-	if len(req.ProductId) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("product_id="))
-		Hash.Write([]byte(req.ProductId))
-	}
-	if len(req.BillCreateIP) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("spbill_create_ip="))
-		Hash.Write([]byte(req.BillCreateIP))
-	}
-	if len(req.TimeExpire) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("time_expire="))
-		Hash.Write([]byte(req.TimeExpire))
-	}
-	if len(req.TimeStart) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("time_start="))
-		Hash.Write([]byte(req.TimeStart))
-	}
-	Hash.Write([]byte("total_fee="))
-	Hash.Write([]byte(strconv.FormatInt(int64(req.TotalFee), 10)))
-	if len(req.TradeType) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("trade_type="))
-		Hash.Write([]byte(req.TradeType))
-	}
-
-	if hasWrite {
 		Hash.Write([]byte{'&'})
 	}
+	if len(req.Attach) > 0 {
+		Hash.Write([]byte("attach="))
+		Hash.Write([]byte(req.Attach))
+		Hash.Write([]byte{'&'})
+	}
+	if len(req.Body) > 0 {
+		Hash.Write([]byte("body="))
+		Hash.Write([]byte(req.Body))
+		Hash.Write([]byte{'&'})
+	}
+	if len(req.DeviceInfo) > 0 {
+		Hash.Write([]byte("device_info="))
+		Hash.Write([]byte(req.DeviceInfo))
+		Hash.Write([]byte{'&'})
+	}
+	if len(req.ProductTag) > 0 {
+		Hash.Write([]byte("goods_tag="))
+		Hash.Write([]byte(req.ProductTag))
+		Hash.Write([]byte{'&'})
+	}
+	if len(req.MerchantId) > 0 {
+		Hash.Write([]byte("mch_id="))
+		Hash.Write([]byte(req.MerchantId))
+		Hash.Write([]byte{'&'})
+	}
+	if len(req.NonceStr) > 0 {
+		Hash.Write([]byte("nonce_str="))
+		Hash.Write([]byte(req.NonceStr))
+		Hash.Write([]byte{'&'})
+	}
+	if len(req.NotifyURL) > 0 {
+		Hash.Write([]byte("notify_url="))
+		Hash.Write([]byte(req.NotifyURL))
+		Hash.Write([]byte{'&'})
+	}
+	if len(req.OpenId) > 0 {
+		Hash.Write([]byte("openid="))
+		Hash.Write([]byte(req.OpenId))
+		Hash.Write([]byte{'&'})
+	}
+	if len(req.OutTradeNo) > 0 {
+		Hash.Write([]byte("out_trade_no="))
+		Hash.Write([]byte(req.OutTradeNo))
+		Hash.Write([]byte{'&'})
+	}
+	if len(req.ProductId) > 0 {
+		Hash.Write([]byte("product_id="))
+		Hash.Write([]byte(req.ProductId))
+		Hash.Write([]byte{'&'})
+	}
+	if len(req.BillCreateIP) > 0 {
+		Hash.Write([]byte("spbill_create_ip="))
+		Hash.Write([]byte(req.BillCreateIP))
+		Hash.Write([]byte{'&'})
+	}
+	if len(req.TimeExpire) > 0 {
+		Hash.Write([]byte("time_expire="))
+		Hash.Write([]byte(req.TimeExpire))
+		Hash.Write([]byte{'&'})
+	}
+	if len(req.TimeStart) > 0 {
+		Hash.Write([]byte("time_start="))
+		Hash.Write([]byte(req.TimeStart))
+		Hash.Write([]byte{'&'})
+	}
+	if req.TotalFee != nil {
+		Hash.Write([]byte("total_fee="))
+		Hash.Write([]byte(strconv.FormatInt(int64(*req.TotalFee), 10)))
+		Hash.Write([]byte{'&'})
+	}
+
+	if len(req.TradeType) > 0 {
+		Hash.Write([]byte("trade_type="))
+		Hash.Write([]byte(req.TradeType))
+		Hash.Write([]byte{'&'})
+	}
+
 	Hash.Write([]byte("key="))
 	Hash.Write([]byte(appKey))
 
