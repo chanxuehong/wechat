@@ -13,6 +13,7 @@ import (
 	"fmt"
 )
 
+// 统一支付接口 返回参数
 type UnifiedOrderResponse struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
@@ -53,127 +54,78 @@ func (resp *UnifiedOrderResponse) CheckSignature(appKey string) (err error) {
 
 	// 字典序
 	// appid
-	// code_url // resp.RetCode == RET_CODE_SUCCESS && resp.ResultCode == RESULT_CODE_SUCCESS
+	// code_url
 	// device_info
 	// err_code
 	// err_code_des
 	// mch_id
 	// nonce_str
-	// prepay_id // resp.RetCode == RET_CODE_SUCCESS && resp.ResultCode == RESULT_CODE_SUCCESS
+	// prepay_id
 	// result_code
 	// return_code
 	// return_msg
-	// trade_type // resp.RetCode == RET_CODE_SUCCESS && resp.ResultCode == RESULT_CODE_SUCCESS
-	hasWrite := false
+	// trade_type
 	if len(resp.AppId) > 0 {
-		hasWrite = true // 第一个不用判断
-
 		Hash.Write([]byte("appid="))
 		Hash.Write([]byte(resp.AppId))
-	}
-	if len(resp.CodeURL) > 0 && resp.ResultCode == RESULT_CODE_SUCCESS {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("code_url="))
-		Hash.Write([]byte(resp.CodeURL))
-	}
-	if len(resp.DeviceInfo) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("device_info="))
-		Hash.Write([]byte(resp.DeviceInfo))
-	}
-	if len(resp.ErrCode) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("err_code="))
-		Hash.Write([]byte(resp.ErrCode))
-	}
-	if len(resp.ErrCodeDesc) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("err_code_des="))
-		Hash.Write([]byte(resp.ErrCodeDesc))
-	}
-	if len(resp.MerchantId) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("mch_id="))
-		Hash.Write([]byte(resp.MerchantId))
-	}
-	if len(resp.NonceStr) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("nonce_str="))
-		Hash.Write([]byte(resp.NonceStr))
-	}
-	if len(resp.PrepayId) > 0 && resp.ResultCode == RESULT_CODE_SUCCESS {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("prepay_id="))
-		Hash.Write([]byte(resp.PrepayId))
-	}
-	if len(resp.ResultCode) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("result_code="))
-		Hash.Write([]byte(resp.ResultCode))
-	}
-	if len(resp.RetCode) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("return_code="))
-		Hash.Write([]byte(resp.RetCode))
-	}
-	if len(resp.RetMsg) > 0 {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("return_msg="))
-		Hash.Write([]byte(resp.RetMsg))
-	}
-	if len(resp.TradeType) > 0 && resp.ResultCode == RESULT_CODE_SUCCESS {
-		if !hasWrite {
-			hasWrite = true
-		} else {
-			Hash.Write([]byte{'&'})
-		}
-		Hash.Write([]byte("trade_type="))
-		Hash.Write([]byte(resp.TradeType))
-	}
-
-	if hasWrite {
 		Hash.Write([]byte{'&'})
 	}
+	if len(resp.CodeURL) > 0 {
+		Hash.Write([]byte("code_url="))
+		Hash.Write([]byte(resp.CodeURL))
+		Hash.Write([]byte{'&'})
+	}
+	if len(resp.DeviceInfo) > 0 {
+		Hash.Write([]byte("device_info="))
+		Hash.Write([]byte(resp.DeviceInfo))
+		Hash.Write([]byte{'&'})
+	}
+	if len(resp.ErrCode) > 0 {
+		Hash.Write([]byte("err_code="))
+		Hash.Write([]byte(resp.ErrCode))
+		Hash.Write([]byte{'&'})
+	}
+	if len(resp.ErrCodeDesc) > 0 {
+		Hash.Write([]byte("err_code_des="))
+		Hash.Write([]byte(resp.ErrCodeDesc))
+		Hash.Write([]byte{'&'})
+	}
+	if len(resp.MerchantId) > 0 {
+		Hash.Write([]byte("mch_id="))
+		Hash.Write([]byte(resp.MerchantId))
+		Hash.Write([]byte{'&'})
+	}
+	if len(resp.NonceStr) > 0 {
+		Hash.Write([]byte("nonce_str="))
+		Hash.Write([]byte(resp.NonceStr))
+		Hash.Write([]byte{'&'})
+	}
+	if len(resp.PrepayId) > 0 {
+		Hash.Write([]byte("prepay_id="))
+		Hash.Write([]byte(resp.PrepayId))
+		Hash.Write([]byte{'&'})
+	}
+	if len(resp.ResultCode) > 0 {
+		Hash.Write([]byte("result_code="))
+		Hash.Write([]byte(resp.ResultCode))
+		Hash.Write([]byte{'&'})
+	}
+	if len(resp.RetCode) > 0 {
+		Hash.Write([]byte("return_code="))
+		Hash.Write([]byte(resp.RetCode))
+		Hash.Write([]byte{'&'})
+	}
+	if len(resp.RetMsg) > 0 {
+		Hash.Write([]byte("return_msg="))
+		Hash.Write([]byte(resp.RetMsg))
+		Hash.Write([]byte{'&'})
+	}
+	if len(resp.TradeType) > 0 {
+		Hash.Write([]byte("trade_type="))
+		Hash.Write([]byte(resp.TradeType))
+		Hash.Write([]byte{'&'})
+	}
+
 	Hash.Write([]byte("key="))
 	Hash.Write([]byte(appKey))
 
