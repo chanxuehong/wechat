@@ -124,9 +124,9 @@ func (this *AgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// 此时要么 msgReq.AgentId == wantAgentId, 要么 msgReq.AgentId == 0
+		// 此时要么 msgReq.AgentId == agent.GetAgentId(), 要么 msgReq.AgentId == 0
 
-		if msgReq.AgentId == 0 {
+		if msgReq.AgentId == 0 && agent.GetAgentId() != 0 { // 这种情况只有 订阅/取消订阅 合法
 			// 订阅/取消订阅 整个企业号
 			if msgReq.MsgType == request.MSG_TYPE_EVENT &&
 				(msgReq.Event == request.EVENT_TYPE_SUBSCRIBE || msgReq.Event == request.EVENT_TYPE_UNSUBSCRIBE) {
