@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// 用户相关的 oauth2 token 信息, 每个用户对应一个这样的结构, 一般需要缓存起来
+// 用户相关的 oauth2 token 信息
 type OAuth2Token struct {
 	AccessToken  string
 	RefreshToken string
@@ -24,14 +24,14 @@ type OAuth2Token struct {
 	Scopes []string // 用户授权的作用域
 }
 
-// 判断授权的 access token 是否过期, 过期返回 true, 没有过期返回 false
+// 判断授权的 access token 是否过期, 过期返回 true, 否则返回 false
 func (this *OAuth2Token) accessTokenExpired() bool {
 	return time.Now().Unix() > this.ExpiresAt
 }
 
 type Client struct {
 	*OAuth2Config
-	TokenCache
+	*OAuth2Token // 程序会自动更新最新的 OAuth2Token 到这个字段, 如有必要该字段可以保存起来
 
 	// 如果 httpClient == nil 则默认用 http.DefaultClient,
 	// see github.com/chanxuehong/wechat/CommonHttpClient 和
@@ -49,20 +49,15 @@ func (c *Client) httpClient() *http.Client {
 // 通过code换取网页授权 access_token
 //  NOTE:
 //  1. Client 需要指定 OAuth2Config
-//  2. 如果指定了 TokenCache 则会调用 TokenCache.PutToken
+//  2. 如果指定了 OAuth2Token, 则会更新这个 OAuth2Token, 同时返回的也是指定的 OAuth2Token;
+//     否则会重新分配一个 OAuth2Token
 func (c *Client) Exchange(code string) (token *OAuth2Token, err error) {
 	if c.OAuth2Config == nil {
 		err = errors.New("没有提供 OAuth2Config")
 		return
 	}
 
-	var tok *OAuth2Token
-	if c.TokenCache != nil {
-		tok, err = c.Token()
-		if err != nil && err != ErrCacheMiss {
-			return
-		}
-	}
+	tok := c.OAuth2Token
 	if tok == nil {
 		tok = new(OAuth2Token)
 	}
@@ -71,85 +66,54 @@ func (c *Client) Exchange(code string) (token *OAuth2Token, err error) {
 		return
 	}
 
-	if c.TokenCache != nil {
-		if err = c.PutToken(tok); err != nil {
-			return
-		}
-	}
+	c.OAuth2Token = tok
 	token = tok
 	return
 }
 
 // 刷新access_token（如果需要）
-//  NOTE: Client 需要指定 OAuth2Config, TokenCache
+//  NOTE: Client 需要指定 OAuth2Config, OAuth2Token
 func (c *Client) TokenRefresh() (token *OAuth2Token, err error) {
 	if c.OAuth2Config == nil {
 		err = errors.New("没有提供 OAuth2Config")
 		return
 	}
-	if c.TokenCache == nil {
-		err = errors.New("没有提供 TokenCache")
+	if c.OAuth2Token == nil {
+		err = errors.New("没有提供 OAuth2Token")
 		return
 	}
-
-	tok, err := c.Token()
-	if err != nil {
-		return
-	}
-	// 保险起见还是判断一下
-	if tok == nil {
-		err = errors.New("没有获取到有效的 OAuth2Token")
-		return
-	}
-	if len(tok.RefreshToken) == 0 {
+	if len(c.RefreshToken) == 0 {
 		err = errors.New("没有有效的 RefreshToken")
 		return
 	}
 
-	if err = c.updateToken(tok, oauth2RefreshTokenURL(c.AppId, tok.RefreshToken)); err != nil {
+	if err = c.updateToken(c.OAuth2Token, oauth2RefreshTokenURL(c.AppId, c.RefreshToken)); err != nil {
 		return
 	}
 
-	if err = c.PutToken(tok); err != nil {
-		return
-	}
-	token = tok
+	token = c.OAuth2Token
 	return
 }
 
 // 检查 access_token 是否有效
 //  NOTE:
-//  1. Client 需要指定 OAuth2Config, TokenCache
+//  1. Client 需要指定 OAuth2Token
 //  2. 先判断 err 然后再判断 valid
 func (c *Client) CheckAccessTokenValid() (valid bool, err error) {
-	if c.OAuth2Config == nil {
-		err = errors.New("没有提供 OAuth2Config")
+	if c.OAuth2Token == nil {
+		err = errors.New("没有提供 OAuth2Token")
 		return
 	}
-	if c.TokenCache == nil {
-		err = errors.New("没有提供 TokenCache")
-		return
-	}
-
-	tok, err := c.Token()
-	if err != nil {
-		return
-	}
-	// 保险起见还是判断一下
-	if tok == nil {
-		err = errors.New("没有获取到有效的 OAuth2Token")
-		return
-	}
-	if len(tok.AccessToken) == 0 {
+	if len(c.AccessToken) == 0 {
 		err = errors.New("没有有效的 AccessToken")
 		return
 	}
-	if len(tok.OpenId) == 0 {
+	if len(c.OpenId) == 0 {
 		err = errors.New("没有有效的 OpenId")
 		return
 	}
 
-	resp, err := c.httpClient().Get(checkAccessTokenValidURL(tok.AccessToken, tok.OpenId))
+	resp, err := c.httpClient().Get(checkAccessTokenValidURL(c.AccessToken, c.OpenId))
 	if err != nil {
 		return
 	}
@@ -178,8 +142,8 @@ func (c *Client) CheckAccessTokenValid() (valid bool, err error) {
 }
 
 // 从服务器获取新的 token 更新 tok
-func (c *Client) updateToken(tok *OAuth2Token, _url string) (err error) {
-	resp, err := c.httpClient().Get(_url)
+func (c *Client) updateToken(tok *OAuth2Token, url_ string) (err error) {
+	resp, err := c.httpClient().Get(url_)
 	if err != nil {
 		return
 	}

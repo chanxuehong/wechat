@@ -14,13 +14,14 @@ import (
 
 // 获取用户信息(需scope为 snsapi_userinfo)
 //  NOTE:
-//  1. Client 需要指定 OAuth2Config, TokenCache
+//  1. Client 需要指定 OAuth2Config, OAuth2Token
 //  2. lang 可能的取值是 zh_CN, zh_TW, en; 如果留空 "" 则默认为 zh_CN.
 func (c *Client) UserInfo(lang string) (info *UserInfo, err error) {
 	switch lang {
 	case "":
 		lang = Language_zh_CN
 	case Language_zh_CN, Language_zh_TW, Language_en:
+		// do nothing
 	default:
 		err = fmt.Errorf("lang 必须是 \"\",%s,%s,%s 之一",
 			Language_zh_CN, Language_zh_TW, Language_en)
@@ -31,38 +32,28 @@ func (c *Client) UserInfo(lang string) (info *UserInfo, err error) {
 		err = errors.New("没有提供 OAuth2Config")
 		return
 	}
-	if c.TokenCache == nil {
-		err = errors.New("没有提供 TokenCache")
-		return
-	}
-
-	tok, err := c.Token()
-	if err != nil {
-		return
-	}
-	// 保险起见还是判断一下
-	if tok == nil {
-		err = errors.New("没有获取到有效的 OAuth2Token")
+	if c.OAuth2Token == nil {
+		err = errors.New("没有提供 OAuth2Token")
 		return
 	}
 
 	// 如果过期则自动刷新 access token
-	if tok.accessTokenExpired() {
-		if tok, err = c.TokenRefresh(); err != nil {
+	if c.accessTokenExpired() {
+		if _, err = c.TokenRefresh(); err != nil {
 			return
 		}
 	}
 
-	if len(tok.AccessToken) == 0 {
+	if len(c.AccessToken) == 0 {
 		err = errors.New("没有有效的 AccessToken")
 		return
 	}
-	if len(tok.OpenId) == 0 {
+	if len(c.OpenId) == 0 {
 		err = errors.New("没有有效的 OpenId")
 		return
 	}
 
-	resp, err := c.httpClient().Get(userInfoURL(tok.AccessToken, tok.OpenId, lang))
+	resp, err := c.httpClient().Get(userInfoURL(c.AccessToken, c.OpenId, lang))
 	if err != nil {
 		return
 	}
