@@ -14,7 +14,7 @@ func TestEditAddressParametersSetSignatureAndMarshal(t *testing.T) {
 	var para EditAddressParameters
 	para.AppId = "wx17ef1eaef46752cb"
 	para.NonceStr = "123456"
-	para.TimeStamp = 1384841012
+	para.SetTimeStamp(1384841012)
 	para.Scope = "jsapi_address"
 	para.SignMethod = "sha1"
 

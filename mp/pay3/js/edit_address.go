@@ -39,14 +39,21 @@ import (
 //  });
 //
 type EditAddressParameters struct {
-	AppId     string `json:"appId"`            // 必须, 公众号身份的唯一标识
-	NonceStr  string `json:"nonceStr"`         // 必须, 商户生成的随机字符串, 32个字符以内
-	TimeStamp int64  `json:"timeStamp,string"` // 必须, unixtime, 商户生成
+	AppId     string `json:"appId"`     // 必须, 公众号身份的唯一标识
+	NonceStr  string `json:"nonceStr"`  // 必须, 商户生成的随机字符串, 32个字符以内
+	TimeStamp string `json:"timeStamp"` // 必须, unixtime, 商户生成
 
 	Scope string `json:"scope"` // 必须, 填写"jsapi_address", 获得编辑地址权限
 
 	Signature  string `json:"addrSign"` // 必须, 该 EditAddressParameters 自身的签名. see EditAddressParameters.SetSignature
 	SignMethod string `json:"signType"` // 必须, 签名方式, 目前仅支持 sha1
+}
+
+func (this *EditAddressParameters) GetTimeStamp() (timestamp int64, err error) {
+	return strconv.ParseInt(this.TimeStamp, 10, 64)
+}
+func (this *EditAddressParameters) SetTimeStamp(timestamp int64) {
+	this.TimeStamp = strconv.FormatInt(timestamp, 10)
 }
 
 // 设置签名字段.
@@ -79,7 +86,7 @@ func (para *EditAddressParameters) SetSignature(url, oauth2AccessToken string) (
 	Hash.Write([]byte("&noncestr="))
 	Hash.Write([]byte(para.NonceStr))
 	Hash.Write([]byte("&timestamp="))
-	Hash.Write([]byte(strconv.FormatInt(para.TimeStamp, 10)))
+	Hash.Write([]byte(para.TimeStamp))
 	Hash.Write([]byte("&url="))
 	Hash.Write([]byte(url))
 
