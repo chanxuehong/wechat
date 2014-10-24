@@ -14,15 +14,19 @@ import (
 	"time"
 )
 
-var ErrNotFound = errors.New("oauth2: cache miss")
+// 用户相关的 oauth2 token 信息, 每个用户对应一个这样的结构, 一般需要缓存起来
+type OAuth2Token struct {
+	AccessToken  string
+	RefreshToken string
+	ExpiresAt    int64 // 过期时间, unixtime, 分布式系统要求时间同步
 
-type TokenCache interface {
-	// 从缓存中读取 OAuth2Token, 如果没有找到则返回错误 ErrNotFound
-	// 如果成功 tok != nil && err == nil, 否则 tok == nil && err != nil
-	Token() (tok *OAuth2Token, err error)
+	OpenId string
+	Scopes []string // 用户授权的作用域
+}
 
-	// 把 OAuth2Token 存入到缓存, 如果原来有 OAuth2Token 则覆盖原来的
-	PutToken(tok *OAuth2Token) (err error)
+// 判断授权的 access token 是否过期, 过期返回 true, 没有过期返回 false
+func (this *OAuth2Token) accessTokenExpired() bool {
+	return time.Now().Unix() > this.ExpiresAt
 }
 
 type Client struct {
@@ -55,7 +59,7 @@ func (c *Client) Exchange(code string) (token *OAuth2Token, err error) {
 	var tok *OAuth2Token
 	if c.TokenCache != nil {
 		tok, err = c.Token()
-		if err != nil && err != ErrNotFound {
+		if err != nil && err != ErrCacheMiss {
 			return
 		}
 	}
