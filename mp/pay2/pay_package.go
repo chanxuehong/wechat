@@ -34,6 +34,47 @@ type PayPackage struct {
 	Charset      string `json:"input_charset"`           // 必须, 参数字符编码, 取值范围: "GBK", "UTF-8"
 }
 
+// getter
+func (this *PayPackage) GetTotalFee() (n int, ok bool) {
+	if this.TotalFee != nil {
+		ok = true
+		n = *this.TotalFee
+		return
+	}
+	return
+}
+func (this *PayPackage) GetTransportFee() (n int, ok bool) {
+	if this.TransportFee != nil {
+		ok = true
+		n = *this.TransportFee
+		return
+	}
+	return
+}
+func (this *PayPackage) GetProductFee() (n int, ok bool) {
+	if this.ProductFee != nil {
+		ok = true
+		n = *this.ProductFee
+		return
+	}
+	return
+}
+func (this *PayPackage) GetFeeType() (n int, ok bool) {
+	if this.FeeType != nil {
+		ok = true
+		n = *this.FeeType
+		return
+	}
+	return
+}
+func (this *PayPackage) GetTimeStart() (time.Time, error) {
+	return util.ParseTime(this.TimeStart)
+}
+func (this *PayPackage) GetTimeExpire() (time.Time, error) {
+	return util.ParseTime(this.TimeExpire)
+}
+
+// setter
 func (this *PayPackage) SetTotalFee(n int) {
 	this.TotalFee = &n
 }

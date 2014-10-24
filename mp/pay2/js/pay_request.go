@@ -38,14 +38,21 @@ import (
 //  );
 //
 type PayRequestParameters struct {
-	AppId     string `json:"appId"`            // 必须, 公众号身份的唯一标识
-	NonceStr  string `json:"nonceStr"`         // 必须, 商户生成的随机字符串, 32个字符以内
-	TimeStamp int64  `json:"timeStamp,string"` // 必须, unixtime, 商户生成
+	AppId     string `json:"appId"`     // 必须, 公众号身份的唯一标识
+	NonceStr  string `json:"nonceStr"`  // 必须, 商户生成的随机字符串, 32个字符以内
+	TimeStamp string `json:"timeStamp"` // 必须, unixtime, 商户生成
 
 	Package string `json:"package"` // 必须, 订单详情组合成的字符串, 4096个字符以内, see ../PayPackage.Package
 
 	Signature  string `json:"paySign"`  // 必须, 该 PayRequestParameters 自身的签名. see PayRequestParameters.SetSignature
 	SignMethod string `json:"signType"` // 必须, 签名方式, 目前仅支持 SHA1
+}
+
+func (this *PayRequestParameters) GetTimeStamp() (timestamp int64, err error) {
+	return strconv.ParseInt(this.TimeStamp, 10, 64)
+}
+func (this *PayRequestParameters) SetTimeStamp(timestamp int64) {
+	this.TimeStamp = strconv.FormatInt(timestamp, 10)
 }
 
 // 设置签名字段.
@@ -79,7 +86,7 @@ func (para *PayRequestParameters) SetSignature(appKey string) (err error) {
 	Hash.Write([]byte("&package="))
 	Hash.Write([]byte(para.Package))
 	Hash.Write([]byte("&timestamp="))
-	Hash.Write([]byte(strconv.FormatInt(para.TimeStamp, 10)))
+	Hash.Write([]byte(para.TimeStamp))
 
 	para.Signature = hex.EncodeToString(Hash.Sum(nil))
 	return
