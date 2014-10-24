@@ -18,7 +18,7 @@ type OrderQueryRequest struct {
 	AppId         string `xml:"appid"                    json:"appid"`                    // 必须, 微信分配的公众账号ID
 	MerchantId    string `xml:"mch_id"                   json:"mch_id"`                   // 必须, 微信支付分配的商户号
 	TransactionId string `xml:"transaction_id,omitempty" json:"transaction_id,omitempty"` // 可选, 微信的订单号，优先使用
-	OutTradeNo    string `xml:"out_trade_no"             json:"out_trade_no"`             // 必须, 商户系统内部的订单号,transaction_id、out_trade_no 二选一，如果同时存在优先级: transaction_id > out_trade_no
+	OutTradeNo    string `xml:"out_trade_no,omitempty"   json:"out_trade_no,omitempty"`   // 必须, 商户系统内部的订单号,transaction_id、out_trade_no 二选一，如果同时存在优先级: transaction_id > out_trade_no
 	NonceStr      string `xml:"nonce_str"                json:"nonce_str"`                // 必须, 随机字符串，不长于32 位
 	Signature     string `xml:"sign"                     json:"sign"`                     // 必须, 签名
 }
