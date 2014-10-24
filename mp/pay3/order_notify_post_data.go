@@ -54,8 +54,36 @@ type OrderNotifyPostData struct {
 	TimeEnd       string `xml:"time_end"           json:"time_end"`             // 必须, 支付完成时间， 格式为yyyyMMddhhmmss。时区为GMT+8 beijing。该时间取自微信支付服务器
 }
 
+// getter
+func (this *OrderNotifyPostData) GetTotalFee() (n int, ok bool) {
+	if this.TotalFee != nil {
+		ok = true
+		n = *this.TotalFee
+		return
+	}
+	return
+}
+func (this *OrderNotifyPostData) GetCouponFee() (n int, ok bool) {
+	if this.CouponFee != nil {
+		ok = true
+		n = *this.CouponFee
+		return
+	}
+	return
+}
 func (this *OrderNotifyPostData) GetTimeEnd() (time.Time, error) {
 	return util.ParseTime(this.TimeEnd)
+}
+
+// setter
+func (this *OrderNotifyPostData) SetTotalFee(n int) {
+	this.TotalFee = &n
+}
+func (this *OrderNotifyPostData) SetCouponFee(n int) {
+	this.CouponFee = &n
+}
+func (this *OrderNotifyPostData) SetTimeEnd(t time.Time) {
+	this.TimeEnd = util.FormatTime(t)
 }
 
 // 检查 data *OrderNotifyPostData 的签名是否正确, 正确时返回 nil, 否则返回错误信息.

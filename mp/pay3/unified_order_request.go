@@ -40,6 +40,23 @@ type UnifiedOrderRequest struct {
 	Signature string `xml:"sign"      json:"sign"`      // 必须, 签名
 }
 
+// getter
+func (this *UnifiedOrderRequest) GetTotalFee() (n int, ok bool) {
+	if this.TotalFee != nil {
+		ok = true
+		n = *this.TotalFee
+		return
+	}
+	return
+}
+func (this *UnifiedOrderRequest) GetTimeStart() (time.Time, error) {
+	return util.ParseTime(this.TimeStart)
+}
+func (this *UnifiedOrderRequest) GetTimeExpire() (time.Time, error) {
+	return util.ParseTime(this.TimeExpire)
+}
+
+// setter
 func (this *UnifiedOrderRequest) SetTotalFee(n int) {
 	this.TotalFee = &n
 }

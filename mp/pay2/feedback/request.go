@@ -112,28 +112,7 @@ func (req *MixedRequest) GetRejection() *Rejection {
 }
 
 // 用户提交投诉消息
-type Complaint struct {
-	XMLName struct{} `xml:"xml" json:"-"`
-
-	AppId     string `xml:"AppId"     json:"AppId"`     // 公众号 id
-	TimeStamp int64  `xml:"TimeStamp" json:"TimeStamp"` // 时间戳, unixtime
-
-	OpenId     string `xml:"OpenId"     json:"OpenId"`     // 支付该笔订单的用户 OpenId
-	FeedbackId int64  `xml:"FeedBackId" json:"FeedBackId"` // 投诉单号
-	MsgType    string `xml:"MsgType"    json:"MsgType"`    // request
-
-	TransactionId string `xml:"TransId"  json:"TransId"`  // 交易订单号
-	Reason        string `xml:"Reason"   json:"Reason"`   // 用户投诉的原因
-	Solution      string `xml:"Solution" json:"Solution"` // 用户希望解决方案
-	ExtInfo       string `xml:"ExtInfo"  json:"ExtInfo"`  // 备注+电话
-
-	Signature  string `xml:"AppSignature" json:"AppSignature"` // 签名
-	SignMethod string `xml:"SignMethod"   json:"SignMethod"`   // 签名方法, sha1
-
-	PicInfo []struct {
-		PicURL string `xml:"PicUrl" json:"PicUrl"`
-	} `xml:"PicInfo>item" json:"PicInfo"` // 用户上传的图片凭证, 最多 5 张
-}
+type Complaint MixedRequest
 
 // 用户确认消除投诉
 type Confirmation struct {
