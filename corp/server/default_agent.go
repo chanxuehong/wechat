@@ -66,3 +66,15 @@ func (this *DefaultAgent) ServeMenuClickEvent(w http.ResponseWriter, r *http.Req
 }
 func (this *DefaultAgent) ServeMenuViewEvent(w http.ResponseWriter, r *http.Request, event *request.MenuViewEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte) {
 }
+func (this *DefaultAgent) ServeMenuScanCodePushEvent(w http.ResponseWriter, r *http.Request, event *request.MenuScanCodePushEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte) {
+}
+func (this *DefaultAgent) ServeMenuScanCodeWaitMsgEvent(w http.ResponseWriter, r *http.Request, event *request.MenuScanCodeWaitMsgEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte) {
+}
+func (this *DefaultAgent) ServeMenuPicSysPhotoEvent(w http.ResponseWriter, r *http.Request, event *request.MenuPicSysPhotoEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte) {
+}
+func (this *DefaultAgent) ServeMenuPicPhotoOrAlbumEvent(w http.ResponseWriter, r *http.Request, event *request.MenuPicPhotoOrAlbumEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte) {
+}
+func (this *DefaultAgent) ServeMenuPicWeixinEvent(w http.ResponseWriter, r *http.Request, event *request.MenuPicWeixinEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte) {
+}
+func (this *DefaultAgent) ServeMenuLocationSelectEvent(w http.ResponseWriter, r *http.Request, event *request.MenuLocationSelectEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte) {
+}
