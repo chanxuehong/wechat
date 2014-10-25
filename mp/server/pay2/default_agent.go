@@ -8,7 +8,6 @@ package pay2
 import (
 	"github.com/chanxuehong/wechat/mp/pay2"
 	"github.com/chanxuehong/wechat/mp/pay2/feedback"
-	"github.com/chanxuehong/wechat/mp/pay2/native"
 	"net/http"
 )
 
@@ -36,7 +35,7 @@ func (this *DefaultAgent) GetPartnerKey() string {
 
 func (this *DefaultAgent) ServeUnknownMsg(w http.ResponseWriter, r *http.Request, rawXMLMsg []byte) {
 }
-func (this *DefaultAgent) ServePayPackageRequest(w http.ResponseWriter, r *http.Request, req *native.PayPackageRequest, rawXMLMsg []byte) {
+func (this *DefaultAgent) ServePayPackageRequest(w http.ResponseWriter, r *http.Request, req *pay2.PayPackageRequest, rawXMLMsg []byte) {
 }
 func (this *DefaultAgent) ServeOrderNotification(w http.ResponseWriter, r *http.Request, urlData *pay2.OrderNotifyURLData, postData *pay2.OrderNotifyPostData, postRawXMLMsg []byte) {
 }

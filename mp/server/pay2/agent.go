@@ -8,7 +8,6 @@ package pay2
 import (
 	"github.com/chanxuehong/wechat/mp/pay2"
 	"github.com/chanxuehong/wechat/mp/pay2/feedback"
-	"github.com/chanxuehong/wechat/mp/pay2/native"
 	"net/http"
 )
 
@@ -24,7 +23,7 @@ type Agent interface {
 
 	// Native（原生）支付回调商户后台获取package
 	//  rawXMLMsg 是 xml 消息体
-	ServePayPackageRequest(w http.ResponseWriter, r *http.Request, req *native.PayPackageRequest, rawXMLMsg []byte)
+	ServePayPackageRequest(w http.ResponseWriter, r *http.Request, req *pay2.PayPackageRequest, rawXMLMsg []byte)
 
 	// 用户在成功完成支付后，微信后台通知（POST）商户服务器（notify_url）支付结果。
 	//  postRawXMLMsg 是 postData 的原始 xml 消息体
