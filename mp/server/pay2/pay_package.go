@@ -10,7 +10,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/chanxuehong/wechat/mp/pay2/native"
+	"github.com/chanxuehong/wechat/mp/pay2"
 	"io/ioutil"
 	"net/http"
 )
@@ -52,7 +52,7 @@ func (handler *PayPackageRequestHandler) ServeHTTP(w http.ResponseWriter, r *htt
 		return
 	}
 
-	var req native.PayPackageRequest
+	var req pay2.PayPackageRequest
 	if err := xml.Unmarshal(rawXMLMsg, &req); err != nil {
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
