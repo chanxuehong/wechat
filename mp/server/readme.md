@@ -28,6 +28,7 @@ import (
 	"github.com/chanxuehong/wechat/mp/message/passive/request"
 	"github.com/chanxuehong/wechat/mp/message/passive/response"
 	"github.com/chanxuehong/wechat/mp/server"
+	"github.com/chanxuehong/wechat/util"
 	"log"
 	"net/http"
 )
@@ -61,7 +62,7 @@ func CustomInvalidRequestHandlerFunc(w http.ResponseWriter, r *http.Request, err
 }
 
 func init() {
-	AESKey, err := server.AESKeyDecode("EncodingAESKey") // 后台里获取
+	AESKey, err := util.AESKeyDecode("EncodingAESKey") // 后台里获取
 	if err != nil {
 		panic(err)
 	}

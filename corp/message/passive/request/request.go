@@ -30,8 +30,25 @@ type Request struct {
 	Scale        int     `xml:"Scale"        json:"Scale"`
 	Label        string  `xml:"Label"        json:"Label"`
 
-	Event     string  `xml:"Event"       json:"Event"`
-	EventKey  string  `xml:"EventKey"    json:"EventKey"`
+	Event        string `xml:"Event"       json:"Event"`
+	EventKey     string `xml:"EventKey"    json:"EventKey"`
+	ScanCodeInfo struct {
+		ScanType   string `xml:"ScanType"   json:"ScanType"`
+		ScanResult string `xml:"ScanResult" json:"ScanResult"`
+	} `xml:"ScanCodeInfo" json:"ScanCodeInfo"`
+	SendPicsInfo struct {
+		Count   int `xml:"Count"   json:"Count"`
+		PicList []struct {
+			PicMd5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"`
+		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"`
+	} `xml:"SendPicsInfo" json:"SendPicsInfo"`
+	SendLocationInfo struct {
+		LocationX float64 `xml:"Location_X" json:"Location_X"`
+		LocationY float64 `xml:"Location_Y" json:"Location_Y"`
+		Scale     int     `xml:"Scale"      json:"Scale"`
+		Label     string  `xml:"Label"      json:"Label"`
+		Poiname   string  `xml:"Poiname"    json:"Poiname"`
+	} `xml:"SendLocationInfo" json:"SendLocationInfo"`
 	Latitude  float64 `xml:"Latitude"    json:"Latitude"`
 	Longitude float64 `xml:"Longitude"   json:"Longitude"`
 	Precision float64 `xml:"Precision"   json:"Precision"`

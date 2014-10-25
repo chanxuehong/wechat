@@ -29,6 +29,11 @@ func TestMenuJSONMarshal(t *testing.T) {
 						"url":"http://www.soso.com/"
 					}, 
 					{
+						"type":"view", 
+						"name":"视频", 
+						"url":"http://v.qq.com/"
+					}, 
+					{
 						"type":"click", 
 						"name":"赞一下我们", 
 						"key":"V1001_GOOD"
@@ -38,9 +43,10 @@ func TestMenuJSONMarshal(t *testing.T) {
 		]
 	}`))
 
-	var subButtons = make([]Button, 2)
+	var subButtons = make([]Button, 3)
 	subButtons[0].InitToViewButton("搜索", "http://www.soso.com/")
-	subButtons[1].InitToClickButton("赞一下我们", "V1001_GOOD")
+	subButtons[1].InitToViewButton("视频", "http://v.qq.com/")
+	subButtons[2].InitToClickButton("赞一下我们", "V1001_GOOD")
 
 	var mn Menu
 	mn.Buttons = make([]Button, 2)
@@ -53,28 +59,100 @@ func TestMenuJSONMarshal(t *testing.T) {
 	} else if !bytes.Equal(have, want) {
 		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", mn, have, want)
 	}
+
+	want = util.TrimSpace([]byte(`{
+		"button":[
+			{
+				"name":"扫码", 
+				"sub_button":[
+					{
+						"type":"scancode_waitmsg", 
+						"name":"扫码带提示", 
+						"key":"rselfmenu_0_0"
+					}, 
+					{
+						"type":"scancode_push", 
+						"name":"扫码推事件", 
+						"key":"rselfmenu_0_1"
+					}
+				]
+			}, 
+			{
+				"name":"发图", 
+				"sub_button":[
+					{
+						"type":"pic_sysphoto", 
+						"name":"系统拍照发图", 
+						"key":"rselfmenu_1_0"
+					}, 
+					{
+						"type":"pic_photo_or_album", 
+						"name":"拍照或者相册发图", 
+						"key":"rselfmenu_1_1"
+					}, 
+					{
+						"type":"pic_weixin", 
+						"name":"微信相册发图", 
+						"key":"rselfmenu_1_2"
+					}
+				]
+			}, 
+			{
+				"type":"location_select",
+				"name":"发送位置", 
+				"key":"rselfmenu_2_0"
+			}
+		]
+	}`))
+
+	var subButtons0 = make([]Button, 2)
+	subButtons0[0].InitToScanCodeWaitMsgButton("扫码带提示", "rselfmenu_0_0")
+	subButtons0[1].InitToScanCodePushButton("扫码推事件", "rselfmenu_0_1")
+
+	var subButtons1 = make([]Button, 3)
+	subButtons1[0].InitToPicSysPhotoButton("系统拍照发图", "rselfmenu_1_0")
+	subButtons1[1].InitToPicPhotoOrAlbumButton("拍照或者相册发图", "rselfmenu_1_1")
+	subButtons1[2].InitToPicWeixinButton("微信相册发图", "rselfmenu_1_2")
+
+	var mn1 Menu
+	mn1.Buttons = make([]Button, 3)
+	mn1.Buttons[0].InitToSubMenuButton("扫码", subButtons0)
+	mn1.Buttons[1].InitToSubMenuButton("发图", subButtons1)
+	mn1.Buttons[2].InitToLocationSelectButton("发送位置", "rselfmenu_2_0")
+
+	have, err = json.Marshal(mn1)
+	if err != nil {
+		t.Errorf("json.Marshal(%#q):\nError: %s\n", mn1, err)
+	} else if !bytes.Equal(have, want) {
+		t.Errorf("json.Marshal(%#q):\nhave %#s\nwant %#s\n", mn1, have, want)
+	}
 }
 
 func TestMenuJSONUnmarshal(t *testing.T) {
 	src := []byte(`{
-		"button": [
+		"button":[
 			{
-				"type": "click", 
-				"name": "今日歌曲", 
-				"key": "V1001_TODAY_MUSIC"
+				"type":"click", 
+				"name":"今日歌曲", 
+				"key":"V1001_TODAY_MUSIC"
 			}, 
 			{
-				"name": "菜单", 
-				"sub_button": [
+				"name":"菜单", 
+				"sub_button":[
 					{
-						"type": "view", 
-						"name": "搜索", 
-						"url": "http://www.soso.com/"
+						"type":"view", 
+						"name":"搜索", 
+						"url":"http://www.soso.com/"
 					}, 
 					{
-						"type": "click", 
-						"name": "赞一下我们", 
-						"key": "V1001_GOOD"
+						"type":"view", 
+						"name":"视频", 
+						"url":"http://v.qq.com/"
+					}, 
+					{
+						"type":"click", 
+						"name":"赞一下我们", 
+						"key":"V1001_GOOD"
 					}
 				]
 			}
@@ -85,9 +163,10 @@ func TestMenuJSONUnmarshal(t *testing.T) {
 	if err := json.Unmarshal(src, &mn0); err != nil {
 		t.Errorf("json.Unmarshal(%#q):\nError: %s\n", src, err)
 	} else {
-		var subButtons1 = make([]Button, 2)
+		var subButtons1 = make([]Button, 3)
 		subButtons1[0].InitToViewButton("搜索", "http://www.soso.com/")
-		subButtons1[1].InitToClickButton("赞一下我们", "V1001_GOOD")
+		subButtons1[1].InitToViewButton("视频", "http://v.qq.com/")
+		subButtons1[2].InitToClickButton("赞一下我们", "V1001_GOOD")
 
 		var mn0x Menu
 		mn0x.Buttons = make([]Button, 2)
@@ -96,6 +175,75 @@ func TestMenuJSONUnmarshal(t *testing.T) {
 
 		if !menuEqual(mn0.Buttons, mn0x.Buttons) {
 			t.Errorf("json.Unmarshal(%#q):\nhave %#q\nwant %#q\n", src, mn0, mn0x)
+		}
+	}
+
+	src = []byte(`{
+		"button":[
+			{
+				"name":"扫码", 
+				"sub_button":[
+					{
+						"type":"scancode_waitmsg", 
+						"name":"扫码带提示", 
+						"key":"rselfmenu_0_0"
+					}, 
+					{
+						"type":"scancode_push", 
+						"name":"扫码推事件", 
+						"key":"rselfmenu_0_1"
+					}
+				]
+			}, 
+			{
+				"name":"发图", 
+				"sub_button":[
+					{
+						"type":"pic_sysphoto", 
+						"name":"系统拍照发图", 
+						"key":"rselfmenu_1_0"
+					}, 
+					{
+						"type":"pic_photo_or_album", 
+						"name":"拍照或者相册发图", 
+						"key":"rselfmenu_1_1"
+					}, 
+					{
+						"type":"pic_weixin", 
+						"name":"微信相册发图", 
+						"key":"rselfmenu_1_2"
+					}
+				]
+			}, 
+			{
+				"type":"location_select",
+				"name":"发送位置", 
+				"key":"rselfmenu_2_0"
+			}
+		]
+	}`)
+
+	var mn1 Menu
+	if err := json.Unmarshal(src, &mn1); err != nil {
+		t.Errorf("json.Unmarshal(%#q):\nError: %s\n", src, err)
+	} else {
+		var subButtons0 = make([]Button, 2)
+		subButtons0[0].InitToScanCodeWaitMsgButton("扫码带提示", "rselfmenu_0_0")
+		subButtons0[1].InitToScanCodePushButton("扫码推事件", "rselfmenu_0_1")
+
+		var subButtons1 = make([]Button, 3)
+		subButtons1[0].InitToPicSysPhotoButton("系统拍照发图", "rselfmenu_1_0")
+		subButtons1[1].InitToPicPhotoOrAlbumButton("拍照或者相册发图", "rselfmenu_1_1")
+		subButtons1[2].InitToPicWeixinButton("微信相册发图", "rselfmenu_1_2")
+
+		var mn1x Menu
+		mn1x.Buttons = make([]Button, 3)
+		mn1x.Buttons[0].InitToSubMenuButton("扫码", subButtons0)
+		mn1x.Buttons[1].InitToSubMenuButton("发图", subButtons1)
+		mn1x.Buttons[2].InitToLocationSelectButton("发送位置", "rselfmenu_2_0")
+
+		if !menuEqual(mn1.Buttons, mn1x.Buttons) {
+			t.Errorf("json.Unmarshal(%#q):\nhave %#q\nwant %#q\n", src, mn1, mn1x)
 		}
 	}
 }

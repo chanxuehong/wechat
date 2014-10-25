@@ -24,6 +24,24 @@ func msgDispatch(w http.ResponseWriter, r *http.Request, msg *request.Request, r
 		case request.EVENT_TYPE_CLICK:
 			agent.ServeMenuClickEvent(w, r, msg.MenuClickEvent(), rawXMLMsg, timestamp, nonce, random)
 
+		case request.EVENT_TYPE_SCANCODE_PUSH:
+			agent.ServeMenuScanCodePushEvent(w, r, msg.MenuScanCodePushEvent(), rawXMLMsg, timestamp, nonce, random)
+
+		case request.EVENT_TYPE_SCANCODE_WAITMSG:
+			agent.ServeMenuScanCodeWaitMsgEvent(w, r, msg.MenuScanCodeWaitMsgEvent(), rawXMLMsg, timestamp, nonce, random)
+
+		case request.EVENT_TYPE_PIC_SYSPHOTO:
+			agent.ServeMenuPicSysPhotoEvent(w, r, msg.MenuPicSysPhotoEvent(), rawXMLMsg, timestamp, nonce, random)
+
+		case request.EVENT_TYPE_PIC_PHOTO_OR_ALBUM:
+			agent.ServeMenuPicPhotoOrAlbumEvent(w, r, msg.MenuPicPhotoOrAlbumEvent(), rawXMLMsg, timestamp, nonce, random)
+
+		case request.EVENT_TYPE_PIC_WEIXIN:
+			agent.ServeMenuPicWeixinEvent(w, r, msg.MenuPicWeixinEvent(), rawXMLMsg, timestamp, nonce, random)
+
+		case request.EVENT_TYPE_LOCATION_SELECT:
+			agent.ServeMenuLocationSelectEvent(w, r, msg.MenuLocationSelectEvent(), rawXMLMsg, timestamp, nonce, random)
+
 		case request.EVENT_TYPE_VIEW:
 			agent.ServeMenuViewEvent(w, r, msg.MenuViewEvent(), rawXMLMsg, timestamp, nonce, random)
 
