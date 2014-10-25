@@ -10,6 +10,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"github.com/chanxuehong/wechat/corp/message/passive/response"
+	"github.com/chanxuehong/wechat/util"
 	"io"
 	"strconv"
 )
@@ -90,7 +91,7 @@ func writeResponse(w io.Writer, msg interface{}, timestamp int64, nonce string,
 		return
 	}
 
-	EncryptedMsg := aesEncryptMsg(random, rawXMLMsg, CorpId, AESKey)
+	EncryptedMsg := util.AESEncryptMsg(random, rawXMLMsg, CorpId, AESKey)
 	base64EncryptedMsg := base64.StdEncoding.EncodeToString(EncryptedMsg)
 
 	var responseHttpBody response.ResponseHttpBody
@@ -99,7 +100,7 @@ func writeResponse(w io.Writer, msg interface{}, timestamp int64, nonce string,
 	responseHttpBody.Nonce = nonce
 
 	timestampStr := strconv.FormatInt(timestamp, 10)
-	responseHttpBody.MsgSignature = msgSignature(Token, timestampStr, nonce, base64EncryptedMsg)
+	responseHttpBody.MsgSignature = util.MsgSignature(Token, timestampStr, nonce, base64EncryptedMsg)
 
 	return xml.NewEncoder(w).Encode(&responseHttpBody)
 }

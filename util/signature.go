@@ -3,7 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package server
+package util
 
 import (
 	"crypto/sha1"
@@ -11,7 +11,22 @@ import (
 	"sort"
 )
 
-func msgSignature(token, timestamp, nonce, encryptedMsg string) (signature string) {
+func Signature(token, timestamp, nonce string) (signature string) {
+	strArray := sort.StringSlice{token, timestamp, nonce}
+	strArray.Sort()
+
+	n := len(token) + len(timestamp) + len(nonce)
+	buf := make([]byte, 0, n)
+
+	buf = append(buf, strArray[0]...)
+	buf = append(buf, strArray[1]...)
+	buf = append(buf, strArray[2]...)
+
+	hashSumArray := sha1.Sum(buf)
+	return hex.EncodeToString(hashSumArray[:])
+}
+
+func MsgSignature(token, timestamp, nonce, encryptedMsg string) (signature string) {
 	strArray := sort.StringSlice{token, timestamp, nonce, encryptedMsg}
 	strArray.Sort()
 
