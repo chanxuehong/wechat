@@ -8,7 +8,6 @@ package util
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"errors"
 	"fmt"
 )
 
@@ -50,11 +49,10 @@ func AESEncryptMsg(random, rawXMLMsg []byte, AppId string, AESKey [32]byte) (enc
 
 	// PKCS#7 补位
 	amountToPad := BLOCK_SIZE - len(plain)%BLOCK_SIZE
-	pad = pad[:amountToPad]
 	for i := 0; i < amountToPad; i++ {
 		pad[i] = byte(amountToPad)
 	}
-	plain = append(plain, pad...)
+	plain = buf[:len(plain)+amountToPad]
 
 	// 加密
 	block, err := aes.NewCipher(AESKey[:])
@@ -71,36 +69,38 @@ func AESEncryptMsg(random, rawXMLMsg []byte, AppId string, AESKey [32]byte) (enc
 func AESDecryptMsg(encryptedMsg []byte, AppId string, AESKey [32]byte) (random [16]byte, rawXMLMsg []byte, err error) {
 	const BLOCK_SIZE = 32 // PKCS#7
 
-	// 解密
 	if len(encryptedMsg) < BLOCK_SIZE {
-		err = errors.New("encryptedMsg too short")
+		err = fmt.Errorf("the length of encryptedMsg too short: %d", len(encryptedMsg))
 		return
 	}
 	if len(encryptedMsg)%BLOCK_SIZE != 0 {
-		err = errors.New("encryptedMsg is not a multiple of the block size")
+		err = fmt.Errorf("encryptedMsg is not a multiple of the block size, the length is %d", len(encryptedMsg))
 		return
 	}
 
+	plain := make([]byte, len(encryptedMsg))
+
+	// 解密
 	block, err := aes.NewCipher(AESKey[:])
 	if err != nil {
 		panic(err)
 	}
 	mode := cipher.NewCBCDecrypter(block, AESKey[:16])
-
-	plain := make([]byte, len(encryptedMsg))
 	mode.CryptBlocks(plain, encryptedMsg)
 
 	// PKCS#7 去除补位
 	amountToPad := int(plain[len(plain)-1])
 	if amountToPad < 1 || amountToPad > BLOCK_SIZE {
-		err = errors.New("the amount to pad is invalid")
+		err = fmt.Errorf("the amount to pad is invalid: %d", amountToPad)
 		return
 	}
 	plain = plain[:len(plain)-amountToPad]
 
 	// 反拼装
+	// len(plain) == 16+4+len(rawXMLMsg)+len(AppId)
+	// len(AppId) > 0
 	if len(plain) <= 20 {
-		err = errors.New("plain too short")
+		err = fmt.Errorf("plain too short, the length is %d", len(plain))
 		return
 	}
 	msgLen := decodeNetworkBytesOrder(plain[16:20])
@@ -109,8 +109,8 @@ func AESDecryptMsg(encryptedMsg []byte, AppId string, AESKey [32]byte) (random [
 		return
 	}
 	msgEnd := 20 + msgLen
-	if msgEnd >= len(plain) {
-		err = fmt.Errorf("msg length is too large: %d", msgLen)
+	if len(plain) <= msgEnd {
+		err = fmt.Errorf("invalid msg length: %d", msgLen)
 		return
 	}
 
