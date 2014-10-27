@@ -18,7 +18,7 @@ import (
 // 因为某一方技术的原因，可能导致商户在预期时间内都收不到最终支付通知，此时商户
 // 可以通过该API 来查询订单的详细支付状态。
 //
-// 订单查询的真正数据是放在PostData 中的，格式为json，如下：
+// 订单查询的真正数据是放在PostData 中的，格式为json
 type OrderQueryRequest struct {
 	AppId      string `json:"appid"`            // 公众平台账户的 AppId
 	Package    string `json:"package"`          // 查询订单的关键信息数据, see MakeOrderQueryRequestPackage

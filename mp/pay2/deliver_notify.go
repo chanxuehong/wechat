@@ -18,7 +18,8 @@ import (
 // 发货时间限制：虚拟、服务类24小时内，实物类72小时内。
 // 请在收到支付通知后，按时发货，并使用发货通知接口将相关信息同步到微信后台。若
 // 平台在规定时间内没有收到，将视作发货超时处理。
-// 发货通知的真正的数据是放在PostData 中的，格式为json，如下：
+//
+// 发货通知的真正的数据是放在PostData 中的，格式为json
 type DeliverNotifyData struct {
 	AppId            string `json:"appid"`                    // 公众平台账户的AppId
 	OpenId           string `json:"openid"`                   // 购买用户的OpenId，这个已经放在最终支付结果通知的PostData 里了
