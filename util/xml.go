@@ -53,7 +53,7 @@ func ParseXMLToMap(xmlReader io.Reader) (Map map[string]string, err error) {
 	}
 }
 
-// 格式化 Map 为 xml 格式（用于微信支付）
+// 格式化 map[string]string 为 xml 格式（用于微信支付）
 func FormatMapToXML(xmlWriter io.Writer, Map map[string]string) (err error) {
 	_, err = io.WriteString(xmlWriter, "<xml>\n")
 	if err != nil {

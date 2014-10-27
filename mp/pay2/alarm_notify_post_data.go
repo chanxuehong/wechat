@@ -21,7 +21,7 @@ import (
 // 间要求请参考5.3.1）
 // 商户收到告警通知后，需要成功返回success。在通过功能发布检测时，请保证已调通。
 //
-// 告警通知URL 接收的postData 中还将含xml 数据，格式如下：
+// 这是告警通知URL 接收的postData 中的 xml 数据
 type AlarmNotifyPostData struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
