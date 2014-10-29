@@ -29,7 +29,7 @@ type OrderQueryRequest struct {
 //  NOTE: 要求在 req *OrderQueryRequest 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
 func (req *OrderQueryRequest) SetSignature(appKey string) (err error) {
 	Hash := md5.New()
-	Signature := make([]byte, md5.Size*2)
+	hashsum := make([]byte, md5.Size*2)
 
 	// 字典序
 	// appid
@@ -66,9 +66,9 @@ func (req *OrderQueryRequest) SetSignature(appKey string) (err error) {
 	Hash.Write([]byte("key="))
 	Hash.Write([]byte(appKey))
 
-	hex.Encode(Signature, Hash.Sum(nil))
-	Signature = bytes.ToUpper(Signature)
+	hex.Encode(hashsum, Hash.Sum(nil))
+	hashsum = bytes.ToUpper(hashsum)
 
-	req.Signature = string(Signature)
+	req.Signature = string(hashsum)
 	return
 }

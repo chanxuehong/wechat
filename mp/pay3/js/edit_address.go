@@ -49,9 +49,6 @@ type EditAddressParameters struct {
 	SignMethod string `json:"signType"` // 必须, 签名方式, 目前仅支持 sha1
 }
 
-func (this *EditAddressParameters) GetTimeStamp() (timestamp int64, err error) {
-	return strconv.ParseInt(this.TimeStamp, 10, 64)
-}
 func (this *EditAddressParameters) SetTimeStamp(timestamp int64) {
 	this.TimeStamp = strconv.FormatInt(timestamp, 10)
 }

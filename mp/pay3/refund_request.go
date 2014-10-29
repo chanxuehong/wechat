@@ -24,35 +24,17 @@ type RefundRequest struct {
 	TransactionId string `xml:"transaction_id,omitempty" json:"transaction_id,omitempty"` // 可选, 微信的订单号，优先使用
 	OutTradeNo    string `xml:"out_trade_no,omitempty"   json:"out_trade_no,omitempty"`   // 必须, 商户系统内部的订单号,transaction_id、out_trade_no 二选一，如果同时存在优先级: transaction_id > out_trade_no
 	OutRefundNo   string `xml:"out_refund_no"            json:"out_refund_no"`            // 必须, 商户系统内部的退款单号，商户系统内部唯一，同一退款单号多次请求只退一笔
-	TotalFee      *int   `xml:"total_fee"                json:"total_fee,omitempty"`      // 必须, 订单总金额，单位为分
-	RefundFee     *int   `xml:"refund_fee"               json:"refund_fee,omitempty"`     // 必须, 退款总金额，单位为分,可以做部分退款
+	TotalFee      string `xml:"total_fee"                json:"total_fee"`                // 必须, 订单总金额，单位为分
+	RefundFee     string `xml:"refund_fee"               json:"refund_fee"`               // 必须, 退款总金额，单位为分,可以做部分退款
 	OpUserId      string `xml:"op_user_id"               json:"op_user_id"`               // 必须, 操作员帐号, 默认为商户号
-}
-
-// getter
-func (this *RefundRequest) GetTotalFee() (n int, ok bool) {
-	if this.TotalFee != nil {
-		ok = true
-		n = *this.TotalFee
-		return
-	}
-	return
-}
-func (this *RefundRequest) GetRefundFee() (n int, ok bool) {
-	if this.RefundFee != nil {
-		ok = true
-		n = *this.RefundFee
-		return
-	}
-	return
 }
 
 // setter
 func (this *RefundRequest) SetTotalFee(n int) {
-	this.TotalFee = &n
+	this.TotalFee = strconv.FormatInt(int64(n), 10)
 }
 func (this *RefundRequest) SetRefundFee(n int) {
-	this.RefundFee = &n
+	this.RefundFee = strconv.FormatInt(int64(n), 10)
 }
 
 // 设置签名字段.
@@ -61,7 +43,7 @@ func (this *RefundRequest) SetRefundFee(n int) {
 //  NOTE: 要求在 req *RefundRequest 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
 func (req *RefundRequest) SetSignature(appKey string) (err error) {
 	Hash := md5.New()
-	Signature := make([]byte, md5.Size*2)
+	hashsum := make([]byte, md5.Size*2)
 
 	// 字典序
 	// appid
@@ -109,14 +91,14 @@ func (req *RefundRequest) SetSignature(appKey string) (err error) {
 		Hash.Write([]byte(req.OutTradeNo))
 		Hash.Write([]byte{'&'})
 	}
-	if req.RefundFee != nil {
+	if len(req.RefundFee) > 0 {
 		Hash.Write([]byte("refund_fee="))
-		Hash.Write([]byte(strconv.FormatInt(int64(*req.RefundFee), 10)))
+		Hash.Write([]byte(req.RefundFee))
 		Hash.Write([]byte{'&'})
 	}
-	if req.TotalFee != nil {
+	if len(req.TotalFee) > 0 {
 		Hash.Write([]byte("total_fee="))
-		Hash.Write([]byte(strconv.FormatInt(int64(*req.TotalFee), 10)))
+		Hash.Write([]byte(req.TotalFee))
 		Hash.Write([]byte{'&'})
 	}
 	if len(req.TransactionId) > 0 {
@@ -128,9 +110,9 @@ func (req *RefundRequest) SetSignature(appKey string) (err error) {
 	Hash.Write([]byte("key="))
 	Hash.Write([]byte(appKey))
 
-	hex.Encode(Signature, Hash.Sum(nil))
-	Signature = bytes.ToUpper(Signature)
+	hex.Encode(hashsum, Hash.Sum(nil))
+	hashsum = bytes.ToUpper(hashsum)
 
-	req.Signature = string(Signature)
+	req.Signature = string(hashsum)
 	return
 }

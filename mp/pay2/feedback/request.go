@@ -84,7 +84,7 @@ func (req *MixedRequest) CheckSignature(appKey string) (err error) {
 	return
 }
 
-// 用户提交投诉消息
+// 用户提交投诉消息, MsgType == request
 type Complaint MixedRequest
 
 func (this *Complaint) GetTimeStamp() (n int64, err error) {
@@ -96,7 +96,8 @@ func (this *Complaint) GetFeedbackId() (n int64, err error) {
 
 // 从 MixedRequest 获取投诉消息
 func (req *MixedRequest) GetComplaint() *Complaint {
-	return (*Complaint)(req)
+	var ret Complaint = Complaint(*req)
+	return &ret
 }
 
 // 用户确认消除投诉, MsgType == confirm
@@ -108,7 +109,7 @@ type Confirmation struct {
 
 	OpenId     string `xml:"OpenId"     json:"OpenId"`     // 支付该笔订单的用户 OpenId
 	FeedbackId string `xml:"FeedBackId" json:"FeedBackId"` // 投诉单号
-	MsgType    string `xml:"MsgType"    json:"MsgType"`    // confirm,
+	MsgType    string `xml:"MsgType"    json:"MsgType"`    // confirm
 
 	Reason string `xml:"Reason" json:"Reason"`
 
@@ -142,6 +143,13 @@ func (req *MixedRequest) GetConfirmation() *Confirmation {
 
 // 用户拒绝消除投诉, MsgType == reject
 type Rejection Confirmation
+
+func (this *Rejection) GetTimeStamp() (n int64, err error) {
+	return strconv.ParseInt(this.TimeStamp, 10, 64)
+}
+func (this *Rejection) GetFeedbackId() (n int64, err error) {
+	return strconv.ParseInt(this.FeedbackId, 10, 64)
+}
 
 // 从 MixedRequest 获取 Reject 消息
 func (req *MixedRequest) GetRejection() *Rejection {
