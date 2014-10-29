@@ -14,7 +14,7 @@ func TestNativeURL(t *testing.T) {
 	appkey := "2Wozy2aksie1puXUBpWD8oZxiD1DfQuEaiC7KcRATv1Ino3mdopKaPGQQ7TtkNySuAmCaDCrw4xhPY5qKTBl7Fzm0RgR3c0WaVYIXZARsxzHV2x7iwPPzOz94dnwPWSn"
 	noncestr := "adssdasssd13d"
 	productid := "123456"
-	var timestamp int64 = 189026618
+	timestamp := "189026618"
 
 	have := NativeURL(appid, appkey, noncestr, timestamp, productid)
 	want := "weixin://wxpay/bizpayurl?sign=18c6122878f0e946ae294e016eddda9468de80df&appid=wxf8b4f85f3a794e77&productid=123456&timestamp=189026618&noncestr=adssdasssd13d"

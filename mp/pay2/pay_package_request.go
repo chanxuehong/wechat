@@ -21,10 +21,10 @@ type PayPackageRequest struct {
 
 	AppId     string `xml:"AppId"     json:"AppId"`     // 公众帐号的appid
 	NonceStr  string `xml:"NonceStr"  json:"NonceStr"`  // 随机串
-	TimeStamp int64  `xml:"TimeStamp" json:"TimeStamp"` // 时间戳
+	TimeStamp string `xml:"TimeStamp" json:"TimeStamp"` // 时间戳
 
 	OpenId      string `xml:"OpenId"      json:"OpenId"`      // 点击链接准备购买商品的用户标识
-	IsSubscribe int    `xml:"IsSubscribe" json:"IsSubscribe"` // 标记用户是否订阅该公众帐号，1 为关注，0 为未关注
+	IsSubscribe string `xml:"IsSubscribe" json:"IsSubscribe"` // 标记用户是否订阅该公众帐号，1 为关注，0 为未关注
 
 	ProductId string `xml:"ProductId" json:"ProductId"` // 第三方的商品ID 号
 
@@ -32,11 +32,18 @@ type PayPackageRequest struct {
 	SignMethod string `xml:"SignMethod"   json:"SignMethod"`   // 签名方式，目前只支持“SHA1”，该字段不参与签名
 }
 
+func (this *PayPackageRequest) SetTimeStamp(timestamp int64) {
+	this.TimeStamp = strconv.FormatInt(timestamp, 10)
+}
+func (this *PayPackageRequest) SetIsSubscribe(n int) {
+	this.IsSubscribe = strconv.FormatInt(int64(n), 10)
+}
+
 // 检查 req *PayPackageRequest 的签名是否正确, 正确时返回 nil, 否则返回错误信息.
 //  appKey: 即 paySignKey, 公众号支付请求中用于加密的密钥 Key
 func (req *PayPackageRequest) CheckSignature(appKey string) (err error) {
 	var Hash hash.Hash
-	var Signature []byte
+	var hashsum []byte
 
 	switch req.SignMethod {
 	case "sha1", "SHA1":
@@ -47,7 +54,7 @@ func (req *PayPackageRequest) CheckSignature(appKey string) (err error) {
 		}
 
 		Hash = sha1.New()
-		Signature = make([]byte, sha1.Size*2)
+		hashsum = make([]byte, sha1.Size*2)
 
 	default:
 		err = fmt.Errorf(`unknown sign method: %q`, req.SignMethod)
@@ -67,7 +74,7 @@ func (req *PayPackageRequest) CheckSignature(appKey string) (err error) {
 	Hash.Write([]byte("&appkey="))
 	Hash.Write([]byte(appKey))
 	Hash.Write([]byte("&issubscribe="))
-	Hash.Write([]byte(strconv.FormatInt(int64(req.IsSubscribe), 10)))
+	Hash.Write([]byte(req.IsSubscribe))
 	Hash.Write([]byte("&noncestr="))
 	Hash.Write([]byte(req.NonceStr))
 	Hash.Write([]byte("&openid="))
@@ -75,12 +82,12 @@ func (req *PayPackageRequest) CheckSignature(appKey string) (err error) {
 	Hash.Write([]byte("&productid="))
 	Hash.Write([]byte(req.ProductId))
 	Hash.Write([]byte("&timestamp="))
-	Hash.Write([]byte(strconv.FormatInt(req.TimeStamp, 10)))
+	Hash.Write([]byte(req.TimeStamp))
 
-	hex.Encode(Signature, Hash.Sum(nil))
+	hex.Encode(hashsum, Hash.Sum(nil))
 
-	if subtle.ConstantTimeCompare(Signature, []byte(req.Signature)) != 1 {
-		err = fmt.Errorf("不正确的签名, \r\nhave: %q, \r\nwant: %q", Signature, req.Signature)
+	if subtle.ConstantTimeCompare(hashsum, []byte(req.Signature)) != 1 {
+		err = fmt.Errorf("签名不匹配, \r\nlocal: %q, \r\ninput: %q", hashsum, req.Signature)
 		return
 	}
 	return

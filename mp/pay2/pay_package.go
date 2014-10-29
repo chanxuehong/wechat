@@ -22,11 +22,11 @@ type PayPackage struct {
 	Attach       string `json:"attach,omitempty"`        // 可选, 附加数据, 128字节以内
 	PartnerId    string `json:"partner"`                 // 必须, 注册时分配的财付通商户号 partnerId
 	OutTradeNo   string `json:"out_trade_no"`            // 必须, 商户系统内部订单号, 32个字符内, 可包含字母, *** 确保在商户系统中唯一 ***
-	TotalFee     *int   `json:"total_fee,omitempty"`     // 必须, 订单总金额, 单位为分
-	TransportFee *int   `json:"transport_fee,omitempty"` // 可选, 物流费用, 单位为分; 如果有值, 必须保证 TransportFee + ProductFee == TotalFee
-	ProductFee   *int   `json:"product_fee,omitempty"`   // 可选, 商品费用, 单位为分; 如果有值, 必须保证 TransportFee + ProductFee == TotalFee
+	TotalFee     string `json:"total_fee"`               // 必须, 订单总金额, 单位为分
+	TransportFee string `json:"transport_fee,omitempty"` // 可选, 物流费用, 单位为分; 如果有值, 必须保证 TransportFee + ProductFee == TotalFee
+	ProductFee   string `json:"product_fee,omitempty"`   // 可选, 商品费用, 单位为分; 如果有值, 必须保证 TransportFee + ProductFee == TotalFee
 	ProductTag   string `json:"goods_tag,omitempty"`     // 可选, 商品标记, 优惠卷时可能用到
-	FeeType      *int   `json:"fee_type,omitempty"`      // 必须, 取值: 1(人民币); 目前暂只支持 1
+	FeeType      string `json:"fee_type"`                // 必须, 取值: 1(人民币); 目前暂只支持 1
 	NotifyURL    string `json:"notify_url"`              // 必须, 在支付完成后, 接收微信通知支付结果的 URL, 需要给出绝对路径, 255个字符内
 	BillCreateIP string `json:"spbill_create_ip"`        // 必须, 订单生成的机器IP(指用户浏览器端IP, 不是商户服务器IP, 格式为IPV4), 15个字节内
 	TimeStart    string `json:"time_start,omitempty"`    // 可选, 订单生成时间, 该时间取自商户服务器
@@ -34,58 +34,18 @@ type PayPackage struct {
 	Charset      string `json:"input_charset"`           // 必须, 参数字符编码, 取值范围: "GBK", "UTF-8"
 }
 
-// getter
-func (this *PayPackage) GetTotalFee() (n int, ok bool) {
-	if this.TotalFee != nil {
-		ok = true
-		n = *this.TotalFee
-		return
-	}
-	return
-}
-func (this *PayPackage) GetTransportFee() (n int, ok bool) {
-	if this.TransportFee != nil {
-		ok = true
-		n = *this.TransportFee
-		return
-	}
-	return
-}
-func (this *PayPackage) GetProductFee() (n int, ok bool) {
-	if this.ProductFee != nil {
-		ok = true
-		n = *this.ProductFee
-		return
-	}
-	return
-}
-func (this *PayPackage) GetFeeType() (n int, ok bool) {
-	if this.FeeType != nil {
-		ok = true
-		n = *this.FeeType
-		return
-	}
-	return
-}
-func (this *PayPackage) GetTimeStart() (time.Time, error) {
-	return util.ParseTime(this.TimeStart)
-}
-func (this *PayPackage) GetTimeExpire() (time.Time, error) {
-	return util.ParseTime(this.TimeExpire)
-}
-
 // setter
 func (this *PayPackage) SetTotalFee(n int) {
-	this.TotalFee = &n
+	this.TotalFee = strconv.FormatInt(int64(n), 10)
 }
 func (this *PayPackage) SetTransportFee(n int) {
-	this.TransportFee = &n
+	this.TransportFee = strconv.FormatInt(int64(n), 10)
 }
 func (this *PayPackage) SetProductFee(n int) {
-	this.ProductFee = &n
+	this.ProductFee = strconv.FormatInt(int64(n), 10)
 }
 func (this *PayPackage) SetFeeType(n int) {
-	this.FeeType = &n
+	this.FeeType = strconv.FormatInt(int64(n), 10)
 }
 func (this *PayPackage) SetTimeStart(t time.Time) {
 	this.TimeStart = util.FormatTime(t)
@@ -134,11 +94,10 @@ func (this *PayPackage) Package(partnerKey string) (package_ []byte) {
 		vs1 = append(vs1, this.Body)
 		vs2 = append(vs2, util.URLEscape(this.Body))
 	}
-	if this.FeeType != nil {
-		str := strconv.FormatInt(int64(*this.FeeType), 10)
+	if len(this.FeeType) > 0 {
 		ks = append(ks, "&fee_type=")
-		vs1 = append(vs1, str)
-		vs2 = append(vs2, str)
+		vs1 = append(vs1, this.FeeType)
+		vs2 = append(vs2, util.URLEscape(this.FeeType))
 	}
 	if len(this.ProductTag) > 0 {
 		ks = append(ks, "&goods_tag=")
@@ -165,11 +124,10 @@ func (this *PayPackage) Package(partnerKey string) (package_ []byte) {
 		vs1 = append(vs1, this.PartnerId)
 		vs2 = append(vs2, util.URLEscape(this.PartnerId))
 	}
-	if this.ProductFee != nil {
-		str := strconv.FormatInt(int64(*this.ProductFee), 10)
+	if len(this.ProductFee) > 0 {
 		ks = append(ks, "&product_fee=")
-		vs1 = append(vs1, str)
-		vs2 = append(vs2, str)
+		vs1 = append(vs1, this.ProductFee)
+		vs2 = append(vs2, util.URLEscape(this.ProductFee))
 	}
 	if len(this.BillCreateIP) > 0 {
 		ks = append(ks, "&spbill_create_ip=")
@@ -186,17 +144,15 @@ func (this *PayPackage) Package(partnerKey string) (package_ []byte) {
 		vs1 = append(vs1, this.TimeStart)
 		vs2 = append(vs2, util.URLEscape(this.TimeStart))
 	}
-	if this.TotalFee != nil {
-		str := strconv.FormatInt(int64(*this.TotalFee), 10)
+	if len(this.TotalFee) > 0 {
 		ks = append(ks, "&total_fee=")
-		vs1 = append(vs1, str)
-		vs2 = append(vs2, str)
+		vs1 = append(vs1, this.TotalFee)
+		vs2 = append(vs2, util.URLEscape(this.TotalFee))
 	}
-	if this.TransportFee != nil {
-		str := strconv.FormatInt(int64(*this.TransportFee), 10)
+	if len(this.TransportFee) > 0 {
 		ks = append(ks, "&transport_fee=")
-		vs1 = append(vs1, str)
-		vs2 = append(vs2, str)
+		vs1 = append(vs1, this.TransportFee)
+		vs2 = append(vs2, util.URLEscape(this.TransportFee))
 	}
 
 	if len(ks) > 0 {

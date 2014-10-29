@@ -48,9 +48,6 @@ type PayRequestParameters struct {
 	SignMethod string `json:"signType"` // 必须, 签名方式, 目前仅支持 SHA1
 }
 
-func (this *PayRequestParameters) GetTimeStamp() (timestamp int64, err error) {
-	return strconv.ParseInt(this.TimeStamp, 10, 64)
-}
 func (this *PayRequestParameters) SetTimeStamp(timestamp int64) {
 	this.TimeStamp = strconv.FormatInt(timestamp, 10)
 }
