@@ -32,11 +32,11 @@ type PayPackageRequest struct {
 	SignMethod string `xml:"SignMethod"   json:"SignMethod"`   // 签名方式，目前只支持“SHA1”，该字段不参与签名
 }
 
-func (this *PayPackageRequest) SetTimeStamp(timestamp int64) {
-	this.TimeStamp = strconv.FormatInt(timestamp, 10)
+func (this *PayPackageRequest) GetTimeStamp() (n int64, err error) {
+	return strconv.ParseInt(this.TimeStamp, 10, 64)
 }
-func (this *PayPackageRequest) SetIsSubscribe(n int) {
-	this.IsSubscribe = strconv.FormatInt(int64(n), 10)
+func (this *PayPackageRequest) GetIsSubscribe() (n int64, err error) {
+	return strconv.ParseInt(this.IsSubscribe, 10, 64)
 }
 
 // 检查 req *PayPackageRequest 的签名是否正确, 正确时返回 nil, 否则返回错误信息.

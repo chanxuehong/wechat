@@ -32,11 +32,11 @@ type PayPackageResponse struct {
 	SignMethod string `xml:"SignMethod"   json:"SignMethod"`   // 必须, 签名方式, 目前只支持 "sha1"
 }
 
-func (this *PayPackageResponse) GetTimeStamp() (n int64, err error) {
-	return strconv.ParseInt(this.TimeStamp, 10, 64)
+func (this *PayPackageResponse) SetTimeStamp(timestamp int64) {
+	this.TimeStamp = strconv.FormatInt(timestamp, 10)
 }
-func (this *PayPackageResponse) GetRetCode() (n int64, err error) {
-	return strconv.ParseInt(this.RetCode, 10, 64)
+func (this *PayPackageResponse) SetRetCode(n int) {
+	this.RetCode = strconv.FormatInt(int64(n), 10)
 }
 
 // 设置签名字段.
