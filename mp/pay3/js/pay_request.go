@@ -41,9 +41,6 @@ type PayRequestParameters struct {
 	SignMethod string `json:"signType"` // 必须, 签名方式, 目前仅支持 MD5
 }
 
-func (this *PayRequestParameters) GetTimeStamp() (timestamp int64, err error) {
-	return strconv.ParseInt(this.TimeStamp, 10, 64)
-}
 func (this *PayRequestParameters) SetTimeStamp(timestamp int64) {
 	this.TimeStamp = strconv.FormatInt(timestamp, 10)
 }
@@ -54,12 +51,12 @@ func (this *PayRequestParameters) SetTimeStamp(timestamp int64) {
 //  NOTE: 要求在 para *PayRequestParameters 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
 func (para *PayRequestParameters) SetSignature(appKey string) (err error) {
 	var Hash hash.Hash
-	var Signature []byte
+	var hashsum []byte
 
 	switch para.SignMethod {
 	case "md5", "MD5":
 		Hash = md5.New()
-		Signature = make([]byte, md5.Size*2)
+		hashsum = make([]byte, md5.Size*2)
 
 	default:
 		err = fmt.Errorf(`unknown sign method: %q`, para.SignMethod)
@@ -101,9 +98,9 @@ func (para *PayRequestParameters) SetSignature(appKey string) (err error) {
 	Hash.Write([]byte("key="))
 	Hash.Write([]byte(appKey))
 
-	hex.Encode(Signature, Hash.Sum(nil))
-	Signature = bytes.ToUpper(Signature)
+	hex.Encode(hashsum, Hash.Sum(nil))
+	hashsum = bytes.ToUpper(hashsum)
 
-	para.Signature = string(Signature)
+	para.Signature = string(hashsum)
 	return
 }

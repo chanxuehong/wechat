@@ -31,39 +31,20 @@ type RefundResponse struct {
 	ErrCode     string `xml:"err_code,omitempty"     json:"err_code,omitempty"`      // 可选, 错误代码
 	ErrCodeDesc string `xml:"err_code_des,omitempty" json:"err_code_des,omitempty"`  // 可选, 错误代码详细描述
 
-	TransactionId   string `xml:"transaction_id"           json:"transaction_id"`              // 必须, 微信订单号
-	OutTradeNo      string `xml:"out_trade_no"             json:"out_trade_no"`                // 必须, 商户系统内部的订单号
-	OutRefundNo     string `xml:"out_refund_no"            json:"out_refund_no"`               // 必须, 商户系统内部的退款单号，商户系统内部唯一，同一退款单号多次请求只退一笔
-	RefundId        string `xml:"refund_id"                json:"refund_id"`                   // 必须, 微信退款单号
-	RefundChannel   string `xml:"refund_channel,omitempty" json:"refund_channel,omitempty"`    // 可选, 退款渠道, ORIGINAL—原路退款，默认BALANCE—退回到余额
-	RefundFee       *int   `xml:"refund_fee"               json:"refund_fee,omitempty"`        // 必须, 退款总金额,单位为分,可以做部分退款
-	CouponRefundFee *int   `xml:"coupon_refund_fee"        json:"coupon_refund_fee,omitempty"` // 可选, 现金券退款金额<= 退款金额，退款金额-现金券退款金额为现金
+	TransactionId   string `xml:"transaction_id"              json:"transaction_id"`              // 必须, 微信订单号
+	OutTradeNo      string `xml:"out_trade_no"                json:"out_trade_no"`                // 必须, 商户系统内部的订单号
+	OutRefundNo     string `xml:"out_refund_no"               json:"out_refund_no"`               // 必须, 商户系统内部的退款单号，商户系统内部唯一，同一退款单号多次请求只退一笔
+	RefundId        string `xml:"refund_id"                   json:"refund_id"`                   // 必须, 微信退款单号
+	RefundChannel   string `xml:"refund_channel,omitempty"    json:"refund_channel,omitempty"`    // 可选, 退款渠道, ORIGINAL—原路退款，默认BALANCE—退回到余额
+	RefundFee       string `xml:"refund_fee"                  json:"refund_fee"`                  // 必须, 退款总金额,单位为分,可以做部分退款
+	CouponRefundFee string `xml:"coupon_refund_fee,omitempty" json:"coupon_refund_fee,omitempty"` // 可选, 现金券退款金额<= 退款金额，退款金额-现金券退款金额为现金
 }
 
-// getter
-func (this *RefundResponse) GetCouponRefundFee() (n int, ok bool) {
-	if this.CouponRefundFee != nil {
-		ok = true
-		n = *this.CouponRefundFee
-		return
-	}
-	return
+func (this *RefundResponse) GetCouponRefundFee() (n int64, err error) {
+	return strconv.ParseInt(this.CouponRefundFee, 10, 64)
 }
-func (this *RefundResponse) GetRefundFee() (n int, ok bool) {
-	if this.RefundFee != nil {
-		ok = true
-		n = *this.RefundFee
-		return
-	}
-	return
-}
-
-// setter
-func (this *RefundResponse) SetCouponRefundFee(n int) {
-	this.CouponRefundFee = &n
-}
-func (this *RefundResponse) SetRefundFee(n int) {
-	this.RefundFee = &n
+func (this *RefundResponse) GetRefundFee() (n int64, err error) {
+	return strconv.ParseInt(this.RefundFee, 10, 64)
 }
 
 // 检查 resp *RefundResponse 的签名是否正确, 正确时返回 nil, 否则返回错误信息.
@@ -80,7 +61,7 @@ func (resp *RefundResponse) CheckSignature(appKey string) (err error) {
 	}
 
 	Hash := md5.New()
-	Signature := make([]byte, md5.Size*2)
+	hashsum := make([]byte, md5.Size*2)
 
 	// 字典序
 	// appid
@@ -104,9 +85,9 @@ func (resp *RefundResponse) CheckSignature(appKey string) (err error) {
 		Hash.Write([]byte(resp.AppId))
 		Hash.Write([]byte{'&'})
 	}
-	if resp.CouponRefundFee != nil {
+	if len(resp.CouponRefundFee) > 0 {
 		Hash.Write([]byte("coupon_refund_fee="))
-		Hash.Write([]byte(strconv.FormatInt(int64(*resp.CouponRefundFee), 10)))
+		Hash.Write([]byte(resp.CouponRefundFee))
 		Hash.Write([]byte{'&'})
 	}
 	if len(resp.DeviceInfo) > 0 {
@@ -149,9 +130,9 @@ func (resp *RefundResponse) CheckSignature(appKey string) (err error) {
 		Hash.Write([]byte(resp.RefundChannel))
 		Hash.Write([]byte{'&'})
 	}
-	if resp.RefundFee != nil {
+	if len(resp.RefundFee) > 0 {
 		Hash.Write([]byte("refund_fee="))
-		Hash.Write([]byte(strconv.FormatInt(int64(*resp.RefundFee), 10)))
+		Hash.Write([]byte(resp.RefundFee))
 		Hash.Write([]byte{'&'})
 	}
 	if len(resp.RefundId) > 0 {
@@ -183,11 +164,11 @@ func (resp *RefundResponse) CheckSignature(appKey string) (err error) {
 	Hash.Write([]byte("key="))
 	Hash.Write([]byte(appKey))
 
-	hex.Encode(Signature, Hash.Sum(nil))
-	Signature = bytes.ToUpper(Signature)
+	hex.Encode(hashsum, Hash.Sum(nil))
+	hashsum = bytes.ToUpper(hashsum)
 
-	if subtle.ConstantTimeCompare(Signature, []byte(resp.Signature)) != 1 {
-		err = fmt.Errorf("不正确的签名, \r\nhave: %q, \r\nwant: %q", Signature, resp.Signature)
+	if subtle.ConstantTimeCompare(hashsum, []byte(resp.Signature)) != 1 {
+		err = fmt.Errorf("签名不匹配, \r\nlocal: %q, \r\ninput: %q", hashsum, resp.Signature)
 		return
 	}
 	return

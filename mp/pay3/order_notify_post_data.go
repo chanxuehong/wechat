@@ -41,49 +41,28 @@ type OrderNotifyPostData struct {
 	ErrCodeDesc string `xml:"err_code_des,omitempty" json:"err_code_des,omitempty"` // 可选, 错误代码详细描述
 
 	// 以下字段在 RetCode 和 ResultCode 都为 SUCCESS 的时候有返回
-	OpenId        string `xml:"openid"             json:"openid"`               // 必须, 用户在商户appid 下的唯一标识
-	IsSubscribe   string `xml:"is_subscribe"       json:"is_subscribe"`         // 必须, 用户是否关注公众账号，Y-关注，N-未关注，仅在公众账号类型支付有效
-	TradeType     string `xml:"trade_type"         json:"trade_type"`           // 必须, JSAPI、NATIVE、MICROPAY、APP
-	BankType      string `xml:"bank_type"          json:"bank_type"`            // 必须, 银行类型，采用字符串类型的银行标识
-	TotalFee      *int   `xml:"total_fee"          json:"total_fee,omitempty"`  // 必须, 订单总金额，单位为分
-	CouponFee     *int   `xml:"coupon_fee"         json:"coupon_fee,omitempty"` // 可选, 现金券支付金额<=订单总金额，订单总金额-现金券金额为现金支付金额
-	FeeType       string `xml:"fee_type,omitempty" json:"fee_type,omitempty"`   // 可选, 货币类型，符合ISO 4217 标准的三位字母代码，默认人民币：CNY
-	TransactionId string `xml:"transaction_id"     json:"transaction_id"`       // 必须, 微信支付订单号
-	OutTradeNo    string `xml:"out_trade_no"       json:"out_trade_no"`         // 必须, 商户系统的订单号，与请求一致。
-	Attach        string `xml:"attach,omitempty"   json:"attach,omitempty"`     // 可选, 商家数据包，原样返回
-	TimeEnd       string `xml:"time_end"           json:"time_end"`             // 必须, 支付完成时间， 格式为yyyyMMddhhmmss。时区为GMT+8 beijing。该时间取自微信支付服务器
+	OpenId        string `xml:"openid"               json:"openid"`               // 必须, 用户在商户appid 下的唯一标识
+	IsSubscribe   string `xml:"is_subscribe"         json:"is_subscribe"`         // 必须, 用户是否关注公众账号，Y-关注，N-未关注，仅在公众账号类型支付有效
+	TradeType     string `xml:"trade_type"           json:"trade_type"`           // 必须, JSAPI、NATIVE、MICROPAY、APP
+	BankType      string `xml:"bank_type"            json:"bank_type"`            // 必须, 银行类型，采用字符串类型的银行标识
+	TotalFee      string `xml:"total_fee"            json:"total_fee"`            // 必须, 订单总金额，单位为分
+	CouponFee     string `xml:"coupon_fee,omitempty" json:"coupon_fee,omitempty"` // 可选, 现金券支付金额<=订单总金额，订单总金额-现金券金额为现金支付金额
+	FeeType       string `xml:"fee_type,omitempty"   json:"fee_type,omitempty"`   // 可选, 货币类型，符合ISO 4217 标准的三位字母代码，默认人民币：CNY
+	TransactionId string `xml:"transaction_id"       json:"transaction_id"`       // 必须, 微信支付订单号
+	OutTradeNo    string `xml:"out_trade_no"         json:"out_trade_no"`         // 必须, 商户系统的订单号，与请求一致。
+	Attach        string `xml:"attach,omitempty"     json:"attach,omitempty"`     // 可选, 商家数据包，原样返回
+	TimeEnd       string `xml:"time_end"             json:"time_end"`             // 必须, 支付完成时间， 格式为yyyyMMddhhmmss。时区为GMT+8 beijing。该时间取自微信支付服务器
 }
 
 // getter
-func (this *OrderNotifyPostData) GetTotalFee() (n int, ok bool) {
-	if this.TotalFee != nil {
-		ok = true
-		n = *this.TotalFee
-		return
-	}
-	return
+func (this *OrderNotifyPostData) GetTotalFee() (n int64, err error) {
+	return strconv.ParseInt(this.TotalFee, 10, 64)
 }
-func (this *OrderNotifyPostData) GetCouponFee() (n int, ok bool) {
-	if this.CouponFee != nil {
-		ok = true
-		n = *this.CouponFee
-		return
-	}
-	return
+func (this *OrderNotifyPostData) GetCouponFee() (n int64, err error) {
+	return strconv.ParseInt(this.CouponFee, 10, 64)
 }
 func (this *OrderNotifyPostData) GetTimeEnd() (time.Time, error) {
 	return util.ParseTime(this.TimeEnd)
-}
-
-// setter
-func (this *OrderNotifyPostData) SetTotalFee(n int) {
-	this.TotalFee = &n
-}
-func (this *OrderNotifyPostData) SetCouponFee(n int) {
-	this.CouponFee = &n
-}
-func (this *OrderNotifyPostData) SetTimeEnd(t time.Time) {
-	this.TimeEnd = util.FormatTime(t)
 }
 
 // 检查 data *OrderNotifyPostData 的签名是否正确, 正确时返回 nil, 否则返回错误信息.
@@ -100,7 +79,7 @@ func (data *OrderNotifyPostData) CheckSignature(appKey string) (err error) {
 	}
 
 	Hash := md5.New()
-	Signature := make([]byte, md5.Size*2)
+	hashsum := make([]byte, md5.Size*2)
 
 	// 字典序
 	// appid
@@ -139,9 +118,9 @@ func (data *OrderNotifyPostData) CheckSignature(appKey string) (err error) {
 		Hash.Write([]byte(data.BankType))
 		Hash.Write([]byte{'&'})
 	}
-	if data.CouponFee != nil {
+	if len(data.CouponFee) > 0 {
 		Hash.Write([]byte("coupon_fee="))
-		Hash.Write([]byte(strconv.FormatInt(int64(*data.CouponFee), 10)))
+		Hash.Write([]byte(data.CouponFee))
 		Hash.Write([]byte{'&'})
 	}
 	if len(data.DeviceInfo) > 0 {
@@ -214,9 +193,9 @@ func (data *OrderNotifyPostData) CheckSignature(appKey string) (err error) {
 		Hash.Write([]byte(data.TimeEnd))
 		Hash.Write([]byte{'&'})
 	}
-	if data.TotalFee != nil {
+	if len(data.TotalFee) > 0 {
 		Hash.Write([]byte("total_fee="))
-		Hash.Write([]byte(strconv.FormatInt(int64(*data.TotalFee), 10)))
+		Hash.Write([]byte(data.TotalFee))
 		Hash.Write([]byte{'&'})
 	}
 	if len(data.TradeType) > 0 {
@@ -233,11 +212,11 @@ func (data *OrderNotifyPostData) CheckSignature(appKey string) (err error) {
 	Hash.Write([]byte("key="))
 	Hash.Write([]byte(appKey))
 
-	hex.Encode(Signature, Hash.Sum(nil))
-	Signature = bytes.ToUpper(Signature)
+	hex.Encode(hashsum, Hash.Sum(nil))
+	hashsum = bytes.ToUpper(hashsum)
 
-	if subtle.ConstantTimeCompare(Signature, []byte(data.Signature)) != 1 {
-		err = fmt.Errorf("不正确的签名, \r\nhave: %q, \r\nwant: %q", Signature, data.Signature)
+	if subtle.ConstantTimeCompare(hashsum, []byte(data.Signature)) != 1 {
+		err = fmt.Errorf("签名不匹配, \r\nlocal: %q, \r\ninput: %q", hashsum, data.Signature)
 		return
 	}
 	return

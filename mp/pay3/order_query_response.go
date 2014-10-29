@@ -48,8 +48,8 @@ type OrderQueryResponse struct {
 	IsSubscribe   string `xml:"is_subscribe"             json:"is_subscribe"`             // 必须, 用户是否关注公众账号，Y-关注，N-未关注，仅在公众账号类型支付有效
 	TradeType     string `xml:"trade_type"               json:"trade_type"`               // 必须, JSAPI、NATIVE、MICROPAY、APP
 	BankType      string `xml:"bank_type"                json:"bank_type"`                // 必须, 银行类型，采用字符串类型的银行标识
-	TotalFee      *int   `xml:"total_fee"                json:"total_fee,omitempty"`      // 必须, 订单总金额，单位为分
-	CouponFee     *int   `xml:"coupon_fee"               json:"coupon_fee,omitempty"`     // 可选, 现金券支付金额<=订单总金额，订单总金额-现金券金额为现金支付金额
+	TotalFee      string `xml:"total_fee"                json:"total_fee"`                // 必须, 订单总金额，单位为分
+	CouponFee     string `xml:"coupon_fee,omitempty"     json:"coupon_fee,omitempty"`     // 可选, 现金券支付金额<=订单总金额，订单总金额-现金券金额为现金支付金额
 	FeeType       string `xml:"fee_type,omitempty"       json:"fee_type,omitempty"`       // 可选, 货币类型，符合ISO 4217 标准的三位字母代码，默认人民币：CNY
 	TransactionId string `xml:"transaction_id,omitempty" json:"transaction_id,omitempty"` // 可选, 微信支付订单号
 	OutTradeNo    string `xml:"out_trade_no,omitempty"   json:"out_trade_no,omitempty"`   // 可选, 商户系统的订单号，与请求一致。
@@ -58,35 +58,14 @@ type OrderQueryResponse struct {
 }
 
 // getter
-func (this *OrderQueryResponse) GetTotalFee() (n int, ok bool) {
-	if this.TotalFee != nil {
-		ok = true
-		n = *this.TotalFee
-		return
-	}
-	return
+func (this *OrderQueryResponse) GetTotalFee() (n int64, err error) {
+	return strconv.ParseInt(this.TotalFee, 10, 64)
 }
-func (this *OrderQueryResponse) GetCouponFee() (n int, ok bool) {
-	if this.CouponFee != nil {
-		ok = true
-		n = *this.CouponFee
-		return
-	}
-	return
+func (this *OrderQueryResponse) GetCouponFee() (n int64, err error) {
+	return strconv.ParseInt(this.CouponFee, 10, 64)
 }
 func (this *OrderQueryResponse) GetTimeEnd() (time.Time, error) {
 	return util.ParseTime(this.TimeEnd)
-}
-
-// setter
-func (this *OrderQueryResponse) SetTotalFee(n int) {
-	this.TotalFee = &n
-}
-func (this *OrderQueryResponse) SetCouponFee(n int) {
-	this.CouponFee = &n
-}
-func (this *OrderQueryResponse) SetTimeEnd(t time.Time) {
-	this.TimeEnd = util.FormatTime(t)
 }
 
 // 检查 resp *OrderQueryResponse 的签名是否正确, 正确时返回 nil, 否则返回错误信息.
@@ -103,7 +82,7 @@ func (resp *OrderQueryResponse) CheckSignature(appKey string) (err error) {
 	}
 
 	Hash := md5.New()
-	Signature := make([]byte, md5.Size*2)
+	hashsum := make([]byte, md5.Size*2)
 
 	// 字典序
 	// appid
@@ -142,9 +121,9 @@ func (resp *OrderQueryResponse) CheckSignature(appKey string) (err error) {
 		Hash.Write([]byte(resp.BankType))
 		Hash.Write([]byte{'&'})
 	}
-	if resp.CouponFee != nil {
+	if len(resp.CouponFee) > 0 {
 		Hash.Write([]byte("coupon_fee="))
-		Hash.Write([]byte(strconv.FormatInt(int64(*resp.CouponFee), 10)))
+		Hash.Write([]byte(resp.CouponFee))
 		Hash.Write([]byte{'&'})
 	}
 	if len(resp.DeviceInfo) > 0 {
@@ -212,9 +191,9 @@ func (resp *OrderQueryResponse) CheckSignature(appKey string) (err error) {
 		Hash.Write([]byte(resp.TimeEnd))
 		Hash.Write([]byte{'&'})
 	}
-	if resp.TotalFee != nil {
+	if len(resp.TotalFee) > 0 {
 		Hash.Write([]byte("total_fee="))
-		Hash.Write([]byte(strconv.FormatInt(int64(*resp.TotalFee), 10)))
+		Hash.Write([]byte(resp.TotalFee))
 		Hash.Write([]byte{'&'})
 	}
 	if len(resp.TradeState) > 0 {
@@ -236,11 +215,11 @@ func (resp *OrderQueryResponse) CheckSignature(appKey string) (err error) {
 	Hash.Write([]byte("key="))
 	Hash.Write([]byte(appKey))
 
-	hex.Encode(Signature, Hash.Sum(nil))
-	Signature = bytes.ToUpper(Signature)
+	hex.Encode(hashsum, Hash.Sum(nil))
+	hashsum = bytes.ToUpper(hashsum)
 
-	if subtle.ConstantTimeCompare(Signature, []byte(resp.Signature)) != 1 {
-		err = fmt.Errorf("不正确的签名, \r\nhave: %q, \r\nwant: %q", Signature, resp.Signature)
+	if subtle.ConstantTimeCompare(hashsum, []byte(resp.Signature)) != 1 {
+		err = fmt.Errorf("签名不匹配, \r\nlocal: %q, \r\ninput: %q", hashsum, resp.Signature)
 		return
 	}
 	return

@@ -14,16 +14,16 @@ import (
 	"strconv"
 )
 
-// 微信服务器推送过来的消息结构.
+// 微信服务器推送过来的消息结构, xml 格式.
 // 包含投诉消息, 确认消除投诉消息, 拒绝消除投诉消息
 type MixedRequest struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
 	AppId     string `xml:"AppId"     json:"AppId"`     // 公众号 id
-	TimeStamp int64  `xml:"TimeStamp" json:"TimeStamp"` // 时间戳, unixtime
+	TimeStamp string `xml:"TimeStamp" json:"TimeStamp"` // 时间戳, unixtime
 
 	OpenId     string `xml:"OpenId"     json:"OpenId"`     // 支付该笔订单的用户 OpenId
-	FeedbackId int64  `xml:"FeedBackId" json:"FeedBackId"` // 投诉单号
+	FeedbackId string `xml:"FeedBackId" json:"FeedBackId"` // 投诉单号
 	MsgType    string `xml:"MsgType"    json:"MsgType"`    // request, confirm, reject
 
 	TransactionId string `xml:"TransId"  json:"TransId"`  // 交易订单号
@@ -36,14 +36,14 @@ type MixedRequest struct {
 
 	PicInfo []struct {
 		PicURL string `xml:"PicUrl" json:"PicUrl"`
-	} `xml:"PicInfo>item" json:"PicInfo"` // 用户上传的图片凭证, 最多 5 张
+	} `xml:"PicInfo>item,omitempty" json:"PicInfo,omitempty"` // 用户上传的图片凭证, 最多 5 张
 }
 
 // 检查 req *MixedRequest 的签名是否正确, 正确时返回 nil, 否则返回错误信息.
 //  appKey: 即 paySignKey, 公众号支付请求中用于加密的密钥 Key
 func (req *MixedRequest) CheckSignature(appKey string) (err error) {
 	var Hash hash.Hash
-	var Signature []byte
+	var hashsum []byte
 
 	switch req.SignMethod {
 	case "sha1", "SHA1":
@@ -54,7 +54,7 @@ func (req *MixedRequest) CheckSignature(appKey string) (err error) {
 		}
 
 		Hash = sha1.New()
-		Signature = make([]byte, sha1.Size*2)
+		hashsum = make([]byte, sha1.Size*2)
 
 	default:
 		err = fmt.Errorf(`unknown sign method: %q`, req.SignMethod)
@@ -73,20 +73,55 @@ func (req *MixedRequest) CheckSignature(appKey string) (err error) {
 	Hash.Write([]byte("&openid="))
 	Hash.Write([]byte(req.OpenId))
 	Hash.Write([]byte("&timestamp="))
-	Hash.Write([]byte(strconv.FormatInt(req.TimeStamp, 10)))
+	Hash.Write([]byte(req.TimeStamp))
 
-	hex.Encode(Signature, Hash.Sum(nil))
+	hex.Encode(hashsum, Hash.Sum(nil))
 
-	if subtle.ConstantTimeCompare(Signature, []byte(req.Signature)) != 1 {
-		err = fmt.Errorf("不正确的签名, \r\nhave: %q, \r\nwant: %q", Signature, req.Signature)
+	if subtle.ConstantTimeCompare(hashsum, []byte(req.Signature)) != 1 {
+		err = fmt.Errorf("签名不匹配, \r\nlocal: %q, \r\ninput: %q", hashsum, req.Signature)
 		return
 	}
 	return
 }
 
+// 用户提交投诉消息, MsgType == request
+type Complaint MixedRequest
+
+func (this *Complaint) GetTimeStamp() (n int64, err error) {
+	return strconv.ParseInt(this.TimeStamp, 10, 64)
+}
+func (this *Complaint) GetFeedbackId() (n int64, err error) {
+	return strconv.ParseInt(this.FeedbackId, 10, 64)
+}
+
 // 从 MixedRequest 获取投诉消息
 func (req *MixedRequest) GetComplaint() *Complaint {
-	return (*Complaint)(req)
+	var ret Complaint = Complaint(*req)
+	return &ret
+}
+
+// 用户确认消除投诉, MsgType == confirm
+type Confirmation struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+
+	AppId     string `xml:"AppId"     json:"AppId"`     // 公众号 id
+	TimeStamp string `xml:"TimeStamp" json:"TimeStamp"` // 时间戳, unixtime
+
+	OpenId     string `xml:"OpenId"     json:"OpenId"`     // 支付该笔订单的用户 OpenId
+	FeedbackId string `xml:"FeedBackId" json:"FeedBackId"` // 投诉单号
+	MsgType    string `xml:"MsgType"    json:"MsgType"`    // confirm
+
+	Reason string `xml:"Reason" json:"Reason"`
+
+	Signature  string `xml:"AppSignature" json:"AppSignature"` // 签名
+	SignMethod string `xml:"SignMethod"   json:"SignMethod"`   // 签名方法, sha1
+}
+
+func (this *Confirmation) GetTimeStamp() (n int64, err error) {
+	return strconv.ParseInt(this.TimeStamp, 10, 64)
+}
+func (this *Confirmation) GetFeedbackId() (n int64, err error) {
+	return strconv.ParseInt(this.FeedbackId, 10, 64)
 }
 
 // 从 MixedRequest 获取 Confirm 消息
@@ -106,30 +141,17 @@ func (req *MixedRequest) GetConfirmation() *Confirmation {
 	}
 }
 
+// 用户拒绝消除投诉, MsgType == reject
+type Rejection Confirmation
+
+func (this *Rejection) GetTimeStamp() (n int64, err error) {
+	return strconv.ParseInt(this.TimeStamp, 10, 64)
+}
+func (this *Rejection) GetFeedbackId() (n int64, err error) {
+	return strconv.ParseInt(this.FeedbackId, 10, 64)
+}
+
 // 从 MixedRequest 获取 Reject 消息
 func (req *MixedRequest) GetRejection() *Rejection {
 	return (*Rejection)(req.GetConfirmation())
 }
-
-// 用户提交投诉消息
-type Complaint MixedRequest
-
-// 用户确认消除投诉
-type Confirmation struct {
-	XMLName struct{} `xml:"xml" json:"-"`
-
-	AppId     string `xml:"AppId"     json:"AppId"`     // 公众号 id
-	TimeStamp int64  `xml:"TimeStamp" json:"TimeStamp"` // 时间戳, unixtime
-
-	OpenId     string `xml:"OpenId"     json:"OpenId"`     // 支付该笔订单的用户 OpenId
-	FeedbackId int64  `xml:"FeedBackId" json:"FeedBackId"` // 投诉单号
-	MsgType    string `xml:"MsgType"    json:"MsgType"`    // confirm,
-
-	Reason string `xml:"Reason" json:"Reason"`
-
-	Signature  string `xml:"AppSignature" json:"AppSignature"` // 签名
-	SignMethod string `xml:"SignMethod"   json:"SignMethod"`   // 签名方法, sha1
-}
-
-// 用户拒绝消除投诉, MsgType == reject
-type Rejection Confirmation

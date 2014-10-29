@@ -32,7 +32,7 @@ type UnifiedOrderRequest struct {
 	ProductTag   string `xml:"goods_tag,omitempty"   json:"goods_tag,omitempty"`   // 可选, 商品标记，该字段不能随便填，不使用请填空
 	Body         string `xml:"body"                  json:"body"`                  // 必须, 商品描述
 	Attach       string `xml:"attach,omitempty"      json:"attach,omitempty"`      // 可选, 附加数据，原样返回
-	TotalFee     *int   `xml:"total_fee"             json:"total_fee,omitempty"`   // 必须, 订单总金额，单位为分，不能带小数点
+	TotalFee     string `xml:"total_fee"             json:"total_fee"`             // 必须, 订单总金额，单位为分，不能带小数点
 	TimeStart    string `xml:"time_start,omitempty"  json:"time_start,omitempty"`  // 可选, 订单生成时间
 	TimeExpire   string `xml:"time_expire,omitempty" json:"time_expire,omitempty"` // 可选, 订单失效时间
 
@@ -40,25 +40,9 @@ type UnifiedOrderRequest struct {
 	Signature string `xml:"sign"      json:"sign"`      // 必须, 签名
 }
 
-// getter
-func (this *UnifiedOrderRequest) GetTotalFee() (n int, ok bool) {
-	if this.TotalFee != nil {
-		ok = true
-		n = *this.TotalFee
-		return
-	}
-	return
-}
-func (this *UnifiedOrderRequest) GetTimeStart() (time.Time, error) {
-	return util.ParseTime(this.TimeStart)
-}
-func (this *UnifiedOrderRequest) GetTimeExpire() (time.Time, error) {
-	return util.ParseTime(this.TimeExpire)
-}
-
 // setter
 func (this *UnifiedOrderRequest) SetTotalFee(n int) {
-	this.TotalFee = &n
+	this.TotalFee = strconv.FormatInt(int64(n), 10)
 }
 func (this *UnifiedOrderRequest) SetTimeStart(t time.Time) {
 	this.TimeStart = util.FormatTime(t)
@@ -73,7 +57,7 @@ func (this *UnifiedOrderRequest) SetTimeExpire(t time.Time) {
 //  NOTE: 要求在 req *UnifiedOrderRequest 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
 func (req *UnifiedOrderRequest) SetSignature(appKey string) (err error) {
 	Hash := md5.New()
-	Signature := make([]byte, md5.Size*2)
+	hashsum := make([]byte, md5.Size*2)
 
 	// 字典序
 	// appid
@@ -162,12 +146,11 @@ func (req *UnifiedOrderRequest) SetSignature(appKey string) (err error) {
 		Hash.Write([]byte(req.TimeStart))
 		Hash.Write([]byte{'&'})
 	}
-	if req.TotalFee != nil {
+	if len(req.TotalFee) > 0 {
 		Hash.Write([]byte("total_fee="))
-		Hash.Write([]byte(strconv.FormatInt(int64(*req.TotalFee), 10)))
+		Hash.Write([]byte(req.TotalFee))
 		Hash.Write([]byte{'&'})
 	}
-
 	if len(req.TradeType) > 0 {
 		Hash.Write([]byte("trade_type="))
 		Hash.Write([]byte(req.TradeType))
@@ -177,9 +160,9 @@ func (req *UnifiedOrderRequest) SetSignature(appKey string) (err error) {
 	Hash.Write([]byte("key="))
 	Hash.Write([]byte(appKey))
 
-	hex.Encode(Signature, Hash.Sum(nil))
-	Signature = bytes.ToUpper(Signature)
+	hex.Encode(hashsum, Hash.Sum(nil))
+	hashsum = bytes.ToUpper(hashsum)
 
-	req.Signature = string(Signature)
+	req.Signature = string(hashsum)
 	return
 }

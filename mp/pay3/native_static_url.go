@@ -9,7 +9,6 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
-	"strconv"
 )
 
 // 生成 native 支付 静态链接 URL.
@@ -23,10 +22,9 @@ import (
 //  merchantId: 必须, 微信支付分配的商户号
 //
 //  NOTE: 该函数没有做 url escape, 因为正常情况下根本不需要做 url escape
-func NativeURL(appId, appKey, nonceStr string, timestamp int64, productId, merchantId string) string {
-	timestampStr := strconv.FormatInt(int64(timestamp), 10)
+func NativeURL(appId, appKey, nonceStr, timestamp, productId, merchantId string) string {
 	Hash := md5.New()
-	Signature := make([]byte, md5.Size*2)
+	hashsum := make([]byte, md5.Size*2)
 
 	// 字典序
 	// appid
@@ -54,22 +52,24 @@ func NativeURL(appId, appKey, nonceStr string, timestamp int64, productId, merch
 		Hash.Write([]byte(productId))
 		Hash.Write([]byte{'&'})
 	}
-	Hash.Write([]byte("time_stamp="))
-	Hash.Write([]byte(timestampStr))
-	Hash.Write([]byte{'&'})
+	if len(timestamp) > 0 {
+		Hash.Write([]byte("time_stamp="))
+		Hash.Write([]byte(timestamp))
+		Hash.Write([]byte{'&'})
+	}
 
 	Hash.Write([]byte("key="))
 	Hash.Write([]byte(appKey))
 
-	hex.Encode(Signature, Hash.Sum(nil))
-	Signature = bytes.ToUpper(Signature)
+	hex.Encode(hashsum, Hash.Sum(nil))
+	hashsum = bytes.ToUpper(hashsum)
 
 	// weixin://wxpay/bizpayurl?sign=XXXXX&appid=XXXXX&mch_id=XXXXX
 	//          &product_id=XXXXXX&time_stamp=XXXXXX&nonce_str=XXXXX
-	return "weixin://wxpay/bizpayurl?sign=" + string(Signature) +
+	return "weixin://wxpay/bizpayurl?sign=" + string(hashsum) +
 		"&appid=" + appId +
 		"&mch_id=" + merchantId +
 		"&product_id=" + productId +
-		"&time_stamp=" + timestampStr +
+		"&time_stamp=" + timestamp +
 		"&nonce_str=" + nonceStr
 }

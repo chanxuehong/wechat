@@ -37,7 +37,7 @@ func (resp *PayPackageResponse) SetSignature(appKey string) (err error) {
 	}
 
 	Hash := md5.New()
-	Signature := make([]byte, md5.Size*2)
+	hashsum := make([]byte, md5.Size*2)
 
 	// 字典序
 	// appid
@@ -92,9 +92,9 @@ func (resp *PayPackageResponse) SetSignature(appKey string) (err error) {
 	Hash.Write([]byte("key="))
 	Hash.Write([]byte(appKey))
 
-	hex.Encode(Signature, Hash.Sum(nil))
-	Signature = bytes.ToUpper(Signature)
+	hex.Encode(hashsum, Hash.Sum(nil))
+	hashsum = bytes.ToUpper(hashsum)
 
-	resp.Signature = string(Signature)
+	resp.Signature = string(hashsum)
 	return
 }

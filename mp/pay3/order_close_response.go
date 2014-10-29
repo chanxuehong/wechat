@@ -44,7 +44,7 @@ func (resp *OrderCloseResponse) CheckSignature(appKey string) (err error) {
 	}
 
 	Hash := md5.New()
-	Signature := make([]byte, md5.Size*2)
+	hashsum := make([]byte, md5.Size*2)
 
 	// 字典序
 	// appid
@@ -99,11 +99,11 @@ func (resp *OrderCloseResponse) CheckSignature(appKey string) (err error) {
 	Hash.Write([]byte("key="))
 	Hash.Write([]byte(appKey))
 
-	hex.Encode(Signature, Hash.Sum(nil))
-	Signature = bytes.ToUpper(Signature)
+	hex.Encode(hashsum, Hash.Sum(nil))
+	hashsum = bytes.ToUpper(hashsum)
 
-	if subtle.ConstantTimeCompare(Signature, []byte(resp.Signature)) != 1 {
-		err = fmt.Errorf("不正确的签名, \r\nhave: %q, \r\nwant: %q", Signature, resp.Signature)
+	if subtle.ConstantTimeCompare(hashsum, []byte(resp.Signature)) != 1 {
+		err = fmt.Errorf("签名不匹配, \r\nlocal: %q, \r\ninput: %q", hashsum, resp.Signature)
 		return
 	}
 	return

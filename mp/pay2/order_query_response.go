@@ -8,6 +8,8 @@ package pay2
 import (
 	"encoding/json"
 	"errors"
+	"github.com/chanxuehong/wechat/util"
+	"time"
 )
 
 // 因为某一方技术的原因，可能导致商户在预期时间内都收不到最终支付通知，此时商户
@@ -38,24 +40,29 @@ type OrderQueryResponse struct {
 }
 
 func (this *OrderQueryResponse) IsSplit() (b bool, err error) {
-	if this.IsSplitStr == "false" {
+	switch this.IsSplitStr {
+	case "false":
 		return
-	}
-	if this.IsSplitStr == "true" {
+	case "true":
 		b = true
 		return
+	default:
+		err = errors.New("invalid is_split")
+		return
 	}
-	err = errors.New("invalid is_split")
-	return
 }
 func (this *OrderQueryResponse) IsRefund() (b bool, err error) {
-	if this.IsRefundStr == "false" {
+	switch this.IsRefundStr {
+	case "false":
 		return
-	}
-	if this.IsRefundStr == "true" {
+	case "true":
 		b = true
 		return
+	default:
+		err = errors.New("invalid is_refund")
+		return
 	}
-	err = errors.New("invalid is_refund")
-	return
+}
+func (this *OrderQueryResponse) GetTimeEnd() (t time.Time, err error) {
+	return util.ParseTime(this.TimeEnd)
 }
