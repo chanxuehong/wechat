@@ -34,20 +34,27 @@ type OrderNotifyPostData struct {
 
 	AppId     string `xml:"AppId"     json:"AppId"`     // 公众号id
 	NonceStr  string `xml:"NonceStr"  json:"NonceStr"`  // 随机字符串
-	TimeStamp int64  `xml:"TimeStamp" json:"TimeStamp"` // 时间戳, unixtime
+	TimeStamp string `xml:"TimeStamp" json:"TimeStamp"` // 时间戳, unixtime
 
 	OpenId      string `xml:"OpenId"      json:"OpenId"`      // 支付该笔订单的用户ID，商户可通过公众号其他接口为付款用户服务。
-	IsSubscribe int    `xml:"IsSubscribe" json:"IsSubscribe"` // 标记用户是否关注了公众号。1 为关注，0 为未关注。
+	IsSubscribe string `xml:"IsSubscribe" json:"IsSubscribe"` // 标记用户是否关注了公众号。1 为关注，0 为未关注。
 
 	Signature  string `xml:"AppSignature" json:"AppSignature"` // 签名
 	SignMethod string `xml:"SignMethod"   json:"SignMethod"`   // 签名方式, 目前只支持"sha1"
+}
+
+func (this *OrderNotifyPostData) GetTimeStamp() (n int64, err error) {
+	return strconv.ParseInt(this.TimeStamp, 10, 64)
+}
+func (this *OrderNotifyPostData) GetIsSubscribe() (n int64, err error) {
+	return strconv.ParseInt(this.IsSubscribe, 10, 64)
 }
 
 // 检查 data *OrderNotifyPostData 的签名是否正确, 正确时返回 nil, 否则返回错误信息.
 //  appKey: 即 paySignKey, 公众号支付请求中用于加密的密钥 Key
 func (data *OrderNotifyPostData) CheckSignature(appKey string) (err error) {
 	var Hash hash.Hash
-	var Signature []byte
+	var hashsum []byte
 
 	switch data.SignMethod {
 	case "sha1", "SHA1":
@@ -58,7 +65,7 @@ func (data *OrderNotifyPostData) CheckSignature(appKey string) (err error) {
 		}
 
 		Hash = sha1.New()
-		Signature = make([]byte, sha1.Size*2)
+		hashsum = make([]byte, sha1.Size*2)
 
 	default:
 		err = fmt.Errorf(`unknown sign method: %q`, data.SignMethod)
@@ -77,18 +84,18 @@ func (data *OrderNotifyPostData) CheckSignature(appKey string) (err error) {
 	Hash.Write([]byte("&appkey="))
 	Hash.Write([]byte(appKey))
 	Hash.Write([]byte("&issubscribe="))
-	Hash.Write([]byte(strconv.FormatInt(int64(data.IsSubscribe), 10)))
+	Hash.Write([]byte(data.IsSubscribe))
 	Hash.Write([]byte("&noncestr="))
 	Hash.Write([]byte(data.NonceStr))
 	Hash.Write([]byte("&openid="))
 	Hash.Write([]byte(data.OpenId))
 	Hash.Write([]byte("&timestamp="))
-	Hash.Write([]byte(strconv.FormatInt(data.TimeStamp, 10)))
+	Hash.Write([]byte(data.TimeStamp))
 
-	hex.Encode(Signature, Hash.Sum(nil))
+	hex.Encode(hashsum, Hash.Sum(nil))
 
-	if subtle.ConstantTimeCompare(Signature, []byte(data.Signature)) != 1 {
-		err = fmt.Errorf("不正确的签名, \r\nhave: %q, \r\nwant: %q", Signature, data.Signature)
+	if subtle.ConstantTimeCompare(hashsum, []byte(data.Signature)) != 1 {
+		err = fmt.Errorf("签名不匹配, \r\nlocal: %q, \r\ninput: %q", hashsum, data.Signature)
 		return
 	}
 	return

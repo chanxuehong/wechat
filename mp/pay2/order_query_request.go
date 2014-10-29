@@ -20,11 +20,15 @@ import (
 //
 // 订单查询的真正数据是放在PostData 中的，格式为json
 type OrderQueryRequest struct {
-	AppId      string `json:"appid"`            // 公众平台账户的 AppId
-	Package    string `json:"package"`          // 查询订单的关键信息数据, see MakeOrderQueryRequestPackage
-	TimeStamp  int64  `json:"timestamp,string"` // 时间戳, unixtime
-	Signature  string `json:"app_signature"`    // 签名
-	SignMethod string `json:"sign_method"`      // 签名方法
+	AppId      string `json:"appid"`         // 公众平台账户的 AppId
+	Package    string `json:"package"`       // 查询订单的关键信息数据, see MakeOrderQueryRequestPackage
+	TimeStamp  string `json:"timestamp"`     // 时间戳, unixtime
+	Signature  string `json:"app_signature"` // 签名
+	SignMethod string `json:"sign_method"`   // 签名方法
+}
+
+func (this *OrderQueryRequest) SetTimeStamp(timestamp int64) {
+	this.TimeStamp = strconv.FormatInt(timestamp, 10)
 }
 
 // 设置签名字段.
@@ -55,7 +59,7 @@ func (req *OrderQueryRequest) SetSignature(appKey string) (err error) {
 	Hash.Write([]byte("&package="))
 	Hash.Write([]byte(req.Package))
 	Hash.Write([]byte("&timestamp="))
-	Hash.Write([]byte(strconv.FormatInt(req.TimeStamp, 10)))
+	Hash.Write([]byte(req.TimeStamp))
 
 	req.Signature = hex.EncodeToString(Hash.Sum(nil))
 	return

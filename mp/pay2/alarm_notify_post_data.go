@@ -26,9 +26,9 @@ type AlarmNotifyPostData struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
 	AppId     string `xml:"AppId"     json:"AppId"`
-	TimeStamp int64  `xml:"TimeStamp" json:"TimeStamp"`
+	TimeStamp string `xml:"TimeStamp" json:"TimeStamp"`
 
-	ErrorType   int    `xml:"ErrorType"    json:"ErrorType"` // 1001:发货超时
+	ErrorType   string `xml:"ErrorType"    json:"ErrorType"` // 1001:发货超时
 	Description string `xml:"Description"  json:"Description"`
 	Content     string `xml:"AlarmContent" json:"AlarmContent"`
 
@@ -36,11 +36,18 @@ type AlarmNotifyPostData struct {
 	SignMethod string `xml:"SignMethod"   json:"SignMethod"`
 }
 
+func (this *AlarmNotifyPostData) GetTimeStamp() (n int64, err error) {
+	return strconv.ParseInt(this.TimeStamp, 10, 64)
+}
+func (this *AlarmNotifyPostData) GetErrorType() (n int64, err error) {
+	return strconv.ParseInt(this.ErrorType, 10, 64)
+}
+
 // 检查 data *AlarmNotifyPostData 的签名是否合法, 合法返回 nil, 否则返回错误信息.
 //  appKey: 即 paySignKey, 公众号支付请求中用于加密的密钥 Key
 func (data *AlarmNotifyPostData) CheckSignature(appKey string) (err error) {
 	var Hash hash.Hash
-	var Signature []byte
+	var hashsum []byte
 
 	switch data.SignMethod {
 	case "sha1", "SHA1":
@@ -51,7 +58,7 @@ func (data *AlarmNotifyPostData) CheckSignature(appKey string) (err error) {
 		}
 
 		Hash = sha1.New()
-		Signature = make([]byte, sha1.Size*2)
+		hashsum = make([]byte, sha1.Size*2)
 
 	default:
 		err = fmt.Errorf(`unknown sign method: %q`, data.SignMethod)
@@ -74,14 +81,14 @@ func (data *AlarmNotifyPostData) CheckSignature(appKey string) (err error) {
 	Hash.Write([]byte("&description="))
 	Hash.Write([]byte(data.Description))
 	Hash.Write([]byte("&errortype="))
-	Hash.Write([]byte(strconv.FormatInt(int64(data.ErrorType), 10)))
+	Hash.Write([]byte(data.ErrorType))
 	Hash.Write([]byte("&timestamp="))
-	Hash.Write([]byte(strconv.FormatInt(data.TimeStamp, 10)))
+	Hash.Write([]byte(data.TimeStamp))
 
-	hex.Encode(Signature, Hash.Sum(nil))
+	hex.Encode(hashsum, Hash.Sum(nil))
 
-	if subtle.ConstantTimeCompare(Signature, []byte(data.Signature)) != 1 {
-		err = fmt.Errorf("不正确的签名, \r\nhave: %q, \r\nwant: %q", Signature, data.Signature)
+	if subtle.ConstantTimeCompare(hashsum, []byte(data.Signature)) != 1 {
+		err = fmt.Errorf("签名不匹配, \r\nlocal: %q, \r\ninput: %q", hashsum, data.Signature)
 		return
 	}
 	return
