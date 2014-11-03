@@ -9,7 +9,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/chanxuehong/wechat/util"
+	"github.com/chanxuehong/wechat/mp/pay"
 	"time"
 )
 
@@ -78,5 +78,5 @@ func (this *OrderQueryResponse) IsRefund() (b bool, err error) {
 	return
 }
 func (this *OrderQueryResponse) GetTimeEnd() (t time.Time, err error) {
-	return util.ParseTime(this.TimeEnd)
+	return pay.ParseTime(this.TimeEnd)
 }

@@ -12,7 +12,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/chanxuehong/wechat/util"
+	"github.com/chanxuehong/wechat/mp/pay"
 	"net/url"
 	"sort"
 	"strconv"
@@ -186,7 +186,7 @@ func (data *OrderNotifyURLData) CheckAndInit(RawQuery string, partnerKey string)
 	}
 
 	if vs := urlValues["time_end"]; len(vs) > 0 && len(vs[0]) > 0 {
-		v0, err := util.ParseTime(vs[0])
+		v0, err := pay.ParseTime(vs[0])
 		if err != nil {
 			return err
 		}

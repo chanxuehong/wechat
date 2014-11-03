@@ -33,7 +33,7 @@ func NewClient(appKey string, httpClient *http.Client) *Client {
 }
 
 // 统一支付接口
-func (c *Client) UnifiedOrder(req pay3.UnifiedOrderRequest) (resp pay3.UnifiedOrderResponse, err error) {
+func (c *Client) UnifiedOrder(req map[string]string) (resp map[string]string, err error) {
 	if req == nil {
 		err = errors.New("req == nil")
 		return
@@ -42,7 +42,7 @@ func (c *Client) UnifiedOrder(req pay3.UnifiedOrderRequest) (resp pay3.UnifiedOr
 	url_ := "https://api.mch.weixin.qq.com/pay/unifiedorder"
 	result := make(map[string]string)
 
-	if err = c.postMapXML(url_, req, result); err != nil {
+	if err = c.postXML(url_, req, result); err != nil {
 		return
 	}
 
@@ -51,7 +51,7 @@ func (c *Client) UnifiedOrder(req pay3.UnifiedOrderRequest) (resp pay3.UnifiedOr
 }
 
 // 订单查询接口
-func (c *Client) OrderQuery(req pay3.OrderQueryRequest) (resp pay3.OrderQueryResponse, err error) {
+func (c *Client) OrderQuery(req map[string]string) (resp map[string]string, err error) {
 	if req == nil {
 		err = errors.New("req == nil")
 		return
@@ -60,7 +60,7 @@ func (c *Client) OrderQuery(req pay3.OrderQueryRequest) (resp pay3.OrderQueryRes
 	url_ := "https://api.mch.weixin.qq.com/pay/orderquery"
 	result := make(map[string]string)
 
-	if err = c.postMapXML(url_, req, result); err != nil {
+	if err = c.postXML(url_, req, result); err != nil {
 		return
 	}
 
@@ -69,7 +69,7 @@ func (c *Client) OrderQuery(req pay3.OrderQueryRequest) (resp pay3.OrderQueryRes
 }
 
 // 关闭订单接口
-func (c *Client) OrderClose(req pay3.OrderCloseRequest) (resp pay3.OrderCloseResponse, err error) {
+func (c *Client) OrderClose(req map[string]string) (resp map[string]string, err error) {
 	if req == nil {
 		err = errors.New("req == nil")
 		return
@@ -78,7 +78,7 @@ func (c *Client) OrderClose(req pay3.OrderCloseRequest) (resp pay3.OrderCloseRes
 	url_ := "https://api.mch.weixin.qq.com/pay/closeorder"
 	result := make(map[string]string)
 
-	if err = c.postMapXML(url_, req, result); err != nil {
+	if err = c.postXML(url_, req, result); err != nil {
 		return
 	}
 
@@ -87,7 +87,7 @@ func (c *Client) OrderClose(req pay3.OrderCloseRequest) (resp pay3.OrderCloseRes
 }
 
 // 退款申请接口
-func (c *Client) Refund(req pay3.RefundRequest) (resp pay3.RefundResponse, err error) {
+func (c *Client) Refund(req map[string]string) (resp map[string]string, err error) {
 	if req == nil {
 		err = errors.New("req == nil")
 		return
@@ -96,7 +96,7 @@ func (c *Client) Refund(req pay3.RefundRequest) (resp pay3.RefundResponse, err e
 	url_ := "https://api.mch.weixin.qq.com/secapi/pay/refund"
 	result := make(map[string]string)
 
-	if err = c.postMapXML(url_, req, result); err != nil {
+	if err = c.postXML(url_, req, result); err != nil {
 		return
 	}
 
@@ -105,7 +105,7 @@ func (c *Client) Refund(req pay3.RefundRequest) (resp pay3.RefundResponse, err e
 }
 
 // 退款查询接口
-func (c *Client) RefundQuery(req pay3.RefundQueryRequest) (resp pay3.RefundQueryResponse, err error) {
+func (c *Client) RefundQuery(req map[string]string) (resp map[string]string, err error) {
 	if req == nil {
 		err = errors.New("req == nil")
 		return
@@ -114,7 +114,7 @@ func (c *Client) RefundQuery(req pay3.RefundQueryRequest) (resp pay3.RefundQuery
 	url_ := "https://api.mch.weixin.qq.com/pay/refundquery"
 	result := make(map[string]string)
 
-	if err = c.postMapXML(url_, req, result); err != nil {
+	if err = c.postXML(url_, req, result); err != nil {
 		return
 	}
 
@@ -123,7 +123,7 @@ func (c *Client) RefundQuery(req pay3.RefundQueryRequest) (resp pay3.RefundQuery
 }
 
 // 短链接转换接口
-func (c *Client) ShortURL(req pay3.ShortURLRequest) (resp pay3.ShortURLResponse, err error) {
+func (c *Client) ShortURL(req map[string]string) (resp map[string]string, err error) {
 	if req == nil {
 		err = errors.New("req == nil")
 		return
@@ -132,7 +132,7 @@ func (c *Client) ShortURL(req pay3.ShortURLRequest) (resp pay3.ShortURLResponse,
 	url_ := "https://api.mch.weixin.qq.com/tools/shorturl"
 	result := make(map[string]string)
 
-	if err = c.postMapXML(url_, req, result); err != nil {
+	if err = c.postXML(url_, req, result); err != nil {
 		return
 	}
 
@@ -140,8 +140,7 @@ func (c *Client) ShortURL(req pay3.ShortURLRequest) (resp pay3.ShortURLResponse,
 	return
 }
 
-// 用于微信支付
-func (c *Client) postMapXML(url_ string, request map[string]string, response map[string]string) (err error) {
+func (c *Client) postXML(url_ string, request map[string]string, response map[string]string) (err error) {
 	buf := textBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
 	buf.Reset()                                 // important
 	defer textBufferPool.Put(buf)               // important
@@ -164,10 +163,10 @@ func (c *Client) postMapXML(url_ string, request map[string]string, response map
 		return
 	}
 
-	if RetCode := response["return_code"]; RetCode != pay3.RET_CODE_SUCCESS {
+	if RetCode, ok := response["return_code"]; ok && RetCode != pay3.RET_CODE_SUCCESS {
 		err = &Error{
-			ErrCode: RetCode,
-			ErrMsg:  response["return_msg"],
+			RetCode: RetCode,
+			RetMsg:  response["return_msg"],
 		}
 		return
 	}
