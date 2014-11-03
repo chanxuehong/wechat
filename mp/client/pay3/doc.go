@@ -3,7 +3,5 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 定义微信支付 js api 相关的数据结构.
-//  微信支付接口 v2.7
-//  收货地址共享接口 v1.6
-package js
+// 微信支付客户端请求, 适用于V3.x版本
+package pay3

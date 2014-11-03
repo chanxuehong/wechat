@@ -14,9 +14,13 @@ import (
 // 解析xml, 返回第一级元素键值对。
 // 如果第一级元素有子节点，则此节点的值是子节点的xml数据。
 // 用于微信支付
-func ParseXMLToMap(xmlReader io.Reader) (Map map[string]string, err error) {
+func ParseXMLToMap(xmlReader io.Reader, Map map[string]string) (err error) {
 	if xmlReader == nil {
 		err = errors.New("xmlReader == nil")
+		return
+	}
+	if Map == nil {
+		err = errors.New("Map == nil")
 		return
 	}
 
@@ -24,7 +28,6 @@ func ParseXMLToMap(xmlReader io.Reader) (Map map[string]string, err error) {
 	// 如果以后更改了, 再重新实现!
 
 	d := xml.NewDecoder(xmlReader)
-	Map = make(map[string]string)
 
 	var key, value string // 保存当前扫描的节点 key, value
 	depth := 0            // 当前节点的深度
@@ -34,7 +37,6 @@ func ParseXMLToMap(xmlReader io.Reader) (Map map[string]string, err error) {
 		tk, err = d.Token()
 		if err != nil {
 			if err != io.EOF {
-				Map = nil
 				return
 			}
 			err = nil
