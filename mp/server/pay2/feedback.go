@@ -10,7 +10,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/chanxuehong/wechat/mp/pay2/feedback"
+	"github.com/chanxuehong/wechat/mp/pay/feedback"
 	"io/ioutil"
 	"net/http"
 )

@@ -7,7 +7,7 @@ package client
 
 import (
 	"errors"
-	"github.com/chanxuehong/wechat/mp/pay2"
+	"github.com/chanxuehong/wechat/mp/pay/pay2"
 )
 
 // 微信支付发货通知
