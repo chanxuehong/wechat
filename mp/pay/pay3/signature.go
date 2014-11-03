@@ -13,16 +13,18 @@ import (
 	"github.com/chanxuehong/wechat/mp/pay"
 )
 
-// 检查 parameters 的签名是否正确, 正确返回 nil
+// 检查 parameters 的签名是否正确, 正确返回 nil, 否则返回错误信息
 //  parameters:  待签名的参数
 //  Key:         支付签名的 Key
+//
+//  NOTE: 调用之前一般要确保有 sign 字段, 特别是有 return_code 时要判断是否为 RET_CODE_SUCCESS
 func CheckSignature(parameters map[string]string, Key string) (err error) {
 	if parameters == nil {
 		return errors.New("parameters == nil")
 	}
 
 	signature1 := parameters["sign"]
-	if len(signature1) == 0 {
+	if signature1 == "" {
 		return errors.New("sign is empty")
 	}
 	if len(signature1) != md5.Size*2 {
@@ -40,7 +42,7 @@ func CheckSignature(parameters map[string]string, Key string) (err error) {
 	return
 }
 
-// 根据 parameters 设置签名, 一般最后调用, 正确返回 nil
+// 设置 parameters 签名, 一般最后调用, 正确返回 nil, 否则返回错误信息
 //  parameters:  待签名的参数
 //  Key:         支付签名的 Key
 func SetSignature(parameters map[string]string, Key string) (err error) {

@@ -10,10 +10,11 @@ import (
 )
 
 type Error struct {
-	ErrCode string
-	ErrMsg  string
+	XMLName struct{} `xml:"xml"                   json:"-"`
+	RetCode string   `xml:"return_code"           json:"return_code"`
+	RetMsg  string   `xml:"return_msg,omitempty"  json:"return_msg,omitempty"`
 }
 
 func (e *Error) Error() string {
-	return fmt.Sprintf("errcode: %s, errmsg: %s", e.ErrCode, e.ErrMsg)
+	return fmt.Sprintf("return_code: %s, return_msg: %s", e.RetCode, e.RetMsg)
 }

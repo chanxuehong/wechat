@@ -9,7 +9,7 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
-	"github.com/chanxuehong/wechat/util"
+	"github.com/chanxuehong/wechat/mp/pay"
 	"strconv"
 	"time"
 )
@@ -48,10 +48,10 @@ func (this *PayPackage) SetFeeType(n int) {
 	this.FeeType = strconv.FormatInt(int64(n), 10)
 }
 func (this *PayPackage) SetTimeStart(t time.Time) {
-	this.TimeStart = util.FormatTime(t)
+	this.TimeStart = pay.FormatTime(t)
 }
 func (this *PayPackage) SetTimeExpire(t time.Time) {
-	this.TimeExpire = util.FormatTime(t)
+	this.TimeExpire = pay.FormatTime(t)
 }
 
 // 将 PayPackage 打包成 订单详情(package)字符串 需要的格式.
@@ -82,77 +82,77 @@ func (this *PayPackage) Package(partnerKey string) (package_ []byte) {
 	if len(this.Attach) > 0 {
 		ks = append(ks, "&attach=")
 		vs1 = append(vs1, this.Attach)
-		vs2 = append(vs2, util.URLEscape(this.Attach))
+		vs2 = append(vs2, pay.URLEscape(this.Attach))
 	}
 	if len(this.BankType) > 0 {
 		ks = append(ks, "&bank_type=")
 		vs1 = append(vs1, this.BankType)
-		vs2 = append(vs2, util.URLEscape(this.BankType))
+		vs2 = append(vs2, pay.URLEscape(this.BankType))
 	}
 	if len(this.Body) > 0 {
 		ks = append(ks, "&body=")
 		vs1 = append(vs1, this.Body)
-		vs2 = append(vs2, util.URLEscape(this.Body))
+		vs2 = append(vs2, pay.URLEscape(this.Body))
 	}
 	if len(this.FeeType) > 0 {
 		ks = append(ks, "&fee_type=")
 		vs1 = append(vs1, this.FeeType)
-		vs2 = append(vs2, util.URLEscape(this.FeeType))
+		vs2 = append(vs2, pay.URLEscape(this.FeeType))
 	}
 	if len(this.ProductTag) > 0 {
 		ks = append(ks, "&goods_tag=")
 		vs1 = append(vs1, this.ProductTag)
-		vs2 = append(vs2, util.URLEscape(this.ProductTag))
+		vs2 = append(vs2, pay.URLEscape(this.ProductTag))
 	}
 	if len(this.Charset) > 0 {
 		ks = append(ks, "&input_charset=")
 		vs1 = append(vs1, this.Charset)
-		vs2 = append(vs2, util.URLEscape(this.Charset))
+		vs2 = append(vs2, pay.URLEscape(this.Charset))
 	}
 	if len(this.NotifyURL) > 0 {
 		ks = append(ks, "&notify_url=")
 		vs1 = append(vs1, this.NotifyURL)
-		vs2 = append(vs2, util.URLEscape(this.NotifyURL))
+		vs2 = append(vs2, pay.URLEscape(this.NotifyURL))
 	}
 	if len(this.OutTradeNo) > 0 {
 		ks = append(ks, "&out_trade_no=")
 		vs1 = append(vs1, this.OutTradeNo)
-		vs2 = append(vs2, util.URLEscape(this.OutTradeNo))
+		vs2 = append(vs2, pay.URLEscape(this.OutTradeNo))
 	}
 	if len(this.PartnerId) > 0 {
 		ks = append(ks, "&partner=")
 		vs1 = append(vs1, this.PartnerId)
-		vs2 = append(vs2, util.URLEscape(this.PartnerId))
+		vs2 = append(vs2, pay.URLEscape(this.PartnerId))
 	}
 	if len(this.ProductFee) > 0 {
 		ks = append(ks, "&product_fee=")
 		vs1 = append(vs1, this.ProductFee)
-		vs2 = append(vs2, util.URLEscape(this.ProductFee))
+		vs2 = append(vs2, pay.URLEscape(this.ProductFee))
 	}
 	if len(this.BillCreateIP) > 0 {
 		ks = append(ks, "&spbill_create_ip=")
 		vs1 = append(vs1, this.BillCreateIP)
-		vs2 = append(vs2, util.URLEscape(this.BillCreateIP))
+		vs2 = append(vs2, pay.URLEscape(this.BillCreateIP))
 	}
 	if len(this.TimeExpire) > 0 {
 		ks = append(ks, "&time_expire=")
 		vs1 = append(vs1, this.TimeExpire)
-		vs2 = append(vs2, util.URLEscape(this.TimeExpire))
+		vs2 = append(vs2, pay.URLEscape(this.TimeExpire))
 	}
 	if len(this.TimeStart) > 0 {
 		ks = append(ks, "&time_start=")
 		vs1 = append(vs1, this.TimeStart)
-		vs2 = append(vs2, util.URLEscape(this.TimeStart))
+		vs2 = append(vs2, pay.URLEscape(this.TimeStart))
 	}
 	if len(this.TotalFee) > 0 {
 		ks = append(ks, "&total_fee=")
 		vs1 = append(vs1, this.TotalFee)
-		vs2 = append(vs2, util.URLEscape(this.TotalFee))
+		vs2 = append(vs2, pay.URLEscape(this.TotalFee))
 	}
 	if len(this.TransportFee) > 0 {
 		ks = append(ks, "&transport_fee=")
 		vs1 = append(vs1, this.TransportFee)
-		vs2 = append(vs2, util.URLEscape(this.TransportFee))
+		vs2 = append(vs2, pay.URLEscape(this.TransportFee))
 	}
 
 	if len(ks) > 0 {

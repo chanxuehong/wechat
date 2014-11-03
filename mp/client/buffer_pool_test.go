@@ -39,7 +39,7 @@ func BenchmarkGetTextBufferFromPool(b *testing.B) {
 func BenchmarkGetTextBufferFromNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		func() {
-			_ = bytes.NewBuffer(make([]byte, 0, 64<<10))
+			_ = bytes.NewBuffer(make([]byte, 0, 16<<10))
 		}()
 	}
 }
