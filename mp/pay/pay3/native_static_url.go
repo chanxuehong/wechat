@@ -57,7 +57,6 @@ func NativeURL(appId, appKey, nonceStr, timestamp, productId, merchantId string)
 		Hash.Write([]byte(timestamp))
 		Hash.Write([]byte{'&'})
 	}
-
 	Hash.Write([]byte("key="))
 	Hash.Write([]byte(appKey))
 

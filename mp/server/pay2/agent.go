@@ -6,8 +6,8 @@
 package pay2
 
 import (
-	"github.com/chanxuehong/wechat/mp/pay2"
-	"github.com/chanxuehong/wechat/mp/pay2/feedback"
+	"github.com/chanxuehong/wechat/mp/pay/feedback"
+	"github.com/chanxuehong/wechat/mp/pay/pay2"
 	"net/http"
 )
 
