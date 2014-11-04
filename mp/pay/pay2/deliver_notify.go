@@ -6,11 +6,8 @@
 package pay2
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
-	"fmt"
-	"hash"
 	"strconv"
+	"time"
 )
 
 // 为了更好地跟踪订单的情况，需要第三方在收到最终支付通知之后，调用发货通知API
@@ -20,67 +17,37 @@ import (
 // 平台在规定时间内没有收到，将视作发货超时处理。
 //
 // 发货通知的真正的数据是放在PostData 中的，格式为json
-type DeliverNotifyData struct {
-	AppId            string `json:"appid"`             // 公众平台账户的AppId
-	OpenId           string `json:"openid"`            // 购买用户的OpenId，这个已经放在最终支付结果通知的PostData 里了
-	TransactionId    string `json:"transid"`           // 交易单号
-	OutTradeNo       string `json:"out_trade_no"`      // 第三方订单号
-	DeliverTimeStamp string `json:"deliver_timestamp"` // 发货时间戳, unixtime;
-	DeliverStatus    string `json:"deliver_status"`    // 发货状态, 1表明成功, 0表明失败, 失败时需要在deliver_msg填上失败原因;
-	DeliverMessage   string `json:"deliver_msg"`       // 发货状态信息, 失败时可以填上UTF8编码的错误提示信息, 比如"该商品已退款";
-	Signature        string `json:"app_signature"`     // 签名
-	SignMethod       string `json:"sign_method"`       // 签名方法
-}
+type DeliverNotifyData map[string]string
 
-func (this *DeliverNotifyData) SetDeliverTimeStamp(timestamp int64) {
-	this.DeliverTimeStamp = strconv.FormatInt(timestamp, 10)
+func (data DeliverNotifyData) SetAppId(str string) {
+	data["appid"] = str
 }
-func (this *DeliverNotifyData) SetDeliverStatus(status int) {
-	this.DeliverStatus = strconv.FormatInt(int64(status), 10)
+func (data DeliverNotifyData) SetOpenId(str string) {
+	data["openid"] = str
+}
+func (data DeliverNotifyData) SetTransactionId(str string) {
+	data["transid"] = str
+}
+func (data DeliverNotifyData) SetOutTradeNo(str string) {
+	data["out_trade_no"] = str
+}
+func (data DeliverNotifyData) SetDeliverTimeStamp(t time.Time) {
+	data["deliver_timestamp"] = strconv.FormatInt(t.Unix(), 10)
+}
+func (data DeliverNotifyData) SetDeliverStatus(status int) {
+	data["deliver_status"] = strconv.FormatInt(int64(status), 10)
+}
+func (data DeliverNotifyData) SetDeliverMsg(str string) {
+	data["deliver_msg"] = str
+}
+func (data DeliverNotifyData) SetSignMethod(str string) {
+	data["sign_method"] = str
 }
 
 // 设置签名字段.
 //  appKey: 即 paySignKey, 公众号支付请求中用于加密的密钥 Key
 //
-//  NOTE: 要求在 data *DeliverNotifyData 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
-func (data *DeliverNotifyData) SetSignature(appKey string) (err error) {
-	var Hash hash.Hash
-
-	switch data.SignMethod {
-	case "sha1", "SHA1":
-		Hash = sha1.New()
-
-	default:
-		err = fmt.Errorf(`unknown sign method: %q`, data.SignMethod)
-		return
-	}
-
-	// 字典序
-	// appid
-	// appkey
-	// deliver_msg
-	// deliver_status
-	// deliver_timestamp
-	// openid
-	// out_trade_no
-	// transid
-	Hash.Write([]byte("appid="))
-	Hash.Write([]byte(data.AppId))
-	Hash.Write([]byte("&appkey="))
-	Hash.Write([]byte(appKey))
-	Hash.Write([]byte("&deliver_msg="))
-	Hash.Write([]byte(data.DeliverMessage))
-	Hash.Write([]byte("&deliver_status="))
-	Hash.Write([]byte(data.DeliverStatus))
-	Hash.Write([]byte("&deliver_timestamp="))
-	Hash.Write([]byte(data.DeliverTimeStamp))
-	Hash.Write([]byte("&openid="))
-	Hash.Write([]byte(data.OpenId))
-	Hash.Write([]byte("&out_trade_no="))
-	Hash.Write([]byte(data.OutTradeNo))
-	Hash.Write([]byte("&transid="))
-	Hash.Write([]byte(data.TransactionId))
-
-	data.Signature = hex.EncodeToString(Hash.Sum(nil))
-	return
+//  NOTE: 要求在 DeliverNotifyData 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
+func (data DeliverNotifyData) SetSignature(appKey string) (err error) {
+	return OrderQueryRequest(data).SetSignature(appKey)
 }

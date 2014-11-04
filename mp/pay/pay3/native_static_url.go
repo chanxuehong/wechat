@@ -24,7 +24,7 @@ import (
 //  NOTE: 该函数没有做 url escape, 因为正常情况下根本不需要做 url escape
 func NativeURL(AppId, AppKey, NonceStr, Timestamp, ProductId, MerchantId string) string {
 	Hash := md5.New()
-	hashsum := make([]byte, md5.Size*2)
+	hashsum := make([]byte, 32)
 
 	// 字典序
 	// appid

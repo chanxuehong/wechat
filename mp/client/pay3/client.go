@@ -171,7 +171,7 @@ func (c *Client) postXML(url_ string, request map[string]string, response map[st
 		return
 	}
 
-	if err = pay3.CheckSignature(response, c.appKey); err != nil {
+	if err = pay3.CheckMD5Signature(response, c.appKey); err != nil {
 		return
 	}
 

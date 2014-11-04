@@ -6,10 +6,11 @@
 package pay2
 
 import (
+	"bytes"
 	"crypto/subtle"
-	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/chanxuehong/wechat/mp/pay"
 	"github.com/chanxuehong/wechat/mp/pay/pay2"
 	"io/ioutil"
 	"net/http"
@@ -52,20 +53,21 @@ func (handler *AlarmNotifyHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	var alarmData pay2.AlarmNotifyPostData
-	if err := xml.Unmarshal(rawXMLMsg, &alarmData); err != nil {
+	alarmData := make(pay2.AlarmNotifyPostData)
+	if err := pay.ParseXMLToMap(bytes.NewReader(rawXMLMsg), alarmData); err != nil {
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
+	haveAppId := alarmData.AppId()
 	wantAppId := agent.GetAppId()
-	if len(alarmData.AppId) != len(wantAppId) {
-		err = fmt.Errorf("AppId mismatch, have: %q, want: %q", alarmData.AppId, wantAppId)
+	if len(haveAppId) != len(wantAppId) {
+		err = fmt.Errorf("AppId mismatch, have: %q, want: %q", haveAppId, wantAppId)
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
-	if subtle.ConstantTimeCompare([]byte(alarmData.AppId), []byte(wantAppId)) != 1 {
-		err = fmt.Errorf("AppId mismatch, have: %q, want: %q", alarmData.AppId, wantAppId)
+	if subtle.ConstantTimeCompare([]byte(haveAppId), []byte(wantAppId)) != 1 {
+		err = fmt.Errorf("AppId mismatch, have: %q, want: %q", haveAppId, wantAppId)
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
