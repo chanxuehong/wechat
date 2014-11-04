@@ -19,7 +19,7 @@ type JSAPIPayRequestParameters struct {
 	NonceStr  string `json:"nonceStr"`  // 必须, 商户生成的随机字符串, 32个字符以内
 	TimeStamp string `json:"timeStamp"` // 必须, unixtime, 商户生成
 
-	Package string `json:"package"` // 必须, 订单详情组合成的字符串, 4096个字符以内, see PayPackage.Package
+	Package string `json:"package"` // 必须, 订单详情组合成的字符串, 4096个字符以内, MakePayPackage
 
 	Signature  string `json:"paySign"`  // 必须, 该 PayRequestParameters 自身的签名. see PayRequestParameters.SetSignature
 	SignMethod string `json:"signType"` // 必须, 签名方式, 目前仅支持 SHA1
@@ -40,7 +40,7 @@ func (para *JSAPIPayRequestParameters) SetSignature(appKey string) (err error) {
 	switch para.SignMethod {
 	case "SHA1", "sha1":
 		Hash = sha1.New()
-		hashsum = make([]byte, sha1.Size*2)
+		hashsum = make([]byte, 40)
 
 	default:
 		err = fmt.Errorf(`unknown sign method: %q`, para.SignMethod)

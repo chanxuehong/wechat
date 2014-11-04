@@ -10,203 +10,124 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"github.com/chanxuehong/wechat/mp/pay"
+	"sort"
 	"strconv"
 	"time"
 )
 
-// 订单详情, 微信根据这个信息生成订单.
-// js api 和 native api 都需要这个, 就是那个 订单详情(package) 字符串, see PayPackage.Package
-type PayPackage struct {
-	BankType     string `json:"bank_type"`               // 必须, 银行通道类型, 固定为 "WX"
-	Body         string `json:"body"`                    // 必须, 商品描述, 128字节以内
-	Attach       string `json:"attach,omitempty"`        // 可选, 附加数据, 128字节以内
-	PartnerId    string `json:"partner"`                 // 必须, 注册时分配的财付通商户号 partnerId
-	OutTradeNo   string `json:"out_trade_no"`            // 必须, 商户系统内部订单号, 32个字符内, 可包含字母, *** 确保在商户系统中唯一 ***
-	TotalFee     string `json:"total_fee"`               // 必须, 订单总金额, 单位为分
-	TransportFee string `json:"transport_fee,omitempty"` // 可选, 物流费用, 单位为分; 如果有值, 必须保证 TransportFee + ProductFee == TotalFee
-	ProductFee   string `json:"product_fee,omitempty"`   // 可选, 商品费用, 单位为分; 如果有值, 必须保证 TransportFee + ProductFee == TotalFee
-	ProductTag   string `json:"goods_tag,omitempty"`     // 可选, 商品标记, 优惠卷时可能用到
-	FeeType      string `json:"fee_type"`                // 必须, 取值: 1(人民币); 目前暂只支持 1
-	NotifyURL    string `json:"notify_url"`              // 必须, 在支付完成后, 接收微信通知支付结果的 URL, 需要给出绝对路径, 255个字符内
-	BillCreateIP string `json:"spbill_create_ip"`        // 必须, 订单生成的机器IP(指用户浏览器端IP, 不是商户服务器IP, 格式为IPV4), 15个字节内
-	TimeStart    string `json:"time_start,omitempty"`    // 可选, 订单生成时间, 该时间取自商户服务器
-	TimeExpire   string `json:"time_expire,omitempty"`   // 可选, 订单失效时间, 该时间取自商户服务器
-	Charset      string `json:"input_charset"`           // 必须, 参数字符编码, 取值范围: "GBK", "UTF-8"
+// 订单详情的参数
+type PayPackageParameters map[string]string
+
+func (para PayPackageParameters) SetBankType(BankType string) {
+	para["bank_type"] = BankType
+}
+func (para PayPackageParameters) SetBody(Body string) {
+	para["body"] = Body
+}
+func (para PayPackageParameters) SetAttach(Attach string) {
+	para["attach"] = Attach
+}
+func (para PayPackageParameters) SetPartnerId(PartnerId string) {
+	para["partner"] = PartnerId
+}
+func (para PayPackageParameters) SetOutTradeNo(OutTradeNo string) {
+	para["out_trade_no"] = OutTradeNo
+}
+func (para PayPackageParameters) SetGoodsTag(GoodsTag string) {
+	para["goods_tag"] = GoodsTag
+}
+func (para PayPackageParameters) SetNotifyURL(NotifyURL string) {
+	para["notify_url"] = NotifyURL
+}
+func (para PayPackageParameters) SetBillCreateIP(BillCreateIP string) {
+	para["spbill_create_ip"] = BillCreateIP
+}
+func (para PayPackageParameters) SetCharset(Charset string) {
+	para["input_charset"] = Charset
+}
+func (para PayPackageParameters) SetTotalFee(n int) {
+	para["total_fee"] = strconv.FormatInt(int64(n), 10)
+}
+func (para PayPackageParameters) SetTransportFee(n int) {
+	para["transport_fee"] = strconv.FormatInt(int64(n), 10)
+}
+func (para PayPackageParameters) SetProductFee(n int) {
+	para["product_fee"] = strconv.FormatInt(int64(n), 10)
+}
+func (para PayPackageParameters) SetFeeType(n int) {
+	para["fee_type"] = strconv.FormatInt(int64(n), 10)
+}
+func (para PayPackageParameters) SetTimeStart(t time.Time) {
+	para["time_start"] = pay.FormatTime(t)
+}
+func (para PayPackageParameters) SetTimeExpire(t time.Time) {
+	para["time_expire"] = pay.FormatTime(t)
 }
 
-// setter
-func (this *PayPackage) SetTotalFee(n int) {
-	this.TotalFee = strconv.FormatInt(int64(n), 10)
-}
-func (this *PayPackage) SetTransportFee(n int) {
-	this.TransportFee = strconv.FormatInt(int64(n), 10)
-}
-func (this *PayPackage) SetProductFee(n int) {
-	this.ProductFee = strconv.FormatInt(int64(n), 10)
-}
-func (this *PayPackage) SetFeeType(n int) {
-	this.FeeType = strconv.FormatInt(int64(n), 10)
-}
-func (this *PayPackage) SetTimeStart(t time.Time) {
-	this.TimeStart = pay.FormatTime(t)
-}
-func (this *PayPackage) SetTimeExpire(t time.Time) {
-	this.TimeExpire = pay.FormatTime(t)
-}
+// 生成订单详情字符串(package)
+//  PayPackageParameters: 订单详情参数
+//  partnerKey:           财付通商户权限密钥 Key
+func MakePayPackage(para PayPackageParameters, partnerKey string) []byte {
+	KVS := make(pay.KVSlice, 0, len(para))
+	for K, V := range para {
+		if K == "sign" {
+			continue
+		}
+		KVS = append(KVS, pay.KV{K, V})
+	}
+	sort.Sort(KVS)
 
-// 将 PayPackage 打包成 订单详情(package)字符串 需要的格式.
-//  partnerKey: 财付通商户权限密钥 Key
-//
-//  NOTE: 这个函数不对 this *PayPackage 的字段做有效性检查, 请确保设置正确
-func (this *PayPackage) Package(partnerKey string) (package_ []byte) {
-	ks := make([]string, 0, 16)  // 包含不为空值的字段的 key, 字典序, 目前只有 15 个字段
-	vs1 := make([]string, 0, 16) // 包含不为空值的字段的 value,
-	vs2 := make([]string, 0, 16) // 包含不为空值的字段的 value, 经过了 URLEscape
+	string1KVS := make(pay.KVSlice, 0, len(KVS))
+	string2KVS := make(pay.KVSlice, 0, len(KVS))
+	string1Count := 0
+	string2Count := 0
 
-	// 字典序
-	// attach
-	// bank_type
-	// body
-	// fee_type
-	// goods_tag
-	// input_charset
-	// notify_url
-	// out_trade_no
-	// partner
-	// product_fee
-	// spbill_create_ip
-	// time_expire
-	// time_start
-	// total_fee
-	// transport_fee
-	if len(this.Attach) > 0 {
-		ks = append(ks, "&attach=")
-		vs1 = append(vs1, this.Attach)
-		vs2 = append(vs2, pay.URLEscape(this.Attach))
-	}
-	if len(this.BankType) > 0 {
-		ks = append(ks, "&bank_type=")
-		vs1 = append(vs1, this.BankType)
-		vs2 = append(vs2, pay.URLEscape(this.BankType))
-	}
-	if len(this.Body) > 0 {
-		ks = append(ks, "&body=")
-		vs1 = append(vs1, this.Body)
-		vs2 = append(vs2, pay.URLEscape(this.Body))
-	}
-	if len(this.FeeType) > 0 {
-		ks = append(ks, "&fee_type=")
-		vs1 = append(vs1, this.FeeType)
-		vs2 = append(vs2, pay.URLEscape(this.FeeType))
-	}
-	if len(this.ProductTag) > 0 {
-		ks = append(ks, "&goods_tag=")
-		vs1 = append(vs1, this.ProductTag)
-		vs2 = append(vs2, pay.URLEscape(this.ProductTag))
-	}
-	if len(this.Charset) > 0 {
-		ks = append(ks, "&input_charset=")
-		vs1 = append(vs1, this.Charset)
-		vs2 = append(vs2, pay.URLEscape(this.Charset))
-	}
-	if len(this.NotifyURL) > 0 {
-		ks = append(ks, "&notify_url=")
-		vs1 = append(vs1, this.NotifyURL)
-		vs2 = append(vs2, pay.URLEscape(this.NotifyURL))
-	}
-	if len(this.OutTradeNo) > 0 {
-		ks = append(ks, "&out_trade_no=")
-		vs1 = append(vs1, this.OutTradeNo)
-		vs2 = append(vs2, pay.URLEscape(this.OutTradeNo))
-	}
-	if len(this.PartnerId) > 0 {
-		ks = append(ks, "&partner=")
-		vs1 = append(vs1, this.PartnerId)
-		vs2 = append(vs2, pay.URLEscape(this.PartnerId))
-	}
-	if len(this.ProductFee) > 0 {
-		ks = append(ks, "&product_fee=")
-		vs1 = append(vs1, this.ProductFee)
-		vs2 = append(vs2, pay.URLEscape(this.ProductFee))
-	}
-	if len(this.BillCreateIP) > 0 {
-		ks = append(ks, "&spbill_create_ip=")
-		vs1 = append(vs1, this.BillCreateIP)
-		vs2 = append(vs2, pay.URLEscape(this.BillCreateIP))
-	}
-	if len(this.TimeExpire) > 0 {
-		ks = append(ks, "&time_expire=")
-		vs1 = append(vs1, this.TimeExpire)
-		vs2 = append(vs2, pay.URLEscape(this.TimeExpire))
-	}
-	if len(this.TimeStart) > 0 {
-		ks = append(ks, "&time_start=")
-		vs1 = append(vs1, this.TimeStart)
-		vs2 = append(vs2, pay.URLEscape(this.TimeStart))
-	}
-	if len(this.TotalFee) > 0 {
-		ks = append(ks, "&total_fee=")
-		vs1 = append(vs1, this.TotalFee)
-		vs2 = append(vs2, pay.URLEscape(this.TotalFee))
-	}
-	if len(this.TransportFee) > 0 {
-		ks = append(ks, "&transport_fee=")
-		vs1 = append(vs1, this.TransportFee)
-		vs2 = append(vs2, pay.URLEscape(this.TransportFee))
-	}
+	for _, KV := range KVS {
+		escapedKey := pay.URLEscape(KV.Key) // 安全起见也做 escape
+		escapedValue := pay.URLEscape(KV.Value)
+		string2KVS = append(string2KVS, pay.KV{escapedKey, escapedValue})
+		string2Count += len(escapedKey) + len(escapedValue) + 2 // key=value&
 
-	if len(ks) > 0 {
-		ks[0] = ks[0][1:] // len(ks[0]) > 0, 去掉 ks[0] 的首字母 &
+		if KV.Value == "" { // 空值不参加签名
+			continue
+		}
+		string1KVS = append(string1KVS, KV)
+		string1Count += len(KV.Key) + len(KV.Value) + 2 // key=value&
 	}
+	string1Count += len("key=") + len(partnerKey)
+	string2Count += len("sign=") + 32 // md5sum
 
-	ksTotalLen := 0
-	for _, str := range ks {
-		ksTotalLen += len(str)
-	}
-	vs1TotalLen := 0
-	for _, str := range vs1 {
-		vs1TotalLen += len(str)
-	}
-	vs2TotalLen := 0
-	for _, str := range vs2 {
-		vs2TotalLen += len(str)
-	}
-
-	var n1, n2 int
-	if len(ks) > 0 {
-		n1 = ksTotalLen + vs1TotalLen + 5 + len(partnerKey) // &key=partnerKey
-		n2 = ksTotalLen + vs2TotalLen + 6 + md5.Size*2      // &sign=signature, md5
+	var buf []byte
+	if string1Count >= string2Count {
+		buf = make([]byte, string1Count)
 	} else {
-		n1 = 4 + len(partnerKey) // key=partnerKey
-		n2 = 5 + md5.Size*2      // sign=signature, md5
+		buf = make([]byte, string2Count)
 	}
+	string1 := buf[:0]
+	string2 := buf[:0]
 
-	buf := make([]byte, n1+n2)
-	string1 := buf[0:0:n1]
-	string2 := buf[n1:n1]
-	package_ = buf[n1:]
-	signature := package_[len(package_)-md5.Size*2:]
-
-	for i := 0; i < len(ks); i++ {
-		string1 = append(string1, ks[i]...)
-		string1 = append(string1, vs1[i]...)
-
-		string2 = append(string2, ks[i]...)
-		string2 = append(string2, vs2[i]...)
+	for _, KV := range string1KVS {
+		string1 = append(string1, KV.Key...)
+		string1 = append(string1, '=')
+		string1 = append(string1, KV.Value...)
+		string1 = append(string1, '&')
 	}
-
-	if len(ks) > 0 {
-		string1 = append(string1, "&key="...)
-		string2 = append(string2, "&sign="...)
-
-	} else {
-		string1 = append(string1, "key="...)
-		string2 = append(string2, "sign="...)
-	}
+	string1 = append(string1, "key="...)
 	string1 = append(string1, partnerKey...)
-	md5sum := md5.Sum(string1)
-	hex.Encode(signature, md5sum[:])
-	copy(signature, bytes.ToUpper(signature))
 
-	return
+	md5sum := md5.Sum(string1)
+	signature := make([]byte, 32)
+	hex.Encode(signature, md5sum[:])
+	signature = bytes.ToUpper(signature)
+
+	for _, KV := range string2KVS {
+		string2 = append(string2, KV.Key...)
+		string2 = append(string2, '=')
+		string2 = append(string2, KV.Value...)
+		string2 = append(string2, '&')
+	}
+	string2 = append(string2, "sign="...)
+	string2 = append(string2, signature...)
+
+	return string2
 }

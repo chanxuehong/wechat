@@ -6,78 +6,50 @@
 package pay2
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
 	"fmt"
-	"hash"
 	"strconv"
+	"time"
 )
 
 // 公众平台接到用户点击 Native 支付 URL 之后, 会调用注册时填写的商户获取订单 Package 的回调 URL.
-// 这是获取订单详情 package 的回复消息数据结构.
-type PayPackageResponse struct {
-	XMLName struct{} `xml:"xml" json:"-"`
+// 这是获取订单详情 package 的回复消息数据结构, xml 格式.
+type PayPackageResponse map[string]string
 
-	AppId     string `xml:"AppId"     json:"AppId"`     // 必须, 公众帐号的appid
-	NonceStr  string `xml:"NonceStr"  json:"NonceStr"`  // 必须, 随机串
-	TimeStamp string `xml:"TimeStamp" json:"TimeStamp"` // 必须, 时间戳
-
-	Package string `xml:"Package" json:"Package"` // 必须, 订单详情组合成的字符串, 4096个字符以内, see ../PayPackage.Package
-
-	// 可以自己定义错误信息
-	RetCode string `xml:"RetCode"   json:"RetCode"`   // 必须, 0 表示正确
-	RetMsg  string `xml:"RetErrMsg" json:"RetErrMsg"` // 必须, 错误信息, 要求 utf8 编码格式
-
-	Signature  string `xml:"AppSignature" json:"AppSignature"` // 必须, 该 PayPackageResponse 自身的签名. see PayPackageResponse.SetSignature
-	SignMethod string `xml:"SignMethod"   json:"SignMethod"`   // 必须, 签名方式, 目前只支持 "sha1"
+func (resp PayPackageResponse) SetAppId(AppId string) {
+	resp["AppId"] = AppId
 }
-
-func (this *PayPackageResponse) SetTimeStamp(timestamp int64) {
-	this.TimeStamp = strconv.FormatInt(timestamp, 10)
+func (resp PayPackageResponse) SetNonceStr(NonceStr string) {
+	resp["NonceStr"] = NonceStr
 }
-func (this *PayPackageResponse) SetRetCode(n int) {
-	this.RetCode = strconv.FormatInt(int64(n), 10)
+func (resp PayPackageResponse) SetTimeStamp(t time.Time) {
+	resp["TimeStamp"] = strconv.FormatInt(t.Unix(), 10)
+}
+func (resp PayPackageResponse) SetPackage(Package string) {
+	resp["Package"] = Package
+}
+func (resp PayPackageResponse) SetRetCode(RetCode int) {
+	resp["RetCode"] = strconv.FormatInt(int64(RetCode), 10)
+}
+func (resp PayPackageResponse) SetRetMsg(RetMsg string) {
+	resp["RetErrMsg"] = RetMsg
+}
+func (resp PayPackageResponse) SetSignMethod(SignMethod string) {
+	resp["SignMethod"] = SignMethod
 }
 
 // 设置签名字段.
 //  appKey: 即 paySignKey, 公众号支付请求中用于加密的密钥 Key
 //
-//  NOTE: 要求在 resp *PayPackageResponse 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
-func (resp *PayPackageResponse) SetSignature(appKey string) (err error) {
-	var Hash hash.Hash
+//  NOTE: 要求在 PayPackageResponse 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
+func (resp PayPackageResponse) SetSignature(appKey string) (err error) {
+	SignMethod := resp["SignMethod"]
 
-	switch resp.SignMethod {
+	switch SignMethod {
 	case "sha1", "SHA1":
-		Hash = sha1.New()
+		resp["AppSignature"] = WXSHA1Sign1(resp, appKey, []string{"AppSignature", "SignMethod"})
+		return
 
 	default:
-		err = fmt.Errorf(`unknown sign method: %q`, resp.SignMethod)
-		return
+		return fmt.Errorf(`unknown sign method: %q`, SignMethod)
 	}
-
-	// 字典序
-	// appid
-	// appkey
-	// noncestr
-	// package
-	// retcode
-	// reterrmsg
-	// timestamp
-	Hash.Write([]byte("appid="))
-	Hash.Write([]byte(resp.AppId))
-	Hash.Write([]byte("&appkey="))
-	Hash.Write([]byte(appKey))
-	Hash.Write([]byte("&noncestr="))
-	Hash.Write([]byte(resp.NonceStr))
-	Hash.Write([]byte("&package="))
-	Hash.Write([]byte(resp.Package))
-	Hash.Write([]byte("&retcode="))
-	Hash.Write([]byte(resp.RetCode))
-	Hash.Write([]byte("&reterrmsg="))
-	Hash.Write([]byte(resp.RetMsg))
-	Hash.Write([]byte("&timestamp="))
-	Hash.Write([]byte(resp.TimeStamp))
-
-	resp.Signature = hex.EncodeToString(Hash.Sum(nil))
-	return
 }

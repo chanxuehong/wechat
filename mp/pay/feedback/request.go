@@ -47,14 +47,14 @@ func (req *MixedRequest) CheckSignature(appKey string) (err error) {
 
 	switch req.SignMethod {
 	case "sha1", "SHA1":
-		if len(req.Signature) != sha1.Size*2 {
+		if len(req.Signature) != 40 {
 			err = fmt.Errorf(`不正确的签名: %q, 长度不对, have: %d, want: %d`,
-				req.Signature, len(req.Signature), sha1.Size*2)
+				req.Signature, len(req.Signature), 40)
 			return
 		}
 
 		Hash = sha1.New()
-		hashsum = make([]byte, sha1.Size*2)
+		hashsum = make([]byte, 40)
 
 	default:
 		err = fmt.Errorf(`unknown sign method: %q`, req.SignMethod)

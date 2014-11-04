@@ -41,7 +41,7 @@ func (para *JSAPIPayRequestParameters) SetSignature(appKey string) (err error) {
 	switch para.SignMethod {
 	case "md5", "MD5":
 		Hash = md5.New()
-		hashsum = make([]byte, md5.Size*2)
+		hashsum = make([]byte, 32)
 
 	default:
 		err = fmt.Errorf(`unknown sign method: %q`, para.SignMethod)

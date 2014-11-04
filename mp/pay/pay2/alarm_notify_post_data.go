@@ -6,12 +6,8 @@
 package pay2
 
 import (
-	"crypto/sha1"
 	"crypto/subtle"
-	"encoding/hex"
 	"fmt"
-	"hash"
-	"strconv"
 )
 
 // 为了及时通知商户异常，提高商户在微信平台的服务质量。微信后台会向商户推送告警
@@ -22,74 +18,54 @@ import (
 // 商户收到告警通知后，需要成功返回success。在通过功能发布检测时，请保证已调通。
 //
 // 这是告警通知URL 接收的postData 中的 xml 数据
-type AlarmNotifyPostData struct {
-	XMLName struct{} `xml:"xml" json:"-"`
+type AlarmNotifyPostData map[string]string
 
-	AppId     string `xml:"AppId"     json:"AppId"`
-	TimeStamp string `xml:"TimeStamp" json:"TimeStamp"`
-
-	ErrorType   string `xml:"ErrorType"    json:"ErrorType"` // 1001:发货超时
-	Description string `xml:"Description"  json:"Description"`
-	Content     string `xml:"AlarmContent" json:"AlarmContent"`
-
-	Signature  string `xml:"AppSignature" json:"AppSignature"`
-	SignMethod string `xml:"SignMethod"   json:"SignMethod"`
+func (data AlarmNotifyPostData) AppId() string {
+	return data["AppId"]
+}
+func (data AlarmNotifyPostData) TimeStamp() string {
+	return data["TimeStamp"]
+}
+func (data AlarmNotifyPostData) ErrorType() string {
+	return data["ErrorType"]
+}
+func (data AlarmNotifyPostData) Content() string {
+	return data["AlarmContent"]
+}
+func (data AlarmNotifyPostData) Description() string {
+	return data["Description"]
+}
+func (data AlarmNotifyPostData) Signature() string {
+	return data["AppSignature"]
+}
+func (data AlarmNotifyPostData) SignMethod() string {
+	return data["SignMethod"]
 }
 
-func (this *AlarmNotifyPostData) GetTimeStamp() (n int64, err error) {
-	return strconv.ParseInt(this.TimeStamp, 10, 64)
-}
-func (this *AlarmNotifyPostData) GetErrorType() (n int64, err error) {
-	return strconv.ParseInt(this.ErrorType, 10, 64)
-}
-
-// 检查 data *AlarmNotifyPostData 的签名是否合法, 合法返回 nil, 否则返回错误信息.
+// 检查 AlarmNotifyPostData 的签名是否合法, 合法返回 nil, 否则返回错误信息.
 //  appKey: 即 paySignKey, 公众号支付请求中用于加密的密钥 Key
-func (data *AlarmNotifyPostData) CheckSignature(appKey string) (err error) {
-	var Hash hash.Hash
-	var hashsum []byte
+func (data AlarmNotifyPostData) CheckSignature(appKey string) (err error) {
+	Signature1 := data["AppSignature"]
+	SignMethod := data["SignMethod"]
 
-	switch data.SignMethod {
+	switch SignMethod {
 	case "sha1", "SHA1":
-		if len(data.Signature) != sha1.Size*2 {
+		if len(Signature1) != 40 {
 			err = fmt.Errorf(`不正确的签名: %q, 长度不对, have: %d, want: %d`,
-				data.Signature, len(data.Signature), sha1.Size*2)
+				Signature1, len(Signature1), 40)
 			return
 		}
 
-		Hash = sha1.New()
-		hashsum = make([]byte, sha1.Size*2)
+		Signature2 := WXSHA1Sign1(data, appKey, []string{"AppSignature", "SignMethod"})
+
+		if subtle.ConstantTimeCompare([]byte(Signature2), []byte(Signature1)) != 1 {
+			err = fmt.Errorf("签名不匹配, \r\nlocal: %q, \r\ninput: %q", Signature2, Signature1)
+			return
+		}
+		return
 
 	default:
-		err = fmt.Errorf(`unknown sign method: %q`, data.SignMethod)
+		err = fmt.Errorf(`unknown sign method: %q`, SignMethod)
 		return
 	}
-
-	// 字典序
-	// alarmcontent
-	// appid
-	// appkey
-	// description
-	// errortype
-	// timestamp
-	Hash.Write([]byte("alarmcontent="))
-	Hash.Write([]byte(data.Content))
-	Hash.Write([]byte("&appid="))
-	Hash.Write([]byte(data.AppId))
-	Hash.Write([]byte("&appkey="))
-	Hash.Write([]byte(appKey))
-	Hash.Write([]byte("&description="))
-	Hash.Write([]byte(data.Description))
-	Hash.Write([]byte("&errortype="))
-	Hash.Write([]byte(data.ErrorType))
-	Hash.Write([]byte("&timestamp="))
-	Hash.Write([]byte(data.TimeStamp))
-
-	hex.Encode(hashsum, Hash.Sum(nil))
-
-	if subtle.ConstantTimeCompare(hashsum, []byte(data.Signature)) != 1 {
-		err = fmt.Errorf("签名不匹配, \r\nlocal: %q, \r\ninput: %q", hashsum, data.Signature)
-		return
-	}
-	return
 }

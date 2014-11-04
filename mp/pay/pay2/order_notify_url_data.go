@@ -10,13 +10,9 @@ import (
 	"crypto/md5"
 	"crypto/subtle"
 	"encoding/hex"
-	"errors"
 	"fmt"
-	"github.com/chanxuehong/wechat/mp/pay"
 	"net/url"
 	"sort"
-	"strconv"
-	"time"
 )
 
 // 用户在成功完成支付后，微信后台通知商户服务器（notify_url）支付结果。
@@ -34,86 +30,101 @@ import (
 // fail 或其它字符处理不成功，微信收到此结果或者没有收到任何结果，系统通过补单机制再次通知
 //
 // 这是支付成功后通知消息 url query 部分的数据结构
-type OrderNotifyURLData struct {
-	// 协议参数 ==================================================================
+type OrderNotifyURLData url.Values
 
-	//ServiceVersion string `json:"service_version"` // 可选, 版本号, 默认为 1.0
-	//SignKeyIndex   int    `json:"sign_key_index"`  // 可选, 多密钥支持的密钥序号, 默认为 1
-	Signature  string `json:"sign"`          // 必须, 签名
-	SignMethod string `json:"sign_type"`     // 可选, 签名类型，取值：MD5、RSA，默认：MD5
-	Charset    string `json:"input_charset"` // 可选, 字符编码,取值：GBK、UTF-8，默认：GBK。
-
-	// 业务参数 ==================================================================
-
-	NotifyId string `json:"notify_id"` // 必须, 支付结果通知id，对于某些特定商户，只返回通知id，要求商户据此查询交易结果
-
-	TradeMode     int       `json:"trade_mode"`     // 必须, 交易模式, 1-即时到账, 其他保留
-	TradeState    int       `json:"trade_state"`    // 必须, 交易状态(支付结果), 0-成功, 其他保留
-	BankBillNo    string    `json:"bank_billno"`    // 可选, 银行订单号
-	TransactionId string    `json:"transaction_id"` // 必须, 交易号，28 位长的数值，其中前10位为商户号，之后8 位为订单产生的日期，如20090415，最后10 位是流水号。
-	TimeEnd       time.Time `json:"time_end"`       // 必须, 支付完成时间
-	//PayInfo       string    `json:"pay_info"`       // 可选, 支付结果信息, 支付成功时为 ""
-	//BuyerAlias    string    `json:"buyer_alias"`    // 可选, 买家别名, 对应买家账号的一个加密串
-
-	// 下面这 4 个字段和支付账单 PayPackage 里的同名字段内容相同
-	BankType   string `json:"bank_type"`    // 必须, 银行类型, 微信中固定为 WX
-	PartnerId  string `json:"partner"`      // 必须, 商户号，也即之前步骤的partnerid,由微信统一分配的10 位正整数(120XXXXXXX)号
-	OutTradeNo string `json:"out_trade_no"` // 必须, 商户系统的订单号，与请求一致。
-	Attach     string `json:"attach"`       // 可选, 商户数据包，原样返回，空参数不传递
-
-	TotalFee     int `json:"total_fee"`     // 必须, 支付金额，单位为分，如果 Discount 有值，通知的 TotalFee + Discount == 请求的 TotalFee
-	Discount     int `json:"discount"`      // 可选, 折扣价格，单位分，如果有值，通知的 TotalFee + Discount == 请求的 TotalFee
-	TransportFee int `json:"transport_fee"` // 可选, 物流费用，单位分，默认0。如果有值， 必须保证 TransportFee + ProductFee == TotalFee
-	ProductFee   int `json:"product_fee"`   // 可选, 物品费用，单位分。如果有值，必须保证 TransportFee + ProductFee == TotalFee
-	FeeType      int `json:"fee_type"`      // 必须, 币种, 目前只支持人民币, 默认值是 1-人民币
+func (data OrderNotifyURLData) Signature() string {
+	return url.Values(data).Get("sign")
+}
+func (data OrderNotifyURLData) SignMethod() string {
+	str := url.Values(data).Get("sign_type")
+	if str == "" {
+		return "MD5"
+	}
+	return str
+}
+func (data OrderNotifyURLData) Charset() string {
+	str := url.Values(data).Get("input_charset")
+	if str == "" {
+		return "GBK"
+	}
+	return str
+}
+func (data OrderNotifyURLData) NotifyId() string {
+	return url.Values(data).Get("notify_id")
+}
+func (data OrderNotifyURLData) TradeMode() string {
+	return url.Values(data).Get("trade_mode")
+}
+func (data OrderNotifyURLData) TradeState() string {
+	return url.Values(data).Get("trade_state")
+}
+func (data OrderNotifyURLData) BankBillNo() string {
+	return url.Values(data).Get("bank_billno")
+}
+func (data OrderNotifyURLData) TransactionId() string {
+	return url.Values(data).Get("transaction_id")
+}
+func (data OrderNotifyURLData) TimeEnd() string {
+	return url.Values(data).Get("time_end")
+}
+func (data OrderNotifyURLData) BankType() string {
+	return url.Values(data).Get("bank_type")
+}
+func (data OrderNotifyURLData) PartnerId() string {
+	return url.Values(data).Get("partner")
+}
+func (data OrderNotifyURLData) OutTradeNo() string {
+	return url.Values(data).Get("out_trade_no")
+}
+func (data OrderNotifyURLData) Attach() string {
+	return url.Values(data).Get("attach")
+}
+func (data OrderNotifyURLData) TotalFee() string {
+	return url.Values(data).Get("total_fee")
+}
+func (data OrderNotifyURLData) Discount() string {
+	return url.Values(data).Get("discount")
+}
+func (data OrderNotifyURLData) TransportFee() string {
+	return url.Values(data).Get("transport_fee")
+}
+func (data OrderNotifyURLData) ProductFee() string {
+	return url.Values(data).Get("product_fee")
+}
+func (data OrderNotifyURLData) FeeType() string {
+	return url.Values(data).Get("fee_type")
 }
 
-// 根据 URL RawQuery 来初始化 data *OrderNotifyURLData.
-// 如果 RawQuery 里的参数不合法(包括签名不正确) 则返回错误信息, 否则返回 nil.
+// 检查 OrderNotifyURLData 的签名是否合法, 合法返回 nil, 否则返回错误信息.
 //  partnerKey: 财付通商户权限密钥Key
-func (data *OrderNotifyURLData) CheckAndInit(RawQuery string, partnerKey string) (err error) {
-	urlValues, err := url.ParseQuery(RawQuery)
-	if err != nil {
-		return
-	}
+func (data OrderNotifyURLData) CheckSignature(partnerKey string) (err error) {
+	Signature := data.Signature()
+	SignMethod := data.SignMethod()
 
-	var signature string
-	if vs := urlValues["sign"]; len(vs) > 0 && len(vs[0]) > 0 {
-		signature = vs[0]
-	} else {
-		return errors.New("sign is empty")
-	}
-
-	var signMethod string
-	if vs := urlValues["sign_type"]; len(vs) > 0 && len(vs[0]) > 0 {
-		signMethod = vs[0]
-	} else {
-		signMethod = "MD5"
-	}
-
-	// 验证签名是否正确 ===========================================================
-
-	switch signMethod {
+	switch SignMethod {
 	case "MD5", "md5":
-		if len(signature) != md5.Size*2 {
+		if len(Signature) != 32 {
 			err = fmt.Errorf(`不正确的签名: %q, 长度不对, have: %d, want: %d`,
-				signature, len(signature), md5.Size*2)
+				Signature, len(Signature), 32)
 			return
 		}
 
-		urlValues.Del("sign") // sign 不参与签名
-
-		keys := make([]string, 0, len(urlValues))
-		for key := range urlValues {
+		keys := make([]string, 0, len(data))
+		for key := range data {
 			keys = append(keys, key)
 		}
 		sort.Strings(keys)
 
 		Hash := md5.New()
+		hashsum := make([]byte, 32)
+
 		for _, key := range keys {
-			// len(urlValues[key]) == 1, 都是单值
-			value := urlValues[key][0]
-			if len(value) == 0 {
+			if key == "sign" {
+				continue
+			}
+
+			value := data[key][0] // len(data[key]) > 0
+			if value == "" {
 				continue
 			}
 
@@ -125,141 +136,17 @@ func (data *OrderNotifyURLData) CheckAndInit(RawQuery string, partnerKey string)
 		Hash.Write([]byte("key="))
 		Hash.Write([]byte(partnerKey))
 
-		SignatureHave := make([]byte, md5.Size*2)
-		hex.Encode(SignatureHave, Hash.Sum(nil))
-		copy(SignatureHave, bytes.ToUpper(SignatureHave))
+		hex.Encode(hashsum, Hash.Sum(nil))
+		hashsum = bytes.ToUpper(hashsum)
 
-		if subtle.ConstantTimeCompare(SignatureHave, []byte(signature)) != 1 {
-			err = fmt.Errorf("不正确的签名, \r\nhave: %q, \r\nwant: %q", SignatureHave, signature)
+		if subtle.ConstantTimeCompare(hashsum, []byte(Signature)) != 1 {
+			err = fmt.Errorf("签名不匹配, \r\nlocal: %q, \r\ninput: %q", hashsum, Signature)
 			return
 		}
+		return
 
 	default:
-		return fmt.Errorf("没有实现对签名方法 %q 的支持", signMethod)
+		err = fmt.Errorf(`unknown sign method: %q`, SignMethod)
+		return
 	}
-
-	// 初始化 ===================================================================
-
-	data.Signature = signature
-	data.SignMethod = signMethod
-
-	if vs := urlValues["input_charset"]; len(vs) > 0 && len(vs[0]) > 0 {
-		data.Charset = vs[0]
-	} else {
-		data.Charset = CHARSET_GBK
-	}
-
-	if vs := urlValues["notify_id"]; len(vs) > 0 && len(vs[0]) > 0 {
-		data.NotifyId = vs[0]
-	} else {
-		return errors.New("notify_id is empty")
-	}
-
-	if vs := urlValues["trade_mode"]; len(vs) > 0 && len(vs[0]) > 0 {
-		v0, err := strconv.ParseInt(vs[0], 10, 64)
-		if err != nil {
-			return err
-		}
-		data.TradeMode = int(v0)
-	} else {
-		return errors.New("trade_mode is empty")
-	}
-
-	if vs := urlValues["trade_state"]; len(vs) > 0 && len(vs[0]) > 0 {
-		v0, err := strconv.ParseInt(vs[0], 10, 64)
-		if err != nil {
-			return err
-		}
-		data.TradeState = int(v0)
-	} else {
-		return errors.New("trade_state is empty")
-	}
-
-	if vs := urlValues["bank_billno"]; len(vs) > 0 {
-		data.BankBillNo = vs[0]
-	}
-
-	if vs := urlValues["transaction_id"]; len(vs) > 0 && len(vs[0]) > 0 {
-		data.TransactionId = vs[0]
-	} else {
-		return errors.New("transaction_id is empty")
-	}
-
-	if vs := urlValues["time_end"]; len(vs) > 0 && len(vs[0]) > 0 {
-		v0, err := pay.ParseTime(vs[0])
-		if err != nil {
-			return err
-		}
-		data.TimeEnd = v0
-	} else {
-		return errors.New("time_end is empty")
-	}
-
-	if vs := urlValues["bank_type"]; len(vs) > 0 && len(vs[0]) > 0 {
-		data.BankType = vs[0]
-	} else {
-		return errors.New("bank_type is empty")
-	}
-
-	if vs := urlValues["partner"]; len(vs) > 0 && len(vs[0]) > 0 {
-		data.PartnerId = vs[0]
-	} else {
-		return errors.New("partner is empty")
-	}
-
-	if vs := urlValues["out_trade_no"]; len(vs) > 0 && len(vs[0]) > 0 {
-		data.OutTradeNo = vs[0]
-	} else {
-		return errors.New("out_trade_no is empty")
-	}
-
-	if vs := urlValues["attach"]; len(vs) > 0 {
-		data.Attach = vs[0]
-	}
-
-	if vs := urlValues["total_fee"]; len(vs) > 0 && len(vs[0]) > 0 {
-		v0, err := strconv.ParseInt(vs[0], 10, 64)
-		if err != nil {
-			return err
-		}
-		data.TotalFee = int(v0)
-	} else {
-		return errors.New("total_fee is empty")
-	}
-
-	if vs := urlValues["discount"]; len(vs) > 0 && len(vs[0]) > 0 {
-		v0, err := strconv.ParseInt(vs[0], 10, 64)
-		if err != nil {
-			return err
-		}
-		data.Discount = int(v0)
-	}
-
-	if vs := urlValues["transport_fee"]; len(vs) > 0 && len(vs[0]) > 0 {
-		v0, err := strconv.ParseInt(vs[0], 10, 64)
-		if err != nil {
-			return err
-		}
-		data.TransportFee = int(v0)
-	}
-
-	if vs := urlValues["product_fee"]; len(vs) > 0 && len(vs[0]) > 0 {
-		v0, err := strconv.ParseInt(vs[0], 10, 64)
-		if err != nil {
-			return err
-		}
-		data.ProductFee = int(v0)
-	}
-
-	if vs := urlValues["fee_type"]; len(vs) > 0 && len(vs[0]) > 0 {
-		v0, err := strconv.ParseInt(vs[0], 10, 64)
-		if err != nil {
-			return err
-		}
-		data.FeeType = int(v0)
-	} else {
-		return errors.New("fee_type is empty")
-	}
-
-	return
 }
