@@ -3,19 +3,20 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package pay2
+package pay
 
 import (
 	"bytes"
 	"crypto/md5"
 	"crypto/sha1"
 	"encoding/hex"
-	"github.com/chanxuehong/wechat/mp/pay"
 	"sort"
 	"strings"
 )
 
-// 财付通签名, 签名方法为:
+// 财付通签名, 微信支付 2.x 涉及到财付通的交易 和 微信支付 3.x 都是使用这种签名.
+//
+// 签名方法为:
 // a.对所有传入参数按照字段名的 ASCII 码从小到大排序（字典序）后，使用 URL 键值
 // 对的格式（即 key1=value1&key2=value2…）拼接成字符串 string1，注意：值为空的参数不
 // 参与签名；
@@ -28,7 +29,7 @@ import (
 func TenpayMD5Sign(parameters map[string]string, signKey string) string {
 	keys := make([]string, 0, len(parameters))
 	for key, value := range parameters {
-		if value == "" {
+		if value == "" { // 值为空不参加签名
 			continue
 		}
 		if key == "sign" {
@@ -57,7 +58,9 @@ func TenpayMD5Sign(parameters map[string]string, signKey string) string {
 	return string(bytes.ToUpper(hashsum))
 }
 
-// 微信签名, 签名方法为:
+// 微信签名, 微信支付 2.x 的签名方法.
+//
+// 签名方法为:
 // a.对所有待签名参数按照字段名的 ASCII 码从小到大排序（字典序）后，使用 URL 键
 // 值对的格式（即key1=value1&key2=value2…）拼接成字符串string1。这里需要注意的是所
 // 有参数名均为小写字符，例如 appId 在排序后字符串则为 appid；
@@ -72,7 +75,9 @@ func WXSHA1Sign1(parameters map[string]string, signKey string, noSignParameters 
 	return wxSHA1Sign(parameters, signKey, noSignParameters, false)
 }
 
-// 微信签名, 签名方法为:
+// 微信签名, 微信支付 2.x 的签名方法.
+//
+// 签名方法为:
 // a.对所有待签名参数按照字段名的 ASCII 码从小到大排序（字典序）后，使用 URL 键
 // 值对的格式（即key1=value1&key2=value2…）拼接成字符串string1。这里需要注意的是所
 // 有参数名均为小写字符，例如 appId 在排序后字符串则为 appid；
@@ -87,10 +92,26 @@ func WXSHA1Sign2(parameters map[string]string, signKey string, signParameters []
 	return wxSHA1Sign(parameters, signKey, signParameters, true)
 }
 
+// 微信签名, 微信支付 2.x 的签名方法.
+//
+// 签名方法为:
+// a.对所有待签名参数按照字段名的 ASCII 码从小到大排序（字典序）后，使用 URL 键
+// 值对的格式（即key1=value1&key2=value2…）拼接成字符串string1。这里需要注意的是所
+// 有参数名均为小写字符，例如 appId 在排序后字符串则为 appid；
+// b.对 string1 作签名算法，字段名和字段值都采用原始值（此时package的value就对应
+// 了使用 2.6中描述的方式生成的 package），不进行 URL 转义。具体签名算法为 paySign =
+// SHA1(string)。
+//
+//  parameters:           待签名的参数
+//  signKey:              支付签名的 Key
+//  parameterKeys:        一般是 parameters 里面某些参数数组
+//  isParametersKeysSign: 指定 parameterKeys 是否参加签名
+//                        true:  指定 parameters 出现在 parameterKeys 里的参数才能参加签名
+//                        false: 指定 parameters 出现在 parameterKeys 里的参数不能参加签名
 func wxSHA1Sign(parameters map[string]string, signKey string,
 	parameterKeys []string, isParametersKeysSign bool) string {
 
-	kvs := make(pay.KVSlice, 0, len(parameters)+1)
+	kvs := make(KVSlice, 0, len(parameters)+1)
 	for k, v := range parameters {
 		if isParametersKeysSign {
 			if !isIn(parameterKeys, k) {
@@ -106,9 +127,9 @@ func wxSHA1Sign(parameters map[string]string, signKey string,
 		if lowerKey == "appkey" {
 			continue
 		}
-		kvs = append(kvs, pay.KV{lowerKey, v})
+		kvs = append(kvs, KV{lowerKey, v})
 	}
-	kvs = append(kvs, pay.KV{"appkey", signKey})
+	kvs = append(kvs, KV{"appkey", signKey})
 	sort.Sort(kvs)
 
 	Hash := sha1.New()

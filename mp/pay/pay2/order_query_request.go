@@ -10,9 +10,10 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/chanxuehong/wechat/mp/pay"
 	"strconv"
 	"time"
+
+	"github.com/chanxuehong/wechat/mp/pay"
 )
 
 // 因为某一方技术的原因，可能导致商户在预期时间内都收不到最终支付通知，此时商户
@@ -85,7 +86,7 @@ func (req OrderQueryRequest) SetSignature(appKey string) (err error) {
 
 	switch SignMethod {
 	case "sha1", "SHA1":
-		req["app_signature"] = WXSHA1Sign1(req, appKey, []string{"app_signature", "sign_method"})
+		req["app_signature"] = pay.WXSHA1Sign1(req, appKey, []string{"app_signature", "sign_method"})
 		return
 
 	default:
