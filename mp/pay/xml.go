@@ -6,6 +6,7 @@
 package pay
 
 import (
+	"bytes"
 	"encoding/xml"
 	"errors"
 	"io"
@@ -29,17 +30,18 @@ func ParseXMLToMap(xmlReader io.Reader, Map map[string]string) (err error) {
 
 	d := xml.NewDecoder(xmlReader)
 
-	var key, value string // 保存当前扫描的节点 key, value
-	depth := 0            // 当前节点的深度
+	var key string          // 保存当前第一级节点的 key
+	var buffer bytes.Buffer // 保存当前第一级节点的 value
+	depth := 0              // 当前节点的深度
 
 	for {
 		var tk xml.Token
 		tk, err = d.Token()
 		if err != nil {
-			if err != io.EOF {
+			if err == io.EOF {
+				err = nil
 				return
 			}
-			err = nil
 			return
 		}
 
@@ -48,16 +50,19 @@ func ParseXMLToMap(xmlReader io.Reader, Map map[string]string) (err error) {
 			depth++
 			if depth == 2 {
 				key = v.Name.Local
+				buffer.Reset()
+			} else {
+				key = "" // 不是第一级节点的都不保存
 			}
 
 		case xml.CharData:
-			if depth == 2 {
-				value = string(v) // 已经 copy 了, 不需要调用 v.Copy()
+			if depth == 2 && key != "" {
+				buffer.Write(v)
 			}
 
 		case xml.EndElement:
-			if depth == 2 {
-				Map[key] = value
+			if depth == 2 && key != "" {
+				Map[key] = buffer.String()
 			}
 			depth--
 		}
