@@ -8,6 +8,8 @@ package pay2
 import (
 	"crypto/subtle"
 	"fmt"
+
+	"github.com/chanxuehong/wechat/mp/pay"
 )
 
 // 为了及时通知商户异常，提高商户在微信平台的服务质量。微信后台会向商户推送告警
@@ -56,7 +58,7 @@ func (data AlarmNotifyPostData) CheckSignature(appKey string) (err error) {
 			return
 		}
 
-		Signature2 := WXSHA1Sign1(data, appKey, []string{"AppSignature", "SignMethod"})
+		Signature2 := pay.WXSHA1Sign1(data, appKey, []string{"AppSignature", "SignMethod"})
 
 		if subtle.ConstantTimeCompare([]byte(Signature2), []byte(Signature1)) != 1 {
 			err = fmt.Errorf("签名不匹配, \r\nlocal: %q, \r\ninput: %q", Signature2, Signature1)

@@ -9,10 +9,11 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
-	"github.com/chanxuehong/wechat/mp/pay"
 	"sort"
 	"strconv"
 	"time"
+
+	"github.com/chanxuehong/wechat/mp/pay"
 )
 
 // 订单详情的参数

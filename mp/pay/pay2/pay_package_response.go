@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+
+	"github.com/chanxuehong/wechat/mp/pay"
 )
 
 // 公众平台接到用户点击 Native 支付 URL 之后, 会调用注册时填写的商户获取订单 Package 的回调 URL.
@@ -46,7 +48,7 @@ func (resp PayPackageResponse) SetSignature(appKey string) (err error) {
 
 	switch SignMethod {
 	case "sha1", "SHA1":
-		resp["AppSignature"] = WXSHA1Sign1(resp, appKey, []string{"AppSignature", "SignMethod"})
+		resp["AppSignature"] = pay.WXSHA1Sign1(resp, appKey, []string{"AppSignature", "SignMethod"})
 		return
 
 	default:
