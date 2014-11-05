@@ -14,6 +14,7 @@ import (
 	"github.com/chanxuehong/wechat/mp/pay/pay2"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 )
 
 // native api 请求订单详情的 Handler
@@ -41,20 +42,28 @@ func (handler *PayPackageRequestHandler) ServeHTTP(w http.ResponseWriter, r *htt
 	agent := handler.agent
 	invalidRequestHandler := handler.invalidRequestHandler
 
+	ServePayPackageRequestHTTP(w, r, nil, agent, invalidRequestHandler)
+}
+
+// ServePayPackageRequestHTTP 处理 http 消息请求
+//  NOTE: 确保所有参数合法, r.Body 能正确读取数据
+func ServePayPackageRequestHTTP(w http.ResponseWriter, r *http.Request,
+	urlValues url.Values, agent Agent, invalidRequestHandler InvalidRequestHandler) {
+
 	if r.Method != "POST" {
 		err := errors.New("request method is not POST")
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
-	rawXMLMsg, err := ioutil.ReadAll(r.Body)
+	postRawXMLMsg, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
 	req := make(pay2.PayPackageRequest)
-	if err = pay.ParseXMLToMap(bytes.NewReader(rawXMLMsg), req); err != nil {
+	if err = pay.ParseXMLToMap(bytes.NewReader(postRawXMLMsg), req); err != nil {
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
@@ -77,5 +86,5 @@ func (handler *PayPackageRequestHandler) ServeHTTP(w http.ResponseWriter, r *htt
 		return
 	}
 
-	agent.ServePayPackageRequest(w, r, &req, rawXMLMsg)
+	agent.ServePayPackageRequest(w, r, req, postRawXMLMsg)
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/chanxuehong/wechat/mp/pay/feedback"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 )
 
 // 用户维权的 Handler
@@ -40,32 +41,41 @@ func (handler *FeedbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	agent := handler.agent
 	invalidRequestHandler := handler.invalidRequestHandler
 
+	ServeFeedbackHTTP(w, r, nil, agent, invalidRequestHandler)
+}
+
+// ServeFeedbackHTTP 处理 http 消息请求
+//  NOTE: 确保所有参数合法, r.Body 能正确读取数据
+func ServeFeedbackHTTP(w http.ResponseWriter, r *http.Request,
+	urlValues url.Values, agent Agent, invalidRequestHandler InvalidRequestHandler) {
+
 	if r.Method != "POST" {
 		err := errors.New("request method is not POST")
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
-	rawXMLMsg, err := ioutil.ReadAll(r.Body)
+	postRawXMLMsg, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
 	var mixedReq feedback.MixedRequest
-	if err := xml.Unmarshal(rawXMLMsg, &mixedReq); err != nil {
+	if err := xml.Unmarshal(postRawXMLMsg, &mixedReq); err != nil {
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
+	haveAppId := mixedReq.AppId
 	wantAppId := agent.GetAppId()
-	if len(mixedReq.AppId) != len(wantAppId) {
-		err = fmt.Errorf("AppId mismatch, have: %q, want: %q", mixedReq.AppId, wantAppId)
+	if len(haveAppId) != len(wantAppId) {
+		err = fmt.Errorf("AppId mismatch, have: %q, want: %q", haveAppId, wantAppId)
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
-	if subtle.ConstantTimeCompare([]byte(mixedReq.AppId), []byte(wantAppId)) != 1 {
-		err = fmt.Errorf("AppId mismatch, have: %q, want: %q", mixedReq.AppId, wantAppId)
+	if subtle.ConstantTimeCompare([]byte(haveAppId), []byte(wantAppId)) != 1 {
+		err = fmt.Errorf("AppId mismatch, have: %q, want: %q", haveAppId, wantAppId)
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
@@ -77,15 +87,15 @@ func (handler *FeedbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 
 	switch mixedReq.MsgType {
 	case feedback.MSG_TYPE_COMPLAIN:
-		agent.ServeFeedbackComplaint(w, r, mixedReq.GetComplaint(), rawXMLMsg)
+		agent.ServeFeedbackComplaint(w, r, mixedReq.GetComplaint(), postRawXMLMsg)
 
 	case feedback.MSG_TYPE_CONFIRM:
-		agent.ServeFeedbackConfirmation(w, r, mixedReq.GetConfirmation(), rawXMLMsg)
+		agent.ServeFeedbackConfirmation(w, r, mixedReq.GetConfirmation(), postRawXMLMsg)
 
 	case feedback.MSG_TYPE_REJECT:
-		agent.ServeFeedbackRejection(w, r, mixedReq.GetRejection(), rawXMLMsg)
+		agent.ServeFeedbackRejection(w, r, mixedReq.GetRejection(), postRawXMLMsg)
 
 	default:
-		agent.ServeUnknownMsg(w, r, rawXMLMsg)
+		agent.ServeUnknownMsg(w, r, postRawXMLMsg)
 	}
 }

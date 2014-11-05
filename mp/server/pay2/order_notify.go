@@ -42,13 +42,8 @@ func (handler *OrderNotifyHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 	agent := handler.agent
 	invalidRequestHandler := handler.invalidRequestHandler
 
-	if r.Method != "POST" {
-		err := errors.New("request method is not POST")
-		invalidRequestHandler.ServeInvalidRequest(w, r, err)
-		return
-	}
-	if r.URL == nil {
-		err := errors.New("input net/http.Request.URL == nil")
+	if r == nil || r.URL == nil {
+		err := errors.New("input *net/http.Request r == nil or r.URL == nil")
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
@@ -59,33 +54,29 @@ func (handler *OrderNotifyHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	urlData := pay2.OrderNotifyURLData(urlValues)
-	if err = urlData.CheckSignature(agent.GetPartnerKey()); err != nil {
+	ServeOrderNotifyHTTP(w, r, urlValues, agent, invalidRequestHandler)
+}
+
+// ServeOrderNotifyHTTP 处理 http 消息请求
+//  NOTE: 确保所有参数合法, r.Body 能正确读取数据
+func ServeOrderNotifyHTTP(w http.ResponseWriter, r *http.Request,
+	urlValues url.Values, agent Agent, invalidRequestHandler InvalidRequestHandler) {
+
+	if r.Method != "POST" {
+		err := errors.New("request method is not POST")
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
-	havePartnerId := urlData.PartnerId()
-	wantPartnerId := agent.GetPartnerId()
-	if len(havePartnerId) != len(wantPartnerId) {
-		err := fmt.Errorf("PartnerId mismatch, have: %q, want: %q", havePartnerId, wantPartnerId)
-		invalidRequestHandler.ServeInvalidRequest(w, r, err)
-		return
-	}
-	if subtle.ConstantTimeCompare([]byte(havePartnerId), []byte(wantPartnerId)) != 1 {
-		err := fmt.Errorf("PartnerId mismatch, have: %q, want: %q", havePartnerId, wantPartnerId)
-		invalidRequestHandler.ServeInvalidRequest(w, r, err)
-		return
-	}
-
-	rawXMLMsg, err := ioutil.ReadAll(r.Body)
+	// 处理 post 部分
+	postRawXMLMsg, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
 	postData := make(pay2.OrderNotifyPostData)
-	if err = pay.ParseXMLToMap(bytes.NewReader(rawXMLMsg), postData); err != nil {
+	if err = pay.ParseXMLToMap(bytes.NewReader(postRawXMLMsg), postData); err != nil {
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
@@ -108,5 +99,26 @@ func (handler *OrderNotifyHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	agent.ServeOrderNotification(w, r, &urlData, &postData, rawXMLMsg)
+	// 处理 url 部分
+	urlData := pay2.OrderNotifyURLData(urlValues)
+
+	havePartnerId := urlData.PartnerId()
+	wantPartnerId := agent.GetPartnerId()
+	if len(havePartnerId) != len(wantPartnerId) {
+		err := fmt.Errorf("PartnerId mismatch, have: %q, want: %q", havePartnerId, wantPartnerId)
+		invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		return
+	}
+	if subtle.ConstantTimeCompare([]byte(havePartnerId), []byte(wantPartnerId)) != 1 {
+		err := fmt.Errorf("PartnerId mismatch, have: %q, want: %q", havePartnerId, wantPartnerId)
+		invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		return
+	}
+
+	if err := urlData.CheckSignature(agent.GetPartnerKey()); err != nil {
+		invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		return
+	}
+
+	agent.ServeOrderNotification(w, r, urlData, postData, postRawXMLMsg)
 }
