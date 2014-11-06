@@ -12,7 +12,7 @@ import (
 )
 
 // 微信支付发货通知
-func (c *Client) Pay2DeliverNotify(data *pay2.DeliverNotifyData) (err error) {
+func (c *Client) DeliverNotify(data *pay2.DeliverNotifyData) (err error) {
 	if data == nil {
 		return errors.New("data == nil")
 	}
@@ -50,7 +50,7 @@ RETRY:
 }
 
 // 微信支付订单查询
-func (c *Client) Pay2OrderQuery(req *pay2.OrderQueryRequest) (resp *pay2.OrderQueryResponse, err error) {
+func (c *Client) OrderQuery(req *pay2.OrderQueryRequest) (resp *pay2.OrderQueryResponse, err error) {
 	if req == nil {
 		err = errors.New("req == nil")
 		return
@@ -93,7 +93,7 @@ RETRY:
 }
 
 // 标记客户的投诉处理状态
-func (c *Client) Pay2FeedbackUpdate(openid string, feedbackid int64) (err error) {
+func (c *Client) FeedbackUpdate(openid string, feedbackid int64) (err error) {
 	var result Error
 
 	hasRetry := false

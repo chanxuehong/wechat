@@ -3,7 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package pay3
+package pay2
 
 import (
 	"bytes"
@@ -14,9 +14,18 @@ import (
 	"net/http"
 
 	"github.com/chanxuehong/wechat/mp/pay"
+	"github.com/chanxuehong/wechat/mp/pay/pay2"
 )
 
-func (c *Client) DownloadBill(req map[string]string) (data []byte, err error) {
+// <html>
+//   <body>03020003:该日期对帐单还没有生成</body>
+// </html>
+type downloadBillFailResponse struct {
+	XMLName struct{} `xml:"html"`
+	Body    string   `xml:"body"`
+}
+
+func (c *TenpayClient) DownloadBill(req pay2.DownloadBillRequest) (data []byte, err error) {
 	if req == nil {
 		err = errors.New("req == nil")
 		return
@@ -30,7 +39,7 @@ func (c *Client) DownloadBill(req map[string]string) (data []byte, err error) {
 		return
 	}
 
-	url_ := "https://api.mch.weixin.qq.com/pay/downloadbill"
+	url_ := "http://mch.tenpay.com/cgi-bin/mchdown_real_new.cgi"
 
 	resp, err := c.httpClient.Post(url_, "text/xml; charset=utf-8", buf)
 	if err != nil {
@@ -48,13 +57,13 @@ func (c *Client) DownloadBill(req map[string]string) (data []byte, err error) {
 		return
 	}
 
-	var result Error
+	var result downloadBillFailResponse
 	if err = xml.Unmarshal(httpBody, &result); err != nil {
 		data = httpBody
 		err = nil
 		return
 	} else {
-		err = &result
+		err = errors.New(result.Body)
 		return
 	}
 }

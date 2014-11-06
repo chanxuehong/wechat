@@ -9,24 +9,28 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"net/http"
+
 	"github.com/chanxuehong/wechat/mp/pay"
 	"github.com/chanxuehong/wechat/mp/pay/pay3"
-	"net/http"
 )
 
 type Client struct {
-	appKey     string
-	httpClient *http.Client
+	appId, mchId string
+	appKey       string // 支付密钥 Key
+	httpClient   *http.Client
 }
 
 // 创建一个新的 Client.
 //  如果 httpClient == nil 则默认用 http.DefaultClient
-func NewClient(appKey string, httpClient *http.Client) *Client {
+func NewClient(appId, mchId, appKey string, httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 
 	return &Client{
+		appId:      appId,
+		mchId:      mchId,
 		appKey:     appKey,
 		httpClient: httpClient,
 	}
