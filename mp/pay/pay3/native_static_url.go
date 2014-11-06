@@ -9,6 +9,8 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
+
+	"github.com/chanxuehong/wechat/mp/pay"
 )
 
 // 生成 native 支付 静态链接 URL.
@@ -20,8 +22,6 @@ import (
 //                   微信后台凭借该id 通过POST 商户后台获取交易必须信息；传此参数必须在
 //                   申请的时候配置了Package 请求回调地址；
 //  MerchantId: 必须, 微信支付分配的商户号
-//
-//  NOTE: 该函数没有做 url escape, 因为正常情况下根本不需要做 url escape
 func NativeURL(AppId, AppKey, NonceStr, Timestamp, ProductId, MerchantId string) string {
 	Hash := md5.New()
 	hashsum := make([]byte, 32)
@@ -62,10 +62,17 @@ func NativeURL(AppId, AppKey, NonceStr, Timestamp, ProductId, MerchantId string)
 
 	hex.Encode(hashsum, Hash.Sum(nil))
 	hashsum = bytes.ToUpper(hashsum)
+	signature := string(hashsum)
+
+	AppId = pay.URLEscape(AppId)
+	NonceStr = pay.URLEscape(NonceStr)
+	Timestamp = pay.URLEscape(Timestamp)
+	ProductId = pay.URLEscape(ProductId)
+	MerchantId = pay.URLEscape(MerchantId)
 
 	// weixin://wxpay/bizpayurl?sign=XXXXX&appid=XXXXX&mch_id=XXXXX
 	//          &product_id=XXXXXX&time_stamp=XXXXXX&nonce_str=XXXXX
-	return "weixin://wxpay/bizpayurl?sign=" + string(hashsum) +
+	return "weixin://wxpay/bizpayurl?sign=" + signature +
 		"&appid=" + AppId +
 		"&mch_id=" + MerchantId +
 		"&product_id=" + ProductId +

@@ -8,6 +8,8 @@ package pay2
 import (
 	"crypto/sha1"
 	"encoding/hex"
+
+	"github.com/chanxuehong/wechat/mp/pay"
 )
 
 // 生成 native 支付 URL.
@@ -17,8 +19,6 @@ import (
 //  Timestamp:  必须, unixtime, 商户生成
 //  ProductId:  必须, 32个字符以内, 商户需要定义并维护自己的商品id, 这个id与一张订单等价,
 //              微信后台凭借该id通过POST商户后台获取交易必须信息;
-//
-//  NOTE: 该函数没有做 url escape, 因为正常情况下根本不需要做 url escape
 func NativeURL(AppId, AppKey, NonceStr, Timestamp, ProductId string) string {
 	Hash := sha1.New()
 	hashsum := make([]byte, 40)
@@ -42,6 +42,11 @@ func NativeURL(AppId, AppKey, NonceStr, Timestamp, ProductId string) string {
 
 	hex.Encode(hashsum, Hash.Sum(nil))
 	signature := string(hashsum)
+
+	AppId = pay.URLEscape(AppId)
+	NonceStr = pay.URLEscape(NonceStr)
+	Timestamp = pay.URLEscape(Timestamp)
+	ProductId = pay.URLEscape(ProductId)
 
 	// weixin://wxpay/bizpayurl?sign=XXXXX&appid=XXXXXX&productid=XXXXXX
 	// &timestamp=XXXXXX&noncestr=XXXXXX
