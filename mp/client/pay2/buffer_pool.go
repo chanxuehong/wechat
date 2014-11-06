@@ -3,6 +3,8 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
+// copy from github.com/chanxuehong/wechat/mp/client/buffer_pool.go
+
 package pay2
 
 import (
