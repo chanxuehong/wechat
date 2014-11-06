@@ -15,7 +15,7 @@ import (
 // 对账单下载接口 请求参数
 type DownloadBillRequest map[string]string
 
-func (req DownloadBillRequest) SetSPId(str string) {
+func (req DownloadBillRequest) SetMchId(str string) {
 	req["spid"] = str
 }
 func (req DownloadBillRequest) SetTransactionTime(t time.Time) {
@@ -32,7 +32,7 @@ func (req DownloadBillRequest) SetMchType(n int) {
 }
 
 // 设置签名字段.
-//  Key: 商户密钥
+//  Key: 商户支付密钥Key
 //
 //  NOTE: 要求在 DownloadBillRequest 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
 func (req DownloadBillRequest) SetSignature(Key string) (err error) {

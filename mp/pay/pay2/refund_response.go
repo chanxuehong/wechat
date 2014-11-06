@@ -70,7 +70,7 @@ func (resp RefundResponse) RecvUserName() string {
 }
 
 // 检查 RefundResponse 的签名是否合法, 合法返回 nil, 否则返回错误信息.
-//  Key: 商户密钥
+//  Key: 商户支付密钥Key
 func (resp RefundResponse) CheckSignature(Key string) (err error) {
 	Signature1 := resp.Signature()
 	SignMethod := resp.SignMethod()

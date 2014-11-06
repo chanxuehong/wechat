@@ -40,7 +40,7 @@ func (req NormalRefundQueryRequest) SetUseSPBillNoFlag(n int) {
 }
 
 // 设置签名字段.
-//  Key: 商户密钥
+//  Key: 商户支付密钥Key
 //
 //  NOTE: 要求在 NormalRefundQueryRequest 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
 func (req NormalRefundQueryRequest) SetSignature(Key string) (err error) {
