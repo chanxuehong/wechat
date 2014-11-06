@@ -13,10 +13,10 @@ import (
 
 // 微信支付消息处理接口
 type Agent interface {
-	GetAppId() string
-	GetAppKey() string
-	GetPartnerId() string
-	GetPartnerKey() string
+	GetAppId() string      // 公众号身份的唯一标识
+	GetAppKey() string     // 公众号支付请求中用于加密的密钥Key，可验证商户唯一身份
+	GetPartnerId() string  // 财付通商户身份的标识
+	GetPartnerKey() string // 财付通商户权限密钥Key
 
 	// 未知类型的消息处理方法
 	//  postRawXMLMsg 是 xml 消息体

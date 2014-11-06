@@ -17,7 +17,7 @@ import (
 
 type Client struct {
 	appId, mchId string
-	appKey       string // 支付密钥 Key
+	appKey       string // 商户支付密钥Key
 	httpClient   *http.Client
 }
 

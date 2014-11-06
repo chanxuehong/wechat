@@ -4,4 +4,4 @@
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
 // 定义微信支付相关 Handler, 微信支付接口 V3.x
-package pay2
+package pay3

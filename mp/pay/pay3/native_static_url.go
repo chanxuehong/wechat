@@ -21,8 +21,8 @@ import (
 //  ProductId:  必须, 32个字符以内, 商户需要定义并维护自己的商品id，这个id 与一张订单等价，
 //                   微信后台凭借该id 通过POST 商户后台获取交易必须信息；传此参数必须在
 //                   申请的时候配置了Package 请求回调地址；
-//  MerchantId: 必须, 微信支付分配的商户号
-func NativeURL(AppId, AppKey, NonceStr, Timestamp, ProductId, MerchantId string) string {
+//  MchId: 必须, 微信支付分配的商户号
+func NativeURL(AppId, AppKey, NonceStr, Timestamp, ProductId, MchId string) string {
 	Hash := md5.New()
 	hashsum := make([]byte, 32)
 
@@ -37,9 +37,9 @@ func NativeURL(AppId, AppKey, NonceStr, Timestamp, ProductId, MerchantId string)
 		Hash.Write([]byte(AppId))
 		Hash.Write([]byte{'&'})
 	}
-	if len(MerchantId) > 0 {
+	if len(MchId) > 0 {
 		Hash.Write([]byte("mch_id="))
-		Hash.Write([]byte(MerchantId))
+		Hash.Write([]byte(MchId))
 		Hash.Write([]byte{'&'})
 	}
 	if len(NonceStr) > 0 {
@@ -68,13 +68,13 @@ func NativeURL(AppId, AppKey, NonceStr, Timestamp, ProductId, MerchantId string)
 	NonceStr = pay.URLEscape(NonceStr)
 	Timestamp = pay.URLEscape(Timestamp)
 	ProductId = pay.URLEscape(ProductId)
-	MerchantId = pay.URLEscape(MerchantId)
+	MchId = pay.URLEscape(MchId)
 
 	// weixin://wxpay/bizpayurl?sign=XXXXX&appid=XXXXX&mch_id=XXXXX
 	//          &product_id=XXXXXX&time_stamp=XXXXXX&nonce_str=XXXXX
 	return "weixin://wxpay/bizpayurl?sign=" + signature +
 		"&appid=" + AppId +
-		"&mch_id=" + MerchantId +
+		"&mch_id=" + MchId +
 		"&product_id=" + ProductId +
 		"&time_stamp=" + Timestamp +
 		"&nonce_str=" + NonceStr
