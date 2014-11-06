@@ -25,14 +25,14 @@ type JSAPIPayRequestParameters struct {
 	SignMethod string `json:"signType"` // 必须, 签名方式, 目前仅支持 SHA1
 }
 
-func (this *JSAPIPayRequestParameters) SetTimeStamp(t time.Time) {
-	this.TimeStamp = strconv.FormatInt(t.Unix(), 10)
+func (para *JSAPIPayRequestParameters) SetTimeStamp(t time.Time) {
+	para.TimeStamp = strconv.FormatInt(t.Unix(), 10)
 }
 
 // 设置签名字段.
 //  appKey: 即 paySignKey, 公众号支付请求中用于加密的密钥 Key
 //
-//  NOTE: 要求在 para *PayRequestParameters 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
+//  NOTE: 要求在 PayRequestParameters 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
 func (para *JSAPIPayRequestParameters) SetSignature(appKey string) (err error) {
 	var Hash hash.Hash
 	var hashsum []byte

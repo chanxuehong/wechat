@@ -3,10 +3,11 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package client
+package pay2
 
 import (
 	"errors"
+
 	"github.com/chanxuehong/wechat/mp/pay/pay2"
 )
 

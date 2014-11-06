@@ -37,17 +37,17 @@ func (data OrderNotifyURLData) Signature() string {
 }
 func (data OrderNotifyURLData) SignMethod() string {
 	str := url.Values(data).Get("sign_type")
-	if str == "" {
-		return "MD5"
+	if str != "" {
+		return str
 	}
-	return str
+	return "MD5"
 }
 func (data OrderNotifyURLData) Charset() string {
 	str := url.Values(data).Get("input_charset")
-	if str == "" {
-		return "GBK"
+	if str != "" {
+		return str
 	}
-	return str
+	return "GBK"
 }
 func (data OrderNotifyURLData) NotifyId() string {
 	return url.Values(data).Get("notify_id")
@@ -111,6 +111,12 @@ func (data OrderNotifyURLData) CheckSignature(partnerKey string) (err error) {
 
 		keys := make([]string, 0, len(data))
 		for key := range data {
+			if key == "sign" {
+				continue
+			}
+			//if key == "sign_type" {
+			//	continue
+			//}
 			keys = append(keys, key)
 		}
 		sort.Strings(keys)
@@ -119,10 +125,6 @@ func (data OrderNotifyURLData) CheckSignature(partnerKey string) (err error) {
 		hashsum := make([]byte, 32)
 
 		for _, key := range keys {
-			if key == "sign" {
-				continue
-			}
-
 			value := data[key][0] // len(data[key]) > 0
 			if value == "" {
 				continue

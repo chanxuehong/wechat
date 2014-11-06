@@ -26,8 +26,8 @@ type JSAPIPayRequestParameters struct {
 	SignMethod string `json:"signType"` // 必须, 签名方式, 按照文档中所示填入MD5
 }
 
-func (this *JSAPIPayRequestParameters) SetTimeStamp(t time.Time) {
-	this.TimeStamp = strconv.FormatInt(t.Unix(), 10)
+func (para *JSAPIPayRequestParameters) SetTimeStamp(t time.Time) {
+	para.TimeStamp = strconv.FormatInt(t.Unix(), 10)
 }
 
 // 设置签名字段.
@@ -69,7 +69,7 @@ func (para *JSAPIPayRequestParameters) SetSignature(appKey string) (err error) {
 		Hash.Write([]byte(para.Package))
 		Hash.Write([]byte{'&'})
 	}
-	if len(para.SignMethod) > 0 {
+	if len(para.SignMethod) > 0 { // ???是否需要???
 		Hash.Write([]byte("signType="))
 		Hash.Write([]byte(para.SignMethod))
 		Hash.Write([]byte{'&'})
