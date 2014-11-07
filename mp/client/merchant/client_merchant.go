@@ -3,7 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package client
+package merchant
 
 import (
 	"bytes"
@@ -16,6 +16,34 @@ import (
 	"path/filepath"
 	"strings"
 )
+
+const (
+	multipart_boundary    = "--------wvm6LNx=y4rEq?BUD(k_:0Pj2V.M'J)t957K-Sh/Q1ZA+ceWFunTRdfGaXgY"
+	multipart_ContentType = "multipart/form-data; boundary=" + multipart_boundary
+
+	// ----------wvm6LNx=y4rEq?BUD(k_:0Pj2V.M'J)t957K-Sh/Q1ZA+ceWFunTRdfGaXgY
+	// Content-Disposition: form-data; name="upload"; filename="filename"
+	// Content-Type: application/octet-stream
+	//
+	// mediaReader
+	// ----------wvm6LNx=y4rEq?BUD(k_:0Pj2V.M'J)t957K-Sh/Q1ZA+ceWFunTRdfGaXgY--
+	//
+	multipart_formDataFront = "--" + multipart_boundary +
+		"\r\nContent-Disposition: form-data; name=\"upload\"; filename=\""
+	multipart_formDataMiddle = "\"\r\nContent-Type: application/octet-stream\r\n\r\n"
+	multipart_formDataEnd    = "\r\n--" + multipart_boundary + "--\r\n"
+
+	multipart_constPartLen = len(multipart_formDataFront) +
+		len(multipart_formDataMiddle) + len(multipart_formDataEnd)
+)
+
+// copy from mime/multipart/writer.go
+var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
+
+// copy from mime/multipart/writer.go
+func escapeQuotes(s string) string {
+	return quoteEscaper.Replace(s)
+}
 
 // 上传图片
 func (c *Client) MerchantUploadImage(filepath_ string) (imageURL string, err error) {

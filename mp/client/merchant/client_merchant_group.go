@@ -3,32 +3,33 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package client
+package merchant
 
 import (
 	"errors"
-	"github.com/chanxuehong/wechat/mp/merchant/express"
+
+	"github.com/chanxuehong/wechat/mp/merchant/group"
 )
 
-// 增加邮费模板
+// 增加分组
 //  NOTE: 无需指定 Id 字段
-func (c *Client) MerchantExpressAddDeliveryTemplate(template *express.DeliveryTemplate) (templateId int64, err error) {
-	if template == nil {
-		err = errors.New("template == nil")
+func (c *Client) MerchantGroupAdd(_group *group.GroupEx) (groupId int64, err error) {
+	if _group == nil {
+		err = errors.New("_group == nil")
 		return
 	}
 
-	template.Id = 0
+	_group.Id = 0 // 无需指定 Id 字段
 
 	var request = struct {
-		DeliveryTemplate *express.DeliveryTemplate `json:"delivery_template"`
+		GroupDetail *group.GroupEx `json:"group_detail"`
 	}{
-		DeliveryTemplate: template,
+		GroupDetail: _group,
 	}
 
 	var result struct {
 		Error
-		TemplateId int64 `json:"template_id"`
+		GroupId int64 `json:"group_id"`
 	}
 
 	hasRetry := false
@@ -37,14 +38,14 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantExpressAddURL(token)
+	_url := merchantGroupAddURL(token)
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
 
 	switch result.ErrCode {
 	case errCodeOK:
-		templateId = result.TemplateId
+		groupId = result.GroupId
 		return
 
 	case errCodeTimeout:
@@ -61,12 +62,12 @@ RETRY:
 	}
 }
 
-// 删除邮费模板
-func (c *Client) MerchantExpressDeleteDeliveryTemplate(templateId int64) (err error) {
+// 删除分组
+func (c *Client) MerchantGroupDelete(groupId int64) (err error) {
 	var request = struct {
-		TemplateId int64 `json:"template_id"`
+		GroupId int64 `json:"group_id"`
 	}{
-		TemplateId: templateId,
+		GroupId: groupId,
 	}
 
 	var result Error
@@ -77,7 +78,7 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantExpressDeleteURL(token)
+	_url := merchantGroupDeleteURL(token)
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
@@ -100,22 +101,19 @@ RETRY:
 	}
 }
 
-// 修改邮费模板
-//  NOTE: 需要指定 template.Id 字段
-func (c *Client) MerchantExpressUpdateDeliveryTemplate(template *express.DeliveryTemplate) (err error) {
-	if template == nil {
-		return errors.New("template == nil")
+// 修改分组名称
+func (c *Client) MerchantGroupRename(groupId int64, newName string) (err error) {
+	if newName == "" {
+		return errors.New(`newName == ""`)
 	}
 
 	var request = struct {
-		TemplateId       int64                     `json:"template_id"`
-		DeliveryTemplate *express.DeliveryTemplate `json:"delivery_template"`
+		GroupId   int64  `json:"group_id"`
+		GroupName string `json:"group_name"`
 	}{
-		TemplateId:       template.Id,
-		DeliveryTemplate: template,
+		GroupId:   groupId,
+		GroupName: newName,
 	}
-
-	template.Id = 0 // 请求的时候不携带这个参数
 
 	var result Error
 
@@ -125,7 +123,7 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantExpressUpdateURL(token)
+	_url := merchantGroupPropertyModifyURL(token)
 	if err = c.postJSON(_url, request, &result); err != nil {
 		return
 	}
@@ -148,18 +146,13 @@ RETRY:
 	}
 }
 
-// 获取指定ID的邮费模板
-func (c *Client) MerchantExpressGetDeliveryTemplateById(templateId int64) (dt *express.DeliveryTemplate, err error) {
-	var request = struct {
-		TemplateId int64 `json:"template_id"`
-	}{
-		TemplateId: templateId,
+// 修改分组商品
+func (c *Client) MerchantGroupModifyProduct(modifyRequest *group.GroupModifyProductRequest) (err error) {
+	if modifyRequest == nil {
+		return errors.New("modifyRequest == nil")
 	}
 
-	var result struct {
-		Error
-		TemplateInfo express.DeliveryTemplate `json:"template_info"`
-	}
+	var result Error
 
 	hasRetry := false
 RETRY:
@@ -167,14 +160,13 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantExpressGetByIdURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	_url := merchantGroupProductModifyURL(token)
+	if err = c.postJSON(_url, modifyRequest, &result); err != nil {
 		return
 	}
 
 	switch result.ErrCode {
 	case errCodeOK:
-		dt = &result.TemplateInfo
 		return
 
 	case errCodeTimeout:
@@ -186,18 +178,18 @@ RETRY:
 		fallthrough
 
 	default:
-		err = &result.Error
+		err = &result
 		return
 	}
 }
 
-// 获取所有邮费模板
-func (c *Client) MerchantExpressGetAllDeliveryTemplate() (dts []express.DeliveryTemplate, err error) {
+// 获取所有分组
+func (c *Client) MerchantGroupGetAll() (groups []group.Group, err error) {
 	var result struct {
 		Error
-		TemplatesInfo []express.DeliveryTemplate `json:"templates_info"`
+		GroupsDetail []group.Group `json:"groups_detail"`
 	}
-	result.TemplatesInfo = make([]express.DeliveryTemplate, 0, 16)
+	result.GroupsDetail = make([]group.Group, 0, 16)
 
 	hasRetry := false
 RETRY:
@@ -205,14 +197,57 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantExpressGetAllURL(token)
+	_url := merchantGroupGetAllURL(token)
 	if err = c.getJSON(_url, &result); err != nil {
 		return
 	}
 
 	switch result.ErrCode {
 	case errCodeOK:
-		dts = result.TemplatesInfo
+		groups = result.GroupsDetail
+		return
+
+	case errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+			timeoutRetryWait()
+			goto RETRY
+		}
+		fallthrough
+
+	default:
+		err = &result.Error
+		return
+	}
+}
+
+// 根据分组ID获取分组信息
+func (c *Client) MerchantGroupGetById(groupId int64) (_group *group.GroupEx, err error) {
+	var request = struct {
+		GroupId int64 `json:"group_id"`
+	}{
+		GroupId: groupId,
+	}
+
+	var result struct {
+		Error
+		GroupDetail group.GroupEx `json:"group_detail"`
+	}
+
+	hasRetry := false
+RETRY:
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+	_url := merchantGroupGetByIdURL(token)
+	if err = c.postJSON(_url, request, &result); err != nil {
+		return
+	}
+
+	switch result.ErrCode {
+	case errCodeOK:
+		_group = &result.GroupDetail
 		return
 
 	case errCodeTimeout:

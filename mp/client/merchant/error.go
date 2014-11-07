@@ -3,7 +3,9 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package client
+// copy from github.com/chanxuehong/wechat/mp/client/error.go
+
+package merchant
 
 import (
 	"fmt"
