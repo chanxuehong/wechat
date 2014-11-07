@@ -9,8 +9,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	wechatjson "github.com/chanxuehong/wechat/json"
 	"net/http"
+
+	"github.com/chanxuehong/wechat/corp/tokencache"
+	wechatjson "github.com/chanxuehong/wechat/json"
 )
 
 // Client 封装了主动请求功能
@@ -18,7 +20,7 @@ type Client struct {
 	corpId     string
 	corpSecret string
 
-	tokenCache TokenCache
+	tokenCache tokencache.TokenCache
 	httpClient *http.Client
 }
 
@@ -27,21 +29,20 @@ type Client struct {
 //  see github.com/chanxuehong/wechat/CommonHttpClient 和
 //      github.com/chanxuehong/wechat/MediaHttpClient
 func NewClient(corpId, corpSecret string,
-	tokenCache TokenCache, httpClient *http.Client) (clt *Client) {
+	tokenCache tokencache.TokenCache, httpClient *http.Client) (clt *Client) {
 
 	if tokenCache == nil {
 		panic("tokenCache == nil")
+	}
+	if httpClient == nil {
+		httpClient = http.DefaultClient
 	}
 
 	clt = &Client{
 		corpId:     corpId,
 		corpSecret: corpSecret,
 		tokenCache: tokenCache,
-	}
-	if httpClient == nil {
-		clt.httpClient = http.DefaultClient
-	} else {
-		clt.httpClient = httpClient
+		httpClient: httpClient,
 	}
 
 	return

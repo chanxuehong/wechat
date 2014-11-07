@@ -3,65 +3,50 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package client
+package tokenservice
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/chanxuehong/wechat/json"
 )
-
-// access token 伺服接口, see token_service.png
-type TokenService interface {
-	// 获取 access token, 该 token 一般缓存在某个地方.
-	// 正常情况下 token != "" && err == nil, 否则 token == "" && err != nil
-	// NOTE: 该方法一定要功能上实现!
-	Token() (token string, err error)
-
-	// 从微信服务器获取新的 access token.
-	// 正常情况下 token != "" && err == nil, 否则 token == "" && err != nil
-	//  NOTE:
-	//  1. 一般情况下无需调用该函数, 请使用 Token() 获取 access token.
-	//  2. 该方法可以选择是否功能上实现, 如果没有需求可以在语法上实现即可!
-	//  3. 即使微信服务器返回了 access token 过期错误(错误代码 42001, 正常情况下不会出现),
-	//     也请谨慎调用 TokenRefresh, 建议直接返回错误! 因为很有可能高并发情况下造成雪崩效应!
-	//  4. 再次强调, 调用这个函数你应该知道发生了什么!!!
-	TokenRefresh() (token string, err error)
-}
 
 var _ TokenService = new(DefaultTokenService)
 
+// TokenService 的简单实现, 一般用于单进程环境
 type DefaultTokenService struct {
 	appid, appsecret string
 
-	// goroutine tokenAutoUpdate() 里有个定时器, 每次触发都会更新 currentToken,
-	// 同时 goroutine tokenAutoUpdate() 监听 resetTokenRefreshTickChan,
-	// 如果有新的数据, 则重置定时器, 定时时间为 resetTokenRefreshTickChan 传过来的数据.
+	// goroutine tokenAutoUpdate() 里有个定时器, 每次触发都会更新 currentToken
 	currentToken struct {
 		rwmutex sync.RWMutex
 		token   string
 		err     error
 	}
+
+	// goroutine tokenAutoUpdate() 监听 resetTokenRefreshTickChan,
+	// 如果有新的数据, 则重置定时器, 定时时间为 resetTokenRefreshTickChan 传过来的数据.
 	resetTokenRefreshTickChan chan time.Duration
 
 	httpClient *http.Client
 }
 
 func NewDefaultTokenService(appid, appsecret string, httpClient *http.Client) (srv *DefaultTokenService) {
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+
 	srv = &DefaultTokenService{
 		appid:                     appid,
 		appsecret:                 appsecret,
 		resetTokenRefreshTickChan: make(chan time.Duration),
+		httpClient:                httpClient,
 	}
 
-	if httpClient == nil {
-		srv.httpClient = http.DefaultClient
-	} else {
-		srv.httpClient = httpClient
-	}
-
+	// 获取 access token 并启动 goroutine tokenAutoUpdate
 	tk, err := srv.getNewToken()
 	if err != nil {
 		srv.currentToken.token = ""
@@ -72,6 +57,7 @@ func NewDefaultTokenService(appid, appsecret string, httpClient *http.Client) (s
 		srv.currentToken.err = nil
 		go srv.tokenAutoUpdate(time.Duration(tk.ExpiresIn) * time.Second)
 	}
+
 	return
 }
 
@@ -87,7 +73,7 @@ func (srv *DefaultTokenService) TokenRefresh() (token string, err error) {
 	srv.currentToken.rwmutex.Lock()
 	defer srv.currentToken.rwmutex.Unlock()
 
-	resp, err := srv.getNewToken()
+	tk, err := srv.getNewToken()
 	if err != nil {
 		srv.currentToken.token = ""
 		srv.currentToken.err = err
@@ -95,11 +81,11 @@ func (srv *DefaultTokenService) TokenRefresh() (token string, err error) {
 		return
 	}
 
-	token = resp.Token
+	token = tk.Token
 
-	srv.currentToken.token = resp.Token
+	srv.currentToken.token = tk.Token
 	srv.currentToken.err = nil
-	srv.resetTokenRefreshTickChan <- time.Duration(resp.ExpiresIn) * time.Second
+	srv.resetTokenRefreshTickChan <- time.Duration(tk.ExpiresIn) * time.Second
 	return
 }
 
@@ -111,10 +97,10 @@ type tokenResponse struct {
 
 // 从微信服务器获取新的 access_token
 func (srv *DefaultTokenService) getNewToken() (resp *tokenResponse, err error) {
-	_url := "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" +
+	url_ := "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" +
 		srv.appid + "&secret=" + srv.appsecret
 
-	httpResp, err := srv.httpClient.Get(_url)
+	httpResp, err := srv.httpClient.Get(url_)
 	if err != nil {
 		return
 	}
@@ -126,8 +112,8 @@ func (srv *DefaultTokenService) getNewToken() (resp *tokenResponse, err error) {
 	}
 
 	var result struct {
-		tokenResponse
 		Error
+		tokenResponse
 	}
 	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 		return
@@ -187,7 +173,7 @@ NEW_TICK_DURATION:
 				srv.currentToken.token = ""
 				srv.currentToken.err = err
 
-				srv.currentToken.rwmutex.Unlock()
+				srv.currentToken.rwmutex.Unlock() //
 
 				if tickDuration != defaultTickDuration { // 出错则重置到 defaultTickDuration
 					ticker.Stop()
@@ -199,7 +185,7 @@ NEW_TICK_DURATION:
 				srv.currentToken.token = resp.Token
 				srv.currentToken.err = nil
 
-				srv.currentToken.rwmutex.Unlock()
+				srv.currentToken.rwmutex.Unlock() //
 
 				newTickDuration := time.Duration(resp.ExpiresIn) * time.Second
 				if tickDuration != newTickDuration {

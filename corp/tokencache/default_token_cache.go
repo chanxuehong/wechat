@@ -3,23 +3,12 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package client
+package tokencache
 
 import (
 	"errors"
 	"sync"
 )
-
-var ErrCacheMiss = errors.New("token cache miss")
-
-type TokenCache interface {
-	// 从 cache 里获取 token
-	//  NOTE: 如果没有找到返回 ErrCacheMiss
-	Token() (token string, err error)
-
-	// 添加或者重置 token
-	PutToken(token string) (err error)
-}
 
 var _ TokenCache = new(DefaultTokenCache)
 
