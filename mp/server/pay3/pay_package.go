@@ -10,11 +10,12 @@ import (
 	"crypto/subtle"
 	"errors"
 	"fmt"
-	"github.com/chanxuehong/wechat/mp/pay"
-	"github.com/chanxuehong/wechat/mp/pay/pay3"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/chanxuehong/wechat/mp/pay"
+	"github.com/chanxuehong/wechat/mp/pay/pay3"
 )
 
 // native api 请求订单详情的 Handler
@@ -94,7 +95,7 @@ func ServePayPackageRequestHTTP(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	if err := pay3.CheckMD5Signature(req, agent.GetKey()); err != nil {
+	if err := pay3.CheckMD5Signature(req, agent.GetAppKey()); err != nil {
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}

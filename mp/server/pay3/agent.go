@@ -11,9 +11,9 @@ import (
 
 // 微信支付消息处理接口
 type Agent interface {
-	GetAppId() string // 微信公众号身份的唯一标识
-	GetMchId() string // 商户ID，身份标识
-	GetKey() string   // 商户支付密钥Key
+	GetAppId() string  // 微信公众号身份的唯一标识
+	GetMchId() string  // 商户ID，身份标识
+	GetAppKey() string // 商户支付密钥Key
 
 	// 未知类型的消息处理方法
 	//  postRawXMLMsg 是 xml 消息体

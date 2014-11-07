@@ -12,9 +12,9 @@ import (
 var _ Agent = new(DefaultAgent)
 
 type DefaultAgent struct {
-	AppId string
-	MchId string
-	Key   string
+	AppId  string
+	MchId  string
+	AppKey string
 }
 
 func (this *DefaultAgent) GetAppId() string {
@@ -23,8 +23,8 @@ func (this *DefaultAgent) GetAppId() string {
 func (this *DefaultAgent) GetMchId() string {
 	return this.MchId
 }
-func (this *DefaultAgent) GetKey() string {
-	return this.Key
+func (this *DefaultAgent) GetAppKey() string {
+	return this.AppKey
 }
 
 func (this *DefaultAgent) ServeUnknownMsg(w http.ResponseWriter, r *http.Request, postRawXMLMsg []byte) {

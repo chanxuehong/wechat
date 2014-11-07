@@ -9,13 +9,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	wechatjson "github.com/chanxuehong/wechat/json"
 	"net/http"
+
+	wechatjson "github.com/chanxuehong/wechat/json"
+	"github.com/chanxuehong/wechat/mp/tokenservice"
 )
 
 // Client 封装了主动请求功能, 比如创建菜单, 回复客服消息等等
 type Client struct {
-	tokenService TokenService
+	tokenService tokenservice.TokenService
 	httpClient   *http.Client
 }
 
@@ -23,7 +25,7 @@ type Client struct {
 //  如果 httpClient == nil 则默认用 http.DefaultClient,
 //  see github.com/chanxuehong/wechat/CommonHttpClient 和
 //      github.com/chanxuehong/wechat/MediaHttpClient
-func NewClient(tokenService TokenService, httpClient *http.Client) (clt *Client) {
+func NewClient(tokenService tokenservice.TokenService, httpClient *http.Client) (clt *Client) {
 	if tokenService == nil {
 		panic("tokenService == nil")
 	}

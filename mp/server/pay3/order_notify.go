@@ -10,11 +10,12 @@ import (
 	"crypto/subtle"
 	"errors"
 	"fmt"
-	"github.com/chanxuehong/wechat/mp/pay"
-	"github.com/chanxuehong/wechat/mp/pay/pay3"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/chanxuehong/wechat/mp/pay"
+	"github.com/chanxuehong/wechat/mp/pay/pay3"
 )
 
 // 用户在成功完成支付后，微信后台通知（POST）商户服务器（notify_url）支付结果的处理 Handler
@@ -94,7 +95,7 @@ func ServeOrderNotifyHTTP(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	if err := pay3.CheckMD5Signature(data, agent.GetKey()); err != nil {
+	if err := pay3.CheckMD5Signature(data, agent.GetAppKey()); err != nil {
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
