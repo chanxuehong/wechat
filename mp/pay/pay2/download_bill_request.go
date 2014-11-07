@@ -10,6 +10,8 @@ import (
 	"encoding/hex"
 	"strconv"
 	"time"
+
+	"github.com/chanxuehong/wechat/mp/pay"
 )
 
 // 对账单下载接口 请求参数
@@ -19,7 +21,7 @@ func (req DownloadBillRequest) SetSPId(str string) {
 	req["spid"] = str
 }
 func (req DownloadBillRequest) SetTransactionTime(t time.Time) {
-	req["trans_time"] = t.Format("2006-01-02")
+	req["trans_time"] = t.In(pay.BeijingLocation).Format("2006-01-02")
 }
 func (req DownloadBillRequest) SetTimestamp(t time.Time) {
 	req["stamp"] = strconv.FormatInt(t.Unix(), 10)

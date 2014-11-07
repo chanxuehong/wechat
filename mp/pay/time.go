@@ -9,14 +9,14 @@ import (
 	"time"
 )
 
-var beijingLocation = time.FixedZone("GMT+8", 60*60*8)
+var BeijingLocation = time.FixedZone("GMT+8", 60*60*8)
 
 // 格式化时间到 yyyyMMDDHHmmss, GMT+8
 func FormatTime(t time.Time) string {
-	return t.In(beijingLocation).Format("20060102150405")
+	return t.In(BeijingLocation).Format("20060102150405")
 }
 
 // 将时间字符串 yyyyMMDDHHmmss, GMT+8 解析成 time.time
 func ParseTime(value string) (time.Time, error) {
-	return time.ParseInLocation("20060102150405", value, beijingLocation)
+	return time.ParseInLocation("20060102150405", value, BeijingLocation)
 }
