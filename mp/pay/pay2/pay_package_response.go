@@ -48,7 +48,7 @@ func (resp PayPackageResponse) SetSignature(appKey string) (err error) {
 
 	switch SignMethod {
 	case "sha1", "SHA1":
-		resp["AppSignature"] = pay.WXSHA1Sign1(resp, appKey, []string{"AppSignature", "SignMethod"})
+		resp["AppSignature"] = pay.WXSHA1SignWithoutNames(resp, appKey, []string{"AppSignature", "SignMethod"})
 		return
 
 	default:

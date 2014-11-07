@@ -86,7 +86,7 @@ func (req OrderQueryRequest) SetSignature(appKey string) (err error) {
 
 	switch SignMethod {
 	case "sha1", "SHA1":
-		req["app_signature"] = pay.WXSHA1Sign1(req, appKey, []string{"app_signature", "sign_method"})
+		req["app_signature"] = pay.WXSHA1SignWithoutNames(req, appKey, []string{"app_signature", "sign_method"})
 		return
 
 	default:

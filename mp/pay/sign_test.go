@@ -30,7 +30,7 @@ func TestTenpayMD5Sign(t *testing.T) {
 	}
 }
 
-func TestWXSHA1Sign1(t *testing.T) {
+func TestWXSHA1SignWithoutNames(t *testing.T) {
 	m := make(map[string]string)
 	m["appid"] = "wxd930ea5d5a258f4f"
 	m["noncestr"] = "e7d161ac8d8a76529d39d9f5b4249ccb"
@@ -40,7 +40,7 @@ func TestWXSHA1Sign1(t *testing.T) {
 
 	appKey := "L8LrMqqeGRxST5reouB0K66CaYAWpqhAVsq7ggKkxHCOastWksvuX1uvmvQclxaHoYd3ElNBrNO2DHnnzgfVG9Qs473M3DTOZug5er46FhuGofumV8H2FVR9qkjSlC5K"
 
-	have := WXSHA1Sign1(m, appKey, nil)
+	have := WXSHA1SignWithoutNames(m, appKey, nil)
 	want := "8893870b9004ead28691b60db97a8d2c80dbfdc6"
 
 	if have != want {
@@ -49,7 +49,7 @@ func TestWXSHA1Sign1(t *testing.T) {
 	}
 }
 
-func TestWXSHA1Sign2(t *testing.T) {
+func TestWXSHA1SignWithNames(t *testing.T) {
 	m := make(map[string]string)
 	m["appid"] = "wxd930ea5d5a258f4f"
 	m["noncestr"] = "e7d161ac8d8a76529d39d9f5b4249ccb"
@@ -59,7 +59,7 @@ func TestWXSHA1Sign2(t *testing.T) {
 
 	appKey := "L8LrMqqeGRxST5reouB0K66CaYAWpqhAVsq7ggKkxHCOastWksvuX1uvmvQclxaHoYd3ElNBrNO2DHnnzgfVG9Qs473M3DTOZug5er46FhuGofumV8H2FVR9qkjSlC5K"
 
-	have := WXSHA1Sign2(m, appKey, []string{"appid", "noncestr", "package", "timestamp", "traceid"})
+	have := WXSHA1SignWithNames(m, appKey, []string{"appid", "noncestr", "package", "timestamp", "traceid"})
 	want := "8893870b9004ead28691b60db97a8d2c80dbfdc6"
 
 	if have != want {

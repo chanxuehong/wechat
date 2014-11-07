@@ -12,7 +12,7 @@ import (
 	"github.com/chanxuehong/wechat/mp/pay"
 )
 
-// 退款请求
+// 退款请求 请求参数
 type RefundRequest map[string]string
 
 func (req RefundRequest) SetSignMethod(str string) {
@@ -45,10 +45,10 @@ func (req RefundRequest) SetTotalFee(n int) {
 func (req RefundRequest) SetRefundFee(n int) {
 	req["refund_fee"] = strconv.FormatInt(int64(n), 10)
 }
-func (req RefundRequest) SetOpUserId(id int) {
+func (req RefundRequest) SetOperUserId(id int) {
 	req["op_user_id"] = strconv.FormatInt(int64(id), 10)
 }
-func (req RefundRequest) SetOpUserPwd(str string) {
+func (req RefundRequest) SetOperUserPwd(str string) {
 	req["op_user_passwd"] = str
 }
 func (req RefundRequest) SetRecvUserId(str string) {
@@ -65,7 +65,7 @@ func (req RefundRequest) SetRefundType(n int) {
 }
 
 // 设置签名字段.
-//  Key: 商户密钥
+//  Key: 商户支付密钥Key
 //
 //  NOTE: 要求在 RefundRequest 其他字段设置完毕后才能调用这个函数, 否则签名就不正确.
 func (req RefundRequest) SetSignature(Key string) (err error) {

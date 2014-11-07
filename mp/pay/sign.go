@@ -27,28 +27,26 @@ import (
 //  parameters:  待签名的参数
 //  signKey:     支付签名的 Key
 func TenpayMD5Sign(parameters map[string]string, signKey string) string {
-	keys := make([]string, 0, len(parameters))
-	for key, value := range parameters {
-		if value == "" { // 值为空不参加签名
+	kvs := make(KVSlice, 0, len(parameters))
+	for k, v := range parameters {
+		if v == "" { // 值为空不参加签名
 			continue
 		}
-		if key == "sign" {
+		if k == "sign" {
 			continue
 		}
 
-		keys = append(keys, key)
+		kvs = append(kvs, KV{k, v})
 	}
-	sort.Strings(keys)
+	sort.Sort(kvs)
 
 	Hash := md5.New()
 	hashsum := make([]byte, 32)
 
-	for _, key := range keys {
-		value := parameters[key]
-
-		Hash.Write([]byte(key))
+	for _, kv := range kvs {
+		Hash.Write([]byte(kv.Key))
 		Hash.Write([]byte{'='})
-		Hash.Write([]byte(value))
+		Hash.Write([]byte(kv.Value))
 		Hash.Write([]byte{'&'})
 	}
 	Hash.Write([]byte("key="))
@@ -70,9 +68,9 @@ func TenpayMD5Sign(parameters map[string]string, signKey string) string {
 //
 //  parameters:       待签名的参数
 //  signKey:          支付签名的 Key
-//  noSignParameters: 指定 parameters 里面不参与签名的字段
-func WXSHA1Sign1(parameters map[string]string, signKey string, noSignParameters []string) string {
-	return wxSHA1Sign(parameters, signKey, noSignParameters, false)
+//  noSignParaNames:  指定 parameters 里面不参与签名的字段
+func WXSHA1SignWithoutNames(parameters map[string]string, signKey string, noSignParaNames []string) string {
+	return wxSHA1Sign(parameters, signKey, noSignParaNames, false)
 }
 
 // 微信签名, 微信支付 2.x 的签名方法.
@@ -85,11 +83,11 @@ func WXSHA1Sign1(parameters map[string]string, signKey string, noSignParameters 
 // 了使用 2.6中描述的方式生成的 package），不进行 URL 转义。具体签名算法为 paySign =
 // SHA1(string)。
 //
-//  parameters:     待签名的参数
-//  signKey:        支付签名的 Key
-//  signParameters: 指定 parameters 里面参与签名的字段
-func WXSHA1Sign2(parameters map[string]string, signKey string, signParameters []string) string {
-	return wxSHA1Sign(parameters, signKey, signParameters, true)
+//  parameters:    待签名的参数
+//  signKey:       支付签名的 Key
+//  signParaNames: 指定 parameters 里面参与签名的字段
+func WXSHA1SignWithNames(parameters map[string]string, signKey string, signParaNames []string) string {
+	return wxSHA1Sign(parameters, signKey, signParaNames, true)
 }
 
 // 微信签名, 微信支付 2.x 的签名方法.
@@ -102,23 +100,22 @@ func WXSHA1Sign2(parameters map[string]string, signKey string, signParameters []
 // 了使用 2.6中描述的方式生成的 package），不进行 URL 转义。具体签名算法为 paySign =
 // SHA1(string)。
 //
-//  parameters:           待签名的参数
-//  signKey:              支付签名的 Key
-//  parameterKeys:        一般是 parameters 里面某些参数数组
-//  isParametersKeysSign: 指定 parameterKeys 是否参加签名
-//                        true:  指定 parameters 出现在 parameterKeys 里的参数才能参加签名
-//                        false: 指定 parameters 出现在 parameterKeys 里的参数不能参加签名
+//  parameters:      待签名的参数
+//  signKey:         支付签名的 Key
+//  paraNameArray:   一般是 parameters 里面某些参数数组
+//  behaviourSwitch: true:  指定 parameters 出现在 paraNameArray 里的参数才能参加签名
+//                   false: 指定 parameters 出现在 paraNameArray 里的参数不能参加签名
 func wxSHA1Sign(parameters map[string]string, signKey string,
-	parameterKeys []string, isParametersKeysSign bool) string {
+	paraNameArray []string, behaviourSwitch bool) string {
 
 	kvs := make(KVSlice, 0, len(parameters)+1)
 	for k, v := range parameters {
-		if isParametersKeysSign {
-			if !isIn(parameterKeys, k) {
+		if behaviourSwitch {
+			if !isIn(paraNameArray, k) {
 				continue
 			}
 		} else {
-			if isIn(parameterKeys, k) {
+			if isIn(paraNameArray, k) {
 				continue
 			}
 		}
