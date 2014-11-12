@@ -10,11 +10,12 @@ import (
 	"crypto/subtle"
 	"errors"
 	"fmt"
-	"github.com/chanxuehong/wechat/mp/pay"
-	"github.com/chanxuehong/wechat/mp/pay/pay2"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/chanxuehong/wechat/mp/pay"
+	"github.com/chanxuehong/wechat/mp/pay/pay2"
 )
 
 // 微信后台向商户推送告警通知的 Handler
@@ -28,7 +29,7 @@ func NewAlarmNotifyHandler(agent Agent, invalidRequestHandler InvalidRequestHand
 		panic("agent == nil")
 	}
 	if invalidRequestHandler == nil {
-		invalidRequestHandler = InvalidRequestHandlerFunc(defaultInvalidRequestHandlerFunc)
+		invalidRequestHandler = DefaultInvalidRequestHandler
 	}
 
 	return &AlarmNotifyHandler{

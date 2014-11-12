@@ -14,7 +14,7 @@ import (
 // 公众号对外暴露的接口
 type Agent interface {
 	GetId() string    // 获取公众号的原始ID, 等于后台中的 公众号设置-->帐号详情-->原始ID
-	GetToken() string // 获取公众号的 Token, 和后台中的设置相等
+	GetToken() string // 获取公众号的Token, 和后台中的设置相等
 
 	// fuck, AppId 貌似需要认证才会有的???
 	// 如果不知道自己的 AppId 是多少, 可以先随便填入一个字符串,
@@ -23,14 +23,14 @@ type Agent interface {
 	GetLastAESKey() [32]byte    // 获取最后一个有效的 AES 加密 Key
 	GetCurrentAESKey() [32]byte // 获取当前有效的 AES 加密 Key
 
-	// 明文模式 情况下需要实现的方法
+	// 明文模式 需要实现的方法
 	// 未知类型的消息处理方法
 	//  rawXMLMsg 是 xml 消息体
 	//  timestamp 是请求 URL 中的时间戳
 	//  r *http.Request 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 r.URL.RawQuery
 	ServeUnknownMsg(w http.ResponseWriter, r *http.Request, rawXMLMsg []byte, timestamp int64)
 
-	// 明文模式 情况下需要实现的方法
+	// 明文模式 需要实现的方法
 	// 消息处理函数
 	//  msg 是成功解析的消息结构体
 	//  rawXMLMsg 是 msg 的 xml 消息体
@@ -43,7 +43,7 @@ type Agent interface {
 	ServeLocationMsg(w http.ResponseWriter, r *http.Request, msg *request.Location, rawXMLMsg []byte, timestamp int64)
 	ServeLinkMsg(w http.ResponseWriter, r *http.Request, msg *request.Link, rawXMLMsg []byte, timestamp int64)
 
-	// 明文模式 情况下需要实现的方法
+	// 明文模式 需要实现的方法
 	// 事件处理函数
 	//  event 是成功解析的消息结构体
 	//  rawXMLMsg 是 event 的 xml 消息体
@@ -66,7 +66,7 @@ type Agent interface {
 	ServeTemplateSendJobFinishEvent(w http.ResponseWriter, r *http.Request, event *request.TemplateSendJobFinishEvent, rawXMLMsg []byte, timestamp int64)
 	ServeMerchantOrderEvent(w http.ResponseWriter, r *http.Request, event *request.MerchantOrderEvent, rawXMLMsg []byte, timestamp int64)
 
-	// 兼容模式, 安全模式 情况下需要实现的方法
+	// 兼容模式, 安全模式 需要实现的方法
 	// 未知类型的消息处理方法
 	//  rawXMLMsg   是解密后的"明文" xml 消息体
 	//  timestamp   是请求 URL 中的时间戳
@@ -76,7 +76,7 @@ type Agent interface {
 	//  r *http.Request 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 r.URL.RawQuery
 	ServeAESUnknownMsg(w http.ResponseWriter, r *http.Request, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
 
-	// 兼容模式, 安全模式 情况下需要实现的方法
+	// 兼容模式, 安全模式 需要实现的方法
 	// 消息处理函数
 	//  msg 是成功解析的消息结构体
 	//  rawXMLMsg   是解密后的"明文" xml 消息体
@@ -92,7 +92,7 @@ type Agent interface {
 	ServeAESLocationMsg(w http.ResponseWriter, r *http.Request, msg *request.Location, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
 	ServeAESLinkMsg(w http.ResponseWriter, r *http.Request, msg *request.Link, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
 
-	// 兼容模式, 安全模式 情况下需要实现的方法
+	// 兼容模式, 安全模式 需要实现的方法
 	// 事件处理函数
 	//  event 是成功解析的消息结构体
 	//  rawXMLMsg   是解密后的"明文" xml 消息体

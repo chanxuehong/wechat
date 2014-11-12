@@ -11,12 +11,12 @@ import (
 	"github.com/chanxuehong/wechat/corp/message/passive/request"
 )
 
-// 企业号应用对外暴露的接口
+// 企业号单个应用对外暴露的接口
 type Agent interface {
 	GetCorpId() string   // 获取应用所属的企业号Id
 	GetAgentId() int64   // 获取应用的Id
-	GetToken() string    // 对应后台的设置的 Token
-	GetAESKey() [32]byte // 32 bytes 的 AES 加密 Key
+	GetToken() string    // 获取应用的Token
+	GetAESKey() [32]byte // 获取 32bytes 的 AES 加密 Key
 
 	// 未知类型的消息处理方法
 	//  rawXMLMsg   是解密后的"明文" xml 消息体

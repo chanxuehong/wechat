@@ -3,5 +3,5 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 定义微信支付相关 Handler, 微信支付接口 V3.x
+// 定义微信支付相关 Handler, 微信支付接口 V2.x
 package pay2

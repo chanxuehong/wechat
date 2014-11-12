@@ -29,7 +29,7 @@ func NewPayPackageRequestHandler(agent Agent, invalidRequestHandler InvalidReque
 		panic("agent == nil")
 	}
 	if invalidRequestHandler == nil {
-		invalidRequestHandler = InvalidRequestHandlerFunc(defaultInvalidRequestHandlerFunc)
+		invalidRequestHandler = DefaultInvalidRequestHandler
 	}
 
 	return &PayPackageRequestHandler{

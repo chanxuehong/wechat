@@ -25,7 +25,7 @@ func NewAgentFrontend(agent Agent, invalidRequestHandler InvalidRequestHandler) 
 		panic("agent == nil")
 	}
 	if invalidRequestHandler == nil {
-		invalidRequestHandler = InvalidRequestHandlerFunc(defaultInvalidRequestHandlerFunc)
+		invalidRequestHandler = DefaultInvalidRequestHandler
 	}
 
 	return &AgentFrontend{
@@ -38,8 +38,8 @@ func (this *AgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	agent := this.agent
 	invalidRequestHandler := this.invalidRequestHandler
 
-	if r == nil || r.URL == nil {
-		err := errors.New("input *net/http.Request r == nil or r.URL == nil")
+	if r.URL == nil {
+		err := errors.New("input net/http.Request.URL == nil")
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}

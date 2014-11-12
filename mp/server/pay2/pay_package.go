@@ -10,11 +10,12 @@ import (
 	"crypto/subtle"
 	"errors"
 	"fmt"
-	"github.com/chanxuehong/wechat/mp/pay"
-	"github.com/chanxuehong/wechat/mp/pay/pay2"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/chanxuehong/wechat/mp/pay"
+	"github.com/chanxuehong/wechat/mp/pay/pay2"
 )
 
 // native api 请求订单详情的 Handler
@@ -28,7 +29,7 @@ func NewPayPackageRequestHandler(agent Agent, invalidRequestHandler InvalidReque
 		panic("agent == nil")
 	}
 	if invalidRequestHandler == nil {
-		invalidRequestHandler = InvalidRequestHandlerFunc(defaultInvalidRequestHandlerFunc)
+		invalidRequestHandler = DefaultInvalidRequestHandler
 	}
 
 	return &PayPackageRequestHandler{

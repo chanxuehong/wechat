@@ -20,4 +20,4 @@ func (fn InvalidRequestHandlerFunc) ServeInvalidRequest(w http.ResponseWriter, r
 	fn(w, r, err)
 }
 
-func defaultInvalidRequestHandlerFunc(w http.ResponseWriter, r *http.Request, err error) {}
+var DefaultInvalidRequestHandler InvalidRequestHandler = InvalidRequestHandlerFunc(func(w http.ResponseWriter, r *http.Request, err error) {})
