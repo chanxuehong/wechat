@@ -12,7 +12,7 @@ import (
 )
 
 // 把整数 n 格式化成 4 字节的网络字节序
-func encodeNetworkBytesOrder(n int, orderBytes []byte) {
+func encodeNetworkBytesOrder(orderBytes []byte, n int) {
 	if len(orderBytes) != 4 {
 		panic("the length of orderBytes must be equal to 4")
 	}
@@ -34,6 +34,7 @@ func decodeNetworkBytesOrder(orderBytes []byte) (n int) {
 	return
 }
 
+// encryptedMsg = AES_Encrypt[random(16B) + msg_len(4B) + rawXMLMsg + AppId]
 func AESEncryptMsg(random, rawXMLMsg []byte, AppId string, AESKey [32]byte) (encryptedMsg []byte) {
 	const BLOCK_SIZE = 32 // PKCS#7
 
@@ -43,7 +44,7 @@ func AESEncryptMsg(random, rawXMLMsg []byte, AppId string, AESKey [32]byte) (enc
 
 	// 拼接
 	copy(plain, random)
-	encodeNetworkBytesOrder(len(rawXMLMsg), plain[16:20])
+	encodeNetworkBytesOrder(plain[16:20], len(rawXMLMsg))
 	plain = append(plain, rawXMLMsg...)
 	plain = append(plain, AppId...)
 
@@ -66,6 +67,7 @@ func AESEncryptMsg(random, rawXMLMsg []byte, AppId string, AESKey [32]byte) (enc
 	return
 }
 
+// encryptedMsg = AES_Encrypt[random(16B) + msg_len(4B) + rawXMLMsg + AppId]
 func AESDecryptMsg(encryptedMsg []byte, AppId string, AESKey [32]byte) (random [16]byte, rawXMLMsg []byte, err error) {
 	const BLOCK_SIZE = 32 // PKCS#7
 
@@ -100,7 +102,7 @@ func AESDecryptMsg(encryptedMsg []byte, AppId string, AESKey [32]byte) (random [
 	// len(plain) == 16+4+len(rawXMLMsg)+len(AppId)
 	// len(AppId) > 0
 	if len(plain) <= 20 {
-		err = fmt.Errorf("plain too short, the length is %d", len(plain))
+		err = fmt.Errorf("plain msg too short, the length is %d", len(plain))
 		return
 	}
 	msgLen := decodeNetworkBytesOrder(plain[16:20])
@@ -110,7 +112,7 @@ func AESDecryptMsg(encryptedMsg []byte, AppId string, AESKey [32]byte) (random [
 	}
 	msgEnd := 20 + msgLen
 	if len(plain) <= msgEnd {
-		err = fmt.Errorf("invalid msg length: %d", msgLen)
+		err = fmt.Errorf("msg length too large: %d", msgLen)
 		return
 	}
 

@@ -13,13 +13,14 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/chanxuehong/wechat/mp/message/passive/request"
-	"github.com/chanxuehong/wechat/util"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"github.com/chanxuehong/wechat/mp/message/passive/request"
+	"github.com/chanxuehong/wechat/util"
 )
 
 // ServeHTTP 处理 http 消息请求
@@ -50,7 +51,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request,
 				return
 			}
 
-			signature2 := util.Signature(agent.GetToken(), timestampStr, nonce)
+			signature2 := util.Sign(agent.GetToken(), timestampStr, nonce)
 			if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
 				err = fmt.Errorf("check signature failed, have: %s, want: %s", signature1, signature2)
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
@@ -121,7 +122,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request,
 				return
 			}
 
-			msgSignature2 := util.MsgSignature(agent.GetToken(), timestampStr, nonce, requestHttpBody.EncryptedMsg)
+			msgSignature2 := util.MsgSign(agent.GetToken(), timestampStr, nonce, requestHttpBody.EncryptedMsg)
 			if subtle.ConstantTimeCompare([]byte(msgSignature1), []byte(msgSignature2)) != 1 {
 				err = fmt.Errorf("check signature failed, have: %s, want: %s", msgSignature1, msgSignature2)
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
@@ -187,7 +188,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request,
 			return
 		}
 
-		signature2 := util.Signature(agent.GetToken(), timestamp, nonce)
+		signature2 := util.Sign(agent.GetToken(), timestamp, nonce)
 		if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
 			err = fmt.Errorf("check signature failed, have: %s, want: %s", signature1, signature2)
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
