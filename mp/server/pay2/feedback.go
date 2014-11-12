@@ -10,10 +10,11 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/chanxuehong/wechat/mp/pay/feedback"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/chanxuehong/wechat/mp/pay/feedback"
 )
 
 // 用户维权的 Handler
@@ -27,7 +28,7 @@ func NewFeedbackHandler(agent Agent, invalidRequestHandler InvalidRequestHandler
 		panic("agent == nil")
 	}
 	if invalidRequestHandler == nil {
-		invalidRequestHandler = InvalidRequestHandlerFunc(defaultInvalidRequestHandlerFunc)
+		invalidRequestHandler = DefaultInvalidRequestHandler
 	}
 
 	return &FeedbackHandler{

@@ -10,11 +10,12 @@ import (
 	"crypto/subtle"
 	"errors"
 	"fmt"
-	"github.com/chanxuehong/wechat/mp/pay"
-	"github.com/chanxuehong/wechat/mp/pay/pay2"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/chanxuehong/wechat/mp/pay"
+	"github.com/chanxuehong/wechat/mp/pay/pay2"
 )
 
 // 用户在成功完成支付后，微信后台通知（POST）商户服务器（notify_url）支付结果的处理 Handler
@@ -28,7 +29,7 @@ func NewOrderNotifyHandler(agent Agent, invalidRequestHandler InvalidRequestHand
 		panic("agent == nil")
 	}
 	if invalidRequestHandler == nil {
-		invalidRequestHandler = InvalidRequestHandlerFunc(defaultInvalidRequestHandlerFunc)
+		invalidRequestHandler = DefaultInvalidRequestHandler
 	}
 
 	return &OrderNotifyHandler{
@@ -42,8 +43,8 @@ func (handler *OrderNotifyHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 	agent := handler.agent
 	invalidRequestHandler := handler.invalidRequestHandler
 
-	if r == nil || r.URL == nil {
-		err := errors.New("input *net/http.Request r == nil or r.URL == nil")
+	if r.URL == nil {
+		err := errors.New("input net/http.Request.URL == nil")
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}

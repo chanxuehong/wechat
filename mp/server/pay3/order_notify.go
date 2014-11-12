@@ -29,7 +29,7 @@ func NewOrderNotifyHandler(agent Agent, invalidRequestHandler InvalidRequestHand
 		panic("agent == nil")
 	}
 	if invalidRequestHandler == nil {
-		invalidRequestHandler = InvalidRequestHandlerFunc(defaultInvalidRequestHandlerFunc)
+		invalidRequestHandler = DefaultInvalidRequestHandler
 	}
 
 	return &OrderNotifyHandler{

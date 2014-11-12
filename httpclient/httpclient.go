@@ -13,6 +13,17 @@ import (
 
 // net/http:
 //
+// type Client struct {
+//     // Transport specifies the mechanism by which individual
+//     // HTTP requests are made.
+//     // If nil, DefaultTransport is used.
+//     Transport RoundTripper
+//
+//     ...
+// }
+//
+// var DefaultClient = &Client{}
+//
 // var DefaultTransport RoundTripper = &Transport{
 //     Proxy: ProxyFromEnvironment,
 //     Dial: (&net.Dialer{

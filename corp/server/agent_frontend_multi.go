@@ -35,11 +35,11 @@ type MultiAgentFrontend struct {
 	invalidRequestHandler InvalidRequestHandler
 }
 
-// 设置 InvalidRequestHandler, 如果 handler == nil 则使用默认的 DefaultInvalidRequestHandlerFunc
+// 设置 InvalidRequestHandler, 如果 handler == nil 则使用默认的 DefaultInvalidRequestHandler
 func (this *MultiAgentFrontend) SetInvalidRequestHandler(handler InvalidRequestHandler) {
 	this.rwmutex.Lock()
 	if handler == nil {
-		this.invalidRequestHandler = InvalidRequestHandlerFunc(defaultInvalidRequestHandlerFunc)
+		this.invalidRequestHandler = DefaultInvalidRequestHandler
 	} else {
 		this.invalidRequestHandler = handler
 	}
@@ -48,6 +48,9 @@ func (this *MultiAgentFrontend) SetInvalidRequestHandler(handler InvalidRequestH
 
 // 添加（设置） agentkey-agent pair, 如果 agent == nil 则不做任何操作
 func (this *MultiAgentFrontend) SetAgent(agentkey string, agent Agent) {
+	if agentkey == "" {
+		return
+	}
 	if agent == nil {
 		return
 	}
@@ -75,38 +78,54 @@ func (this *MultiAgentFrontend) DeleteAllAgent() {
 }
 
 func (this *MultiAgentFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	this.rwmutex.RLock()
-	defer this.rwmutex.RUnlock()
+	if r.URL == nil {
+		this.rwmutex.RLock()
+		invalidRequestHandler := this.invalidRequestHandler
+		this.rwmutex.RUnlock()
+		if invalidRequestHandler == nil {
+			invalidRequestHandler = DefaultInvalidRequestHandler
+		}
 
-	invalidRequestHandler := this.invalidRequestHandler
-	if invalidRequestHandler == nil {
-		invalidRequestHandler = InvalidRequestHandlerFunc(defaultInvalidRequestHandlerFunc)
-	}
-	if len(this.agentMap) == 0 {
-		invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("no Agent"))
-		return
-	}
-
-	if r == nil || r.URL == nil {
-		err := errors.New("input *net/http.Request r == nil or r.URL == nil")
+		err := errors.New("input net/http.Request.URL == nil")
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
 	urlValues, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
+		this.rwmutex.RLock()
+		invalidRequestHandler := this.invalidRequestHandler
+		this.rwmutex.RUnlock()
+		if invalidRequestHandler == nil {
+			invalidRequestHandler = DefaultInvalidRequestHandler
+		}
+
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
 	agentKey := urlValues.Get(URLQueryAgentKeyName)
 	if agentKey == "" {
-		err = fmt.Errorf("%s is empty", URLQueryAgentKeyName)
+		this.rwmutex.RLock()
+		invalidRequestHandler := this.invalidRequestHandler
+		this.rwmutex.RUnlock()
+		if invalidRequestHandler == nil {
+			invalidRequestHandler = DefaultInvalidRequestHandler
+		}
+
+		err = fmt.Errorf("the url query value with name %s is empty", URLQueryAgentKeyName)
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
+	this.rwmutex.RLock()
+	invalidRequestHandler := this.invalidRequestHandler
 	agent := this.agentMap[agentKey]
+	this.rwmutex.RUnlock()
+
+	if invalidRequestHandler == nil {
+		invalidRequestHandler = DefaultInvalidRequestHandler
+	}
 	if agent == nil {
 		invalidRequestHandler.ServeInvalidRequest(w, r, fmt.Errorf("Not found Agent for %s == %s", URLQueryAgentKeyName, agentKey))
 		return

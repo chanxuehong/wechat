@@ -13,11 +13,12 @@ import (
 )
 
 func NewTLSHTTPClient(certFile, keyFile string) (httpClient *http.Client, err error) {
-	var tlsConfig tls.Config
-	tlsConfig.Certificates = make([]tls.Certificate, 1)
-	tlsConfig.Certificates[0], err = tls.LoadX509KeyPair(certFile, keyFile)
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
 		return
+	}
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
 	}
 
 	httpClient = &http.Client{
@@ -27,7 +28,7 @@ func NewTLSHTTPClient(certFile, keyFile string) (httpClient *http.Client, err er
 				Timeout:   5 * time.Second, // 连接超时设置为 5 秒
 				KeepAlive: 30 * time.Second,
 			}).Dial,
-			TLSClientConfig:     &tlsConfig,
+			TLSClientConfig:     tlsConfig,
 			TLSHandshakeTimeout: 5 * time.Second, // TLS 握手超时设置为 5 秒
 		},
 		Timeout: 15 * time.Second, // 请求超时时间设置为 15 秒
