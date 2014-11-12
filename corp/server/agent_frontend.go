@@ -18,6 +18,8 @@ type AgentFrontend struct {
 	invalidRequestHandler InvalidRequestHandler
 }
 
+// 创建一个新的 AgentFrontend.
+//  agent 不能为 nil, 如果 invalidRequestHandler == nil 则使用 DefaultInvalidRequestHandler
 func NewAgentFrontend(agent Agent, invalidRequestHandler InvalidRequestHandler) *AgentFrontend {
 	if agent == nil {
 		panic("agent == nil")

@@ -48,6 +48,9 @@ func (this *MultiAgentFrontend) SetInvalidRequestHandler(handler InvalidRequestH
 
 // 添加（设置） agentkey-agent pair, 如果 agent == nil 则不做任何操作
 func (this *MultiAgentFrontend) SetAgent(agentkey string, agent Agent) {
+	if agentkey == "" {
+		return
+	}
 	if agent == nil {
 		return
 	}

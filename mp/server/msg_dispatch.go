@@ -13,7 +13,9 @@ import (
 
 // 明文模式
 // 消息（事件）分路器, 可以根据实际业务来调整顺序!
-func rawMsgDispatch(w http.ResponseWriter, r *http.Request, msg *request.Request, rawXMLMsg []byte, timestamp int64, agent Agent) {
+func rawMsgDispatch(w http.ResponseWriter, r *http.Request, msg *request.Request,
+	rawXMLMsg []byte, timestamp int64, agent Agent) {
+
 	switch msg.MsgType {
 	case request.MSG_TYPE_TEXT:
 		agent.ServeTextMsg(w, r, msg.Text(), rawXMLMsg, timestamp)
@@ -95,7 +97,9 @@ func rawMsgDispatch(w http.ResponseWriter, r *http.Request, msg *request.Request
 
 // 兼容模式, 安全模式
 // 消息（事件）分路器, 可以根据实际业务来调整顺序!
-func aesMsgDispatch(w http.ResponseWriter, r *http.Request, msg *request.Request, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte, agent Agent) {
+func aesMsgDispatch(w http.ResponseWriter, r *http.Request, msg *request.Request,
+	rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte, agent Agent) {
+
 	switch msg.MsgType {
 	case request.MSG_TYPE_TEXT:
 		agent.ServeAESTextMsg(w, r, msg.Text(), rawXMLMsg, timestamp, nonce, AESKey, random)

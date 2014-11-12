@@ -7,7 +7,6 @@ package server
 
 import (
 	"bytes"
-	"crypto/sha1"
 	"crypto/subtle"
 	"encoding/base64"
 	"encoding/xml"
@@ -22,6 +21,8 @@ import (
 	"github.com/chanxuehong/wechat/mp/message/passive/request"
 	"github.com/chanxuehong/wechat/util"
 )
+
+var zeroAESKey [32]byte
 
 // ServeHTTP 处理 http 消息请求
 //  NOTE: 确保所有参数合法, r.Body 能正确读取数据
@@ -38,71 +39,31 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request,
 
 		timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
 		if err != nil {
+			err = fmt.Errorf("can not parse timestamp(==%q) to int64, error: %s", timestampStr, err.Error())
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
 		}
 
 		switch encryptType {
-		case "", "raw": // 明文模式
-			const signatureLen = sha1.Size * 2
-			if len(signature1) != signatureLen {
-				err = fmt.Errorf("the length of signature mismatch, have: %d, want: %d", len(signature1), signatureLen)
-				invalidRequestHandler.ServeInvalidRequest(w, r, err)
-				return
-			}
-
-			signature2 := util.Sign(agent.GetToken(), timestampStr, nonce)
-			if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
-				err = fmt.Errorf("check signature failed, have: %s, want: %s", signature1, signature2)
-				invalidRequestHandler.ServeInvalidRequest(w, r, err)
-				return
-			}
-
-			rawXMLMsg, err := ioutil.ReadAll(r.Body)
-			if err != nil {
-				invalidRequestHandler.ServeInvalidRequest(w, r, err)
-				return
-			}
-
-			var msgReq request.Request
-			if err = xml.Unmarshal(rawXMLMsg, &msgReq); err != nil {
-				invalidRequestHandler.ServeInvalidRequest(w, r, err)
-				return
-			}
-
-			wantToUserName := agent.GetId()
-			if len(msgReq.ToUserName) != len(wantToUserName) {
-				err = fmt.Errorf("the message Request's ToUserName mismatch, have: %s, want: %s", msgReq.ToUserName, wantToUserName)
-				invalidRequestHandler.ServeInvalidRequest(w, r, err)
-				return
-			}
-			if subtle.ConstantTimeCompare([]byte(msgReq.ToUserName), []byte(wantToUserName)) != 1 {
-				err = fmt.Errorf("the message Request's ToUserName mismatch, have: %s, want: %s", msgReq.ToUserName, wantToUserName)
-				invalidRequestHandler.ServeInvalidRequest(w, r, err)
-				return
-			}
-
-			rawMsgDispatch(w, r, &msgReq, rawXMLMsg, timestamp, agent)
-
 		case "aes": // 兼容模式, 安全模式
-			const signatureLen = sha1.Size * 2
-			//if len(signature1) != signatureLen {
-			//	err = fmt.Errorf("the length of signature mismatch, have: %d, want: %d", len(signature1), signatureLen)
+			//if len(signature1) != 40 {
+			//	err = fmt.Errorf("the length of signature mismatch, have: %d, want: 40", len(signature1))
 			//	invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			//	return
 			//}
-			if len(msgSignature1) != signatureLen {
-				err = fmt.Errorf("the length of msg_signature mismatch, have: %d, want: %d", len(msgSignature1), signatureLen)
+
+			//signature2 := util.Sign(agent.GetToken(), timestampStr, nonce)
+			//if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
+			//	err = fmt.Errorf("check signature failed, input: %s, local: %s", signature1, signature2)
+			//	invalidRequestHandler.ServeInvalidRequest(w, r, err)
+			//	return
+			//}
+
+			if len(msgSignature1) != 40 {
+				err = fmt.Errorf("the length of msg_signature mismatch, have: %d, want: 40", len(msgSignature1))
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
-
-			//signature2 := signature(agent.GetToken(), timestampStr, nonce)
-			//if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
-			//	err = fmt.Errorf("check signature failed, have: %s, want: %s", signature1, signature2)
-			//	invalidRequestHandler.ServeInvalidRequest(w, r, err)
-			//	return
-			//}
 
 			var requestHttpBody request.RequestHttpBody
 			if err := xml.NewDecoder(r.Body).Decode(&requestHttpBody); err != nil {
@@ -110,21 +71,22 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request,
 				return
 			}
 
+			haveToUserName := requestHttpBody.ToUserName
 			wantToUserName := agent.GetId()
-			if len(requestHttpBody.ToUserName) != len(wantToUserName) {
-				err = fmt.Errorf("the message RequestHttpBody's ToUserName mismatch, have: %s, want: %s", requestHttpBody.ToUserName, wantToUserName)
+			if len(haveToUserName) != len(wantToUserName) {
+				err = fmt.Errorf("the message RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
-			if subtle.ConstantTimeCompare([]byte(requestHttpBody.ToUserName), []byte(wantToUserName)) != 1 {
-				err = fmt.Errorf("the message RequestHttpBody's ToUserName mismatch, have: %s, want: %s", requestHttpBody.ToUserName, wantToUserName)
+			if subtle.ConstantTimeCompare([]byte(haveToUserName), []byte(wantToUserName)) != 1 {
+				err = fmt.Errorf("the message RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
 
 			msgSignature2 := util.MsgSign(agent.GetToken(), timestampStr, nonce, requestHttpBody.EncryptedMsg)
 			if subtle.ConstantTimeCompare([]byte(msgSignature1), []byte(msgSignature2)) != 1 {
-				err = fmt.Errorf("check signature failed, have: %s, want: %s", msgSignature1, msgSignature2)
+				err = fmt.Errorf("check signature failed, input: %s, local: %s", msgSignature1, msgSignature2)
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
@@ -161,13 +123,53 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request,
 				return
 			}
 
-			if requestHttpBody.ToUserName != msgReq.ToUserName {
-				err = fmt.Errorf("the RequestHttpBody's ToUserName(==%s) mismatch the Request's ToUserName(==%s)", requestHttpBody.ToUserName, msgReq.ToUserName)
+			if haveToUserName != msgReq.ToUserName {
+				err = fmt.Errorf("the RequestHttpBody's ToUserName(==%s) mismatch the Request's ToUserName(==%s)", haveToUserName, msgReq.ToUserName)
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
 
 			aesMsgDispatch(w, r, &msgReq, rawXMLMsg, timestamp, nonce, AESKey, random, agent)
+
+		case "", "raw": // 明文模式
+			if len(signature1) != 40 {
+				err = fmt.Errorf("the length of signature mismatch, have: %d, want: 40", len(signature1))
+				invalidRequestHandler.ServeInvalidRequest(w, r, err)
+				return
+			}
+
+			signature2 := util.Sign(agent.GetToken(), timestampStr, nonce)
+			if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
+				err = fmt.Errorf("check signature failed, input: %s, local: %s", signature1, signature2)
+				invalidRequestHandler.ServeInvalidRequest(w, r, err)
+				return
+			}
+
+			rawXMLMsg, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				invalidRequestHandler.ServeInvalidRequest(w, r, err)
+				return
+			}
+
+			var msgReq request.Request
+			if err = xml.Unmarshal(rawXMLMsg, &msgReq); err != nil {
+				invalidRequestHandler.ServeInvalidRequest(w, r, err)
+				return
+			}
+
+			wantToUserName := agent.GetId()
+			if len(msgReq.ToUserName) != len(wantToUserName) {
+				err = fmt.Errorf("the message Request's ToUserName mismatch, have: %s, want: %s", msgReq.ToUserName, wantToUserName)
+				invalidRequestHandler.ServeInvalidRequest(w, r, err)
+				return
+			}
+			if subtle.ConstantTimeCompare([]byte(msgReq.ToUserName), []byte(wantToUserName)) != 1 {
+				err = fmt.Errorf("the message Request's ToUserName mismatch, have: %s, want: %s", msgReq.ToUserName, wantToUserName)
+				invalidRequestHandler.ServeInvalidRequest(w, r, err)
+				return
+			}
+
+			rawMsgDispatch(w, r, &msgReq, rawXMLMsg, timestamp, agent)
 
 		default: // 未知的加密类型
 			invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("unknown encrypt_type"))
@@ -181,16 +183,15 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request,
 			return
 		}
 
-		const signatureLen = sha1.Size * 2
-		if len(signature1) != signatureLen {
-			err = fmt.Errorf("the length of signature mismatch, have: %d, want: %d", len(signature1), signatureLen)
+		if len(signature1) != 40 {
+			err = fmt.Errorf("the length of signature mismatch, have: %d, want: 40", len(signature1))
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
 		}
 
 		signature2 := util.Sign(agent.GetToken(), timestamp, nonce)
 		if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
-			err = fmt.Errorf("check signature failed, have: %s, want: %s", signature1, signature2)
+			err = fmt.Errorf("check signature failed, input: %s, local: %s", signature1, signature2)
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
 		}

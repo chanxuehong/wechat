@@ -24,6 +24,8 @@ type PayPackageRequestHandler struct {
 	invalidRequestHandler InvalidRequestHandler
 }
 
+// 创建一个新的 PayPackageRequestHandler.
+//  agent 不能为 nil, 如果 invalidRequestHandler == nil 则使用 DefaultInvalidRequestHandler
 func NewPayPackageRequestHandler(agent Agent, invalidRequestHandler InvalidRequestHandler) *PayPackageRequestHandler {
 	if agent == nil {
 		panic("agent == nil")
