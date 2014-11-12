@@ -9,10 +9,11 @@ import (
 	"encoding/base64"
 	"encoding/xml"
 	"errors"
-	"github.com/chanxuehong/wechat/mp/message/passive/response"
-	"github.com/chanxuehong/wechat/util"
 	"io"
 	"strconv"
+
+	"github.com/chanxuehong/wechat/mp/message/passive/response"
+	"github.com/chanxuehong/wechat/util"
 )
 
 // 把 text 回复消息 msg 写入 writer w
@@ -139,7 +140,7 @@ func writeAESResponse(w io.Writer, msg interface{}, timestamp int64, nonce strin
 	responseHttpBody.Nonce = nonce
 
 	timestampStr := strconv.FormatInt(timestamp, 10)
-	responseHttpBody.MsgSignature = util.MsgSignature(Token, timestampStr, nonce, base64EncryptedMsg)
+	responseHttpBody.MsgSignature = util.MsgSign(Token, timestampStr, nonce, base64EncryptedMsg)
 
 	return xml.NewEncoder(w).Encode(&responseHttpBody)
 }
