@@ -24,6 +24,8 @@ type AlarmNotifyHandler struct {
 	invalidRequestHandler InvalidRequestHandler
 }
 
+// 创建一个新的 AlarmNotifyHandler.
+//  agent 不能为 nil, 如果 invalidRequestHandler == nil 则使用 DefaultInvalidRequestHandler
 func NewAlarmNotifyHandler(agent Agent, invalidRequestHandler InvalidRequestHandler) *AlarmNotifyHandler {
 	if agent == nil {
 		panic("agent == nil")

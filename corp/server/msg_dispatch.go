@@ -12,7 +12,9 @@ import (
 )
 
 // 消息（事件）分路器, 可以根据实际业务来调整顺序!
-func msgDispatch(w http.ResponseWriter, r *http.Request, msg *request.Request, rawXMLMsg []byte, timestamp int64, nonce string, random []byte, agent Agent) {
+func msgDispatch(w http.ResponseWriter, r *http.Request, msg *request.Request,
+	rawXMLMsg []byte, timestamp int64, nonce string, random []byte, agent Agent) {
+
 	switch msg.MsgType {
 	case request.MSG_TYPE_TEXT:
 		agent.ServeTextMsg(w, r, msg.Text(), rawXMLMsg, timestamp, nonce, random)

@@ -23,6 +23,8 @@ type FeedbackHandler struct {
 	invalidRequestHandler InvalidRequestHandler
 }
 
+// 创建一个新的 FeedbackHandler.
+//  agent 不能为 nil, 如果 invalidRequestHandler == nil 则使用 DefaultInvalidRequestHandler
 func NewFeedbackHandler(agent Agent, invalidRequestHandler InvalidRequestHandler) *FeedbackHandler {
 	if agent == nil {
 		panic("agent == nil")

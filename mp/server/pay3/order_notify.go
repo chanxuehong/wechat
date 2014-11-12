@@ -24,6 +24,8 @@ type OrderNotifyHandler struct {
 	invalidRequestHandler InvalidRequestHandler
 }
 
+// 创建一个新的 OrderNotifyHandler.
+//  agent 不能为 nil, 如果 invalidRequestHandler == nil 则使用 DefaultInvalidRequestHandler
 func NewOrderNotifyHandler(agent Agent, invalidRequestHandler InvalidRequestHandler) *OrderNotifyHandler {
 	if agent == nil {
 		panic("agent == nil")
