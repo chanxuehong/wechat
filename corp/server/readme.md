@@ -25,13 +25,14 @@ MultiAgentFrontend 是并发安全的，可以动态增加（删除）Agent，�
 package main
 
 import (
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/chanxuehong/wechat/corp/message/passive/request"
 	"github.com/chanxuehong/wechat/corp/message/passive/response"
 	"github.com/chanxuehong/wechat/corp/server"
 	"github.com/chanxuehong/wechat/util"
-	"log"
-	"net/http"
-	"time"
 )
 
 // 实现 server.Agent
@@ -41,7 +42,7 @@ type CustomAgent struct {
 
 // 文本消息处理函数
 func (this *CustomAgent) ServeTextMsg(w http.ResponseWriter, r *http.Request,
-	msg *request.Text, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte) {
+	msg *request.Text, rawXMLMsg []byte, timestamp int64, nonce string, random []byte) {
 
 	// TODO: 示例代码, 把用户发送过来的文本原样回复过去
 
@@ -51,7 +52,7 @@ func (this *CustomAgent) ServeTextMsg(w http.ResponseWriter, r *http.Request,
 	resp := response.NewText(msg.FromUserName, msg.ToUserName, msg.Content, time.Now().Unix())
 
 	// timestamp, nonce, random 也可以自己生成
-	if err := server.WriteText(w, resp, timestamp, nonce, this.GetAESKey(), random[:], this.GetCorpId(), this.GetToken()); err != nil {
+	if err := server.WriteText(w, resp, timestamp, nonce, this.GetAESKey(), random, this.GetCorpId(), this.GetToken()); err != nil {
 		// TODO: 错误处理代码
 	}
 }

@@ -6,8 +6,9 @@
 package server
 
 import (
-	"github.com/chanxuehong/wechat/corp/message/passive/request"
 	"net/http"
+
+	"github.com/chanxuehong/wechat/corp/message/passive/request"
 )
 
 // 企业号应用对外暴露的接口
@@ -18,40 +19,42 @@ type Agent interface {
 	GetAESKey() [32]byte // 32 bytes 的 AES 加密 Key
 
 	// 未知类型的消息处理方法
-	//  rawXMLMsg 是解密后的明文 xml 消息体
-	//  timestamp 是请求 URL 中的时间戳
-	//  nonce     是请求 URL 中的随机数
-	//  random    是请求 http body 中的密文消息加密时所用的 random
-	//  r *http.Request 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 user-agent
-	ServeUnknownMsg(w http.ResponseWriter, r *http.Request, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
+	//  rawXMLMsg   是解密后的"明文" xml 消息体
+	//  timestamp   是请求 URL 中的时间戳
+	//  nonce       是请求 URL 中的随机数
+	//  random      是请求 http body 中的密文消息加密时所用的 random, 16 bytes
+	//  r *http.Request 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 r.URL.RawQuery
+	ServeUnknownMsg(w http.ResponseWriter, r *http.Request, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
 
 	// 消息处理函数
-	//  rawXMLMsg 是解密后的明文 xml 消息体
-	//  timestamp 是请求 URL 中的时间戳
-	//  nonce     是请求 URL 中的随机数
-	//  random    是请求 http body 中的密文消息加密时所用的 random
-	//  r *http.Request 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 user-agent
-	ServeTextMsg(w http.ResponseWriter, r *http.Request, msg *request.Text, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
-	ServeImageMsg(w http.ResponseWriter, r *http.Request, msg *request.Image, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
-	ServeVoiceMsg(w http.ResponseWriter, r *http.Request, msg *request.Voice, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
-	ServeVideoMsg(w http.ResponseWriter, r *http.Request, msg *request.Video, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
-	ServeLocationMsg(w http.ResponseWriter, r *http.Request, msg *request.Location, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
+	//  msg 是成功解析的消息结构体
+	//  rawXMLMsg   是解密后的"明文" xml 消息体
+	//  timestamp   是请求 URL 中的时间戳
+	//  nonce       是请求 URL 中的随机数
+	//  random      是请求 http body 中的密文消息加密时所用的 random, 16 bytes
+	//  r *http.Request 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 r.URL.RawQuery
+	ServeTextMsg(w http.ResponseWriter, r *http.Request, msg *request.Text, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
+	ServeImageMsg(w http.ResponseWriter, r *http.Request, msg *request.Image, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
+	ServeVoiceMsg(w http.ResponseWriter, r *http.Request, msg *request.Voice, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
+	ServeVideoMsg(w http.ResponseWriter, r *http.Request, msg *request.Video, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
+	ServeLocationMsg(w http.ResponseWriter, r *http.Request, msg *request.Location, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
 
 	// 事件处理函数
-	//  rawXMLMsg 是解密后的明文 xml 消息体
-	//  timestamp 是请求 URL 中的时间戳
-	//  nonce     是请求 URL 中的随机数
-	//  random    是请求 http body 中的密文消息加密时所用的 random
-	//  r *http.Request 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 user-agent
-	ServeSubscribeEvent(w http.ResponseWriter, r *http.Request, event *request.SubscribeEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
-	ServeUnsubscribeEvent(w http.ResponseWriter, r *http.Request, event *request.UnsubscribeEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
-	ServeLocationEvent(w http.ResponseWriter, r *http.Request, event *request.LocationEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
-	ServeMenuClickEvent(w http.ResponseWriter, r *http.Request, event *request.MenuClickEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
-	ServeMenuViewEvent(w http.ResponseWriter, r *http.Request, event *request.MenuViewEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
-	ServeMenuScanCodePushEvent(w http.ResponseWriter, r *http.Request, event *request.MenuScanCodePushEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
-	ServeMenuScanCodeWaitMsgEvent(w http.ResponseWriter, r *http.Request, event *request.MenuScanCodeWaitMsgEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
-	ServeMenuPicSysPhotoEvent(w http.ResponseWriter, r *http.Request, event *request.MenuPicSysPhotoEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
-	ServeMenuPicPhotoOrAlbumEvent(w http.ResponseWriter, r *http.Request, event *request.MenuPicPhotoOrAlbumEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
-	ServeMenuPicWeixinEvent(w http.ResponseWriter, r *http.Request, event *request.MenuPicWeixinEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
-	ServeMenuLocationSelectEvent(w http.ResponseWriter, r *http.Request, event *request.MenuLocationSelectEvent, rawXMLMsg []byte, timestamp int64, nonce string, random [16]byte)
+	//  event 是成功解析的消息结构体
+	//  rawXMLMsg   是解密后的"明文" xml 消息体
+	//  timestamp   是请求 URL 中的时间戳
+	//  nonce       是请求 URL 中的随机数
+	//  random      是请求 http body 中的密文消息加密时所用的 random, 16 bytes
+	//  r *http.Request 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 r.URL.RawQuery
+	ServeSubscribeEvent(w http.ResponseWriter, r *http.Request, event *request.SubscribeEvent, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
+	ServeUnsubscribeEvent(w http.ResponseWriter, r *http.Request, event *request.UnsubscribeEvent, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
+	ServeLocationEvent(w http.ResponseWriter, r *http.Request, event *request.LocationEvent, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
+	ServeMenuClickEvent(w http.ResponseWriter, r *http.Request, event *request.MenuClickEvent, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
+	ServeMenuViewEvent(w http.ResponseWriter, r *http.Request, event *request.MenuViewEvent, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
+	ServeMenuScanCodePushEvent(w http.ResponseWriter, r *http.Request, event *request.MenuScanCodePushEvent, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
+	ServeMenuScanCodeWaitMsgEvent(w http.ResponseWriter, r *http.Request, event *request.MenuScanCodeWaitMsgEvent, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
+	ServeMenuPicSysPhotoEvent(w http.ResponseWriter, r *http.Request, event *request.MenuPicSysPhotoEvent, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
+	ServeMenuPicPhotoOrAlbumEvent(w http.ResponseWriter, r *http.Request, event *request.MenuPicPhotoOrAlbumEvent, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
+	ServeMenuPicWeixinEvent(w http.ResponseWriter, r *http.Request, event *request.MenuPicWeixinEvent, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
+	ServeMenuLocationSelectEvent(w http.ResponseWriter, r *http.Request, event *request.MenuLocationSelectEvent, rawXMLMsg []byte, timestamp int64, nonce string, random []byte)
 }

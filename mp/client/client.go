@@ -21,7 +21,7 @@ type Client struct {
 }
 
 // 创建一个新的 Client.
-//  如果 httpClient == nil 则默认用 http.DefaultClient,
+//  如果 httpClient == nil 则默认用 http.DefaultClient
 func NewClient(tokenService tokenservice.TokenService, httpClient *http.Client) (clt *Client) {
 	if tokenService == nil {
 		panic("tokenService == nil")

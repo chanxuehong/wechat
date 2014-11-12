@@ -25,9 +25,7 @@ type Client struct {
 }
 
 // 创建一个新的 Client.
-//  如果 httpClient == nil 则默认用 http.DefaultClient,
-//  see github.com/chanxuehong/wechat/CommonHttpClient 和
-//      github.com/chanxuehong/wechat/MediaHttpClient
+//  如果 httpClient == nil 则默认用 http.DefaultClient
 func NewClient(corpId, corpSecret string,
 	tokenCache tokencache.TokenCache, httpClient *http.Client) (clt *Client) {
 

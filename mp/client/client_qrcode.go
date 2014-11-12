@@ -8,10 +8,11 @@ package client
 import (
 	"errors"
 	"fmt"
-	"github.com/chanxuehong/wechat/mp/qrcode"
 	"io"
 	"net/http"
 	"os"
+
+	"github.com/chanxuehong/wechat/mp/qrcode"
 )
 
 // 创建临时二维码
@@ -120,9 +121,7 @@ func QRCodeURL(ticket string) string {
 }
 
 // 通过 ticket 换取二维码到 writer
-//  如果 httpClient == nil 则默认用 http.DefaultClient,
-//  see github.com/chanxuehong/wechat/CommonHttpClient 和
-//      github.com/chanxuehong/wechat/MediaHttpClient
+//  如果 httpClient == nil 则默认用 http.DefaultClient
 func QRCodeDownloadToWriter(ticket string, writer io.Writer, httpClient *http.Client) (err error) {
 	if writer == nil {
 		return errors.New("writer == nil")
@@ -172,9 +171,7 @@ func (c *Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (err er
 }
 
 // 通过 ticket 换取二维码到文件 filepath_
-//  如果 httpClient == nil 则默认用 http.DefaultClient,
-//  see github.com/chanxuehong/wechat/CommonHttpClient 和
-//      github.com/chanxuehong/wechat/MediaHttpClient
+//  如果 httpClient == nil 则默认用 http.DefaultClient
 func QRCodeDownload(ticket, filepath_ string, httpClient *http.Client) (err error) {
 	file, err := os.Create(filepath_)
 	if err != nil {

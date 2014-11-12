@@ -68,7 +68,7 @@ func AESEncryptMsg(random, rawXMLMsg []byte, AppId string, AESKey [32]byte) (enc
 }
 
 // encryptedMsg = AES_Encrypt[random(16B) + msg_len(4B) + rawXMLMsg + AppId]
-func AESDecryptMsg(encryptedMsg []byte, AppId string, AESKey [32]byte) (random [16]byte, rawXMLMsg []byte, err error) {
+func AESDecryptMsg(encryptedMsg []byte, AppId string, AESKey [32]byte) (random, rawXMLMsg []byte, err error) {
 	const BLOCK_SIZE = 32 // PKCS#7
 
 	if len(encryptedMsg) < BLOCK_SIZE {
@@ -80,7 +80,7 @@ func AESDecryptMsg(encryptedMsg []byte, AppId string, AESKey [32]byte) (random [
 		return
 	}
 
-	plain := make([]byte, len(encryptedMsg))
+	plain := make([]byte, len(encryptedMsg)) // len(plain) >= BLOCK_SIZE
 
 	// 解密
 	block, err := aes.NewCipher(AESKey[:])
@@ -122,7 +122,7 @@ func AESDecryptMsg(encryptedMsg []byte, AppId string, AESKey [32]byte) (random [
 		return
 	}
 
-	copy(random[:], plain[:16])
+	random = plain[:16:16]
 	rawXMLMsg = plain[20:msgEnd]
 	return
 }

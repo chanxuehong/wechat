@@ -33,9 +33,7 @@ type Client struct {
 	*OAuth2Config
 	*OAuth2Token // 程序会自动更新最新的 OAuth2Token 到这个字段, 如有必要该字段可以保存起来
 
-	// 如果 httpClient == nil 则默认用 http.DefaultClient,
-	// see github.com/chanxuehong/wechat/CommonHttpClient 和
-	//     github.com/chanxuehong/wechat/MediaHttpClient
+	// 如果 httpClient == nil 则默认用 http.DefaultClient
 	HttpClient *http.Client
 }
 
