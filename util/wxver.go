@@ -3,7 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package wechat
+package util
 
 import (
 	"errors"
@@ -12,9 +12,9 @@ import (
 )
 
 // 获取微信客户端的版本.
-//  @userAgent: 微信内置浏览器的 user-agent;
-//  @x, y, z:   如果微信版本为 5.3.1 则有 x==5, y==3, z==1
-//  @err:       错误信息
+//  userAgent: 微信内置浏览器的 user-agent;
+//  x, y, z:   如果微信版本为 5.3.1 则有 x==5, y==3, z==1
+//  err:       错误信息
 func WXVersion(userAgent string) (x, y, z int, err error) {
 	// Mozilla/5.0(iphone;CPU iphone OS 5_1_1 like Mac OS X) AppleWebKit/534.46(KHTML,like Geocko)Mobile/9B206 MicroMessenger/5.0
 	lastSlashIndex := strings.LastIndex(userAgent, "/")
@@ -26,9 +26,8 @@ func WXVersion(userAgent string) (x, y, z int, err error) {
 	}
 
 	strArr := strings.Split(userAgent[versionIndex:], ".")
-	verArr := make([]int, len(strArr))
+	verArr := make([]int, len(strArr)) // len(strArr) == len(verArr) >= 1, why?
 
-	// strArr 的每个元素应该都是整数
 	for i, str := range strArr {
 		var ver uint64
 		ver, err = strconv.ParseUint(str, 10, 16)
@@ -39,7 +38,6 @@ func WXVersion(userAgent string) (x, y, z int, err error) {
 		verArr[i] = int(ver)
 	}
 
-	// verArr 至少有一个元素
 	switch len(verArr) {
 	case 3:
 		x = verArr[0]
@@ -58,5 +56,6 @@ func WXVersion(userAgent string) (x, y, z int, err error) {
 		y = verArr[1]
 		z = verArr[2]
 	}
+
 	return
 }

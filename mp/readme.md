@@ -1,11 +1,13 @@
 # 微信公众平台 订阅号、服务号 golang SDK
 
-Version:   0.8.16
+Version:   0.8.17
 
 NOTE:      在 v1.0.0 之前 API 都有可能微调
 
 ## change log:
 
+#### v0.8.17
+random 从 [16]byte 改变为 []byte, 老代码把 [16]byte 替换为 []byte, random[:] 替换为 random 即可
 #### v0.8.16
 server WriteXXX 系列方法独立成函数
 #### v0.8.15
