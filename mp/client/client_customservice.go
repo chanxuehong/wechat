@@ -7,6 +7,7 @@ package client
 
 import (
 	"errors"
+
 	"github.com/chanxuehong/wechat/mp/customservice"
 )
 
@@ -34,9 +35,9 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := customServiceRecordGetURL(token)
+	url_ := customServiceRecordGetURL(token)
 
-	if err = c.postJSON(_url, request, &result); err != nil {
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -45,7 +46,7 @@ RETRY:
 		recordList = result.RecordList
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -125,9 +126,9 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := customServiceKFListURL(token)
+	url_ := customServiceKFListURL(token)
 
-	if err = c.getJSON(_url, &result); err != nil {
+	if err = c.getJSON(url_, &result); err != nil {
 		return
 	}
 
@@ -136,7 +137,7 @@ RETRY:
 		kfList = result.KFList
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -165,9 +166,9 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := customServiceOnlineKFListURL(token)
+	url_ := customServiceOnlineKFListURL(token)
 
-	if err = c.getJSON(_url, &result); err != nil {
+	if err = c.getJSON(url_, &result); err != nil {
 		return
 	}
 
@@ -176,7 +177,7 @@ RETRY:
 		kfList = result.KFList
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()

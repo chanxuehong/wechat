@@ -178,3 +178,9 @@ func shortURLURL(accesstoken string) string {
 	return "https://api.weixin.qq.com/cgi-bin/shorturl?access_token=" +
 		accesstoken
 }
+
+// https://api.weixin.qq.com/cgi-bin/getcallbackip?access_token=ACCESS_TOKEN
+func getCallbackIPURL(accesstoken string) string {
+	return "https://api.weixin.qq.com/cgi-bin/getcallbackip?access_token=" +
+		accesstoken
+}

@@ -47,7 +47,7 @@ func (c *Client) Token() (token string, err error) {
 // 正常情况下 token != "" && err == nil, 否则 token == "" && err != nil
 //  NOTE:
 //  1. 一般情况下无需调用该函数, 请使用 Token() 获取 access token.
-//  2. 即使微信服务器返回了 access token 过期错误(错误代码 42001, 正常情况下不会出现),
+//  2. 即使 access token 过期(错误代码 40001, 正常情况下不会出现),
 //     也请谨慎调用 TokenRefresh, 建议直接返回错误! 因为很有可能高并发情况下造成雪崩效应!
 //  3. 再次强调, 调用这个函数你应该知道发生了什么!!!
 func (c *Client) TokenRefresh() (token string, err error) {

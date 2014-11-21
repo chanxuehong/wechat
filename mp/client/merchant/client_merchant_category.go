@@ -30,8 +30,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantCategoryGetSubURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	url_ := merchantCategoryGetSubURL(token)
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -40,7 +40,7 @@ RETRY:
 		categories = result.Categories
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -74,8 +74,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantCategoryGetSKUURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	url_ := merchantCategoryGetSKUURL(token)
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -84,7 +84,7 @@ RETRY:
 		skus = result.SKUs
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -118,8 +118,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantCategoryGetPropertyURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	url_ := merchantCategoryGetPropertyURL(token)
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -128,7 +128,7 @@ RETRY:
 		properties = result.Properties
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()

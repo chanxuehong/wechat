@@ -9,12 +9,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/chanxuehong/wechat/mp/media"
 	"io"
 	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/chanxuehong/wechat/mp/media"
 )
 
 // 上传多媒体图片
@@ -131,9 +132,9 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := mediaDownloadURL(token, mediaId)
+	url_ := mediaDownloadURL(token, mediaId)
 
-	httpResp, err := c.httpClient.Get(_url)
+	httpResp, err := c.httpClient.Get(url_)
 	if err != nil {
 		return
 	}
@@ -159,7 +160,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -202,8 +203,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := mediaCreateNewsURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	url_ := mediaCreateNewsURL(token)
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -212,7 +213,7 @@ RETRY:
 		info = &result.MediaInfo
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -250,8 +251,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := mediaCreateVideoURL(token)
-	if err = c.postJSON(_url, &request, &result); err != nil {
+	url_ := mediaCreateVideoURL(token)
+	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}
 
@@ -260,7 +261,7 @@ RETRY:
 		info = &result.MediaInfo
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()

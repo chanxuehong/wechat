@@ -38,8 +38,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantGroupAddURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	url_ := merchantGroupAddURL(token)
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -48,7 +48,7 @@ RETRY:
 		groupId = result.GroupId
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -78,8 +78,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantGroupDeleteURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	url_ := merchantGroupDeleteURL(token)
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -87,7 +87,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -123,8 +123,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantGroupPropertyModifyURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	url_ := merchantGroupPropertyModifyURL(token)
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -132,7 +132,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -160,8 +160,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantGroupProductModifyURL(token)
-	if err = c.postJSON(_url, modifyRequest, &result); err != nil {
+	url_ := merchantGroupProductModifyURL(token)
+	if err = c.postJSON(url_, modifyRequest, &result); err != nil {
 		return
 	}
 
@@ -169,7 +169,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -197,8 +197,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantGroupGetAllURL(token)
-	if err = c.getJSON(_url, &result); err != nil {
+	url_ := merchantGroupGetAllURL(token)
+	if err = c.getJSON(url_, &result); err != nil {
 		return
 	}
 
@@ -207,7 +207,7 @@ RETRY:
 		groups = result.GroupsDetail
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -240,8 +240,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantGroupGetByIdURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	url_ := merchantGroupGetByIdURL(token)
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -250,7 +250,7 @@ RETRY:
 		_group = &result.GroupDetail
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()

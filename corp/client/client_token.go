@@ -37,10 +37,10 @@ func (c *Client) TokenRefresh() (token string, err error) {
 
 // 从微信服务器获取新的 access_token
 func (c *Client) getToken() (token string, err error) {
-	_url := "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=" +
+	url_ := "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=" +
 		c.corpId + "&corpsecret=" + c.corpSecret
 
-	httpResp, err := c.httpClient.Get(_url)
+	httpResp, err := c.httpClient.Get(url_)
 	if err != nil {
 		return
 	}

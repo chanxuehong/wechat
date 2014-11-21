@@ -10,8 +10,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/chanxuehong/wechat/mp/message/active/template"
 	"net/http"
+
+	"github.com/chanxuehong/wechat/mp/message/active/template"
 )
 
 // 发送模版消息
@@ -32,8 +33,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := messageTemplateSendURL(token)
-	if err = c.postJSON(_url, msg, &result); err != nil {
+	url_ := messageTemplateSendURL(token)
+	if err = c.postJSON(url_, msg, &result); err != nil {
 		return
 	}
 
@@ -42,7 +43,7 @@ RETRY:
 		msgid = result.MsgId
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -75,9 +76,9 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := messageTemplateSendURL(token)
+	url_ := messageTemplateSendURL(token)
 
-	httpResp, err := c.httpClient.Post(_url, "application/json; charset=utf-8", bytes.NewReader(msg))
+	httpResp, err := c.httpClient.Post(url_, "application/json; charset=utf-8", bytes.NewReader(msg))
 	if err != nil {
 		return
 	}
@@ -97,7 +98,7 @@ RETRY:
 		msgid = result.MsgId
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()

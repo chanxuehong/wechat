@@ -7,8 +7,9 @@ package client
 
 import (
 	"errors"
-	"github.com/chanxuehong/wechat/corp/addresslist"
 	"strings"
+
+	"github.com/chanxuehong/wechat/corp/addresslist"
 )
 
 // 创建标签
@@ -40,7 +41,7 @@ RETRY:
 		id = result.Id
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -84,7 +85,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -120,7 +121,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -160,7 +161,7 @@ RETRY:
 		userList = result.UserList
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -222,7 +223,7 @@ RETRY:
 		invalidUsers = users
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -284,7 +285,7 @@ RETRY:
 		invalidUsers = users
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 

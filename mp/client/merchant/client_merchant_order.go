@@ -28,8 +28,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantOrderGetByIdURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	url_ := merchantOrderGetByIdURL(token)
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -38,7 +38,7 @@ RETRY:
 		_order = &result.Order
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -79,8 +79,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantOrderGetByFilterURL(token)
-	if err = c.postJSON(_url, &request, &result); err != nil {
+	url_ := merchantOrderGetByFilterURL(token)
+	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}
 
@@ -89,7 +89,7 @@ RETRY:
 		orders = result.OrderList
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -126,8 +126,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantOrderSetDeliveryURL(token)
-	if err = c.postJSON(_url, &request, &result); err != nil {
+	url_ := merchantOrderSetDeliveryURL(token)
+	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}
 
@@ -135,7 +135,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -165,8 +165,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantOrderCloseURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	url_ := merchantOrderCloseURL(token)
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -174,7 +174,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()

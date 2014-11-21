@@ -17,7 +17,7 @@ type TokenService interface {
 	//  NOTE:
 	//  1. 一般情况下无需调用该函数, 请使用 Token() 获取 access token.
 	//  2. 该方法可以选择是否功能上实现, 如果没有需求可以在语法上实现即可!
-	//  3. 即使微信服务器返回了 access token 过期错误(错误代码 42001, 正常情况下不会出现),
+	//  3. 即使 access token 过期(错误代码 40001, 正常情况下不会出现),
 	//     也请谨慎调用 TokenRefresh, 建议直接返回错误! 因为很有可能高并发情况下造成雪崩效应!
 	//  4. 再次强调, 调用这个函数你应该知道发生了什么!!!
 	TokenRefresh() (token string, err error)

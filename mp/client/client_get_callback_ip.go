@@ -5,18 +5,13 @@
 
 package client
 
-// 删除群发.
-//  NOTE: 只有已经发送成功的消息才能删除删除消息只是将消息的图文详情页失效，已经收到的用户，
-//  还是能在其本地看到消息卡片。 另外，删除群发消息只能删除图文消息和视频消息，
-//  其他类型的消息一经发送，无法删除。
-func (c *Client) MsgMassDelete(msgid int64) (err error) {
-	var request = struct {
-		MsgId int64 `json:"msgid"`
-	}{
-		MsgId: msgid,
+// 如果公众号基于安全等考虑，需要获知微信服务器的IP地址列表，以便进行相关限制，
+// 可以通过该接口获得微信服务器IP地址列表。
+func (c *Client) GetCallbackIP() (ipList []string, err error) {
+	var result struct {
+		Error
+		IPList []string `json:"ip_list"`
 	}
-
-	var result Error
 
 	hasRetry := false
 RETRY:
@@ -24,13 +19,15 @@ RETRY:
 	if err != nil {
 		return
 	}
-	url_ := messageMassDeleteURL(token)
-	if err = c.postJSON(url_, request, &result); err != nil {
+	url_ := getCallbackIPURL(token)
+
+	if err = c.getJSON(url_, &result); err != nil {
 		return
 	}
 
 	switch result.ErrCode {
 	case errCodeOK:
+		ipList = result.IPList
 		return
 
 	case errCodeInvalidCredential:
@@ -42,7 +39,7 @@ RETRY:
 		fallthrough
 
 	default:
-		err = &result
+		err = &result.Error
 		return
 	}
 }
