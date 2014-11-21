@@ -41,8 +41,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := qrcodeCreateURL(token)
-	if err = c.postJSON(_url, &request, &result); err != nil {
+	url_ := qrcodeCreateURL(token)
+	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}
 
@@ -52,7 +52,7 @@ RETRY:
 		_qrcode = &result.TemporaryQRCode
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -90,8 +90,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := qrcodeCreateURL(token)
-	if err = c.postJSON(_url, &request, &result); err != nil {
+	url_ := qrcodeCreateURL(token)
+	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}
 
@@ -101,7 +101,7 @@ RETRY:
 		_qrcode = &result.PermanentQRCode
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -130,8 +130,8 @@ func QRCodeDownloadToWriter(ticket string, writer io.Writer, httpClient *http.Cl
 		httpClient = http.DefaultClient
 	}
 
-	_url := qrcodeURL(ticket)
-	resp, err := httpClient.Get(_url)
+	url_ := qrcodeURL(ticket)
+	resp, err := httpClient.Get(url_)
 	if err != nil {
 		return
 	}
@@ -153,8 +153,8 @@ func (c *Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (err er
 		return errors.New("writer == nil")
 	}
 
-	_url := qrcodeURL(ticket)
-	resp, err := c.httpClient.Get(_url)
+	url_ := qrcodeURL(ticket)
+	resp, err := c.httpClient.Get(url_)
 	if err != nil {
 		return
 	}

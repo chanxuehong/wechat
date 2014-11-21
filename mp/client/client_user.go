@@ -8,6 +8,7 @@ package client
 import (
 	"errors"
 	"fmt"
+
 	"github.com/chanxuehong/wechat/mp/user"
 )
 
@@ -40,9 +41,9 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := userGroupCreateURL(token)
+	url_ := userGroupCreateURL(token)
 
-	if err = c.postJSON(_url, request, &result); err != nil {
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -54,7 +55,7 @@ RETRY:
 		}
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -83,9 +84,9 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := userGroupGetURL(token)
+	url_ := userGroupGetURL(token)
 
-	if err = c.getJSON(_url, &result); err != nil {
+	if err = c.getJSON(url_, &result); err != nil {
 		return
 	}
 
@@ -94,7 +95,7 @@ RETRY:
 		groups = result.Groups
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -131,9 +132,9 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := userGroupRenameURL(token)
+	url_ := userGroupRenameURL(token)
 
-	if err = c.postJSON(_url, &request, &result); err != nil {
+	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}
 
@@ -141,7 +142,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -179,9 +180,9 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := userInWhichGroupURL(token)
+	url_ := userInWhichGroupURL(token)
 
-	if err = c.postJSON(_url, request, &result); err != nil {
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -190,7 +191,7 @@ RETRY:
 		groupid = result.GroupId
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -227,9 +228,9 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := userMoveToGroupURL(token)
+	url_ := userMoveToGroupURL(token)
 
-	if err = c.postJSON(_url, &request, &result); err != nil {
+	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}
 
@@ -237,7 +238,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -275,9 +276,9 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := userUpdateRemarkURL(token)
+	url_ := userUpdateRemarkURL(token)
 
-	if err = c.postJSON(_url, &request, &result); err != nil {
+	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}
 
@@ -285,7 +286,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -329,9 +330,9 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := userInfoURL(token, openid, lang)
+	url_ := userInfoURL(token, openid, lang)
 
-	if err = c.getJSON(_url, &result); err != nil {
+	if err = c.getJSON(url_, &result); err != nil {
 		return
 	}
 
@@ -344,7 +345,7 @@ RETRY:
 		userinfo = &result.UserInfo
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -372,9 +373,9 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := userGetURL(token, beginOpenId)
+	url_ := userGetURL(token, beginOpenId)
 
-	if err = c.getJSON(_url, &result); err != nil {
+	if err = c.getJSON(url_, &result); err != nil {
 		return
 	}
 
@@ -383,7 +384,7 @@ RETRY:
 		data = &result.UserListResult
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()

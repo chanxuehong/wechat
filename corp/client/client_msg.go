@@ -7,6 +7,7 @@ package client
 
 import (
 	"errors"
+
 	"github.com/chanxuehong/wechat/corp/message/active/common"
 )
 
@@ -94,7 +95,7 @@ RETRY:
 		result = &resultx.Result
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 

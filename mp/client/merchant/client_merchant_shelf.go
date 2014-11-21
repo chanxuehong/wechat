@@ -44,8 +44,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantShelfAddURL(token)
-	if err = c.postJSON(_url, &shelfx, &result); err != nil {
+	url_ := merchantShelfAddURL(token)
+	if err = c.postJSON(url_, &shelfx, &result); err != nil {
 		return
 	}
 
@@ -54,7 +54,7 @@ RETRY:
 		shelfId = result.ShelfId
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -84,8 +84,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantShelfDeleteURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	url_ := merchantShelfDeleteURL(token)
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -93,7 +93,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -135,8 +135,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantShelfModifyURL(token)
-	if err = c.postJSON(_url, &shelfx, &result); err != nil {
+	url_ := merchantShelfModifyURL(token)
+	if err = c.postJSON(url_, &shelfx, &result); err != nil {
 		return
 	}
 
@@ -144,7 +144,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -173,8 +173,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantShelfGetAllURL(token)
-	if err = c.getJSON(_url, &result); err != nil {
+	url_ := merchantShelfGetAllURL(token)
+	if err = c.getJSON(url_, &result); err != nil {
 		return
 	}
 
@@ -183,7 +183,7 @@ RETRY:
 		shelves = result.Shelves
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -216,8 +216,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantShelfGetByIdURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	url_ := merchantShelfGetByIdURL(token)
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -226,7 +226,7 @@ RETRY:
 		_shelf = &result.Shelf
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()

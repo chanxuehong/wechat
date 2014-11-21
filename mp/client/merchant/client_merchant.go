@@ -159,7 +159,7 @@ RETRY:
 		imageURL = result.ImageURL
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -226,7 +226,7 @@ RETRY:
 		imageURL = result.ImageURL
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -301,7 +301,7 @@ RETRY:
 		imageURL = result.ImageURL
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -376,7 +376,7 @@ RETRY:
 		imageURL = result.ImageURL
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -437,7 +437,7 @@ RETRY:
 		imageURL = result.ImageURL
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()

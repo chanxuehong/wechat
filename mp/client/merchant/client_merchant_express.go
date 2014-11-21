@@ -38,8 +38,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantExpressAddURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	url_ := merchantExpressAddURL(token)
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -48,7 +48,7 @@ RETRY:
 		templateId = result.TemplateId
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -78,8 +78,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantExpressDeleteURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	url_ := merchantExpressDeleteURL(token)
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -87,7 +87,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -126,8 +126,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantExpressUpdateURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	url_ := merchantExpressUpdateURL(token)
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -135,7 +135,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -168,8 +168,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantExpressGetByIdURL(token)
-	if err = c.postJSON(_url, request, &result); err != nil {
+	url_ := merchantExpressGetByIdURL(token)
+	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
 
@@ -178,7 +178,7 @@ RETRY:
 		dt = &result.TemplateInfo
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -206,8 +206,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantExpressGetAllURL(token)
-	if err = c.getJSON(_url, &result); err != nil {
+	url_ := merchantExpressGetAllURL(token)
+	if err = c.getJSON(url_, &result); err != nil {
 		return
 	}
 
@@ -216,7 +216,7 @@ RETRY:
 		dts = result.TemplatesInfo
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()

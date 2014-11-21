@@ -28,8 +28,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantStockAddURL(token)
-	if err = c.postJSON(_url, &request, &result); err != nil {
+	url_ := merchantStockAddURL(token)
+	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}
 
@@ -37,7 +37,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -74,8 +74,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := merchantStockReduceURL(token)
-	if err = c.postJSON(_url, &request, &result); err != nil {
+	url_ := merchantStockReduceURL(token)
+	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}
 
@@ -83,7 +83,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()

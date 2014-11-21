@@ -9,12 +9,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/chanxuehong/wechat/corp/media"
 	"io"
 	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/chanxuehong/wechat/corp/media"
 )
 
 // 上传多媒体图片
@@ -177,7 +178,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 

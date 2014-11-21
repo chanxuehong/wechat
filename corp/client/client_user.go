@@ -7,6 +7,7 @@ package client
 
 import (
 	"errors"
+
 	"github.com/chanxuehong/wechat/corp/addresslist"
 )
 
@@ -33,7 +34,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -73,7 +74,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -113,7 +114,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -158,7 +159,7 @@ RETRY:
 		info = &result.UserInfo
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -204,7 +205,7 @@ RETRY:
 		userList = result.UserList
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 

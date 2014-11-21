@@ -9,11 +9,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/chanxuehong/wechat/corp/media"
 	"io"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/chanxuehong/wechat/corp/media"
 )
 
 const (
@@ -142,7 +143,7 @@ RETRY:
 			}
 			return
 
-		case errCodeTimeout:
+		case errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -173,7 +174,7 @@ RETRY:
 			info = &result.MediaInfo
 			return
 
-		case errCodeTimeout:
+		case errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -252,7 +253,7 @@ RETRY:
 			}
 			return
 
-		case errCodeTimeout:
+		case errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -283,7 +284,7 @@ RETRY:
 			info = &result.MediaInfo
 			return
 
-		case errCodeTimeout:
+		case errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -370,7 +371,7 @@ RETRY:
 			}
 			return
 
-		case errCodeTimeout:
+		case errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -401,7 +402,7 @@ RETRY:
 			info = &result.MediaInfo
 			return
 
-		case errCodeTimeout:
+		case errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -488,7 +489,7 @@ RETRY:
 			}
 			return
 
-		case errCodeTimeout:
+		case errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -519,7 +520,7 @@ RETRY:
 			info = &result.MediaInfo
 			return
 
-		case errCodeTimeout:
+		case errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -594,7 +595,7 @@ RETRY:
 			}
 			return
 
-		case errCodeTimeout:
+		case errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -625,7 +626,7 @@ RETRY:
 			info = &result.MediaInfo
 			return
 
-		case errCodeTimeout:
+		case errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 

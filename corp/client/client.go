@@ -47,7 +47,7 @@ func NewClient(corpId, corpSecret string,
 }
 
 // Client 通用的 json post 请求
-func (c *Client) postJSON(_url string, request interface{}, response interface{}) (err error) {
+func (c *Client) postJSON(url_ string, request interface{}, response interface{}) (err error) {
 	buf := textBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
 	buf.Reset()                                 // important
 	defer textBufferPool.Put(buf)
@@ -56,7 +56,7 @@ func (c *Client) postJSON(_url string, request interface{}, response interface{}
 		return
 	}
 
-	resp, err := c.httpClient.Post(_url, "application/json; charset=utf-8", buf)
+	resp, err := c.httpClient.Post(url_, "application/json; charset=utf-8", buf)
 	if err != nil {
 		return
 	}
@@ -74,8 +74,8 @@ func (c *Client) postJSON(_url string, request interface{}, response interface{}
 }
 
 // Client 通用的 json get 请求
-func (c *Client) getJSON(_url string, response interface{}) (err error) {
-	resp, err := c.httpClient.Get(_url)
+func (c *Client) getJSON(url_ string, response interface{}) (err error) {
+	resp, err := c.httpClient.Get(url_)
 	if err != nil {
 		return
 	}

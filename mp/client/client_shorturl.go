@@ -28,8 +28,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := shortURLURL(token)
-	if err = c.postJSON(_url, &request, &result); err != nil {
+	url_ := shortURLURL(token)
+	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}
 
@@ -38,7 +38,7 @@ RETRY:
 		shortURL = result.ShortURL
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()

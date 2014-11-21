@@ -7,6 +7,7 @@ package client
 
 import (
 	"errors"
+
 	"github.com/chanxuehong/wechat/mp/message/active/custom"
 )
 
@@ -70,8 +71,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	_url := messageCustomSendURL(token)
-	if err = c.postJSON(_url, msg, &result); err != nil {
+	url_ := messageCustomSendURL(token)
+	if err = c.postJSON(url_, msg, &result); err != nil {
 		return
 	}
 
@@ -79,7 +80,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeTimeout:
+	case errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
