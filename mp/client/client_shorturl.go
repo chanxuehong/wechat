@@ -38,7 +38,7 @@ RETRY:
 		shortURL = result.ShortURL
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()

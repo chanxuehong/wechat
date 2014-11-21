@@ -54,7 +54,7 @@ RETRY:
 		shelfId = result.ShelfId
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -93,7 +93,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -144,7 +144,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -183,7 +183,7 @@ RETRY:
 		shelves = result.Shelves
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -226,7 +226,7 @@ RETRY:
 		_shelf = &result.Shelf
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()

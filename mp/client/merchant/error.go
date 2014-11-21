@@ -15,6 +15,7 @@ import (
 const (
 	errCodeOK                = 0
 	errCodeInvalidCredential = 40001 // access_token 过期（无效）返回这个错误
+	errCodeTimeout           = 42001 // access_token 过期（无效）返回这个错误（maybe!!!）
 )
 
 func timeoutRetryWait() {

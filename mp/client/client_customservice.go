@@ -46,7 +46,7 @@ RETRY:
 		recordList = result.RecordList
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -137,7 +137,7 @@ RETRY:
 		kfList = result.KFList
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -177,7 +177,7 @@ RETRY:
 		kfList = result.KFList
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()

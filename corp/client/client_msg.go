@@ -95,7 +95,7 @@ RETRY:
 		result = &resultx.Result
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 

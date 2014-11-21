@@ -28,7 +28,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -64,7 +64,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -104,7 +104,7 @@ RETRY:
 		menu_ = result.Menu
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 

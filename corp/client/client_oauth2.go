@@ -30,7 +30,7 @@ RETRY:
 		userid = result.UserId
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -70,7 +70,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 

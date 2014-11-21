@@ -52,7 +52,7 @@ RETRY:
 		_qrcode = &result.TemporaryQRCode
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
@@ -101,7 +101,7 @@ RETRY:
 		_qrcode = &result.PermanentQRCode
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()

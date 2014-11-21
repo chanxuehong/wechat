@@ -78,7 +78,7 @@ RETRY:
 		msgid = result.MsgId
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
 			timeoutRetryWait()
