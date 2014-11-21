@@ -178,7 +178,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 

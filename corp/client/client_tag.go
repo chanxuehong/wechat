@@ -41,7 +41,7 @@ RETRY:
 		id = result.Id
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -85,7 +85,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -121,7 +121,7 @@ RETRY:
 	case errCodeOK:
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -161,7 +161,7 @@ RETRY:
 		userList = result.UserList
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -223,7 +223,7 @@ RETRY:
 		invalidUsers = users
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 
@@ -285,7 +285,7 @@ RETRY:
 		invalidUsers = users
 		return
 
-	case errCodeInvalidCredential:
+	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
 

@@ -143,7 +143,7 @@ RETRY:
 			}
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeTimeout, errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -174,7 +174,7 @@ RETRY:
 			info = &result.MediaInfo
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeTimeout, errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -253,7 +253,7 @@ RETRY:
 			}
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeTimeout, errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -284,7 +284,7 @@ RETRY:
 			info = &result.MediaInfo
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeTimeout, errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -371,7 +371,7 @@ RETRY:
 			}
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeTimeout, errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -402,7 +402,7 @@ RETRY:
 			info = &result.MediaInfo
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeTimeout, errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -489,7 +489,7 @@ RETRY:
 			}
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeTimeout, errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -520,7 +520,7 @@ RETRY:
 			info = &result.MediaInfo
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeTimeout, errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -595,7 +595,7 @@ RETRY:
 			}
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeTimeout, errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 
@@ -626,7 +626,7 @@ RETRY:
 			info = &result.MediaInfo
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeTimeout, errCodeInvalidCredential:
 			if !hasRetry {
 				hasRetry = true
 

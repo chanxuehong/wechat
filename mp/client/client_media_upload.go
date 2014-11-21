@@ -141,7 +141,7 @@ RETRY:
 			}
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
 				timeoutRetryWait()
@@ -168,7 +168,7 @@ RETRY:
 			info = &result.MediaInfo
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
 				timeoutRetryWait()
@@ -242,7 +242,7 @@ RETRY:
 			}
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
 				timeoutRetryWait()
@@ -269,7 +269,7 @@ RETRY:
 			info = &result.MediaInfo
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
 				timeoutRetryWait()
@@ -351,7 +351,7 @@ RETRY:
 			}
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
 				timeoutRetryWait()
@@ -378,7 +378,7 @@ RETRY:
 			info = &result.MediaInfo
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
 				timeoutRetryWait()
@@ -460,7 +460,7 @@ RETRY:
 			}
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
 				timeoutRetryWait()
@@ -487,7 +487,7 @@ RETRY:
 			info = &result.MediaInfo
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
 				timeoutRetryWait()
@@ -557,7 +557,7 @@ RETRY:
 			}
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
 				timeoutRetryWait()
@@ -584,7 +584,7 @@ RETRY:
 			info = &result.MediaInfo
 			return
 
-		case errCodeInvalidCredential:
+		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
 				timeoutRetryWait()
