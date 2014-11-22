@@ -34,6 +34,7 @@ RETRY:
 		return
 	}
 	url_ := messageTemplateSendURL(token)
+
 	if err = c.postJSON(url_, msg, &result); err != nil {
 		return
 	}

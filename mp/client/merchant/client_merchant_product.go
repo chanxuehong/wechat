@@ -35,6 +35,7 @@ RETRY:
 		return
 	}
 	url_ := merchantProductAddURL(token)
+
 	if err = c.postJSON(url_, _product, &result); err != nil {
 		return
 	}
@@ -79,6 +80,7 @@ RETRY:
 		return
 	}
 	url_ := merchantProductDeleteURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
@@ -123,6 +125,7 @@ RETRY:
 		return
 	}
 	url_ := merchantProductUpdateURL(token)
+
 	if err = c.postJSON(url_, _product, &result); err != nil {
 		return
 	}
@@ -165,6 +168,7 @@ RETRY:
 		return
 	}
 	url_ := merchantProductGetURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
@@ -225,6 +229,7 @@ RETRY:
 		return
 	}
 	url_ := merchantProductGetByStatusURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
@@ -278,6 +283,7 @@ RETRY:
 		return
 	}
 	url_ := merchantProductModifyStatusURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}

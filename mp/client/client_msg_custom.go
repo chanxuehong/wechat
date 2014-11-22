@@ -72,6 +72,7 @@ RETRY:
 		return
 	}
 	url_ := messageCustomSendURL(token)
+
 	if err = c.postJSON(url_, msg, &result); err != nil {
 		return
 	}

@@ -31,6 +31,7 @@ RETRY:
 		return
 	}
 	url_ := merchantCategoryGetSubURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
@@ -75,6 +76,7 @@ RETRY:
 		return
 	}
 	url_ := merchantCategoryGetSKUURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
@@ -119,6 +121,7 @@ RETRY:
 		return
 	}
 	url_ := merchantCategoryGetPropertyURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
