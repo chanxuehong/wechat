@@ -69,6 +69,7 @@ RETRY:
 		return
 	}
 	url_ := messageMassSendByGroupURL(token)
+
 	if err = c.postJSON(url_, msg, &result); err != nil {
 		return
 	}

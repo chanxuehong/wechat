@@ -42,6 +42,7 @@ RETRY:
 		return
 	}
 	url_ := qrcodeCreateURL(token)
+
 	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}
@@ -91,6 +92,7 @@ RETRY:
 		return
 	}
 	url_ := qrcodeCreateURL(token)
+
 	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}

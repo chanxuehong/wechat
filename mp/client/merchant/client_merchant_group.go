@@ -39,6 +39,7 @@ RETRY:
 		return
 	}
 	url_ := merchantGroupAddURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
@@ -79,6 +80,7 @@ RETRY:
 		return
 	}
 	url_ := merchantGroupDeleteURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
@@ -124,6 +126,7 @@ RETRY:
 		return
 	}
 	url_ := merchantGroupPropertyModifyURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
@@ -161,6 +164,7 @@ RETRY:
 		return
 	}
 	url_ := merchantGroupProductModifyURL(token)
+
 	if err = c.postJSON(url_, modifyRequest, &result); err != nil {
 		return
 	}
@@ -198,6 +202,7 @@ RETRY:
 		return
 	}
 	url_ := merchantGroupGetAllURL(token)
+
 	if err = c.getJSON(url_, &result); err != nil {
 		return
 	}
@@ -241,6 +246,7 @@ RETRY:
 		return
 	}
 	url_ := merchantGroupGetByIdURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}

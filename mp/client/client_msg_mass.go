@@ -25,6 +25,7 @@ RETRY:
 		return
 	}
 	url_ := messageMassDeleteURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}

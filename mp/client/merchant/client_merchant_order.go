@@ -29,6 +29,7 @@ RETRY:
 		return
 	}
 	url_ := merchantOrderGetByIdURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
@@ -80,6 +81,7 @@ RETRY:
 		return
 	}
 	url_ := merchantOrderGetByFilterURL(token)
+
 	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}
@@ -127,6 +129,7 @@ RETRY:
 		return
 	}
 	url_ := merchantOrderSetDeliveryURL(token)
+
 	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}
@@ -166,6 +169,7 @@ RETRY:
 		return
 	}
 	url_ := merchantOrderCloseURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}

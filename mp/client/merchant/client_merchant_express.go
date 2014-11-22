@@ -39,6 +39,7 @@ RETRY:
 		return
 	}
 	url_ := merchantExpressAddURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
@@ -79,6 +80,7 @@ RETRY:
 		return
 	}
 	url_ := merchantExpressDeleteURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
@@ -127,6 +129,7 @@ RETRY:
 		return
 	}
 	url_ := merchantExpressUpdateURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
@@ -169,6 +172,7 @@ RETRY:
 		return
 	}
 	url_ := merchantExpressGetByIdURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
@@ -207,6 +211,7 @@ RETRY:
 		return
 	}
 	url_ := merchantExpressGetAllURL(token)
+
 	if err = c.getJSON(url_, &result); err != nil {
 		return
 	}

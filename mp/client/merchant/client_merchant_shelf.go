@@ -45,6 +45,7 @@ RETRY:
 		return
 	}
 	url_ := merchantShelfAddURL(token)
+
 	if err = c.postJSON(url_, &shelfx, &result); err != nil {
 		return
 	}
@@ -85,6 +86,7 @@ RETRY:
 		return
 	}
 	url_ := merchantShelfDeleteURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
@@ -136,6 +138,7 @@ RETRY:
 		return
 	}
 	url_ := merchantShelfModifyURL(token)
+
 	if err = c.postJSON(url_, &shelfx, &result); err != nil {
 		return
 	}
@@ -174,6 +177,7 @@ RETRY:
 		return
 	}
 	url_ := merchantShelfGetAllURL(token)
+
 	if err = c.getJSON(url_, &result); err != nil {
 		return
 	}
@@ -217,6 +221,7 @@ RETRY:
 		return
 	}
 	url_ := merchantShelfGetByIdURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}

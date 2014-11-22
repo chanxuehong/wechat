@@ -29,6 +29,7 @@ RETRY:
 		return
 	}
 	url_ := merchantStockAddURL(token)
+
 	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}
@@ -75,6 +76,7 @@ RETRY:
 		return
 	}
 	url_ := merchantStockReduceURL(token)
+
 	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}

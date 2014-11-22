@@ -84,6 +84,7 @@ RETRY:
 		return
 	}
 	url_ := messageMassSendByOpenIdURL(token)
+
 	if err = c.postJSON(url_, msg, &result); err != nil {
 		return
 	}

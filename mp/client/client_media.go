@@ -204,6 +204,7 @@ RETRY:
 		return
 	}
 	url_ := mediaCreateNewsURL(token)
+
 	if err = c.postJSON(url_, request, &result); err != nil {
 		return
 	}
@@ -252,6 +253,7 @@ RETRY:
 		return
 	}
 	url_ := mediaCreateVideoURL(token)
+
 	if err = c.postJSON(url_, &request, &result); err != nil {
 		return
 	}
