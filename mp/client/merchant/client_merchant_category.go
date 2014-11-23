@@ -24,12 +24,13 @@ func (c *Client) MerchantCategoryGetSub(categoryId int64) (categories []category
 	}
 	result.Categories = make([]category.Category, 0, 16)
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantCategoryGetSubURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -44,7 +45,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -69,12 +73,13 @@ func (c *Client) MerchantCategoryGetSKU(categoryId int64) (skus []category.SKU, 
 	}
 	result.SKUs = make([]category.SKU, 0, 16)
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantCategoryGetSKUURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -89,7 +94,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -114,12 +122,13 @@ func (c *Client) MerchantCategoryGetProperty(categoryId int64) (properties []cat
 	}
 	result.Properties = make([]category.Property, 0, 16)
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantCategoryGetPropertyURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -134,7 +143,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

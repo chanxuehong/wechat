@@ -35,12 +35,13 @@ func (c *Client) UserGroupCreate(name string) (_group *user.Group, err error) {
 		} `json:"group"`
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := userGroupCreateURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -58,7 +59,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -78,12 +82,13 @@ func (c *Client) UserGroupGet() (groups []user.Group, err error) {
 		Groups: make([]user.Group, 0, 16),
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := userGroupGetURL(token)
 
 	if err = c.getJSON(url_, &result); err != nil {
@@ -98,7 +103,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -126,12 +134,13 @@ func (c *Client) UserGroupRename(groupid int64, name string) (err error) {
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := userGroupRenameURL(token)
 
 	if err = c.postJSON(url_, &request, &result); err != nil {
@@ -145,7 +154,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -174,12 +186,13 @@ func (c *Client) UserInWhichGroup(openid string) (groupid int64, err error) {
 		GroupId int64 `json:"groupid"`
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := userInWhichGroupURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -194,7 +207,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -222,12 +238,13 @@ func (c *Client) UserMoveToGroup(openid string, toGroupId int64) (err error) {
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := userMoveToGroupURL(token)
 
 	if err = c.postJSON(url_, &request, &result); err != nil {
@@ -241,7 +258,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -270,12 +290,13 @@ func (c *Client) UserUpdateRemark(openId, remark string) (err error) {
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := userUpdateRemarkURL(token)
 
 	if err = c.postJSON(url_, &request, &result); err != nil {
@@ -289,7 +310,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -324,12 +348,13 @@ func (c *Client) UserInfo(openid string, lang string) (userinfo *user.UserInfo, 
 		user.UserInfo
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := userInfoURL(token, openid, lang)
 
 	if err = c.getJSON(url_, &result); err != nil {
@@ -348,7 +373,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -367,12 +395,13 @@ func (c *Client) UserList(beginOpenId string) (data *user.UserListResult, err er
 	}
 	result.UserListResult.Data.OpenId = make([]string, 0, 256)
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := userGetURL(token, beginOpenId)
 
 	if err = c.getJSON(url_, &result); err != nil {
@@ -387,7 +416,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

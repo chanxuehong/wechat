@@ -13,12 +13,13 @@ func (c *Client) GetCallbackIP() (ipList []string, err error) {
 		IPList []string `json:"ip_list"`
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := getCallbackIPURL(token)
 
 	if err = c.getJSON(url_, &result); err != nil {
@@ -33,7 +34,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

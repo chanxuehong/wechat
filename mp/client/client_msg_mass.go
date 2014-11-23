@@ -18,12 +18,13 @@ func (c *Client) MsgMassDelete(msgid int64) (err error) {
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := messageMassDeleteURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -37,7 +38,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

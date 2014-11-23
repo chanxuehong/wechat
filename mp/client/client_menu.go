@@ -15,12 +15,13 @@ import (
 func (c *Client) MenuCreate(menu_ menu.Menu) (err error) {
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := menuCreateURL(token)
 
 	if err = c.postJSON(url_, menu_, &result); err != nil {
@@ -34,7 +35,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -49,12 +53,13 @@ RETRY:
 func (c *Client) MenuDelete() (err error) {
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := menuDeleteURL(token)
 
 	if err = c.getJSON(url_, &result); err != nil {
@@ -68,7 +73,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -86,12 +94,13 @@ func (c *Client) MenuGet() (menu_ menu.Menu, err error) {
 		Error
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := menuGetURL(token)
 
 	if err = c.getJSON(url_, &result); err != nil {
@@ -106,7 +115,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

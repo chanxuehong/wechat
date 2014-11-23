@@ -35,12 +35,13 @@ func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (_qrco
 		Error
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := qrcodeCreateURL(token)
 
 	if err = c.postJSON(url_, &request, &result); err != nil {
@@ -56,7 +57,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -85,12 +89,13 @@ func (c *Client) QRCodePermanentCreate(sceneId uint32) (_qrcode *qrcode.Permanen
 		Error
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := qrcodeCreateURL(token)
 
 	if err = c.postJSON(url_, &request, &result); err != nil {
@@ -106,7 +111,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

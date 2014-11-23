@@ -38,12 +38,13 @@ func (c *Client) MerchantShelfAdd(_shelf *shelf.Shelf) (shelfId int64, err error
 		ShelfId int64 `json:"shelf_id"`
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantShelfAddURL(token)
 
 	if err = c.postJSON(url_, &shelfx, &result); err != nil {
@@ -58,7 +59,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -79,12 +83,13 @@ func (c *Client) MerchantShelfDelete(shelfId int64) (err error) {
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantShelfDeleteURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -98,7 +103,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -131,12 +139,13 @@ func (c *Client) MerchantShelfModify(_shelf *shelf.Shelf) (err error) {
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantShelfModifyURL(token)
 
 	if err = c.postJSON(url_, &shelfx, &result); err != nil {
@@ -150,7 +159,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -170,12 +182,13 @@ func (c *Client) MerchantShelfGetAll() (shelves []shelf.Shelf, err error) {
 		Shelves: make([]shelf.Shelf, 0, 16),
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantShelfGetAllURL(token)
 
 	if err = c.getJSON(url_, &result); err != nil {
@@ -190,7 +203,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -214,12 +230,13 @@ func (c *Client) MerchantShelfGetById(shelfId int64) (_shelf *shelf.Shelf, err e
 		shelf.Shelf
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantShelfGetByIdURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -234,7 +251,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

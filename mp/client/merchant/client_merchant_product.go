@@ -28,12 +28,13 @@ func (c *Client) MerchantProductAdd(_product *product.Product) (productId string
 		ProductId string `json:"product_id"`
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantProductAddURL(token)
 
 	if err = c.postJSON(url_, _product, &result); err != nil {
@@ -48,7 +49,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -73,12 +77,13 @@ func (c *Client) MerchantProductDelete(productId string) (err error) {
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantProductDeleteURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -92,7 +97,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -118,12 +126,13 @@ func (c *Client) MerchantProductUpdate(_product *product.Product) (err error) {
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantProductUpdateURL(token)
 
 	if err = c.postJSON(url_, _product, &result); err != nil {
@@ -137,7 +146,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -161,12 +173,13 @@ func (c *Client) MerchantProductGet(productId string) (_product *product.Product
 		ProductInfo product.Product `json:"product_info"`
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantProductGetURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -181,7 +194,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -222,12 +238,13 @@ func (c *Client) merchantProductGetByStatus(status int) (products []product.Prod
 	}
 	result.ProductsInfo = make([]product.Product, 0, 64)
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantProductGetByStatusURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -242,7 +259,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -276,12 +296,13 @@ func (c *Client) merchantProductModifyStatus(productId string, status int) (err 
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantProductModifyStatusURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -295,7 +316,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

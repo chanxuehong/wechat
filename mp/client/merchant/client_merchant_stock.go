@@ -22,12 +22,13 @@ func (c *Client) MerchantStockAdd(productId string, skuInfo string, quantity int
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantStockAddURL(token)
 
 	if err = c.postJSON(url_, &request, &result); err != nil {
@@ -41,7 +42,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -69,12 +73,13 @@ func (c *Client) MerchantStockReduce(productId string, skuInfo string, quantity 
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantStockReduceURL(token)
 
 	if err = c.postJSON(url_, &request, &result); err != nil {
@@ -88,7 +93,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

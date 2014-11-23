@@ -81,12 +81,13 @@ func (c *Client) mediaUploadFromOSFile(mediaType, filename string, file *os.File
 	ContentLength := int64(multipart_constPartLen+len(filename)) +
 		fi.Size() - originalOffset
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := mediaUploadURL(token, mediaType)
 
 	if hasRetry {
@@ -144,7 +145,10 @@ RETRY:
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = getNewToken(c.tokenService, token); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -171,7 +175,10 @@ RETRY:
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = getNewToken(c.tokenService, token); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -187,12 +194,13 @@ func (c *Client) mediaUploadFromBytesBuffer(mediaType, filename string, buffer *
 	fileBytes := buffer.Bytes()
 	ContentLength := int64(multipart_constPartLen + len(filename) + len(fileBytes))
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := mediaUploadURL(token, mediaType)
 
 	mr := io.MultiReader(
@@ -245,7 +253,10 @@ RETRY:
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = getNewToken(c.tokenService, token); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -272,7 +283,10 @@ RETRY:
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = getNewToken(c.tokenService, token); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -291,12 +305,13 @@ func (c *Client) mediaUploadFromBytesReader(mediaType, filename string, reader *
 	}
 	ContentLength := int64(multipart_constPartLen + len(filename) + reader.Len())
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := mediaUploadURL(token, mediaType)
 
 	if hasRetry {
@@ -354,7 +369,10 @@ RETRY:
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = getNewToken(c.tokenService, token); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -381,7 +399,10 @@ RETRY:
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = getNewToken(c.tokenService, token); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -400,12 +421,13 @@ func (c *Client) mediaUploadFromStringsReader(mediaType, filename string, reader
 	}
 	ContentLength := int64(multipart_constPartLen + len(filename) + reader.Len())
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := mediaUploadURL(token, mediaType)
 
 	if hasRetry {
@@ -463,7 +485,10 @@ RETRY:
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = getNewToken(c.tokenService, token); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -490,7 +515,10 @@ RETRY:
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = getNewToken(c.tokenService, token); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -517,12 +545,13 @@ func (c *Client) mediaUploadFromIOReader(mediaType, filename string, reader io.R
 
 	bodyBytes := bodyBuf.Bytes()
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := mediaUploadURL(token, mediaType)
 
 	httpResp, err := c.httpClient.Post(url_, multipart_ContentType, bytes.NewReader(bodyBytes))
@@ -560,7 +589,10 @@ RETRY:
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = getNewToken(c.tokenService, token); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough
@@ -587,7 +619,10 @@ RETRY:
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
-				timeoutRetryWait()
+
+				if token, err = getNewToken(c.tokenService, token); err != nil {
+					return
+				}
 				goto RETRY
 			}
 			fallthrough

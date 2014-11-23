@@ -32,12 +32,13 @@ func (c *Client) MerchantGroupAdd(_group *group.GroupEx) (groupId int64, err err
 		GroupId int64 `json:"group_id"`
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantGroupAddURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -52,7 +53,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -73,12 +77,13 @@ func (c *Client) MerchantGroupDelete(groupId int64) (err error) {
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantGroupDeleteURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -92,7 +97,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -119,12 +127,13 @@ func (c *Client) MerchantGroupRename(groupId int64, newName string) (err error) 
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantGroupPropertyModifyURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -138,7 +147,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -157,12 +169,13 @@ func (c *Client) MerchantGroupModifyProduct(modifyRequest *group.GroupModifyProd
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantGroupProductModifyURL(token)
 
 	if err = c.postJSON(url_, modifyRequest, &result); err != nil {
@@ -176,7 +189,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -195,12 +211,13 @@ func (c *Client) MerchantGroupGetAll() (groups []group.Group, err error) {
 	}
 	result.GroupsDetail = make([]group.Group, 0, 16)
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantGroupGetAllURL(token)
 
 	if err = c.getJSON(url_, &result); err != nil {
@@ -215,7 +232,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -239,12 +259,13 @@ func (c *Client) MerchantGroupGetById(groupId int64) (_group *group.GroupEx, err
 		GroupDetail group.GroupEx `json:"group_detail"`
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantGroupGetByIdURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -259,7 +280,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
