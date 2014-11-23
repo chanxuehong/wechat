@@ -107,12 +107,13 @@ func (c *Client) merchantUploadImageFromOSFile(filename string, file *os.File) (
 	ContentLength := int64(multipart_constPartLen+len(FormDataFileName)) +
 		fi.Size() - originalOffset
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantUploadImageURL(token, filename)
 
 	if hasRetry {
@@ -162,7 +163,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -179,12 +183,13 @@ func (c *Client) merchantUploadImageFromBytesBuffer(filename string, buffer *byt
 	FormDataFileName := escapeQuotes(filename)
 	ContentLength := int64(multipart_constPartLen + len(FormDataFileName) + len(fileBytes))
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantUploadImageURL(token, filename)
 
 	mr := io.MultiReader(
@@ -229,7 +234,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -249,12 +257,13 @@ func (c *Client) merchantUploadImageFromBytesReader(filename string, reader *byt
 	FormDataFileName := escapeQuotes(filename)
 	ContentLength := int64(multipart_constPartLen + len(FormDataFileName) + reader.Len())
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantUploadImageURL(token, filename)
 
 	if hasRetry {
@@ -304,7 +313,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -324,12 +336,13 @@ func (c *Client) merchantUploadImageFromStringsReader(filename string, reader *s
 	FormDataFileName := escapeQuotes(filename)
 	ContentLength := int64(multipart_constPartLen + len(FormDataFileName) + reader.Len())
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantUploadImageURL(token, filename)
 
 	if hasRetry {
@@ -379,7 +392,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -405,12 +421,13 @@ func (c *Client) merchantUploadImageFromIOReader(filename string, reader io.Read
 
 	bodyBytes := bodyBuf.Bytes()
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantUploadImageURL(token, filename)
 
 	httpResp, err := c.httpClient.Post(url_, multipart_ContentType, bytes.NewReader(bodyBytes))
@@ -440,7 +457,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

@@ -19,12 +19,13 @@ func (c *Client) DeliverNotify(data *pay2.DeliverNotifyData) (err error) {
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := pay2DeliverNotifyURL(token)
 
 	if err = c.postJSON(url_, data, &result); err != nil {
@@ -38,7 +39,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -61,12 +65,13 @@ func (c *Client) OrderQuery(req *pay2.OrderQueryRequest) (resp *pay2.OrderQueryR
 		OrderInfo pay2.OrderQueryResponse `json:"order_info"`
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := pay2OrderQueryURL(token)
 
 	if err = c.postJSON(url_, req, &result); err != nil {
@@ -81,7 +86,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -96,12 +104,13 @@ RETRY:
 func (c *Client) FeedbackUpdate(openid string, feedbackid int64) (err error) {
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := pay2FeedbackUpdateURL(token, openid, feedbackid)
 
 	if err = c.getJSON(url_, &result); err != nil {
@@ -115,7 +124,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

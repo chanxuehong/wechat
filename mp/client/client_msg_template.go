@@ -27,12 +27,13 @@ func (c *Client) MsgTemplateSend(msg *template.Msg) (msgid int64, err error) {
 		MsgId int64 `json:"msgid"`
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := messageTemplateSendURL(token)
 
 	if err = c.postJSON(url_, msg, &result); err != nil {
@@ -47,7 +48,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -71,12 +75,13 @@ func (c *Client) MsgTemplateSendRaw(msg []byte) (msgid int64, err error) {
 		MsgId int64 `json:"msgid"`
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := messageTemplateSendURL(token)
 
 	httpResp, err := c.httpClient.Post(url_, "application/json; charset=utf-8", bytes.NewReader(msg))
@@ -102,7 +107,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

@@ -22,12 +22,13 @@ func (c *Client) MerchantOrderGetById(orderId string) (_order *order.Order, err 
 		Order order.Order `json:"order"`
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantOrderGetByIdURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -42,7 +43,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -74,12 +78,13 @@ func (c *Client) MerchantOrderGetByFilter(status int, beginTime, endTime int64) 
 	}
 	result.OrderList = make([]order.Order, 0, 64)
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantOrderGetByFilterURL(token)
 
 	if err = c.postJSON(url_, &request, &result); err != nil {
@@ -94,7 +99,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -122,12 +130,13 @@ func (c *Client) MerchantOrderSetDelivery(orderId, deliveryCompany, deliveryTrac
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantOrderSetDeliveryURL(token)
 
 	if err = c.postJSON(url_, &request, &result); err != nil {
@@ -141,7 +150,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -162,12 +174,13 @@ func (c *Client) MerchantOrderClose(orderId string) (err error) {
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantOrderCloseURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -181,7 +194,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

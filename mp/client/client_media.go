@@ -126,12 +126,13 @@ func (c *Client) MediaDownloadToWriter(mediaId string, writer io.Writer) error {
 
 // 下载多媒体文件.
 func (c *Client) mediaDownloadToWriter(mediaId string, writer io.Writer) (err error) {
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := mediaDownloadURL(token, mediaId)
 
 	httpResp, err := c.httpClient.Get(url_)
@@ -163,7 +164,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -197,12 +201,13 @@ func (c *Client) MediaCreateNews(articles []media.NewsArticle) (info *media.Medi
 		Error
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := mediaCreateNewsURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -217,7 +222,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -246,12 +254,13 @@ func (c *Client) MediaCreateVideo(mediaId, title, description string) (info *med
 		Error
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := mediaCreateVideoURL(token)
 
 	if err = c.postJSON(url_, &request, &result); err != nil {
@@ -266,7 +275,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

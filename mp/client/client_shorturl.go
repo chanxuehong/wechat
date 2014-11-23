@@ -22,12 +22,13 @@ func (c *Client) ShortURL(longURL string) (shortURL string, err error) {
 		ShortURL string `json:"short_url"`
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := shortURLURL(token)
 
 	if err = c.postJSON(url_, &request, &result); err != nil {
@@ -42,7 +43,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

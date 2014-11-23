@@ -32,12 +32,13 @@ func (c *Client) MerchantExpressAddDeliveryTemplate(template *express.DeliveryTe
 		TemplateId int64 `json:"template_id"`
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantExpressAddURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -52,7 +53,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -73,12 +77,13 @@ func (c *Client) MerchantExpressDeleteDeliveryTemplate(templateId int64) (err er
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantExpressDeleteURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -92,7 +97,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -122,12 +130,13 @@ func (c *Client) MerchantExpressUpdateDeliveryTemplate(template *express.Deliver
 
 	var result Error
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantExpressUpdateURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -141,7 +150,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -165,12 +177,13 @@ func (c *Client) MerchantExpressGetDeliveryTemplateById(templateId int64) (dt *e
 		TemplateInfo express.DeliveryTemplate `json:"template_info"`
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantExpressGetByIdURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -185,7 +198,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -204,12 +220,13 @@ func (c *Client) MerchantExpressGetAllDeliveryTemplate() (dts []express.Delivery
 	}
 	result.TemplatesInfo = make([]express.DeliveryTemplate, 0, 16)
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := merchantExpressGetAllURL(token)
 
 	if err = c.getJSON(url_, &result); err != nil {
@@ -224,7 +241,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

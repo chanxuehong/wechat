@@ -29,12 +29,13 @@ func (c *Client) CustomServiceRecordGet(request *customservice.RecordGetRequest)
 		result.RecordList = make([]customservice.Record, 0, size)
 	}
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := customServiceRecordGetURL(token)
 
 	if err = c.postJSON(url_, request, &result); err != nil {
@@ -49,7 +50,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -120,12 +124,13 @@ func (c *Client) CustomServiceKFList() (kfList []customservice.KFInfo, err error
 	// 预分配一定的容量
 	result.KFList = make([]customservice.KFInfo, 0, 16)
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := customServiceKFListURL(token)
 
 	if err = c.getJSON(url_, &result); err != nil {
@@ -140,7 +145,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough
@@ -160,12 +168,13 @@ func (c *Client) CustomServiceOnlineKFList() (kfList []customservice.OnlineKFInf
 	// 预分配一定的容量
 	result.KFList = make([]customservice.OnlineKFInfo, 0, 16)
 
-	hasRetry := false
-RETRY:
 	token, err := c.Token()
 	if err != nil {
 		return
 	}
+
+	hasRetry := false
+RETRY:
 	url_ := customServiceOnlineKFListURL(token)
 
 	if err = c.getJSON(url_, &result); err != nil {
@@ -180,7 +189,10 @@ RETRY:
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
-			timeoutRetryWait()
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
 			goto RETRY
 		}
 		fallthrough

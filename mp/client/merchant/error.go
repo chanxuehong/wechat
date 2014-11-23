@@ -8,8 +8,11 @@
 package merchant
 
 import (
+	"errors"
 	"fmt"
 	"time"
+
+	"github.com/chanxuehong/wechat/mp/tokenservice"
 )
 
 const (
@@ -18,16 +21,22 @@ const (
 	errCodeTimeout           = 42001 // access_token 过期（无效）返回这个错误（maybe!!!）
 )
 
-// 当 TokenService 定时更新 access_token 的时候, 之前从缓存中获取的 access_token 就会失效,
-// 但是安全考虑不能自己去服务器获取新的 access_token, 而是等待 TokenService 完成 access_token 的
-// 更新动作, 再到缓存中读取新的 access_token!
-//
-// 这就是等待函数, 这里设置为等待 200ms, 一般稍微大于
-// TokenService 从微信服务器获取 access_token 的时间
-// +
-// TokenService 把这个 access_token 存入缓存的时间
-func timeoutRetryWait() {
-	time.Sleep(200 * time.Millisecond)
+// 查看 TokenService.Token 是否有更新, 如果更新了返回新的 token, 否则返回错误.
+func getNewToken(tokenService tokenservice.TokenService, currentToken string) (token string, err error) {
+	for i := 0; i < 10; i++ {
+		time.Sleep(50 * time.Millisecond)
+
+		token, err = tokenService.Token()
+		if err != nil {
+			return
+		}
+		if token != currentToken {
+			return
+		}
+	}
+
+	err = errors.New("get new access token failed")
+	return
 }
 
 type Error struct {
