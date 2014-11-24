@@ -69,13 +69,13 @@ func Page2Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	saveState := session.(string)
+	savedState := session.(string)
 
 	code := urlValues.Get("code")
 	urlState := urlValues.Get("state")
 
-	if saveState != urlState {
-		io.WriteString(w, fmt.Sprintf("state 不匹配, session 中的为 %q, url 传递过来的是 %q", saveState, urlState))
+	if savedState != urlState {
+		io.WriteString(w, fmt.Sprintf("state 不匹配, session 中的为 %q, url 传递过来的是 %q", savedState, urlState))
 		return
 	}
 
