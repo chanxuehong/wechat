@@ -159,7 +159,6 @@ RETRY:
 	case errCodeOK:
 		imageURL = result.ImageURL
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -170,7 +169,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -230,7 +228,6 @@ RETRY:
 	case errCodeOK:
 		imageURL = result.ImageURL
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -241,7 +238,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -309,7 +305,6 @@ RETRY:
 	case errCodeOK:
 		imageURL = result.ImageURL
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -320,7 +315,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -388,7 +382,6 @@ RETRY:
 	case errCodeOK:
 		imageURL = result.ImageURL
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -399,7 +392,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -453,7 +445,6 @@ RETRY:
 	case errCodeOK:
 		imageURL = result.ImageURL
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -464,7 +455,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return

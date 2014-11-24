@@ -40,7 +40,6 @@ RETRY:
 	case errCodeOK:
 		id = result.Id
 		return
-
 	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
@@ -51,7 +50,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -84,7 +82,6 @@ RETRY:
 	switch result.ErrCode {
 	case errCodeOK:
 		return
-
 	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
@@ -95,7 +92,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result
 		return
@@ -120,7 +116,6 @@ RETRY:
 	switch result.ErrCode {
 	case errCodeOK:
 		return
-
 	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
@@ -131,7 +126,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result
 		return
@@ -160,7 +154,6 @@ RETRY:
 	case errCodeOK:
 		userList = result.UserList
 		return
-
 	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
@@ -171,7 +164,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -218,11 +210,9 @@ RETRY:
 			invalidUsers = strings.Split(result.InvalidList, "|")
 			return
 		}
-
 	case 40070: // userid全部非法
 		invalidUsers = users
 		return
-
 	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
@@ -233,7 +223,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -280,11 +269,9 @@ RETRY:
 			invalidUsers = strings.Split(result.InvalidList, "|")
 			return
 		}
-
 	case 40031: // userid全部非法
 		invalidUsers = users
 		return
-
 	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
@@ -295,7 +282,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return

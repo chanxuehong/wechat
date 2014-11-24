@@ -94,7 +94,6 @@ RETRY:
 	case errCodeOK:
 		result = &resultx.Result
 		return
-
 	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
@@ -105,7 +104,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &resultx.Error
 		return

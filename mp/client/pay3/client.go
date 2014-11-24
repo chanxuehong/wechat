@@ -43,8 +43,8 @@ func (c *Client) UnifiedOrder(req map[string]string) (resp map[string]string, er
 		return
 	}
 
-	url_ := "https://api.mch.weixin.qq.com/pay/unifiedorder"
 	result := make(map[string]string)
+	url_ := "https://api.mch.weixin.qq.com/pay/unifiedorder"
 
 	if err = c.postXML(url_, req, result); err != nil {
 		return
@@ -61,8 +61,8 @@ func (c *Client) OrderQuery(req map[string]string) (resp map[string]string, err 
 		return
 	}
 
-	url_ := "https://api.mch.weixin.qq.com/pay/orderquery"
 	result := make(map[string]string)
+	url_ := "https://api.mch.weixin.qq.com/pay/orderquery"
 
 	if err = c.postXML(url_, req, result); err != nil {
 		return
@@ -79,8 +79,8 @@ func (c *Client) OrderClose(req map[string]string) (resp map[string]string, err 
 		return
 	}
 
-	url_ := "https://api.mch.weixin.qq.com/pay/closeorder"
 	result := make(map[string]string)
+	url_ := "https://api.mch.weixin.qq.com/pay/closeorder"
 
 	if err = c.postXML(url_, req, result); err != nil {
 		return
@@ -97,8 +97,8 @@ func (c *Client) Refund(req map[string]string) (resp map[string]string, err erro
 		return
 	}
 
-	url_ := "https://api.mch.weixin.qq.com/secapi/pay/refund"
 	result := make(map[string]string)
+	url_ := "https://api.mch.weixin.qq.com/secapi/pay/refund"
 
 	if err = c.postXML(url_, req, result); err != nil {
 		return
@@ -115,8 +115,8 @@ func (c *Client) RefundQuery(req map[string]string) (resp map[string]string, err
 		return
 	}
 
-	url_ := "https://api.mch.weixin.qq.com/pay/refundquery"
 	result := make(map[string]string)
+	url_ := "https://api.mch.weixin.qq.com/pay/refundquery"
 
 	if err = c.postXML(url_, req, result); err != nil {
 		return
@@ -133,8 +133,8 @@ func (c *Client) ShortURL(req map[string]string) (resp map[string]string, err er
 		return
 	}
 
-	url_ := "https://api.mch.weixin.qq.com/tools/shorturl"
 	result := make(map[string]string)
+	url_ := "https://api.mch.weixin.qq.com/tools/shorturl"
 
 	if err = c.postXML(url_, req, result); err != nil {
 		return

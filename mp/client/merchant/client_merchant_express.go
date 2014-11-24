@@ -49,7 +49,6 @@ RETRY:
 	case errCodeOK:
 		templateId = result.TemplateId
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -60,7 +59,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -93,7 +91,6 @@ RETRY:
 	switch result.ErrCode {
 	case errCodeOK:
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -104,7 +101,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result
 		return
@@ -146,7 +142,6 @@ RETRY:
 	switch result.ErrCode {
 	case errCodeOK:
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -157,7 +152,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result
 		return
@@ -194,7 +188,6 @@ RETRY:
 	case errCodeOK:
 		dt = &result.TemplateInfo
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -205,7 +198,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -237,7 +229,6 @@ RETRY:
 	case errCodeOK:
 		dts = result.TemplatesInfo
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -248,7 +239,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return

@@ -41,7 +41,6 @@ RETRY:
 	case errCodeOK:
 		categories = result.Categories
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -52,7 +51,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -90,7 +88,6 @@ RETRY:
 	case errCodeOK:
 		skus = result.SKUs
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -101,7 +98,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -139,7 +135,6 @@ RETRY:
 	case errCodeOK:
 		properties = result.Properties
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -150,7 +145,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return

@@ -177,7 +177,6 @@ RETRY:
 	switch result.ErrCode {
 	case errCodeOK:
 		return
-
 	case errCodeTimeout, errCodeInvalidCredential:
 		if !hasRetry {
 			hasRetry = true
@@ -188,7 +187,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result
 		return

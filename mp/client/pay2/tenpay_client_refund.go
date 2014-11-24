@@ -18,8 +18,8 @@ func (c *TenpayClient) Refund(req pay2.RefundRequest) (resp pay2.RefundResponse,
 		return
 	}
 
-	url_ := "https://mch.tenpay.com/refundapi/gateway/refund.xml"
 	resp = make(map[string]string)
+	url_ := "https://mch.tenpay.com/refundapi/gateway/refund.xml"
 
 	if err = c.postXML(url_, req, resp); err != nil {
 		return

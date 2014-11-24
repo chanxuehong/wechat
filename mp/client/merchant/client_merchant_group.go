@@ -49,7 +49,6 @@ RETRY:
 	case errCodeOK:
 		groupId = result.GroupId
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -60,7 +59,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -93,7 +91,6 @@ RETRY:
 	switch result.ErrCode {
 	case errCodeOK:
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -104,7 +101,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result
 		return
@@ -143,7 +139,6 @@ RETRY:
 	switch result.ErrCode {
 	case errCodeOK:
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -154,7 +149,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result
 		return
@@ -185,7 +179,6 @@ RETRY:
 	switch result.ErrCode {
 	case errCodeOK:
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -196,7 +189,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result
 		return
@@ -228,7 +220,6 @@ RETRY:
 	case errCodeOK:
 		groups = result.GroupsDetail
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -239,7 +230,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -276,7 +266,6 @@ RETRY:
 	case errCodeOK:
 		_group = &result.GroupDetail
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -287,7 +276,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return

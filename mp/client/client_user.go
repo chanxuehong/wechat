@@ -55,7 +55,6 @@ RETRY:
 			Name: result.Group.Name,
 		}
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -66,7 +65,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -99,7 +97,6 @@ RETRY:
 	case errCodeOK:
 		groups = result.Groups
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -110,7 +107,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -150,7 +146,6 @@ RETRY:
 	switch result.ErrCode {
 	case errCodeOK:
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -161,7 +156,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result
 		return
@@ -203,7 +197,6 @@ RETRY:
 	case errCodeOK:
 		groupid = result.GroupId
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -214,7 +207,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -254,7 +246,6 @@ RETRY:
 	switch result.ErrCode {
 	case errCodeOK:
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -265,7 +256,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result
 		return
@@ -306,7 +296,6 @@ RETRY:
 	switch result.ErrCode {
 	case errCodeOK:
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -317,7 +306,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result
 		return
@@ -369,7 +357,6 @@ RETRY:
 		}
 		userinfo = &result.UserInfo
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -380,7 +367,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -412,7 +398,6 @@ RETRY:
 	case errCodeOK:
 		data = &result.UserListResult
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -423,7 +408,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return

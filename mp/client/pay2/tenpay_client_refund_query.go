@@ -18,8 +18,8 @@ func (c *TenpayClient) NormalRefundQuery(req pay2.NormalRefundQueryRequest) (res
 		return
 	}
 
-	url_ := "https://gw.tenpay.com/gateway/normalrefundquery.xml"
 	resp = make(map[string]string)
+	url_ := "https://gw.tenpay.com/gateway/normalrefundquery.xml"
 
 	if err = c.postXML(url_, req, resp); err != nil {
 		return
