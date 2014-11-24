@@ -53,7 +53,6 @@ RETRY:
 		result.TemporaryQRCode.SceneId = sceneId
 		_qrcode = &result.TemporaryQRCode
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -64,7 +63,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -107,7 +105,6 @@ RETRY:
 		result.PermanentQRCode.SceneId = sceneId
 		_qrcode = &result.PermanentQRCode
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -118,7 +115,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -140,8 +136,7 @@ func QRCodeDownloadToWriter(ticket string, writer io.Writer, httpClient *http.Cl
 		httpClient = http.DefaultClient
 	}
 
-	url_ := qrcodeURL(ticket)
-	resp, err := httpClient.Get(url_)
+	resp, err := httpClient.Get(qrcodeURL(ticket))
 	if err != nil {
 		return
 	}
@@ -163,8 +158,7 @@ func (c *Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (err er
 		return errors.New("writer == nil")
 	}
 
-	url_ := qrcodeURL(ticket)
-	resp, err := c.httpClient.Get(url_)
+	resp, err := c.httpClient.Get(qrcodeURL(ticket))
 	if err != nil {
 		return
 	}

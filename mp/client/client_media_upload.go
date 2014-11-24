@@ -141,7 +141,6 @@ RETRY:
 				CreatedAt: result.CreatedAt,
 			}
 			return
-
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
@@ -152,7 +151,6 @@ RETRY:
 				goto RETRY
 			}
 			fallthrough
-
 		default:
 			err = &result.Error
 			return
@@ -171,7 +169,6 @@ RETRY:
 		case errCodeOK:
 			info = &result.MediaInfo
 			return
-
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
@@ -182,7 +179,6 @@ RETRY:
 				goto RETRY
 			}
 			fallthrough
-
 		default:
 			err = &result.Error
 			return
@@ -249,7 +245,6 @@ RETRY:
 				CreatedAt: result.CreatedAt,
 			}
 			return
-
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
@@ -260,7 +255,6 @@ RETRY:
 				goto RETRY
 			}
 			fallthrough
-
 		default:
 			err = &result.Error
 			return
@@ -279,7 +273,6 @@ RETRY:
 		case errCodeOK:
 			info = &result.MediaInfo
 			return
-
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
@@ -290,7 +283,6 @@ RETRY:
 				goto RETRY
 			}
 			fallthrough
-
 		default:
 			err = &result.Error
 			return
@@ -365,7 +357,6 @@ RETRY:
 				CreatedAt: result.CreatedAt,
 			}
 			return
-
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
@@ -376,7 +367,6 @@ RETRY:
 				goto RETRY
 			}
 			fallthrough
-
 		default:
 			err = &result.Error
 			return
@@ -395,7 +385,6 @@ RETRY:
 		case errCodeOK:
 			info = &result.MediaInfo
 			return
-
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
@@ -406,7 +395,6 @@ RETRY:
 				goto RETRY
 			}
 			fallthrough
-
 		default:
 			err = &result.Error
 			return
@@ -481,7 +469,6 @@ RETRY:
 				CreatedAt: result.CreatedAt,
 			}
 			return
-
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
@@ -492,7 +479,6 @@ RETRY:
 				goto RETRY
 			}
 			fallthrough
-
 		default:
 			err = &result.Error
 			return
@@ -511,7 +497,6 @@ RETRY:
 		case errCodeOK:
 			info = &result.MediaInfo
 			return
-
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
@@ -522,7 +507,6 @@ RETRY:
 				goto RETRY
 			}
 			fallthrough
-
 		default:
 			err = &result.Error
 			return
@@ -585,7 +569,6 @@ RETRY:
 				CreatedAt: result.CreatedAt,
 			}
 			return
-
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
@@ -596,7 +579,6 @@ RETRY:
 				goto RETRY
 			}
 			fallthrough
-
 		default:
 			err = &result.Error
 			return
@@ -615,7 +597,6 @@ RETRY:
 		case errCodeOK:
 			info = &result.MediaInfo
 			return
-
 		case errCodeInvalidCredential, errCodeTimeout:
 			if !hasRetry {
 				hasRetry = true
@@ -626,7 +607,6 @@ RETRY:
 				goto RETRY
 			}
 			fallthrough
-
 		default:
 			err = &result.Error
 			return

@@ -44,7 +44,6 @@ RETRY:
 	case errCodeOK:
 		msgid = result.MsgId
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -55,7 +54,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
@@ -103,7 +101,6 @@ RETRY:
 	case errCodeOK:
 		msgid = result.MsgId
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -114,7 +111,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return

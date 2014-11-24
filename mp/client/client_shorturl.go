@@ -39,7 +39,6 @@ RETRY:
 	case errCodeOK:
 		shortURL = result.ShortURL
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -50,7 +49,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return

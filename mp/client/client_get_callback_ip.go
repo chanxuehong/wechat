@@ -30,7 +30,6 @@ RETRY:
 	case errCodeOK:
 		ipList = result.IPList
 		return
-
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
 			hasRetry = true
@@ -41,7 +40,6 @@ RETRY:
 			goto RETRY
 		}
 		fallthrough
-
 	default:
 		err = &result.Error
 		return
