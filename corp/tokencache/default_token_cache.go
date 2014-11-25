@@ -20,12 +20,12 @@ type DefaultTokenCache struct {
 
 func (this *DefaultTokenCache) Token() (token string, err error) {
 	this.rwmutex.RLock()
+	defer this.rwmutex.RUnlock()
 	if len(this.token) == 0 {
 		err = ErrCacheMiss
 	} else {
 		token = this.token
 	}
-	this.rwmutex.RUnlock()
 	return
 }
 
@@ -34,7 +34,7 @@ func (this *DefaultTokenCache) PutToken(token string) (err error) {
 		return errors.New("token is empty")
 	}
 	this.rwmutex.Lock()
-	this.token = token
-	this.rwmutex.Unlock()
+	defer this.rwmutex.Unlock()
+	this.token = token	
 	return
 }
