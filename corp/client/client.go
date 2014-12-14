@@ -17,18 +17,19 @@ import (
 
 // Client 封装了主动请求功能
 type Client struct {
-	corpId     string
-	corpSecret string
-
-	tokenCache tokencache.TokenCache
-	httpClient *http.Client
+	tokenGetter TokenGetter
+	tokenCache  tokencache.TokenCache
+	httpClient  *http.Client
 }
 
 // 创建一个新的 Client.
 //  如果 httpClient == nil 则默认用 http.DefaultClient
-func NewClient(corpId, corpSecret string,
-	tokenCache tokencache.TokenCache, httpClient *http.Client) (clt *Client) {
+func NewClient(tokenGetter TokenGetter, tokenCache tokencache.TokenCache,
+	httpClient *http.Client) (clt *Client) {
 
+	if tokenGetter == nil {
+		panic("tokenGetter == nil")
+	}
 	if tokenCache == nil {
 		panic("tokenCache == nil")
 	}
@@ -36,14 +37,11 @@ func NewClient(corpId, corpSecret string,
 		httpClient = http.DefaultClient
 	}
 
-	clt = &Client{
-		corpId:     corpId,
-		corpSecret: corpSecret,
-		tokenCache: tokenCache,
-		httpClient: httpClient,
+	return &Client{
+		tokenGetter: tokenGetter,
+		tokenCache:  tokenCache,
+		httpClient:  httpClient,
 	}
-
-	return
 }
 
 // Client 通用的 json post 请求
