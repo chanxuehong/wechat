@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chanxuehong/wechat/mp/tokenservice"
+	"github.com/chanxuehong/wechat/corp/thirdparty/tokenservice"
 )
 
 const (
