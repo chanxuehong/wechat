@@ -3,9 +3,9 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package tokenservice
+package wechat
 
-// access token 伺服接口, see token_service.png
+// access token 伺服接口, 用于集中式获取 access token 场景, see token_service.png
 type TokenService interface {
 	// 获取 access token, 该 token 一般缓存在某个地方.
 	// 正常情况下 token != "" && err == nil, 否则 token == "" && err != nil

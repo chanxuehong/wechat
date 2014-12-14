@@ -6,7 +6,7 @@
 package client
 
 import (
-	"github.com/chanxuehong/wechat/corp/client"
+	"github.com/chanxuehong/wechat"
 )
 
 type CorpAccessToken struct {
@@ -14,7 +14,7 @@ type CorpAccessToken struct {
 	ExpiresIn   int64  `json:"expires_in"`
 }
 
-var _ client.TokenGetter = new(CorpAccessTokenGetter)
+var _ wechat.TokenGetter = new(CorpAccessTokenGetter)
 
 type CorpAccessTokenGetter struct {
 	SuiteClient   *SuiteClient
@@ -22,7 +22,7 @@ type CorpAccessTokenGetter struct {
 	PermanentCode string
 }
 
-func (getter *CorpAccessTokenGetter) GetToken() (tk string, err error) {
+func (getter *CorpAccessTokenGetter) GetNewToken() (tk string, err error) {
 	request := struct {
 		SuiteId       string `json:"suite_id"`
 		AuthCorpId    string `json:"auth_corpid"`

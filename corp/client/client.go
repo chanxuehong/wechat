@@ -11,35 +11,35 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/chanxuehong/wechat/corp/tokencache"
+	"github.com/chanxuehong/wechat"
 	wechatjson "github.com/chanxuehong/wechat/json"
 )
 
 // Client 封装了主动请求功能
 type Client struct {
-	tokenGetter TokenGetter
-	tokenCache  tokencache.TokenCache
+	tokenCache  wechat.TokenCache
+	tokenGetter wechat.TokenGetter
 	httpClient  *http.Client
 }
 
 // 创建一个新的 Client.
 //  如果 httpClient == nil 则默认用 http.DefaultClient
-func NewClient(tokenGetter TokenGetter, tokenCache tokencache.TokenCache,
+func NewClient(tokenCache wechat.TokenCache, tokenGetter wechat.TokenGetter,
 	httpClient *http.Client) (clt *Client) {
 
-	if tokenGetter == nil {
-		panic("tokenGetter == nil")
-	}
 	if tokenCache == nil {
 		panic("tokenCache == nil")
+	}
+	if tokenGetter == nil {
+		panic("tokenGetter == nil")
 	}
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 
 	return &Client{
-		tokenGetter: tokenGetter,
 		tokenCache:  tokenCache,
+		tokenGetter: tokenGetter,
 		httpClient:  httpClient,
 	}
 }
@@ -47,8 +47,8 @@ func NewClient(tokenGetter TokenGetter, tokenCache tokencache.TokenCache,
 // Client 通用的 json post 请求
 func (c *Client) postJSON(url_ string, request interface{}, response interface{}) (err error) {
 	buf := textBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
+	defer textBufferPool.Put(buf)               // important
 	buf.Reset()                                 // important
-	defer textBufferPool.Put(buf)
 
 	if err = wechatjson.NewEncoder(buf).Encode(request); err != nil {
 		return

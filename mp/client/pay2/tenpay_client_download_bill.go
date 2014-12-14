@@ -32,8 +32,8 @@ func (c *TenpayClient) DownloadBill(req pay2.DownloadBillRequest) (data []byte, 
 	}
 
 	buf := textBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
-	buf.Reset()                                 // important
 	defer textBufferPool.Put(buf)               // important
+	buf.Reset()                                 // important
 
 	if err = pay.FormatMapToXML(buf, req); err != nil {
 		return

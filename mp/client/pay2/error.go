@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chanxuehong/wechat/mp/tokenservice"
+	"github.com/chanxuehong/wechat"
 )
 
 const (
@@ -22,7 +22,7 @@ const (
 )
 
 // 查看 TokenService.Token 是否有更新, 如果更新了返回新的 token, 否则返回错误.
-func getNewToken(tokenService tokenservice.TokenService, currentToken string) (token string, err error) {
+func getNewToken(tokenService wechat.TokenService, currentToken string) (token string, err error) {
 	for i := 0; i < 10; i++ {
 		time.Sleep(50 * time.Millisecond)
 

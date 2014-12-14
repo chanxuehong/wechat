@@ -8,14 +8,11 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/chanxuehong/wechat"
 	"net/http"
 )
 
-type TokenGetter interface {
-	GetToken() (token string, err error)
-}
-
-var _ TokenGetter = new(DefaultTokenGetter)
+var _ wechat.TokenGetter = new(DefaultTokenGetter)
 
 type DefaultTokenGetter struct {
 	corpId     string
@@ -35,7 +32,7 @@ func NewDefaultTokenGetter(corpId, corpSecret string, httpClient *http.Client) *
 }
 
 // 从微信服务器获取新的 access_token
-func (getter *DefaultTokenGetter) GetToken() (token string, err error) {
+func (getter *DefaultTokenGetter) GetNewToken() (token string, err error) {
 	url_ := "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=" +
 		getter.corpId + "&corpsecret=" + getter.corpSecret
 

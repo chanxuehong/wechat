@@ -3,23 +3,31 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package tokenservice
+package client
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/chanxuehong/wechat"
 )
 
 const defaultTickDuration = time.Minute // 设置 44 秒以上就不会超过限制(2000次/日)
 
-var _ TokenService = new(DefaultTokenService)
+var _ wechat.TokenService = new(DefaultTokenService)
 
 // TokenService 的简单实现, 一般用于单进程环境
 type DefaultTokenService struct {
-	appid, appsecret string
+	suiteId, suiteSecret string
+
+	ticketRWMutex sync.RWMutex
+	suiteTicket   string
+	hasStarted    bool
 
 	// goroutine tokenAutoUpdate() 里有个定时器, 每次触发都会更新 currentToken
 	currentToken struct {
@@ -35,31 +43,52 @@ type DefaultTokenService struct {
 	httpClient *http.Client
 }
 
-func NewDefaultTokenService(appid, appsecret string, httpClient *http.Client) (srv *DefaultTokenService) {
+func NewDefaultTokenService(suiteId, suiteSecret string, httpClient *http.Client) (srv *DefaultTokenService) {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 
 	srv = &DefaultTokenService{
-		appid:                     appid,
-		appsecret:                 appsecret,
+		suiteId:                   suiteId,
+		suiteSecret:               suiteSecret,
 		resetTokenRefreshTickChan: make(chan time.Duration),
 		httpClient:                httpClient,
 	}
+	srv.currentToken.err = errors.New("suite_ticket 还没有设置")
+	return
+}
 
-	// 获取 access token 并启动 goroutine tokenAutoUpdate
-	tk, err := srv.getNewToken()
-	if err != nil {
-		srv.currentToken.token = ""
-		srv.currentToken.err = err
-		go srv.tokenAutoUpdate(defaultTickDuration)
-	} else {
-		srv.currentToken.token = tk.Token
-		srv.currentToken.err = nil
-		go srv.tokenAutoUpdate(time.Duration(tk.ExpiresIn) * time.Second)
+func (srv *DefaultTokenService) GetSuiteTicket() (ticket string) {
+	srv.ticketRWMutex.RLock()
+	ticket = srv.suiteTicket
+	srv.ticketRWMutex.RUnlock()
+	return
+}
+
+func (srv *DefaultTokenService) SetSuiteTicket(ticket string) {
+	if ticket == "" {
+		return
 	}
 
-	return
+	srv.ticketRWMutex.Lock()
+	defer srv.ticketRWMutex.Unlock()
+
+	srv.suiteTicket = ticket
+
+	if !srv.hasStarted {
+		tk, err := srv.getNewToken(ticket)
+		if err != nil {
+			srv.currentToken.token = ""
+			srv.currentToken.err = err
+			go srv.tokenAutoUpdate(defaultTickDuration)
+		} else {
+			srv.currentToken.token = tk.Token
+			srv.currentToken.err = nil
+			go srv.tokenAutoUpdate(time.Duration(tk.ExpiresIn) * time.Second)
+		}
+
+		srv.hasStarted = true
+	}
 }
 
 func (srv *DefaultTokenService) Token() (token string, err error) {
@@ -71,37 +100,63 @@ func (srv *DefaultTokenService) Token() (token string, err error) {
 }
 
 func (srv *DefaultTokenService) TokenRefresh() (token string, err error) {
+	srv.ticketRWMutex.RLock()
+	suiteTicket := srv.suiteTicket
+	hasStarted := srv.hasStarted
+	srv.ticketRWMutex.RUnlock()
+
+	if !hasStarted {
+		err = errors.New("suite_ticket 还没有设置")
+		return
+	}
+
+	// 这里开始锁住, 获取到的 token 不会出现无效的情况
 	srv.currentToken.rwmutex.Lock()
 	defer srv.currentToken.rwmutex.Unlock()
 
-	tk, err := srv.getNewToken()
+	tk, err := srv.getNewToken(suiteTicket)
 	if err != nil {
 		srv.currentToken.token = ""
 		srv.currentToken.err = err
 		srv.resetTokenRefreshTickChan <- defaultTickDuration
 		return
+
+	} else {
+		token = tk.Token
+
+		srv.currentToken.token = tk.Token
+		srv.currentToken.err = nil
+		srv.resetTokenRefreshTickChan <- time.Duration(tk.ExpiresIn) * time.Second
+		return
 	}
-
-	token = tk.Token
-
-	srv.currentToken.token = tk.Token
-	srv.currentToken.err = nil
-	srv.resetTokenRefreshTickChan <- time.Duration(tk.ExpiresIn) * time.Second
-	return
 }
 
 // 从微信服务器获取 acces token 成功时返回的消息格式
 type tokenResponse struct {
-	Token     string `json:"access_token"` // 获取到的凭证
-	ExpiresIn int64  `json:"expires_in"`   // 凭证有效时间，单位：秒
+	Token     string `json:"suite_access_token"` // 获取到的凭证
+	ExpiresIn int64  `json:"expires_in"`         // 凭证有效时间，单位：秒
 }
 
 // 从微信服务器获取新的 access_token
-func (srv *DefaultTokenService) getNewToken() (resp *tokenResponse, err error) {
-	url_ := "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" +
-		srv.appid + "&secret=" + srv.appsecret
+func (srv *DefaultTokenService) getNewToken(SuiteTicket string) (resp *tokenResponse, err error) {
+	request := struct {
+		SuiteId     string `json:"suite_id"`
+		SuiteSecret string `json:"suite_secret"`
+		SuiteTicket string `json:"suite_ticket"`
+	}{
+		SuiteId:     srv.suiteId,
+		SuiteSecret: srv.suiteSecret,
+		SuiteTicket: SuiteTicket,
+	}
 
-	httpResp, err := srv.httpClient.Get(url_)
+	requestJSON, err := json.Marshal(&request)
+	if err != nil {
+		return
+	}
+
+	url_ := "https://qyapi.weixin.qq.com/cgi-bin/service/get_suite_token"
+
+	httpResp, err := srv.httpClient.Post(url_, "application/json; charset=utf-8", bytes.NewReader(requestJSON))
 	if err != nil {
 		return
 	}
@@ -166,9 +221,9 @@ NEW_TICK_DURATION:
 			goto NEW_TICK_DURATION
 
 		case <-ticker.C:
-			srv.currentToken.rwmutex.Lock()
+			srv.currentToken.rwmutex.Lock() // 大粒度的锁, 见 TokenRefresh
 
-			resp, err := srv.getNewToken()
+			resp, err := srv.getNewToken(srv.GetSuiteTicket())
 			if err != nil {
 				srv.currentToken.token = ""
 				srv.currentToken.err = err

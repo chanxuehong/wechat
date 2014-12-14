@@ -6,23 +6,22 @@
 package client
 
 import (
-	"github.com/chanxuehong/wechat/corp/tokencache"
+	"github.com/chanxuehong/wechat"
 )
 
 // 获取缓存中的 access token, 如果缓存中没有则从微信服务器获取 access token 并存入缓存,
 // err == nil 时 token 才有效!
 func (c *Client) Token() (token string, err error) {
-	if token, err = c.tokenCache.Token(); err != tokencache.ErrCacheMiss {
+	if token, err = c.tokenCache.Token(); err != wechat.ErrCacheMiss {
 		return
 	}
-	// cache miss, 从微信服务器中获取
-	return c.TokenRefresh()
+	return c.TokenRefresh() // ErrCacheMiss, 从微信服务器中获取
 }
 
 // 从微信服务器获取有效的 access token 并更新 TokenCache, err == nil 时 token 才有效!
 //  NOTE: 一般情况下无需调用该函数, 请使用 Token() 获取 access token.
 func (c *Client) TokenRefresh() (token string, err error) {
-	if token, err = c.tokenGetter.GetToken(); err != nil {
+	if token, err = c.tokenGetter.GetNewToken(); err != nil {
 		return
 	}
 	if err = c.tokenCache.PutToken(token); err != nil {
