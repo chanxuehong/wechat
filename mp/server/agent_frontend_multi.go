@@ -73,7 +73,7 @@ func (this *MultiAgentFrontend) DeleteAgent(agentkey string) {
 // 删除所有的 Agent
 func (this *MultiAgentFrontend) DeleteAllAgent() {
 	this.rwmutex.Lock()
-	this.agentMap = nil
+	this.agentMap = make(map[string]Agent)
 	this.rwmutex.Unlock()
 }
 
