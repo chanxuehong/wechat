@@ -3,16 +3,17 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package tokencache
+package client
 
 import (
 	"errors"
 	"sync"
+
+	"github.com/chanxuehong/wechat"
 )
 
-var _ TokenCache = new(DefaultTokenCache)
+var _ wechat.TokenCache = new(DefaultTokenCache)
 
-// 一个简单的 TokenCache 的实现
 type DefaultTokenCache struct {
 	rwmutex sync.RWMutex
 	token   string
@@ -21,7 +22,7 @@ type DefaultTokenCache struct {
 func (this *DefaultTokenCache) Token() (token string, err error) {
 	this.rwmutex.RLock()
 	if len(this.token) == 0 {
-		err = ErrCacheMiss
+		err = wechat.ErrCacheMiss
 	} else {
 		token = this.token
 	}

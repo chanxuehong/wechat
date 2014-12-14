@@ -35,8 +35,8 @@ func NewTenpayClient(partnerId, partnerKey string, httpClient *http.Client) *Ten
 
 func (c *TenpayClient) postXML(url_ string, request map[string]string, response map[string]string) (err error) {
 	buf := textBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
-	buf.Reset()                                 // important
 	defer textBufferPool.Put(buf)               // important
+	buf.Reset()                                 // important
 
 	if err = pay.FormatMapToXML(buf, request); err != nil {
 		return

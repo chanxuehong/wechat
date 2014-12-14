@@ -23,8 +23,8 @@ func (c *Client) DownloadBill(req map[string]string) (data []byte, err error) {
 	}
 
 	buf := textBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
-	buf.Reset()                                 // important
 	defer textBufferPool.Put(buf)               // important
+	buf.Reset()                                 // important
 
 	if err = pay.FormatMapToXML(buf, req); err != nil {
 		return

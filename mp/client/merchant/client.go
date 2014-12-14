@@ -13,18 +13,18 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/chanxuehong/wechat"
 	wechatjson "github.com/chanxuehong/wechat/json"
-	"github.com/chanxuehong/wechat/mp/tokenservice"
 )
 
 type Client struct {
-	tokenService tokenservice.TokenService
+	tokenService wechat.TokenService
 	httpClient   *http.Client
 }
 
 // 创建一个新的 Client.
-//  如果 httpClient == nil 则默认用 http.DefaultClient,
-func NewClient(tokenService tokenservice.TokenService, httpClient *http.Client) (clt *Client) {
+//  如果 httpClient == nil 则默认用 http.DefaultClient
+func NewClient(tokenService wechat.TokenService, httpClient *http.Client) (clt *Client) {
 	if tokenService == nil {
 		panic("tokenService == nil")
 	}
@@ -32,11 +32,10 @@ func NewClient(tokenService tokenservice.TokenService, httpClient *http.Client) 
 		httpClient = http.DefaultClient
 	}
 
-	clt = &Client{
+	return &Client{
 		tokenService: tokenService,
 		httpClient:   httpClient,
 	}
-	return
 }
 
 // 获取 access token
@@ -59,8 +58,8 @@ func (c *Client) TokenRefresh() (token string, err error) {
 // Client 通用的 json post 请求
 func (c *Client) postJSON(url_ string, request interface{}, response interface{}) (err error) {
 	buf := textBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
+	defer textBufferPool.Put(buf)               // important
 	buf.Reset()                                 // important
-	defer textBufferPool.Put(buf)
 
 	if err = wechatjson.NewEncoder(buf).Encode(request); err != nil {
 		return

@@ -11,19 +11,19 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/chanxuehong/wechat/corp/thirdparty/tokenservice"
+	"github.com/chanxuehong/wechat"
 	wechatjson "github.com/chanxuehong/wechat/json"
 )
 
 type SuiteClient struct {
 	suiteId      string
-	tokenService tokenservice.TokenService
+	tokenService wechat.TokenService
 	httpClient   *http.Client
 }
 
 // 创建一个新的 SuiteClient.
 //  如果 httpClient == nil 则默认用 http.DefaultClient
-func NewSuiteClient(suiteId string, tokenService tokenservice.TokenService,
+func NewSuiteClient(suiteId string, tokenService wechat.TokenService,
 	httpClient *http.Client) (clt *SuiteClient) {
 
 	if suiteId == "" {
@@ -64,8 +64,8 @@ func (c *SuiteClient) TokenRefresh() (token string, err error) {
 // Client 通用的 json post 请求
 func (c *SuiteClient) postJSON(url_ string, request interface{}, response interface{}) (err error) {
 	buf := textBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
+	defer textBufferPool.Put(buf)               // important
 	buf.Reset()                                 // important
-	defer textBufferPool.Put(buf)
 
 	if err = wechatjson.NewEncoder(buf).Encode(request); err != nil {
 		return

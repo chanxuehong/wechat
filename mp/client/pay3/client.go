@@ -146,8 +146,8 @@ func (c *Client) ShortURL(req map[string]string) (resp map[string]string, err er
 
 func (c *Client) postXML(url_ string, request map[string]string, response map[string]string) (err error) {
 	buf := textBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
-	buf.Reset()                                 // important
 	defer textBufferPool.Put(buf)               // important
+	buf.Reset()                                 // important
 
 	if err = pay.FormatMapToXML(buf, request); err != nil {
 		return
