@@ -5,18 +5,18 @@
 
 package server
 
-func msgDispatch(inputPara *InputParameters, msg *mixedRequest, agent Agent) {
+func msgDispatch(agent Agent, msg *mixedRequest, para *RequestParameters) {
 	switch msg.InfoType {
 	case MsgTypeSuiteTicket:
-		agent.ServeSuiteTicketMsg(inputPara, msg.GetSuiteTicket())
+		agent.ServeSuiteTicketMsg(msg.GetSuiteTicket(), para)
 
 	case MsgTypeChangeAuth:
-		agent.ServeChangeAuthMsg(inputPara, msg.GetChangeAuth())
+		agent.ServeChangeAuthMsg(msg.GetChangeAuth(), para)
 
 	case MsgTypeCancelAuth:
-		agent.ServeCancelAuthMsg(inputPara, msg.GetCancelAuth())
+		agent.ServeCancelAuthMsg(msg.GetCancelAuth(), para)
 
 	default: // unknown message type
-		agent.ServeUnknownMsg(inputPara)
+		agent.ServeUnknownMsg(para)
 	}
 }

@@ -9,6 +9,12 @@ import (
 	"net/http"
 )
 
+type RequestParameters struct {
+	HTTPResponseWriter http.ResponseWriter // 用于回复
+	HTTPRequest        *http.Request       // r 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 r.URL.RawQuery
+	PostRawXMLMsg      []byte              // rawXMLMsg 是"明文" xml 消息体
+}
+
 // 微信支付消息处理接口
 type Agent interface {
 	GetAppId() string  // 微信公众号身份的唯一标识
@@ -17,13 +23,13 @@ type Agent interface {
 
 	// 未知类型的消息处理方法
 	//  postRawXMLMsg 是 xml 消息体
-	ServeUnknownMsg(w http.ResponseWriter, r *http.Request, postRawXMLMsg []byte)
+	ServeUnknownMsg(para *RequestParameters)
 
 	// Native（原生）支付回调商户后台获取 package
 	//  postRawXMLMsg 是原始 xml 消息体
-	ServePayPackageRequest(w http.ResponseWriter, r *http.Request, req map[string]string, postRawXMLMsg []byte)
+	ServePayPackageRequest(req map[string]string, para *RequestParameters)
 
 	// 用户在成功完成支付后，微信后台通知（POST）商户服务器（notify_url）支付结果。
 	//  postRawXMLMsg 是原始 xml 消息体
-	ServeOrderNotification(w http.ResponseWriter, r *http.Request, data map[string]string, postRawXMLMsg []byte)
+	ServeOrderNotification(data map[string]string, para *RequestParameters)
 }

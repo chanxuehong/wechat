@@ -6,7 +6,6 @@
 package server
 
 import (
-	"net/http"
 	"sync"
 
 	"github.com/chanxuehong/wechat/mp/message/passive/request"
@@ -15,10 +14,11 @@ import (
 var _ Agent = new(DefaultAgent)
 
 type DefaultAgent struct {
+	Id    string // 公众号原始ID, 等于后台中的 公众号设置-->帐号详情-->原始ID
+	Token string // 公众号的 Token, 和后台中的设置相等
+	AppId string // 貌似需要认证才会有的???
+
 	RWMutex       sync.RWMutex
-	Id            string   // 公众号原始ID, 等于后台中的 公众号设置-->帐号详情-->原始ID
-	Token         string   // 公众号的 Token, 和后台中的设置相等
-	AppId         string   // 貌似需要认证才会有的???
 	LastAESKey    [32]byte // 最后一个 AES Key
 	CurrentAESKey [32]byte // 当前的 AES Key
 }
@@ -67,102 +67,102 @@ func (this *DefaultAgent) UpdateAESKey(AESKey [32]byte) {
 
 // 明文模式 ======================================================================================================================================================================
 
-func (this *DefaultAgent) ServeUnknownMsg(w http.ResponseWriter, r *http.Request, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeUnknownMsg(para *RequestParameters) {
 }
 
-func (this *DefaultAgent) ServeTextMsg(w http.ResponseWriter, r *http.Request, msg *request.Text, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeTextMsg(msg *request.Text, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeImageMsg(w http.ResponseWriter, r *http.Request, msg *request.Image, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeImageMsg(msg *request.Image, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeVoiceMsg(w http.ResponseWriter, r *http.Request, msg *request.Voice, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeVoiceMsg(msg *request.Voice, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeVideoMsg(w http.ResponseWriter, r *http.Request, msg *request.Video, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeVideoMsg(msg *request.Video, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeLocationMsg(w http.ResponseWriter, r *http.Request, msg *request.Location, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeLocationMsg(msg *request.Location, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeLinkMsg(w http.ResponseWriter, r *http.Request, msg *request.Link, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeLinkMsg(msg *request.Link, para *RequestParameters) {
 }
 
-func (this *DefaultAgent) ServeSubscribeEvent(w http.ResponseWriter, r *http.Request, msg *request.SubscribeEvent, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeSubscribeEvent(msg *request.SubscribeEvent, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeUnsubscribeEvent(w http.ResponseWriter, r *http.Request, msg *request.UnsubscribeEvent, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeUnsubscribeEvent(msg *request.UnsubscribeEvent, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeSubscribeByScanEvent(w http.ResponseWriter, r *http.Request, msg *request.SubscribeByScanEvent, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeSubscribeByScanEvent(msg *request.SubscribeByScanEvent, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeScanEvent(w http.ResponseWriter, r *http.Request, msg *request.ScanEvent, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeScanEvent(msg *request.ScanEvent, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeLocationEvent(w http.ResponseWriter, r *http.Request, msg *request.LocationEvent, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeLocationEvent(msg *request.LocationEvent, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeMenuClickEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuClickEvent, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeMenuClickEvent(msg *request.MenuClickEvent, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeMenuViewEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuViewEvent, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeMenuViewEvent(msg *request.MenuViewEvent, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeMenuScanCodePushEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuScanCodePushEvent, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeMenuScanCodePushEvent(msg *request.MenuScanCodePushEvent, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeMenuScanCodeWaitMsgEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuScanCodeWaitMsgEvent, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeMenuScanCodeWaitMsgEvent(msg *request.MenuScanCodeWaitMsgEvent, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeMenuPicSysPhotoEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuPicSysPhotoEvent, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeMenuPicSysPhotoEvent(msg *request.MenuPicSysPhotoEvent, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeMenuPicPhotoOrAlbumEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuPicPhotoOrAlbumEvent, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeMenuPicPhotoOrAlbumEvent(msg *request.MenuPicPhotoOrAlbumEvent, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeMenuPicWeixinEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuPicWeixinEvent, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeMenuPicWeixinEvent(msg *request.MenuPicWeixinEvent, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeMenuLocationSelectEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuLocationSelectEvent, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeMenuLocationSelectEvent(msg *request.MenuLocationSelectEvent, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeMassSendJobFinishEvent(w http.ResponseWriter, r *http.Request, msg *request.MassSendJobFinishEvent, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeMassSendJobFinishEvent(msg *request.MassSendJobFinishEvent, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeTemplateSendJobFinishEvent(w http.ResponseWriter, r *http.Request, msg *request.TemplateSendJobFinishEvent, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeTemplateSendJobFinishEvent(msg *request.TemplateSendJobFinishEvent, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeMerchantOrderEvent(w http.ResponseWriter, r *http.Request, msg *request.MerchantOrderEvent, rawXMLMsg []byte, timestamp int64) {
+func (this *DefaultAgent) ServeMerchantOrderEvent(msg *request.MerchantOrderEvent, para *RequestParameters) {
 }
 
 // 兼容模式, 安全模式 ==============================================================================================================================================================
 
-func (this *DefaultAgent) ServeAESUnknownMsg(w http.ResponseWriter, r *http.Request, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESUnknownMsg(para *AESRequestParameters) {
 }
 
-func (this *DefaultAgent) ServeAESTextMsg(w http.ResponseWriter, r *http.Request, msg *request.Text, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESTextMsg(msg *request.Text, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESImageMsg(w http.ResponseWriter, r *http.Request, msg *request.Image, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESImageMsg(msg *request.Image, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESVoiceMsg(w http.ResponseWriter, r *http.Request, msg *request.Voice, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESVoiceMsg(msg *request.Voice, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESVideoMsg(w http.ResponseWriter, r *http.Request, msg *request.Video, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESVideoMsg(msg *request.Video, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESLocationMsg(w http.ResponseWriter, r *http.Request, msg *request.Location, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESLocationMsg(msg *request.Location, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESLinkMsg(w http.ResponseWriter, r *http.Request, msg *request.Link, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESLinkMsg(msg *request.Link, para *AESRequestParameters) {
 }
 
-func (this *DefaultAgent) ServeAESSubscribeEvent(w http.ResponseWriter, r *http.Request, msg *request.SubscribeEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESSubscribeEvent(msg *request.SubscribeEvent, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESUnsubscribeEvent(w http.ResponseWriter, r *http.Request, msg *request.UnsubscribeEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESUnsubscribeEvent(msg *request.UnsubscribeEvent, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESSubscribeByScanEvent(w http.ResponseWriter, r *http.Request, msg *request.SubscribeByScanEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESSubscribeByScanEvent(msg *request.SubscribeByScanEvent, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESScanEvent(w http.ResponseWriter, r *http.Request, msg *request.ScanEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESScanEvent(msg *request.ScanEvent, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESLocationEvent(w http.ResponseWriter, r *http.Request, msg *request.LocationEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESLocationEvent(msg *request.LocationEvent, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESMenuClickEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuClickEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESMenuClickEvent(msg *request.MenuClickEvent, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESMenuViewEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuViewEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESMenuViewEvent(msg *request.MenuViewEvent, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESMenuScanCodePushEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuScanCodePushEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESMenuScanCodePushEvent(msg *request.MenuScanCodePushEvent, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESMenuScanCodeWaitMsgEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuScanCodeWaitMsgEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESMenuScanCodeWaitMsgEvent(msg *request.MenuScanCodeWaitMsgEvent, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESMenuPicSysPhotoEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuPicSysPhotoEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESMenuPicSysPhotoEvent(msg *request.MenuPicSysPhotoEvent, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESMenuPicPhotoOrAlbumEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuPicPhotoOrAlbumEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESMenuPicPhotoOrAlbumEvent(msg *request.MenuPicPhotoOrAlbumEvent, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESMenuPicWeixinEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuPicWeixinEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESMenuPicWeixinEvent(msg *request.MenuPicWeixinEvent, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESMenuLocationSelectEvent(w http.ResponseWriter, r *http.Request, msg *request.MenuLocationSelectEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESMenuLocationSelectEvent(msg *request.MenuLocationSelectEvent, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESMassSendJobFinishEvent(w http.ResponseWriter, r *http.Request, msg *request.MassSendJobFinishEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESMassSendJobFinishEvent(msg *request.MassSendJobFinishEvent, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESTemplateSendJobFinishEvent(w http.ResponseWriter, r *http.Request, msg *request.TemplateSendJobFinishEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESTemplateSendJobFinishEvent(msg *request.TemplateSendJobFinishEvent, para *AESRequestParameters) {
 }
-func (this *DefaultAgent) ServeAESMerchantOrderEvent(w http.ResponseWriter, r *http.Request, msg *request.MerchantOrderEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte) {
+func (this *DefaultAgent) ServeAESMerchantOrderEvent(msg *request.MerchantOrderEvent, para *AESRequestParameters) {
 }

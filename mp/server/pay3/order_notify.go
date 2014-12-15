@@ -102,5 +102,10 @@ func ServeOrderNotifyHTTP(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	agent.ServeOrderNotification(w, r, data, postRawXMLMsg)
+	para := RequestParameters{
+		HTTPResponseWriter: w,
+		HTTPRequest:        r,
+		PostRawXMLMsg:      postRawXMLMsg,
+	}
+	agent.ServeOrderNotification(data, &para)
 }

@@ -107,16 +107,16 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request,
 			return
 		}
 
-		inputPara := &InputParameters{
-			w:         w,
-			r:         r,
-			rawXMLMsg: rawXMLMsg,
-			timestamp: timestamp,
-			nonce:     nonce,
-			AESKey:    AESKey,
-			random:    random,
+		para := RequestParameters{
+			HTTPResponseWriter: w,
+			HTTPRequest:        r,
+			Timestamp:          timestamp,
+			Nonce:              nonce,
+			RawXMLMsg:          rawXMLMsg,
+			AESKey:             AESKey,
+			Random:             random,
 		}
-		msgDispatch(inputPara, &mixedReq, agent)
+		msgDispatch(agent, &mixedReq, &para)
 
 	case "GET": // 首次验证
 		msgSignature1, timestamp, nonce, encryptedMsg, err := parseGetURLQuery(urlValues)

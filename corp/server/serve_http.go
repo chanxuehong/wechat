@@ -88,32 +88,34 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request,
 			return
 		}
 
-		random, rawXMLMsg, err := util.AESDecryptMsg(EncryptedMsgBytes, wantAgentCorpId, agent.GetAESKey())
+		AESKey := agent.GetAESKey()
+
+		random, rawXMLMsg, err := util.AESDecryptMsg(EncryptedMsgBytes, wantAgentCorpId, AESKey)
 		if err != nil {
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
 		}
 
-		var msgReq request.Request
-		if err := xml.Unmarshal(rawXMLMsg, &msgReq); err != nil {
+		var mixedReq request.Request
+		if err := xml.Unmarshal(rawXMLMsg, &mixedReq); err != nil {
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
 		}
 
-		if haveAgentCorpId != msgReq.ToUserName {
-			err = fmt.Errorf("the RequestHttpBody's ToUserName(==%s) mismatch the Request's ToUserName(==%s)", haveAgentCorpId, msgReq.ToUserName)
+		if haveAgentCorpId != mixedReq.ToUserName {
+			err = fmt.Errorf("the RequestHttpBody's ToUserName(==%s) mismatch the Request's ToUserName(==%s)", haveAgentCorpId, mixedReq.ToUserName)
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
 		}
-		if haveAgentAgentId != msgReq.AgentId {
-			err = fmt.Errorf("the RequestHttpBody's AgentId(==%d) mismatch the Request's AgengId(==%d)", haveAgentAgentId, msgReq.AgentId)
+		if haveAgentAgentId != mixedReq.AgentId {
+			err = fmt.Errorf("the RequestHttpBody's AgentId(==%d) mismatch the Request's AgengId(==%d)", haveAgentAgentId, mixedReq.AgentId)
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
 		}
 
 		if haveAgentAgentId != wantAgentAgentId { // 订阅/取消订阅 整个企业号, haveAgentAgentId == 0
-			if msgReq.MsgType == request.MSG_TYPE_EVENT &&
-				(msgReq.Event == request.EVENT_TYPE_SUBSCRIBE || msgReq.Event == request.EVENT_TYPE_UNSUBSCRIBE) {
+			if mixedReq.MsgType == request.MSG_TYPE_EVENT &&
+				(mixedReq.Event == request.EVENT_TYPE_SUBSCRIBE || mixedReq.Event == request.EVENT_TYPE_UNSUBSCRIBE) {
 				// do nothing
 			} else {
 				err = fmt.Errorf("the message Request's AgentId mismatch, have: %d, want: %d", haveAgentAgentId, wantAgentAgentId)
@@ -122,7 +124,16 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request,
 			}
 		}
 
-		msgDispatch(w, r, &msgReq, rawXMLMsg, timestamp, nonce, random, agent)
+		para := RequestParameters{
+			HTTPResponseWriter: w,
+			HTTPRequest:        r,
+			Timestamp:          timestamp,
+			Nonce:              nonce,
+			RawXMLMsg:          rawXMLMsg,
+			AESKey:             AESKey,
+			Random:             random,
+		}
+		msgDispatch(agent, &mixedReq, &para)
 
 	case "GET": // 首次验证
 		msgSignature1, timestamp, nonce, encryptedMsg, err := parseGetURLQuery(urlValues)

@@ -89,5 +89,10 @@ func ServeAlarmNotifyHTTP(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	agent.ServeAlarmNotification(w, r, alarmData, postRawXMLMsg)
+	para := RequestParameters{
+		HTTPResponseWriter: w,
+		HTTPRequest:        r,
+		PostRawXMLMsg:      postRawXMLMsg,
+	}
+	agent.ServeAlarmNotification(alarmData, &para)
 }

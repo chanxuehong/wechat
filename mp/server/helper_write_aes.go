@@ -9,7 +9,6 @@ import (
 	"encoding/base64"
 	"encoding/xml"
 	"errors"
-	"io"
 	"strconv"
 
 	"github.com/chanxuehong/wechat/mp/message/passive/response"
@@ -17,130 +16,146 @@ import (
 )
 
 // 把 text 回复消息 msg 写入 writer w
-func WriteAESText(w io.Writer, msg *response.Text, timestamp int64, nonce string,
-	AESKey [32]byte, random []byte, AppId, Token string) error {
-
-	if w == nil {
-		return errors.New("w == nil")
-	}
+func WriteAESText(msg *response.Text, para *AESRequestParameters, appId, token string) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return writeAESResponse(w, msg, timestamp, nonce, AESKey, random, AppId, Token)
+	if para == nil {
+		return errors.New("para == nil")
+	}
+	if para.HTTPResponseWriter == nil || para.HTTPRequest == nil {
+		return errors.New("para is invalid")
+	}
+
+	return writeAESResponse(msg, para, appId, token)
 }
 
 // 把 image 回复消息 msg 写入 writer w
-func WriteAESImage(w io.Writer, msg *response.Image, timestamp int64, nonce string,
-	AESKey [32]byte, random []byte, AppId, Token string) error {
-
-	if w == nil {
-		return errors.New("w == nil")
-	}
+func WriteAESImage(msg *response.Image, para *AESRequestParameters, appId, token string) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return writeAESResponse(w, msg, timestamp, nonce, AESKey, random, AppId, Token)
+	if para == nil {
+		return errors.New("para == nil")
+	}
+	if para.HTTPResponseWriter == nil || para.HTTPRequest == nil {
+		return errors.New("para is invalid")
+	}
+
+	return writeAESResponse(msg, para, appId, token)
 }
 
 // 把 voice 回复消息 msg 写入 writer w
-func WriteAESVoice(w io.Writer, msg *response.Voice, timestamp int64, nonce string,
-	AESKey [32]byte, random []byte, AppId, Token string) error {
-
-	if w == nil {
-		return errors.New("w == nil")
-	}
+func WriteAESVoice(msg *response.Voice, para *AESRequestParameters, appId, token string) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return writeAESResponse(w, msg, timestamp, nonce, AESKey, random, AppId, Token)
+	if para == nil {
+		return errors.New("para == nil")
+	}
+	if para.HTTPResponseWriter == nil || para.HTTPRequest == nil {
+		return errors.New("para is invalid")
+	}
+
+	return writeAESResponse(msg, para, appId, token)
 }
 
 // 把 video 回复消息 msg 写入 writer w
-func WriteAESVideo(w io.Writer, msg *response.Video, timestamp int64, nonce string,
-	AESKey [32]byte, random []byte, AppId, Token string) error {
-
-	if w == nil {
-		return errors.New("w == nil")
-	}
+func WriteAESVideo(msg *response.Video, para *AESRequestParameters, appId, token string) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return writeAESResponse(w, msg, timestamp, nonce, AESKey, random, AppId, Token)
+	if para == nil {
+		return errors.New("para == nil")
+	}
+	if para.HTTPResponseWriter == nil || para.HTTPRequest == nil {
+		return errors.New("para is invalid")
+	}
+
+	return writeAESResponse(msg, para, appId, token)
 }
 
 // 把 music 回复消息 msg 写入 writer w
-func WriteAESMusic(w io.Writer, msg *response.Music, timestamp int64, nonce string,
-	AESKey [32]byte, random []byte, AppId, Token string) error {
-
-	if w == nil {
-		return errors.New("w == nil")
-	}
+func WriteAESMusic(msg *response.Music, para *AESRequestParameters, appId, token string) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return writeAESResponse(w, msg, timestamp, nonce, AESKey, random, AppId, Token)
+	if para == nil {
+		return errors.New("para == nil")
+	}
+	if para.HTTPResponseWriter == nil || para.HTTPRequest == nil {
+		return errors.New("para is invalid")
+	}
+
+	return writeAESResponse(msg, para, appId, token)
 }
 
 // 把 news 回复消息 msg 写入 writer w
-func WriteAESNews(w io.Writer, msg *response.News, timestamp int64, nonce string,
-	AESKey [32]byte, random []byte, AppId, Token string) (err error) {
-
-	if w == nil {
-		return errors.New("w == nil")
-	}
+func WriteAESNews(msg *response.News, para *AESRequestParameters, appId, token string) (err error) {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	if err = msg.CheckValid(); err != nil {
-		return
+	if para == nil {
+		return errors.New("para == nil")
 	}
-	return writeAESResponse(w, msg, timestamp, nonce, AESKey, random, AppId, Token)
+	if para.HTTPResponseWriter == nil || para.HTTPRequest == nil {
+		return errors.New("para is invalid")
+	}
+
+	return writeAESResponse(msg, para, appId, token)
 }
 
 // 把 TransferToCustomerService 回复消息 msg 写入 writer w
-func WriteAESTransferToCustomerService(w io.Writer, msg *response.TransferToCustomerService,
-	timestamp int64, nonce string, AESKey [32]byte, random []byte, AppId, Token string) error {
+func WriteAESTransferToCustomerService(msg *response.TransferToCustomerService,
+	para *AESRequestParameters, appId, token string) error {
 
-	if w == nil {
-		return errors.New("w == nil")
-	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return writeAESResponse(w, msg, timestamp, nonce, AESKey, random, AppId, Token)
+	if para == nil {
+		return errors.New("para == nil")
+	}
+	if para.HTTPResponseWriter == nil || para.HTTPRequest == nil {
+		return errors.New("para is invalid")
+	}
+
+	return writeAESResponse(msg, para, appId, token)
 }
 
 // 把 TransferToSpecialCustomerService 回复消息 msg 写入 writer w
-func WriteAESTransferToSpecialCustomerService(w io.Writer, msg *response.TransferToSpecialCustomerService,
-	timestamp int64, nonce string, AESKey [32]byte, random []byte, AppId, Token string) error {
+func WriteAESTransferToSpecialCustomerService(msg *response.TransferToSpecialCustomerService,
+	para *AESRequestParameters, appId, token string) error {
 
-	if w == nil {
-		return errors.New("w == nil")
-	}
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
-	return writeAESResponse(w, msg, timestamp, nonce, AESKey, random, AppId, Token)
+	if para == nil {
+		return errors.New("para == nil")
+	}
+	if para.HTTPResponseWriter == nil || para.HTTPRequest == nil {
+		return errors.New("para is invalid")
+	}
+
+	return writeAESResponse(msg, para, appId, token)
 }
 
-func writeAESResponse(w io.Writer, msg interface{}, timestamp int64, nonce string,
-	AESKey [32]byte, random []byte, AppId, Token string) (err error) {
+func writeAESResponse(msg interface{}, para *AESRequestParameters, appId, token string) (err error) {
 
 	rawXMLMsg, err := xml.Marshal(msg)
 	if err != nil {
 		return
 	}
 
-	EncryptedMsg := util.AESEncryptMsg(random, rawXMLMsg, AppId, AESKey)
+	EncryptedMsg := util.AESEncryptMsg(para.Random, rawXMLMsg, appId, para.AESKey)
 	base64EncryptedMsg := base64.StdEncoding.EncodeToString(EncryptedMsg)
 
 	var responseHttpBody response.ResponseHttpBody
 	responseHttpBody.EncryptedMsg = base64EncryptedMsg
-	responseHttpBody.TimeStamp = timestamp
-	responseHttpBody.Nonce = nonce
+	responseHttpBody.TimeStamp = para.Timestamp
+	responseHttpBody.Nonce = para.Nonce
 
-	timestampStr := strconv.FormatInt(timestamp, 10)
-	responseHttpBody.MsgSignature = util.MsgSign(Token, timestampStr, nonce, base64EncryptedMsg)
+	timestampStr := strconv.FormatInt(para.Timestamp, 10)
+	responseHttpBody.MsgSignature = util.MsgSign(token, timestampStr, para.Nonce, base64EncryptedMsg)
 
-	return xml.NewEncoder(w).Encode(&responseHttpBody)
+	return xml.NewEncoder(para.HTTPResponseWriter).Encode(&responseHttpBody)
 }

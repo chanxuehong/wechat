@@ -56,16 +56,16 @@ func (this *DefaultAgent) UpdateAESKey(AESKey [32]byte) {
 	return
 }
 
-func (this *DefaultAgent) ServeUnknownMsg(para *InputParameters) {
-	io.WriteString(para.w, ResponseSuccess)
+func (this *DefaultAgent) ServeUnknownMsg(para *RequestParameters) {
+	io.WriteString(para.HTTPResponseWriter, ResponseSuccess)
 }
 
-func (this *DefaultAgent) ServeSuiteTicketMsg(para *InputParameters, msg *SuiteTicket) {
-	io.WriteString(para.w, ResponseSuccess)
+func (this *DefaultAgent) ServeSuiteTicketMsg(msg *SuiteTicket, para *RequestParameters) {
+	io.WriteString(para.HTTPResponseWriter, ResponseSuccess)
 }
-func (this *DefaultAgent) ServeChangeAuthMsg(para *InputParameters, msg *ChangeAuth) {
-	io.WriteString(para.w, ResponseSuccess)
+func (this *DefaultAgent) ServeChangeAuthMsg(msg *ChangeAuth, para *RequestParameters) {
+	io.WriteString(para.HTTPResponseWriter, ResponseSuccess)
 }
-func (this *DefaultAgent) ServeCancelAuthMsg(para *InputParameters, msg *CancelAuth) {
-	io.WriteString(para.w, ResponseSuccess)
+func (this *DefaultAgent) ServeCancelAuthMsg(msg *CancelAuth, para *RequestParameters) {
+	io.WriteString(para.HTTPResponseWriter, ResponseSuccess)
 }
