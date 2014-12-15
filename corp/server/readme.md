@@ -41,18 +41,20 @@ type CustomAgent struct {
 }
 
 // 文本消息处理函数
-func (this *CustomAgent) ServeTextMsg(w http.ResponseWriter, r *http.Request,
-	msg *request.Text, rawXMLMsg []byte, timestamp int64, nonce string, random []byte) {
+func (this *CustomAgent) ServeTextMsg(msg *request.Text, para *server.RequestParameters) {
+	// TODO: 把用户发送过来的文本原样回复过去
 
-	// TODO: 示例代码, 把用户发送过来的文本原样回复过去
+	para.HTTPResponseWriter.Header().Set("Content-Type", "text/xml; charset=utf-8") // 可选
 
-	w.Header().Set("Content-Type", "application/xml; charset=utf-8") // 可选
-
-	// NOTE: 时间戳也可以用传入的参数 timestamp, 即微信服务器请求 URL 中的 timestamp
+	// NOTE: 时间戳也可以用传入的参数 para.Timestamp 或者 msg.CreateTime
+	// resp := response.NewText(msg.FromUserName, msg.ToUserName, msg.Content, msg.CreateTime)
 	resp := response.NewText(msg.FromUserName, msg.ToUserName, msg.Content, time.Now().Unix())
 
-	// timestamp, nonce, random 也可以自己生成
-	if err := server.WriteText(w, resp, timestamp, nonce, this.GetAESKey(), random, this.GetCorpId(), this.GetToken()); err != nil {
+	// para.Timestamp, para.Nonce, para.Random 都可以重新设置
+	// para.Timestamp = xxx
+	// para.Nonce = xxx
+	// para.Random = xxx
+	if err := server.WriteText(resp, para, this.GetCorpId(), this.GetToken()); err != nil {
 		// TODO: 错误处理代码
 	}
 }
