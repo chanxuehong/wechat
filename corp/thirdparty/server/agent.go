@@ -9,14 +9,14 @@ import (
 	"net/http"
 )
 
-type InputParameters struct {
-	w         http.ResponseWriter // 提供这个参数暂时不需要写任何数据, 预留的
-	r         *http.Request       // r 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 r.URL.RawQuery
-	rawXMLMsg []byte              // rawXMLMsg 是解密后的"明文" xml 消息体
-	timestamp int64               // timestamp 是请求 URL 中的时间戳
-	nonce     string              // nonce 是请求 URL 中的随机数
-	AESKey    [32]byte            // AES 加密的 key
-	random    []byte              // random 是请求 http body 中的密文消息加密时所用的 random, 16 bytes
+type RequestParameters struct {
+	HTTPResponseWriter http.ResponseWriter // 用于回复
+	HTTPRequest        *http.Request       // r 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 r.URL.RawQuery
+	Timestamp          int64               // timestamp 是请求 URL 中的时间戳
+	Nonce              string              // nonce 是请求 URL 中的随机数
+	RawXMLMsg          []byte              // rawXMLMsg 是"明文" xml 消息体
+	AESKey             [32]byte            // AES 加密的 key
+	Random             []byte              // random 是请求 http body 中的密文消息加密时所用的 random, 16 bytes
 }
 
 // 套件对外暴露的接口
@@ -27,10 +27,10 @@ type Agent interface {
 	GetCurrentAESKey() [32]byte // 获取当前有效的 AES 加密 Key
 
 	// 未知类型的消息处理方法
-	ServeUnknownMsg(para *InputParameters)
+	ServeUnknownMsg(para *RequestParameters)
 
 	// 消息处理函数
-	ServeSuiteTicketMsg(para *InputParameters, msg *SuiteTicket)
-	ServeChangeAuthMsg(para *InputParameters, msg *ChangeAuth)
-	ServeCancelAuthMsg(para *InputParameters, msg *CancelAuth)
+	ServeSuiteTicketMsg(msg *SuiteTicket, para *RequestParameters)
+	ServeChangeAuthMsg(msg *ChangeAuth, para *RequestParameters)
+	ServeCancelAuthMsg(msg *CancelAuth, para *RequestParameters)
 }

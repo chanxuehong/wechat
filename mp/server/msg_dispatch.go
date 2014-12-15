@@ -5,176 +5,168 @@
 
 package server
 
-import (
-	"net/http"
-
-	"github.com/chanxuehong/wechat/mp/message/passive/request"
-)
+import "github.com/chanxuehong/wechat/mp/message/passive/request"
 
 // 明文模式
 // 消息（事件）分路器, 可以根据实际业务来调整顺序!
-func rawMsgDispatch(w http.ResponseWriter, r *http.Request, msg *request.Request,
-	rawXMLMsg []byte, timestamp int64, agent Agent) {
-
-	switch msg.MsgType {
+func rawMsgDispatch(agent Agent, mixedRequest *request.Request, para *RequestParameters) {
+	switch mixedRequest.MsgType {
 	case request.MSG_TYPE_TEXT:
-		agent.ServeTextMsg(w, r, msg.Text(), rawXMLMsg, timestamp)
+		agent.ServeTextMsg(mixedRequest.Text(), para)
 
 	case request.MSG_TYPE_EVENT:
-		switch msg.Event {
+		switch mixedRequest.Event {
 		case request.EVENT_TYPE_LOCATION:
-			agent.ServeLocationEvent(w, r, msg.LocationEvent(), rawXMLMsg, timestamp)
+			agent.ServeLocationEvent(mixedRequest.LocationEvent(), para)
 
 		case request.EVENT_TYPE_CLICK:
-			agent.ServeMenuClickEvent(w, r, msg.MenuClickEvent(), rawXMLMsg, timestamp)
+			agent.ServeMenuClickEvent(mixedRequest.MenuClickEvent(), para)
 
 		case request.EVENT_TYPE_VIEW:
-			agent.ServeMenuViewEvent(w, r, msg.MenuViewEvent(), rawXMLMsg, timestamp)
+			agent.ServeMenuViewEvent(mixedRequest.MenuViewEvent(), para)
 
 		case request.EVENT_TYPE_SCANCODE_PUSH:
-			agent.ServeMenuScanCodePushEvent(w, r, msg.MenuScanCodePushEvent(), rawXMLMsg, timestamp)
+			agent.ServeMenuScanCodePushEvent(mixedRequest.MenuScanCodePushEvent(), para)
 
 		case request.EVENT_TYPE_SCANCODE_WAITMSG:
-			agent.ServeMenuScanCodeWaitMsgEvent(w, r, msg.MenuScanCodeWaitMsgEvent(), rawXMLMsg, timestamp)
+			agent.ServeMenuScanCodeWaitMsgEvent(mixedRequest.MenuScanCodeWaitMsgEvent(), para)
 
 		case request.EVENT_TYPE_PIC_SYSPHOTO:
-			agent.ServeMenuPicSysPhotoEvent(w, r, msg.MenuPicSysPhotoEvent(), rawXMLMsg, timestamp)
+			agent.ServeMenuPicSysPhotoEvent(mixedRequest.MenuPicSysPhotoEvent(), para)
 
 		case request.EVENT_TYPE_PIC_PHOTO_OR_ALBUM:
-			agent.ServeMenuPicPhotoOrAlbumEvent(w, r, msg.MenuPicPhotoOrAlbumEvent(), rawXMLMsg, timestamp)
+			agent.ServeMenuPicPhotoOrAlbumEvent(mixedRequest.MenuPicPhotoOrAlbumEvent(), para)
 
 		case request.EVENT_TYPE_PIC_WEIXIN:
-			agent.ServeMenuPicWeixinEvent(w, r, msg.MenuPicWeixinEvent(), rawXMLMsg, timestamp)
+			agent.ServeMenuPicWeixinEvent(mixedRequest.MenuPicWeixinEvent(), para)
 
 		case request.EVENT_TYPE_LOCATION_SELECT:
-			agent.ServeMenuLocationSelectEvent(w, r, msg.MenuLocationSelectEvent(), rawXMLMsg, timestamp)
+			agent.ServeMenuLocationSelectEvent(mixedRequest.MenuLocationSelectEvent(), para)
 
 		case request.EVENT_TYPE_TEMPLATESENDJOBFINISH:
-			agent.ServeTemplateSendJobFinishEvent(w, r, msg.TemplateSendJobFinishEvent(), rawXMLMsg, timestamp)
+			agent.ServeTemplateSendJobFinishEvent(mixedRequest.TemplateSendJobFinishEvent(), para)
 
 		case request.EVENT_TYPE_MASSSENDJOBFINISH:
-			agent.ServeMassSendJobFinishEvent(w, r, msg.MassSendJobFinishEvent(), rawXMLMsg, timestamp)
+			agent.ServeMassSendJobFinishEvent(mixedRequest.MassSendJobFinishEvent(), para)
 
 		case request.EVENT_TYPE_MERCHANTORDER:
-			agent.ServeMerchantOrderEvent(w, r, msg.MerchantOrderEvent(), rawXMLMsg, timestamp)
+			agent.ServeMerchantOrderEvent(mixedRequest.MerchantOrderEvent(), para)
 
 		case request.EVENT_TYPE_SUBSCRIBE:
-			if msg.Ticket == "" { // 普通订阅
-				agent.ServeSubscribeEvent(w, r, msg.SubscribeEvent(), rawXMLMsg, timestamp)
+			if mixedRequest.Ticket == "" { // 普通订阅
+				agent.ServeSubscribeEvent(mixedRequest.SubscribeEvent(), para)
 			} else { // 扫描二维码订阅
-				agent.ServeSubscribeByScanEvent(w, r, msg.SubscribeByScanEvent(), rawXMLMsg, timestamp)
+				agent.ServeSubscribeByScanEvent(mixedRequest.SubscribeByScanEvent(), para)
 			}
 
 		case request.EVENT_TYPE_UNSUBSCRIBE:
-			agent.ServeUnsubscribeEvent(w, r, msg.UnsubscribeEvent(), rawXMLMsg, timestamp)
+			agent.ServeUnsubscribeEvent(mixedRequest.UnsubscribeEvent(), para)
 
 		case request.EVENT_TYPE_SCAN:
-			agent.ServeScanEvent(w, r, msg.ScanEvent(), rawXMLMsg, timestamp)
+			agent.ServeScanEvent(mixedRequest.ScanEvent(), para)
 
 		default: // unknown event type
-			agent.ServeUnknownMsg(w, r, rawXMLMsg, timestamp)
+			agent.ServeUnknownMsg(para)
 		}
 
 	case request.MSG_TYPE_LINK:
-		agent.ServeLinkMsg(w, r, msg.Link(), rawXMLMsg, timestamp)
+		agent.ServeLinkMsg(mixedRequest.Link(), para)
 
 	case request.MSG_TYPE_VOICE:
-		agent.ServeVoiceMsg(w, r, msg.Voice(), rawXMLMsg, timestamp)
+		agent.ServeVoiceMsg(mixedRequest.Voice(), para)
 
 	case request.MSG_TYPE_LOCATION:
-		agent.ServeLocationMsg(w, r, msg.Location(), rawXMLMsg, timestamp)
+		agent.ServeLocationMsg(mixedRequest.Location(), para)
 
 	case request.MSG_TYPE_IMAGE:
-		agent.ServeImageMsg(w, r, msg.Image(), rawXMLMsg, timestamp)
+		agent.ServeImageMsg(mixedRequest.Image(), para)
 
 	case request.MSG_TYPE_VIDEO:
-		agent.ServeVideoMsg(w, r, msg.Video(), rawXMLMsg, timestamp)
+		agent.ServeVideoMsg(mixedRequest.Video(), para)
 
 	default: // unknown message type
-		agent.ServeUnknownMsg(w, r, rawXMLMsg, timestamp)
+		agent.ServeUnknownMsg(para)
 	}
 }
 
 // 兼容模式, 安全模式
 // 消息（事件）分路器, 可以根据实际业务来调整顺序!
-func aesMsgDispatch(w http.ResponseWriter, r *http.Request, msg *request.Request,
-	rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte, agent Agent) {
-
-	switch msg.MsgType {
+func aesMsgDispatch(agent Agent, mixedRequest *request.Request, para *AESRequestParameters) {
+	switch mixedRequest.MsgType {
 	case request.MSG_TYPE_TEXT:
-		agent.ServeAESTextMsg(w, r, msg.Text(), rawXMLMsg, timestamp, nonce, AESKey, random)
+		agent.ServeAESTextMsg(mixedRequest.Text(), para)
 
 	case request.MSG_TYPE_EVENT:
-		switch msg.Event {
+		switch mixedRequest.Event {
 		case request.EVENT_TYPE_LOCATION:
-			agent.ServeAESLocationEvent(w, r, msg.LocationEvent(), rawXMLMsg, timestamp, nonce, AESKey, random)
+			agent.ServeAESLocationEvent(mixedRequest.LocationEvent(), para)
 
 		case request.EVENT_TYPE_CLICK:
-			agent.ServeAESMenuClickEvent(w, r, msg.MenuClickEvent(), rawXMLMsg, timestamp, nonce, AESKey, random)
+			agent.ServeAESMenuClickEvent(mixedRequest.MenuClickEvent(), para)
 
 		case request.EVENT_TYPE_VIEW:
-			agent.ServeAESMenuViewEvent(w, r, msg.MenuViewEvent(), rawXMLMsg, timestamp, nonce, AESKey, random)
+			agent.ServeAESMenuViewEvent(mixedRequest.MenuViewEvent(), para)
 
 		case request.EVENT_TYPE_SCANCODE_PUSH:
-			agent.ServeAESMenuScanCodePushEvent(w, r, msg.MenuScanCodePushEvent(), rawXMLMsg, timestamp, nonce, AESKey, random)
+			agent.ServeAESMenuScanCodePushEvent(mixedRequest.MenuScanCodePushEvent(), para)
 
 		case request.EVENT_TYPE_SCANCODE_WAITMSG:
-			agent.ServeAESMenuScanCodeWaitMsgEvent(w, r, msg.MenuScanCodeWaitMsgEvent(), rawXMLMsg, timestamp, nonce, AESKey, random)
+			agent.ServeAESMenuScanCodeWaitMsgEvent(mixedRequest.MenuScanCodeWaitMsgEvent(), para)
 
 		case request.EVENT_TYPE_PIC_SYSPHOTO:
-			agent.ServeAESMenuPicSysPhotoEvent(w, r, msg.MenuPicSysPhotoEvent(), rawXMLMsg, timestamp, nonce, AESKey, random)
+			agent.ServeAESMenuPicSysPhotoEvent(mixedRequest.MenuPicSysPhotoEvent(), para)
 
 		case request.EVENT_TYPE_PIC_PHOTO_OR_ALBUM:
-			agent.ServeAESMenuPicPhotoOrAlbumEvent(w, r, msg.MenuPicPhotoOrAlbumEvent(), rawXMLMsg, timestamp, nonce, AESKey, random)
+			agent.ServeAESMenuPicPhotoOrAlbumEvent(mixedRequest.MenuPicPhotoOrAlbumEvent(), para)
 
 		case request.EVENT_TYPE_PIC_WEIXIN:
-			agent.ServeAESMenuPicWeixinEvent(w, r, msg.MenuPicWeixinEvent(), rawXMLMsg, timestamp, nonce, AESKey, random)
+			agent.ServeAESMenuPicWeixinEvent(mixedRequest.MenuPicWeixinEvent(), para)
 
 		case request.EVENT_TYPE_LOCATION_SELECT:
-			agent.ServeAESMenuLocationSelectEvent(w, r, msg.MenuLocationSelectEvent(), rawXMLMsg, timestamp, nonce, AESKey, random)
+			agent.ServeAESMenuLocationSelectEvent(mixedRequest.MenuLocationSelectEvent(), para)
 
 		case request.EVENT_TYPE_TEMPLATESENDJOBFINISH:
-			agent.ServeAESTemplateSendJobFinishEvent(w, r, msg.TemplateSendJobFinishEvent(), rawXMLMsg, timestamp, nonce, AESKey, random)
+			agent.ServeAESTemplateSendJobFinishEvent(mixedRequest.TemplateSendJobFinishEvent(), para)
 
 		case request.EVENT_TYPE_MASSSENDJOBFINISH:
-			agent.ServeAESMassSendJobFinishEvent(w, r, msg.MassSendJobFinishEvent(), rawXMLMsg, timestamp, nonce, AESKey, random)
+			agent.ServeAESMassSendJobFinishEvent(mixedRequest.MassSendJobFinishEvent(), para)
 
 		case request.EVENT_TYPE_MERCHANTORDER:
-			agent.ServeAESMerchantOrderEvent(w, r, msg.MerchantOrderEvent(), rawXMLMsg, timestamp, nonce, AESKey, random)
+			agent.ServeAESMerchantOrderEvent(mixedRequest.MerchantOrderEvent(), para)
 
 		case request.EVENT_TYPE_SUBSCRIBE:
-			if msg.Ticket == "" { // 普通订阅
-				agent.ServeAESSubscribeEvent(w, r, msg.SubscribeEvent(), rawXMLMsg, timestamp, nonce, AESKey, random)
+			if mixedRequest.Ticket == "" { // 普通订阅
+				agent.ServeAESSubscribeEvent(mixedRequest.SubscribeEvent(), para)
 			} else { // 扫描二维码订阅
-				agent.ServeAESSubscribeByScanEvent(w, r, msg.SubscribeByScanEvent(), rawXMLMsg, timestamp, nonce, AESKey, random)
+				agent.ServeAESSubscribeByScanEvent(mixedRequest.SubscribeByScanEvent(), para)
 			}
 
 		case request.EVENT_TYPE_UNSUBSCRIBE:
-			agent.ServeAESUnsubscribeEvent(w, r, msg.UnsubscribeEvent(), rawXMLMsg, timestamp, nonce, AESKey, random)
+			agent.ServeAESUnsubscribeEvent(mixedRequest.UnsubscribeEvent(), para)
 
 		case request.EVENT_TYPE_SCAN:
-			agent.ServeAESScanEvent(w, r, msg.ScanEvent(), rawXMLMsg, timestamp, nonce, AESKey, random)
+			agent.ServeAESScanEvent(mixedRequest.ScanEvent(), para)
 
 		default: // unknown event type
-			agent.ServeAESUnknownMsg(w, r, rawXMLMsg, timestamp, nonce, AESKey, random)
+			agent.ServeAESUnknownMsg(para)
 		}
 
 	case request.MSG_TYPE_LINK:
-		agent.ServeAESLinkMsg(w, r, msg.Link(), rawXMLMsg, timestamp, nonce, AESKey, random)
+		agent.ServeAESLinkMsg(mixedRequest.Link(), para)
 
 	case request.MSG_TYPE_VOICE:
-		agent.ServeAESVoiceMsg(w, r, msg.Voice(), rawXMLMsg, timestamp, nonce, AESKey, random)
+		agent.ServeAESVoiceMsg(mixedRequest.Voice(), para)
 
 	case request.MSG_TYPE_LOCATION:
-		agent.ServeAESLocationMsg(w, r, msg.Location(), rawXMLMsg, timestamp, nonce, AESKey, random)
+		agent.ServeAESLocationMsg(mixedRequest.Location(), para)
 
 	case request.MSG_TYPE_IMAGE:
-		agent.ServeAESImageMsg(w, r, msg.Image(), rawXMLMsg, timestamp, nonce, AESKey, random)
+		agent.ServeAESImageMsg(mixedRequest.Image(), para)
 
 	case request.MSG_TYPE_VIDEO:
-		agent.ServeAESVideoMsg(w, r, msg.Video(), rawXMLMsg, timestamp, nonce, AESKey, random)
+		agent.ServeAESVideoMsg(mixedRequest.Video(), para)
 
 	default: // unknown message type
-		agent.ServeAESUnknownMsg(w, r, rawXMLMsg, timestamp, nonce, AESKey, random)
+		agent.ServeAESUnknownMsg(para)
 	}
 }

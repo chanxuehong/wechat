@@ -5,10 +5,6 @@
 
 package pay3
 
-import (
-	"net/http"
-)
-
 var _ Agent = new(DefaultAgent)
 
 type DefaultAgent struct {
@@ -27,9 +23,9 @@ func (this *DefaultAgent) GetAppKey() string {
 	return this.AppKey
 }
 
-func (this *DefaultAgent) ServeUnknownMsg(w http.ResponseWriter, r *http.Request, postRawXMLMsg []byte) {
+func (this *DefaultAgent) ServeUnknownMsg(para *RequestParameters) {
 }
-func (this *DefaultAgent) ServePayPackageRequest(w http.ResponseWriter, r *http.Request, req map[string]string, postRawXMLMsg []byte) {
+func (this *DefaultAgent) ServePayPackageRequest(req map[string]string, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeOrderNotification(w http.ResponseWriter, r *http.Request, data map[string]string, postRawXMLMsg []byte) {
+func (this *DefaultAgent) ServeOrderNotification(data map[string]string, para *RequestParameters) {
 }

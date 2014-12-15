@@ -6,8 +6,6 @@
 package pay2
 
 import (
-	"net/http"
-
 	"github.com/chanxuehong/wechat/mp/pay/feedback"
 	"github.com/chanxuehong/wechat/mp/pay/pay2"
 )
@@ -34,17 +32,17 @@ func (this *DefaultAgent) GetPartnerKey() string {
 	return this.PartnerKey
 }
 
-func (this *DefaultAgent) ServeUnknownMsg(w http.ResponseWriter, r *http.Request, postRawXMLMsg []byte) {
+func (this *DefaultAgent) ServeUnknownMsg(para *RequestParameters) {
 }
-func (this *DefaultAgent) ServePayPackageRequest(w http.ResponseWriter, r *http.Request, req pay2.PayPackageRequest, postRawXMLMsg []byte) {
+func (this *DefaultAgent) ServePayPackageRequest(req pay2.PayPackageRequest, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeOrderNotification(w http.ResponseWriter, r *http.Request, urlData pay2.OrderNotifyURLData, postData pay2.OrderNotifyPostData, postRawXMLMsg []byte) {
+func (this *DefaultAgent) ServeOrderNotification(urlData pay2.OrderNotifyURLData, postData pay2.OrderNotifyPostData, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeAlarmNotification(w http.ResponseWriter, r *http.Request, data pay2.AlarmNotifyPostData, postRawXMLMsg []byte) {
+func (this *DefaultAgent) ServeAlarmNotification(data pay2.AlarmNotifyPostData, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeFeedbackComplaint(w http.ResponseWriter, r *http.Request, req *feedback.Complaint, postRawXMLMsg []byte) {
+func (this *DefaultAgent) ServeFeedbackComplaint(req *feedback.Complaint, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeFeedbackConfirmation(w http.ResponseWriter, r *http.Request, req *feedback.Confirmation, postRawXMLMsg []byte) {
+func (this *DefaultAgent) ServeFeedbackConfirmation(req *feedback.Confirmation, para *RequestParameters) {
 }
-func (this *DefaultAgent) ServeFeedbackRejection(w http.ResponseWriter, r *http.Request, req *feedback.Rejection, postRawXMLMsg []byte) {
+func (this *DefaultAgent) ServeFeedbackRejection(req *feedback.Rejection, para *RequestParameters) {
 }

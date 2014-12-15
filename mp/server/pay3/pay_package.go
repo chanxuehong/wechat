@@ -102,5 +102,10 @@ func ServePayPackageRequestHTTP(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	agent.ServePayPackageRequest(w, r, req, postRawXMLMsg)
+	para := RequestParameters{
+		HTTPResponseWriter: w,
+		HTTPRequest:        r,
+		PostRawXMLMsg:      postRawXMLMsg,
+	}
+	agent.ServePayPackageRequest(req, &para)
 }

@@ -11,6 +11,24 @@ import (
 	"github.com/chanxuehong/wechat/mp/message/passive/request"
 )
 
+type RequestParameters struct {
+	HTTPResponseWriter http.ResponseWriter // 用于回复
+	HTTPRequest        *http.Request       // r 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 r.URL.RawQuery
+	Timestamp          int64               // timestamp 是请求 URL 中的时间戳
+	Nonce              string              // nonce 是请求 URL 中的随机数
+	RawXMLMsg          []byte              // rawXMLMsg 是"明文" xml 消息体
+}
+
+type AESRequestParameters struct {
+	HTTPResponseWriter http.ResponseWriter // 用于回复
+	HTTPRequest        *http.Request       // r 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 r.URL.RawQuery
+	Timestamp          int64               // timestamp 是请求 URL 中的时间戳
+	Nonce              string              // nonce 是请求 URL 中的随机数
+	RawXMLMsg          []byte              // rawXMLMsg 是"明文" xml 消息体
+	AESKey             [32]byte            // AES 加密的 key
+	Random             []byte              // random 是请求 http body 中的密文消息加密时所用的 random, 16 bytes
+}
+
 // 公众号对外暴露的接口
 type Agent interface {
 	GetId() string    // 获取公众号的原始ID, 等于后台中的 公众号设置-->帐号详情-->原始ID
@@ -25,96 +43,65 @@ type Agent interface {
 
 	// 明文模式 需要实现的方法
 	// 未知类型的消息处理方法
-	//  rawXMLMsg 是 xml 消息体
-	//  timestamp 是请求 URL 中的时间戳
-	//  r *http.Request 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 r.URL.RawQuery
-	ServeUnknownMsg(w http.ResponseWriter, r *http.Request, rawXMLMsg []byte, timestamp int64)
+	ServeUnknownMsg(para *RequestParameters)
 
 	// 明文模式 需要实现的方法
 	// 消息处理函数
-	//  msg 是成功解析的消息结构体
-	//  rawXMLMsg 是 msg 的 xml 消息体
-	//  timestamp 是请求 URL 中的时间戳
-	//  r *http.Request 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 r.URL.RawQuery
-	ServeTextMsg(w http.ResponseWriter, r *http.Request, msg *request.Text, rawXMLMsg []byte, timestamp int64)
-	ServeImageMsg(w http.ResponseWriter, r *http.Request, msg *request.Image, rawXMLMsg []byte, timestamp int64)
-	ServeVoiceMsg(w http.ResponseWriter, r *http.Request, msg *request.Voice, rawXMLMsg []byte, timestamp int64)
-	ServeVideoMsg(w http.ResponseWriter, r *http.Request, msg *request.Video, rawXMLMsg []byte, timestamp int64)
-	ServeLocationMsg(w http.ResponseWriter, r *http.Request, msg *request.Location, rawXMLMsg []byte, timestamp int64)
-	ServeLinkMsg(w http.ResponseWriter, r *http.Request, msg *request.Link, rawXMLMsg []byte, timestamp int64)
+	ServeTextMsg(msg *request.Text, para *RequestParameters)
+	ServeImageMsg(msg *request.Image, para *RequestParameters)
+	ServeVoiceMsg(msg *request.Voice, para *RequestParameters)
+	ServeVideoMsg(msg *request.Video, para *RequestParameters)
+	ServeLocationMsg(msg *request.Location, para *RequestParameters)
+	ServeLinkMsg(msg *request.Link, para *RequestParameters)
 
 	// 明文模式 需要实现的方法
 	// 事件处理函数
-	//  event 是成功解析的消息结构体
-	//  rawXMLMsg 是 event 的 xml 消息体
-	//  timestamp 是请求 URL 中的时间戳
-	//  r *http.Request 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 r.URL.RawQuery
-	ServeSubscribeEvent(w http.ResponseWriter, r *http.Request, event *request.SubscribeEvent, rawXMLMsg []byte, timestamp int64)
-	ServeUnsubscribeEvent(w http.ResponseWriter, r *http.Request, event *request.UnsubscribeEvent, rawXMLMsg []byte, timestamp int64)
-	ServeSubscribeByScanEvent(w http.ResponseWriter, r *http.Request, event *request.SubscribeByScanEvent, rawXMLMsg []byte, timestamp int64)
-	ServeScanEvent(w http.ResponseWriter, r *http.Request, event *request.ScanEvent, rawXMLMsg []byte, timestamp int64)
-	ServeLocationEvent(w http.ResponseWriter, r *http.Request, event *request.LocationEvent, rawXMLMsg []byte, timestamp int64)
-	ServeMenuClickEvent(w http.ResponseWriter, r *http.Request, event *request.MenuClickEvent, rawXMLMsg []byte, timestamp int64)
-	ServeMenuViewEvent(w http.ResponseWriter, r *http.Request, event *request.MenuViewEvent, rawXMLMsg []byte, timestamp int64)
-	ServeMenuScanCodePushEvent(w http.ResponseWriter, r *http.Request, event *request.MenuScanCodePushEvent, rawXMLMsg []byte, timestamp int64)
-	ServeMenuScanCodeWaitMsgEvent(w http.ResponseWriter, r *http.Request, event *request.MenuScanCodeWaitMsgEvent, rawXMLMsg []byte, timestamp int64)
-	ServeMenuPicSysPhotoEvent(w http.ResponseWriter, r *http.Request, event *request.MenuPicSysPhotoEvent, rawXMLMsg []byte, timestamp int64)
-	ServeMenuPicPhotoOrAlbumEvent(w http.ResponseWriter, r *http.Request, event *request.MenuPicPhotoOrAlbumEvent, rawXMLMsg []byte, timestamp int64)
-	ServeMenuPicWeixinEvent(w http.ResponseWriter, r *http.Request, event *request.MenuPicWeixinEvent, rawXMLMsg []byte, timestamp int64)
-	ServeMenuLocationSelectEvent(w http.ResponseWriter, r *http.Request, event *request.MenuLocationSelectEvent, rawXMLMsg []byte, timestamp int64)
-	ServeMassSendJobFinishEvent(w http.ResponseWriter, r *http.Request, event *request.MassSendJobFinishEvent, rawXMLMsg []byte, timestamp int64)
-	ServeTemplateSendJobFinishEvent(w http.ResponseWriter, r *http.Request, event *request.TemplateSendJobFinishEvent, rawXMLMsg []byte, timestamp int64)
-	ServeMerchantOrderEvent(w http.ResponseWriter, r *http.Request, event *request.MerchantOrderEvent, rawXMLMsg []byte, timestamp int64)
+	ServeSubscribeEvent(event *request.SubscribeEvent, para *RequestParameters)
+	ServeUnsubscribeEvent(event *request.UnsubscribeEvent, para *RequestParameters)
+	ServeSubscribeByScanEvent(event *request.SubscribeByScanEvent, para *RequestParameters)
+	ServeScanEvent(event *request.ScanEvent, para *RequestParameters)
+	ServeLocationEvent(event *request.LocationEvent, para *RequestParameters)
+	ServeMenuClickEvent(event *request.MenuClickEvent, para *RequestParameters)
+	ServeMenuViewEvent(event *request.MenuViewEvent, para *RequestParameters)
+	ServeMenuScanCodePushEvent(event *request.MenuScanCodePushEvent, para *RequestParameters)
+	ServeMenuScanCodeWaitMsgEvent(event *request.MenuScanCodeWaitMsgEvent, para *RequestParameters)
+	ServeMenuPicSysPhotoEvent(event *request.MenuPicSysPhotoEvent, para *RequestParameters)
+	ServeMenuPicPhotoOrAlbumEvent(event *request.MenuPicPhotoOrAlbumEvent, para *RequestParameters)
+	ServeMenuPicWeixinEvent(event *request.MenuPicWeixinEvent, para *RequestParameters)
+	ServeMenuLocationSelectEvent(event *request.MenuLocationSelectEvent, para *RequestParameters)
+	ServeMassSendJobFinishEvent(event *request.MassSendJobFinishEvent, para *RequestParameters)
+	ServeTemplateSendJobFinishEvent(event *request.TemplateSendJobFinishEvent, para *RequestParameters)
+	ServeMerchantOrderEvent(event *request.MerchantOrderEvent, para *RequestParameters)
 
 	// 兼容模式, 安全模式 需要实现的方法
 	// 未知类型的消息处理方法
-	//  rawXMLMsg   是解密后的"明文" xml 消息体
-	//  timestamp   是请求 URL 中的时间戳
-	//  nonce       是请求 URL 中的随机数
-	//  AESKey      是微信"当前"消息加密所用的 AES key
-	//  random      是请求 http body 中的密文消息加密时所用的 random, 16 bytes
-	//  r *http.Request 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 r.URL.RawQuery
-	ServeAESUnknownMsg(w http.ResponseWriter, r *http.Request, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
+	ServeAESUnknownMsg(para *AESRequestParameters)
 
 	// 兼容模式, 安全模式 需要实现的方法
 	// 消息处理函数
-	//  msg 是成功解析的消息结构体
-	//  rawXMLMsg   是解密后的"明文" xml 消息体
-	//  timestamp   是请求 URL 中的时间戳
-	//  nonce       是请求 URL 中的随机数
-	//  AESKey      是微信"当前"消息加密所用的 AES key
-	//  random      是请求 http body 中的密文消息加密时所用的 random, 16 bytes
-	//  r *http.Request 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 r.URL.RawQuery
-	ServeAESTextMsg(w http.ResponseWriter, r *http.Request, msg *request.Text, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESImageMsg(w http.ResponseWriter, r *http.Request, msg *request.Image, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESVoiceMsg(w http.ResponseWriter, r *http.Request, msg *request.Voice, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESVideoMsg(w http.ResponseWriter, r *http.Request, msg *request.Video, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESLocationMsg(w http.ResponseWriter, r *http.Request, msg *request.Location, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESLinkMsg(w http.ResponseWriter, r *http.Request, msg *request.Link, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
+	ServeAESTextMsg(msg *request.Text, para *AESRequestParameters)
+	ServeAESImageMsg(msg *request.Image, para *AESRequestParameters)
+	ServeAESVoiceMsg(msg *request.Voice, para *AESRequestParameters)
+	ServeAESVideoMsg(msg *request.Video, para *AESRequestParameters)
+	ServeAESLocationMsg(msg *request.Location, para *AESRequestParameters)
+	ServeAESLinkMsg(msg *request.Link, para *AESRequestParameters)
 
 	// 兼容模式, 安全模式 需要实现的方法
 	// 事件处理函数
-	//  event 是成功解析的消息结构体
-	//  rawXMLMsg   是解密后的"明文" xml 消息体
-	//  timestamp   是请求 URL 中的时间戳
-	//  nonce       是请求 URL 中的随机数
-	//  AESKey      是微信"当前"消息加密所用的 AES key
-	//  random      是请求 http body 中的密文消息加密时所用的 random, 16 bytes
-	//  r *http.Request 的 Body 已经读取过了, 不要再读取了, 但是可以获取其他信息, 比如 r.URL.RawQuery
-	ServeAESSubscribeEvent(w http.ResponseWriter, r *http.Request, event *request.SubscribeEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESUnsubscribeEvent(w http.ResponseWriter, r *http.Request, event *request.UnsubscribeEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESSubscribeByScanEvent(w http.ResponseWriter, r *http.Request, event *request.SubscribeByScanEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESScanEvent(w http.ResponseWriter, r *http.Request, event *request.ScanEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESLocationEvent(w http.ResponseWriter, r *http.Request, event *request.LocationEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESMenuClickEvent(w http.ResponseWriter, r *http.Request, event *request.MenuClickEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESMenuViewEvent(w http.ResponseWriter, r *http.Request, event *request.MenuViewEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESMenuScanCodePushEvent(w http.ResponseWriter, r *http.Request, event *request.MenuScanCodePushEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESMenuScanCodeWaitMsgEvent(w http.ResponseWriter, r *http.Request, event *request.MenuScanCodeWaitMsgEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESMenuPicSysPhotoEvent(w http.ResponseWriter, r *http.Request, event *request.MenuPicSysPhotoEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESMenuPicPhotoOrAlbumEvent(w http.ResponseWriter, r *http.Request, event *request.MenuPicPhotoOrAlbumEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESMenuPicWeixinEvent(w http.ResponseWriter, r *http.Request, event *request.MenuPicWeixinEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESMenuLocationSelectEvent(w http.ResponseWriter, r *http.Request, event *request.MenuLocationSelectEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESMassSendJobFinishEvent(w http.ResponseWriter, r *http.Request, event *request.MassSendJobFinishEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESTemplateSendJobFinishEvent(w http.ResponseWriter, r *http.Request, event *request.TemplateSendJobFinishEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
-	ServeAESMerchantOrderEvent(w http.ResponseWriter, r *http.Request, event *request.MerchantOrderEvent, rawXMLMsg []byte, timestamp int64, nonce string, AESKey [32]byte, random []byte)
+	ServeAESSubscribeEvent(event *request.SubscribeEvent, para *AESRequestParameters)
+	ServeAESUnsubscribeEvent(event *request.UnsubscribeEvent, para *AESRequestParameters)
+	ServeAESSubscribeByScanEvent(event *request.SubscribeByScanEvent, para *AESRequestParameters)
+	ServeAESScanEvent(event *request.ScanEvent, para *AESRequestParameters)
+	ServeAESLocationEvent(event *request.LocationEvent, para *AESRequestParameters)
+	ServeAESMenuClickEvent(event *request.MenuClickEvent, para *AESRequestParameters)
+	ServeAESMenuViewEvent(event *request.MenuViewEvent, para *AESRequestParameters)
+	ServeAESMenuScanCodePushEvent(event *request.MenuScanCodePushEvent, para *AESRequestParameters)
+	ServeAESMenuScanCodeWaitMsgEvent(event *request.MenuScanCodeWaitMsgEvent, para *AESRequestParameters)
+	ServeAESMenuPicSysPhotoEvent(event *request.MenuPicSysPhotoEvent, para *AESRequestParameters)
+	ServeAESMenuPicPhotoOrAlbumEvent(event *request.MenuPicPhotoOrAlbumEvent, para *AESRequestParameters)
+	ServeAESMenuPicWeixinEvent(event *request.MenuPicWeixinEvent, para *AESRequestParameters)
+	ServeAESMenuLocationSelectEvent(event *request.MenuLocationSelectEvent, para *AESRequestParameters)
+	ServeAESMassSendJobFinishEvent(event *request.MassSendJobFinishEvent, para *AESRequestParameters)
+	ServeAESTemplateSendJobFinishEvent(event *request.TemplateSendJobFinishEvent, para *AESRequestParameters)
+	ServeAESMerchantOrderEvent(event *request.MerchantOrderEvent, para *AESRequestParameters)
 }

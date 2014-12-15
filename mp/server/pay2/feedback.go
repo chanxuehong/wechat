@@ -88,17 +88,23 @@ func ServeFeedbackHTTP(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
+	para := RequestParameters{
+		HTTPResponseWriter: w,
+		HTTPRequest:        r,
+		PostRawXMLMsg:      postRawXMLMsg,
+	}
+
 	switch mixedReq.MsgType {
 	case feedback.MSG_TYPE_COMPLAIN:
-		agent.ServeFeedbackComplaint(w, r, mixedReq.GetComplaint(), postRawXMLMsg)
+		agent.ServeFeedbackComplaint(mixedReq.GetComplaint(), &para)
 
 	case feedback.MSG_TYPE_CONFIRM:
-		agent.ServeFeedbackConfirmation(w, r, mixedReq.GetConfirmation(), postRawXMLMsg)
+		agent.ServeFeedbackConfirmation(mixedReq.GetConfirmation(), &para)
 
 	case feedback.MSG_TYPE_REJECT:
-		agent.ServeFeedbackRejection(w, r, mixedReq.GetRejection(), postRawXMLMsg)
+		agent.ServeFeedbackRejection(mixedReq.GetRejection(), &para)
 
 	default:
-		agent.ServeUnknownMsg(w, r, postRawXMLMsg)
+		agent.ServeUnknownMsg(&para)
 	}
 }

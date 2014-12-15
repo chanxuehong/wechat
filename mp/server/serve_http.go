@@ -117,19 +117,28 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request,
 				}
 			}
 
-			var msgReq request.Request
-			if err = xml.Unmarshal(rawXMLMsg, &msgReq); err != nil {
+			var mixedReq request.Request
+			if err = xml.Unmarshal(rawXMLMsg, &mixedReq); err != nil {
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
 
-			if haveToUserName != msgReq.ToUserName {
-				err = fmt.Errorf("the RequestHttpBody's ToUserName(==%s) mismatch the Request's ToUserName(==%s)", haveToUserName, msgReq.ToUserName)
+			if haveToUserName != mixedReq.ToUserName {
+				err = fmt.Errorf("the RequestHttpBody's ToUserName(==%s) mismatch the Request's ToUserName(==%s)", haveToUserName, mixedReq.ToUserName)
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
 
-			aesMsgDispatch(w, r, &msgReq, rawXMLMsg, timestamp, nonce, AESKey, random, agent)
+			para := AESRequestParameters{
+				HTTPResponseWriter: w,
+				HTTPRequest:        r,
+				Timestamp:          timestamp,
+				Nonce:              nonce,
+				RawXMLMsg:          rawXMLMsg,
+				AESKey:             AESKey,
+				Random:             random,
+			}
+			aesMsgDispatch(agent, &mixedReq, &para)
 
 		case "", "raw": // 明文模式
 			if len(signature1) != 40 {
@@ -151,25 +160,32 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request,
 				return
 			}
 
-			var msgReq request.Request
-			if err = xml.Unmarshal(rawXMLMsg, &msgReq); err != nil {
+			var mixedReq request.Request
+			if err = xml.Unmarshal(rawXMLMsg, &mixedReq); err != nil {
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
 
 			wantToUserName := agent.GetId()
-			if len(msgReq.ToUserName) != len(wantToUserName) {
-				err = fmt.Errorf("the message Request's ToUserName mismatch, have: %s, want: %s", msgReq.ToUserName, wantToUserName)
+			if len(mixedReq.ToUserName) != len(wantToUserName) {
+				err = fmt.Errorf("the message Request's ToUserName mismatch, have: %s, want: %s", mixedReq.ToUserName, wantToUserName)
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
-			if subtle.ConstantTimeCompare([]byte(msgReq.ToUserName), []byte(wantToUserName)) != 1 {
-				err = fmt.Errorf("the message Request's ToUserName mismatch, have: %s, want: %s", msgReq.ToUserName, wantToUserName)
+			if subtle.ConstantTimeCompare([]byte(mixedReq.ToUserName), []byte(wantToUserName)) != 1 {
+				err = fmt.Errorf("the message Request's ToUserName mismatch, have: %s, want: %s", mixedReq.ToUserName, wantToUserName)
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
 
-			rawMsgDispatch(w, r, &msgReq, rawXMLMsg, timestamp, agent)
+			para := RequestParameters{
+				HTTPResponseWriter: w,
+				HTTPRequest:        r,
+				Timestamp:          timestamp,
+				Nonce:              nonce,
+				RawXMLMsg:          rawXMLMsg,
+			}
+			rawMsgDispatch(agent, &mixedReq, &para)
 
 		default: // 未知的加密类型
 			invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("unknown encrypt_type"))
