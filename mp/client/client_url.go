@@ -173,6 +173,30 @@ func customServiceOnlineKFListURL(accesstoken string) string {
 		accesstoken
 }
 
+// https://api.weixin.qq.com/customservice/kfaccount/add?access_token=ACCESS_TOKEN
+func customServiceKFAccountAddURL(accesstoken string) string {
+	return "https://api.weixin.qq.com/customservice/kfaccount/add?access_token=" +
+		accesstoken
+}
+
+// https://api.weixin.qq.com/customservice/kfaccount/update?access_token=ACCESS_TOKEN
+func customServiceKFAccountSetURL(accesstoken string) string {
+	return "https://api.weixin.qq.com/customservice/kfaccount/update?access_token=" +
+		accesstoken
+}
+
+// http://api.weixin.qq.com/customservice/kfacount/uploadheadimg?access_token=ACCESS_TOKEN&kf_account=KFACCOUNT
+func customServiceKFAccountUploadHeadImgURL(accesstoken, kfAccount string) string {
+	return "http://api.weixin.qq.com/customservice/kfacount/uploadheadimg?access_token=" +
+		accesstoken + "&kf_account=" + url.QueryEscape(kfAccount)
+}
+
+// https://api.weixin.qq.com/customservice/kfaccount/del?access_token=ACCESS_TOKEN&kf_account=KFACCOUNT
+func customServiceKFAccountDeleteURL(accesstoken, kfAccount string) string {
+	return "https://api.weixin.qq.com/customservice/kfaccount/del?access_token=" +
+		accesstoken + "&kf_account=" + url.QueryEscape(kfAccount)
+}
+
 // https://api.weixin.qq.com/cgi-bin/shorturl?access_token=ACCESS_TOKEN
 func shortURLURL(accesstoken string) string {
 	return "https://api.weixin.qq.com/cgi-bin/shorturl?access_token=" +
