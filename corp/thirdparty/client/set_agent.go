@@ -62,7 +62,7 @@ RETRY:
 	switch result.ErrCode {
 	case errCodeOK:
 		return
-	case errCodeInvalidCredential, errCodeTimeout:
+	case errCodeExpired:
 		if !hasRetry {
 			hasRetry = true
 

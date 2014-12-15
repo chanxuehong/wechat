@@ -47,7 +47,7 @@ RETRY:
 	case errCodeOK:
 		info = &result.AuthInfo
 		return
-	case errCodeInvalidCredential, errCodeTimeout:
+	case errCodeExpired:
 		if !hasRetry {
 			hasRetry = true
 

@@ -43,7 +43,7 @@ RETRY:
 	case errCodeOK:
 		code = &result.PreAuthCode
 		return
-	case errCodeInvalidCredential, errCodeTimeout:
+	case errCodeExpired:
 		if !hasRetry {
 			hasRetry = true
 

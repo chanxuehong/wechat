@@ -16,9 +16,8 @@ import (
 )
 
 const (
-	errCodeOK                = 0
-	errCodeInvalidCredential = 40001 // access_token 过期（无效）返回这个错误
-	errCodeTimeout           = 42001 // access_token 过期（无效）返回这个错误（maybe!!!）
+	errCodeOK      = 0
+	errCodeExpired = 42009 // suite_token expired 过期（无效）返回这个错误
 )
 
 // 查看 TokenService.Token 是否有更新, 如果更新了返回新的 token, 否则返回错误.

@@ -44,7 +44,7 @@ RETRY:
 	case errCodeOK:
 		resp = &result.GetPermanentCodeResponse
 		return
-	case errCodeInvalidCredential, errCodeTimeout:
+	case errCodeExpired:
 		if !hasRetry {
 			hasRetry = true
 

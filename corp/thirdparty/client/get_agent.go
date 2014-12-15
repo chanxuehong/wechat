@@ -69,7 +69,7 @@ RETRY:
 	case errCodeOK:
 		info = &result.AgentInfo
 		return
-	case errCodeInvalidCredential, errCodeTimeout:
+	case errCodeExpired:
 		if !hasRetry {
 			hasRetry = true
 

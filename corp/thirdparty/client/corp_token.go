@@ -55,7 +55,7 @@ RETRY:
 	case errCodeOK:
 		tk = result.CorpAccessToken.AccessToken
 		return
-	case errCodeInvalidCredential, errCodeTimeout:
+	case errCodeExpired:
 		if !hasRetry {
 			hasRetry = true
 
