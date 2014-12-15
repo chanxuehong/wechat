@@ -25,12 +25,14 @@ MultiAgentFrontend 是并发安全的，可以动态增加（删除）Agent，�
 package main
 
 import (
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/chanxuehong/wechat/mp/message/passive/request"
 	"github.com/chanxuehong/wechat/mp/message/passive/response"
 	"github.com/chanxuehong/wechat/mp/server"
 	"github.com/chanxuehong/wechat/util"
-	"log"
-	"net/http"
 )
 
 // 实现 server.Agent
@@ -39,18 +41,35 @@ type CustomAgent struct {
 }
 
 // 文本消息处理函数
-func (this *CustomAgent) ServeTextMsg(w http.ResponseWriter, r *http.Request,
-	msg *request.Text, rawXMLMsg []byte, timestamp int64) {
+func (this *CustomAgent) ServeTextMsg(msg *request.Text, para *server.RequestParameters) {
+	// TODO: 把用户发送过来的文本原样回复过去
 
-	// TODO: 示例代码, 把用户发送过来的文本原样回复过去
+	para.HTTPResponseWriter.Header().Set("Content-Type", "text/xml; charset=utf-8") // 可选
 
-	w.Header().Set("Content-Type", "application/xml; charset=utf-8") // 可选
+	// NOTE: 时间戳也可以用传入的参数 para.Timestamp 或者 msg.CreateTime
+	// resp := response.NewText(msg.FromUserName, msg.ToUserName, msg.Content, msg.CreateTime)
+	resp := response.NewText(msg.FromUserName, msg.ToUserName, msg.Content, time.Now().Unix())
 
-	// NOTE: 时间戳也可以用传入的参数 timestamp, 即微信服务器请求 URL 中的 timestamp,
-	//       也可以自己生成: time.Now().Unix()
-	resp := response.NewText(msg.FromUserName, msg.ToUserName, msg.Content, timestamp)
+	if err := server.WriteText(para.HTTPResponseWriter, resp); err != nil {
+		// TODO: 错误处理代码
+	}
+}
 
-	if err := server.WriteText(w, resp); err != nil {
+// AES文本消息处理函数
+func (this *CustomAgent) ServeAESTextMsg(msg *request.Text, para *server.AESRequestParameters) {
+	// TODO: 把用户发送过来的文本原样回复过去
+
+	para.HTTPResponseWriter.Header().Set("Content-Type", "text/xml; charset=utf-8") // 可选
+
+	// NOTE: 时间戳也可以用传入的参数 para.Timestamp 或者 msg.CreateTime
+	// resp := response.NewText(msg.FromUserName, msg.ToUserName, msg.Content, msg.CreateTime)
+	resp := response.NewText(msg.FromUserName, msg.ToUserName, msg.Content, time.Now().Unix())
+
+	// para.Timestamp, para.Nonce, para.Random 都可以重新设置
+	// para.Timestamp = xxx
+	// para.Nonce = xxx
+	// para.Random = xxx
+	if err := server.WriteAESText(resp, para, this.GetAppId(), this.GetToken()); err != nil {
 		// TODO: 错误处理代码
 	}
 }
