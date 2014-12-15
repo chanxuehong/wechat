@@ -8,6 +8,7 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -18,17 +19,40 @@ import (
 
 // 上传客服头像
 func (c *Client) CustomServiceKFAccountUploadHeadImage(kfAccount, imagePath string) (err error) {
+	if kfAccount == "" {
+		err = errors.New(`kfAccount == ""`)
+		return
+	}
+
 	file, err := os.Open(imagePath)
 	if err != nil {
 		return
 	}
 	defer file.Close()
 
-	return c.CustomServiceKFAccountUploadHeadImageFromReader(kfAccount, filepath.Base(imagePath), file)
+	return c.customServiceKFAccountUploadHeadImageFromReader(kfAccount, filepath.Base(imagePath), file)
 }
 
 // 上传客服头像
+//  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data filename 的值
 func (c *Client) CustomServiceKFAccountUploadHeadImageFromReader(kfAccount, filename string, reader io.Reader) (err error) {
+	if kfAccount == "" {
+		err = errors.New(`kfAccount == ""`)
+		return
+	}
+	if filename == "" {
+		err = errors.New(`filename == ""`)
+		return
+	}
+	if reader == nil {
+		err = errors.New("reader == nil")
+		return
+	}
+
+	return c.customServiceKFAccountUploadHeadImageFromReader(kfAccount, filename, reader)
+}
+
+func (c *Client) customServiceKFAccountUploadHeadImageFromReader(kfAccount, filename string, reader io.Reader) (err error) {
 	filename = escapeQuotes(filename)
 
 	switch v := reader.(type) {
