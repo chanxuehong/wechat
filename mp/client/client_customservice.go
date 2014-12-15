@@ -6,6 +6,8 @@
 package client
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"errors"
 
 	"github.com/chanxuehong/wechat/mp/customservice"
@@ -119,8 +121,7 @@ func (c *Client) CustomServiceKFList() (kfList []customservice.KFInfo, err error
 		Error
 		KFList []customservice.KFInfo `json:"kf_list"`
 	}
-	// 预分配一定的容量
-	result.KFList = make([]customservice.KFInfo, 0, 16)
+	result.KFList = make([]customservice.KFInfo, 0, 16) // 预分配一定的容量
 
 	token, err := c.Token()
 	if err != nil {
@@ -161,8 +162,7 @@ func (c *Client) CustomServiceOnlineKFList() (kfList []customservice.OnlineKFInf
 		Error
 		KFList []customservice.OnlineKFInfo `json:"kf_online_list"`
 	}
-	// 预分配一定的容量
-	result.KFList = make([]customservice.OnlineKFInfo, 0, 16)
+	result.KFList = make([]customservice.OnlineKFInfo, 0, 16) // 预分配一定的容量
 
 	token, err := c.Token()
 	if err != nil {
@@ -193,6 +193,146 @@ RETRY:
 		fallthrough
 	default:
 		err = &result.Error
+		return
+	}
+}
+
+// 添加客服账号
+//  isPwdPlain: 标识 password 是否为明文格式
+func (c *Client) CustomServiceKFAccountAdd(account, nickname, password string, isPwdPlain bool) (err error) {
+	if isPwdPlain {
+		md5Sum := md5.Sum([]byte(password))
+		password = hex.EncodeToString(md5Sum[:])
+	}
+
+	request := struct {
+		Account  string `json:"kf_account"`
+		Nickname string `json:"nickname"`
+		Password string `json:"password"`
+	}{
+		Account:  account,
+		Nickname: nickname,
+		Password: password,
+	}
+
+	var result Error
+
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+
+	hasRetry := false
+RETRY:
+	url_ := customServiceKFAccountAddURL(token)
+
+	if err = c.postJSON(url_, &request, &result); err != nil {
+		return
+	}
+
+	switch result.ErrCode {
+	case errCodeOK:
+		return
+	case errCodeInvalidCredential, errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
+			goto RETRY
+		}
+		fallthrough
+	default:
+		err = &result
+		return
+	}
+}
+
+// 设置客服信息
+//  isPwdPlain: 标识 password 是否为明文格式
+func (c *Client) CustomServiceKFAccountSet(account, nickname, password string, isPwdPlain bool) (err error) {
+	if isPwdPlain {
+		md5Sum := md5.Sum([]byte(password))
+		password = hex.EncodeToString(md5Sum[:])
+	}
+
+	request := struct {
+		Account  string `json:"kf_account"`
+		Nickname string `json:"nickname"`
+		Password string `json:"password"`
+	}{
+		Account:  account,
+		Nickname: nickname,
+		Password: password,
+	}
+
+	var result Error
+
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+
+	hasRetry := false
+RETRY:
+	url_ := customServiceKFAccountSetURL(token)
+
+	if err = c.postJSON(url_, &request, &result); err != nil {
+		return
+	}
+
+	switch result.ErrCode {
+	case errCodeOK:
+		return
+	case errCodeInvalidCredential, errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
+			goto RETRY
+		}
+		fallthrough
+	default:
+		err = &result
+		return
+	}
+}
+
+// 删除客服账号
+func (c *Client) CustomServiceKFAccountDelete(account string) (err error) {
+	var result Error
+
+	token, err := c.Token()
+	if err != nil {
+		return
+	}
+
+	hasRetry := false
+RETRY:
+	url_ := customServiceKFAccountDeleteURL(token, account)
+
+	if err = c.getJSON(url_, &result); err != nil {
+		return
+	}
+
+	switch result.ErrCode {
+	case errCodeOK:
+		return
+	case errCodeInvalidCredential, errCodeTimeout:
+		if !hasRetry {
+			hasRetry = true
+
+			if token, err = getNewToken(c.tokenService, token); err != nil {
+				return
+			}
+			goto RETRY
+		}
+		fallthrough
+	default:
+		err = &result
 		return
 	}
 }

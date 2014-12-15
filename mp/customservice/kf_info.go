@@ -5,11 +5,56 @@
 
 package customservice
 
+import (
+	"errors"
+	"fmt"
+	"strconv"
+	"strings"
+)
+
 // 客服基本信息
 type KFInfo struct {
-	Id       string `json:"kf_id"`      // 客服工号
-	Account  string `json:"kf_account"` // 客服账号@微信别名; 微信别名如有修改，旧账号返回旧的微信别名，新增的账号返回新的微信别名
-	Nickname string `json:"kf_nick"`    // 客服昵称
+	Id           string `json:"kf_id"`      // 客服工号
+	Account      string `json:"kf_account"` // 客服账号@微信别名; 微信别名如有修改，旧账号返回旧的微信别名，新增的账号返回新的微信别名
+	Nickname     string `json:"kf_nick"`    // 客服昵称
+	HeadImageURL string `json:"kf_headimg"`
+}
+
+var ErrNoHeadImage = errors.New("没有图像")
+
+// 获取用户图像的大小, 如果用户没有图像则返回 ErrNoHeadImage 错误.
+func (this *KFInfo) HeadImageSize() (size int, err error) {
+	HeadImageURL := this.HeadImageURL
+	if HeadImageURL == "" {
+		err = ErrNoHeadImage
+		return
+	}
+
+	lastSlashIndex := strings.LastIndex(HeadImageURL, "/")
+	if lastSlashIndex == -1 {
+		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
+		return
+	}
+	HeadImageIndex := lastSlashIndex + 1
+	if HeadImageIndex == len(HeadImageURL) {
+		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
+		return
+	}
+
+	sizeStr := HeadImageURL[HeadImageIndex:]
+
+	size64, err := strconv.ParseUint(sizeStr, 10, 8)
+	if err != nil {
+		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
+		return
+	}
+
+	if size64 == 0 {
+		size64 = 640
+	}
+
+	size = int(size64)
+	return
 }
 
 // 在线客服接待信息

@@ -3,12 +3,11 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package merchant
+package client
 
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,77 +16,36 @@ import (
 	"strings"
 )
 
-const (
-	multipart_boundary    = "--------wvm6LNx=y4rEq?BUD(k_:0Pj2V.M'J)t957K-Sh/Q1ZA+ceWFunTRdfGaXgY"
-	multipart_ContentType = "multipart/form-data; boundary=" + multipart_boundary
-
-	// ----------wvm6LNx=y4rEq?BUD(k_:0Pj2V.M'J)t957K-Sh/Q1ZA+ceWFunTRdfGaXgY
-	// Content-Disposition: form-data; name="file"; filename="filename"
-	// Content-Type: application/octet-stream
-	//
-	// mediaReader
-	// ----------wvm6LNx=y4rEq?BUD(k_:0Pj2V.M'J)t957K-Sh/Q1ZA+ceWFunTRdfGaXgY--
-	//
-	multipart_formDataFront = "--" + multipart_boundary +
-		"\r\nContent-Disposition: form-data; name=\"file\"; filename=\""
-	multipart_formDataMiddle = "\"\r\nContent-Type: application/octet-stream\r\n\r\n"
-	multipart_formDataEnd    = "\r\n--" + multipart_boundary + "--\r\n"
-
-	multipart_constPartLen = len(multipart_formDataFront) +
-		len(multipart_formDataMiddle) + len(multipart_formDataEnd)
-)
-
-// copy from mime/multipart/writer.go
-var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
-
-// copy from mime/multipart/writer.go
-func escapeQuotes(s string) string {
-	return quoteEscaper.Replace(s)
-}
-
-// 上传图片
-func (c *Client) MerchantUploadImage(filepath_ string) (imageURL string, err error) {
-	file, err := os.Open(filepath_)
+// 上传客服头像
+func (c *Client) CustomServiceKFAccountUploadHeadImage(kfAccount, imagePath string) (err error) {
+	file, err := os.Open(imagePath)
 	if err != nil {
 		return
 	}
 	defer file.Close()
 
-	return c.merchantUploadImageFromReader(filepath.Base(filepath_), file)
+	return c.CustomServiceKFAccountUploadHeadImageFromReader(kfAccount, filepath.Base(imagePath), file)
 }
 
-// 上传图片
-//  NOTE: 参数 filename 不是文件路径, 是指定 multipart form 里面文件名称
-func (c *Client) MerchantUploadImageFromReader(filename string, imageReader io.Reader) (imageURL string, err error) {
-	if filename == "" {
-		err = errors.New(`filename == ""`)
-		return
-	}
-	if imageReader == nil {
-		err = errors.New("imageReader == nil")
-		return
-	}
+// 上传客服头像
+func (c *Client) CustomServiceKFAccountUploadHeadImageFromReader(kfAccount, filename string, reader io.Reader) (err error) {
+	filename = escapeQuotes(filename)
 
-	return c.merchantUploadImageFromReader(filename, imageReader)
-}
-
-// 上传图片
-func (c *Client) merchantUploadImageFromReader(filename string, reader io.Reader) (imageURL string, err error) {
 	switch v := reader.(type) {
 	case *os.File:
-		return c.merchantUploadImageFromOSFile(filename, v)
+		return c.customServiceKFAccountUploadHeadImageFromOSFile(kfAccount, filename, v)
 	case *bytes.Buffer:
-		return c.merchantUploadImageFromBytesBuffer(filename, v)
+		return c.customServiceKFAccountUploadHeadImageFromBytesBuffer(kfAccount, filename, v)
 	case *bytes.Reader:
-		return c.merchantUploadImageFromBytesReader(filename, v)
+		return c.customServiceKFAccountUploadHeadImageFromBytesReader(kfAccount, filename, v)
 	case *strings.Reader:
-		return c.merchantUploadImageFromStringsReader(filename, v)
+		return c.customServiceKFAccountUploadHeadImageFromStringsReader(kfAccount, filename, v)
 	default:
-		return c.merchantUploadImageFromIOReader(filename, v)
+		return c.customServiceKFAccountUploadHeadImageFromIOReader(kfAccount, filename, v)
 	}
 }
 
-func (c *Client) merchantUploadImageFromOSFile(filename string, file *os.File) (imageURL string, err error) {
+func (c *Client) customServiceKFAccountUploadHeadImageFromOSFile(kfAccount, filename string, file *os.File) (err error) {
 	fi, err := file.Stat()
 	if err != nil {
 		return
@@ -95,16 +53,14 @@ func (c *Client) merchantUploadImageFromOSFile(filename string, file *os.File) (
 
 	// 非常规文件, FileInfo.Size() 不一定准确
 	if !fi.Mode().IsRegular() {
-		return c.merchantUploadImageFromIOReader(filename, file)
+		return c.customServiceKFAccountUploadHeadImageFromIOReader(kfAccount, filename, file)
 	}
 
 	originalOffset, err := file.Seek(0, 1)
 	if err != nil {
 		return
 	}
-
-	FormDataFileName := escapeQuotes(filename)
-	ContentLength := int64(multipart_constPartLen+len(FormDataFileName)) +
+	ContentLength := int64(multipart_constPartLen+len(filename)) +
 		fi.Size() - originalOffset
 
 	token, err := c.Token()
@@ -114,7 +70,7 @@ func (c *Client) merchantUploadImageFromOSFile(filename string, file *os.File) (
 
 	hasRetry := false
 RETRY:
-	url_ := merchantUploadImageURL(token, filename)
+	url_ := customServiceKFAccountUploadHeadImgURL(token, kfAccount)
 
 	if hasRetry {
 		if _, err = file.Seek(originalOffset, 0); err != nil {
@@ -123,7 +79,7 @@ RETRY:
 	}
 	mr := io.MultiReader(
 		strings.NewReader(multipart_formDataFront),
-		strings.NewReader(FormDataFileName),
+		strings.NewReader(filename),
 		strings.NewReader(multipart_formDataMiddle),
 		file,
 		strings.NewReader(multipart_formDataEnd),
@@ -147,17 +103,14 @@ RETRY:
 		return
 	}
 
-	var result struct {
-		Error
-		ImageURL string `json:"image_url"`
-	}
+	var result Error
+
 	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 		return
 	}
 
 	switch result.ErrCode {
 	case errCodeOK:
-		imageURL = result.ImageURL
 		return
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
@@ -170,16 +123,14 @@ RETRY:
 		}
 		fallthrough
 	default:
-		err = &result.Error
+		err = &result
 		return
 	}
 }
 
-func (c *Client) merchantUploadImageFromBytesBuffer(filename string, buffer *bytes.Buffer) (imageURL string, err error) {
+func (c *Client) customServiceKFAccountUploadHeadImageFromBytesBuffer(kfAccount, filename string, buffer *bytes.Buffer) (err error) {
 	fileBytes := buffer.Bytes()
-
-	FormDataFileName := escapeQuotes(filename)
-	ContentLength := int64(multipart_constPartLen + len(FormDataFileName) + len(fileBytes))
+	ContentLength := int64(multipart_constPartLen + len(filename) + len(fileBytes))
 
 	token, err := c.Token()
 	if err != nil {
@@ -188,11 +139,11 @@ func (c *Client) merchantUploadImageFromBytesBuffer(filename string, buffer *byt
 
 	hasRetry := false
 RETRY:
-	url_ := merchantUploadImageURL(token, filename)
+	url_ := customServiceKFAccountUploadHeadImgURL(token, kfAccount)
 
 	mr := io.MultiReader(
 		strings.NewReader(multipart_formDataFront),
-		strings.NewReader(FormDataFileName),
+		strings.NewReader(filename),
 		strings.NewReader(multipart_formDataMiddle),
 		bytes.NewReader(fileBytes),
 		strings.NewReader(multipart_formDataEnd),
@@ -216,17 +167,14 @@ RETRY:
 		return
 	}
 
-	var result struct {
-		Error
-		ImageURL string `json:"image_url"`
-	}
+	var result Error
+
 	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 		return
 	}
 
 	switch result.ErrCode {
 	case errCodeOK:
-		imageURL = result.ImageURL
 		return
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
@@ -239,19 +187,17 @@ RETRY:
 		}
 		fallthrough
 	default:
-		err = &result.Error
+		err = &result
 		return
 	}
 }
 
-func (c *Client) merchantUploadImageFromBytesReader(filename string, reader *bytes.Reader) (imageURL string, err error) {
+func (c *Client) customServiceKFAccountUploadHeadImageFromBytesReader(kfAccount, filename string, reader *bytes.Reader) (err error) {
 	originalOffset, err := reader.Seek(0, 1)
 	if err != nil {
 		return
 	}
-
-	FormDataFileName := escapeQuotes(filename)
-	ContentLength := int64(multipart_constPartLen + len(FormDataFileName) + reader.Len())
+	ContentLength := int64(multipart_constPartLen + len(filename) + reader.Len())
 
 	token, err := c.Token()
 	if err != nil {
@@ -260,7 +206,7 @@ func (c *Client) merchantUploadImageFromBytesReader(filename string, reader *byt
 
 	hasRetry := false
 RETRY:
-	url_ := merchantUploadImageURL(token, filename)
+	url_ := customServiceKFAccountUploadHeadImgURL(token, kfAccount)
 
 	if hasRetry {
 		if _, err = reader.Seek(originalOffset, 0); err != nil {
@@ -269,7 +215,7 @@ RETRY:
 	}
 	mr := io.MultiReader(
 		strings.NewReader(multipart_formDataFront),
-		strings.NewReader(FormDataFileName),
+		strings.NewReader(filename),
 		strings.NewReader(multipart_formDataMiddle),
 		reader,
 		strings.NewReader(multipart_formDataEnd),
@@ -293,17 +239,14 @@ RETRY:
 		return
 	}
 
-	var result struct {
-		Error
-		ImageURL string `json:"image_url"`
-	}
+	var result Error
+
 	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 		return
 	}
 
 	switch result.ErrCode {
 	case errCodeOK:
-		imageURL = result.ImageURL
 		return
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
@@ -316,19 +259,17 @@ RETRY:
 		}
 		fallthrough
 	default:
-		err = &result.Error
+		err = &result
 		return
 	}
 }
 
-func (c *Client) merchantUploadImageFromStringsReader(filename string, reader *strings.Reader) (imageURL string, err error) {
+func (c *Client) customServiceKFAccountUploadHeadImageFromStringsReader(kfAccount, filename string, reader *strings.Reader) (err error) {
 	originalOffset, err := reader.Seek(0, 1)
 	if err != nil {
 		return
 	}
-
-	FormDataFileName := escapeQuotes(filename)
-	ContentLength := int64(multipart_constPartLen + len(FormDataFileName) + reader.Len())
+	ContentLength := int64(multipart_constPartLen + len(filename) + reader.Len())
 
 	token, err := c.Token()
 	if err != nil {
@@ -337,7 +278,7 @@ func (c *Client) merchantUploadImageFromStringsReader(filename string, reader *s
 
 	hasRetry := false
 RETRY:
-	url_ := merchantUploadImageURL(token, filename)
+	url_ := customServiceKFAccountUploadHeadImgURL(token, kfAccount)
 
 	if hasRetry {
 		if _, err = reader.Seek(originalOffset, 0); err != nil {
@@ -346,7 +287,7 @@ RETRY:
 	}
 	mr := io.MultiReader(
 		strings.NewReader(multipart_formDataFront),
-		strings.NewReader(FormDataFileName),
+		strings.NewReader(filename),
 		strings.NewReader(multipart_formDataMiddle),
 		reader,
 		strings.NewReader(multipart_formDataEnd),
@@ -370,17 +311,14 @@ RETRY:
 		return
 	}
 
-	var result struct {
-		Error
-		ImageURL string `json:"image_url"`
-	}
+	var result Error
+
 	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 		return
 	}
 
 	switch result.ErrCode {
 	case errCodeOK:
-		imageURL = result.ImageURL
 		return
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
@@ -393,18 +331,18 @@ RETRY:
 		}
 		fallthrough
 	default:
-		err = &result.Error
+		err = &result
 		return
 	}
 }
 
-func (c *Client) merchantUploadImageFromIOReader(filename string, reader io.Reader) (imageURL string, err error) {
+func (c *Client) customServiceKFAccountUploadHeadImageFromIOReader(kfAccount, filename string, reader io.Reader) (err error) {
 	bodyBuf := mediaBufferPool.Get().(*bytes.Buffer) // io.ReadWriter
 	bodyBuf.Reset()                                  // important
 	defer mediaBufferPool.Put(bodyBuf)               // important
 
 	bodyBuf.WriteString(multipart_formDataFront)
-	bodyBuf.WriteString(escapeQuotes(filename))
+	bodyBuf.WriteString(filename)
 	bodyBuf.WriteString(multipart_formDataMiddle)
 	if _, err = io.Copy(bodyBuf, reader); err != nil {
 		return
@@ -420,7 +358,7 @@ func (c *Client) merchantUploadImageFromIOReader(filename string, reader io.Read
 
 	hasRetry := false
 RETRY:
-	url_ := merchantUploadImageURL(token, filename)
+	url_ := customServiceKFAccountUploadHeadImgURL(token, kfAccount)
 
 	httpResp, err := c.httpClient.Post(url_, multipart_ContentType, bytes.NewReader(bodyBytes))
 	if err != nil {
@@ -433,17 +371,14 @@ RETRY:
 		return
 	}
 
-	var result struct {
-		Error
-		ImageURL string `json:"image_url"`
-	}
+	var result Error
+
 	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
 		return
 	}
 
 	switch result.ErrCode {
 	case errCodeOK:
-		imageURL = result.ImageURL
 		return
 	case errCodeInvalidCredential, errCodeTimeout:
 		if !hasRetry {
@@ -456,7 +391,7 @@ RETRY:
 		}
 		fallthrough
 	default:
-		err = &result.Error
+		err = &result
 		return
 	}
 }
