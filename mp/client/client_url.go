@@ -22,14 +22,32 @@ func messageTemplateSendURL(accesstoken string) string {
 }
 
 // https://api.weixin.qq.com/cgi-bin/message/mass/sendall?access_token=ACCESS_TOKEN
-func messageMassSendByGroupURL(accesstoken string) string {
+func messageMassSendToGroupURL(accesstoken string) string {
+	return "https://api.weixin.qq.com/cgi-bin/message/mass/sendall?access_token=" +
+		accesstoken
+}
+
+// https://api.weixin.qq.com/cgi-bin/message/mass/sendall?access_token=ACCESS_TOKEN
+func messageMassSendToAllURL(accesstoken string) string {
 	return "https://api.weixin.qq.com/cgi-bin/message/mass/sendall?access_token=" +
 		accesstoken
 }
 
 // https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token=ACCESS_TOKEN
-func messageMassSendByOpenIdURL(accesstoken string) string {
+func messageMassSendToUsersURL(accesstoken string) string {
 	return "https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token=" +
+		accesstoken
+}
+
+// https://api.weixin.qq.com/cgi-bin/message/mass/preview?access_token=ACCESS_TOKEN
+func messageMassPreviewURL(accesstoken string) string {
+	return "https://api.weixin.qq.com/cgi-bin/message/mass/preview?access_token=" +
+		accesstoken
+}
+
+// https://api.weixin.qq.com/cgi-bin/message/mass/get?access_token=ACCESS_TOKEN
+func messageMassGetStatusURL(accesstoken string) string {
+	return "https://api.weixin.qq.com/cgi-bin/message/mass/get?access_token=" +
 		accesstoken
 }
 

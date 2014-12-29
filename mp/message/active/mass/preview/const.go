@@ -3,5 +3,12 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 定义根据分组群发消息的消息数据结构
-package massbygroup
+package preview
+
+const (
+	MSG_TYPE_TEXT  = "text"
+	MSG_TYPE_IMAGE = "image"
+	MSG_TYPE_VOICE = "voice"
+	MSG_TYPE_VIDEO = "mpvideo"
+	MSG_TYPE_NEWS  = "mpnews"
+)
