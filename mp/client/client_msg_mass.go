@@ -15,7 +15,7 @@ import (
 //  其他类型的消息一经发送，无法删除。
 func (c *Client) MsgMassDelete(msgid int64) (err error) {
 	var request = struct {
-		MsgId int64 `json:"msgid"`
+		MsgId int64 `json:"msg_id"`
 	}{
 		MsgId: msgid,
 	}
