@@ -8,11 +8,11 @@ package client
 import (
 	"errors"
 
-	"github.com/chanxuehong/wechat/mp/message/active/massbyopenid"
+	"github.com/chanxuehong/wechat/mp/message/active/mass/masstousers"
 )
 
 // 根据用户列表群发文本消息.
-func (c *Client) MsgMassSendTextByOpenId(msg *massbyopenid.Text) (msgid int64, err error) {
+func (c *Client) MsgMassSendTextToUsers(msg *masstousers.Text) (msgid int64, err error) {
 	if msg == nil {
 		err = errors.New("msg == nil")
 		return
@@ -20,11 +20,11 @@ func (c *Client) MsgMassSendTextByOpenId(msg *massbyopenid.Text) (msgid int64, e
 	if err = msg.CheckValid(); err != nil {
 		return
 	}
-	return c.msgMassSendByOpenId(msg)
+	return c.msgMassSendToUsers(msg)
 }
 
 // 根据用户列表群发图片消息.
-func (c *Client) MsgMassSendImageByOpenId(msg *massbyopenid.Image) (msgid int64, err error) {
+func (c *Client) MsgMassSendImageToUsers(msg *masstousers.Image) (msgid int64, err error) {
 	if msg == nil {
 		err = errors.New("msg == nil")
 		return
@@ -32,11 +32,11 @@ func (c *Client) MsgMassSendImageByOpenId(msg *massbyopenid.Image) (msgid int64,
 	if err = msg.CheckValid(); err != nil {
 		return
 	}
-	return c.msgMassSendByOpenId(msg)
+	return c.msgMassSendToUsers(msg)
 }
 
 // 根据用户列表群发语音消息.
-func (c *Client) MsgMassSendVoiceByOpenId(msg *massbyopenid.Voice) (msgid int64, err error) {
+func (c *Client) MsgMassSendVoiceToUsers(msg *masstousers.Voice) (msgid int64, err error) {
 	if msg == nil {
 		err = errors.New("msg == nil")
 		return
@@ -44,11 +44,11 @@ func (c *Client) MsgMassSendVoiceByOpenId(msg *massbyopenid.Voice) (msgid int64,
 	if err = msg.CheckValid(); err != nil {
 		return
 	}
-	return c.msgMassSendByOpenId(msg)
+	return c.msgMassSendToUsers(msg)
 }
 
 // 根据用户列表群发视频消息.
-func (c *Client) MsgMassSendVideoByOpenId(msg *massbyopenid.Video) (msgid int64, err error) {
+func (c *Client) MsgMassSendVideoToUsers(msg *masstousers.Video) (msgid int64, err error) {
 	if msg == nil {
 		err = errors.New("msg == nil")
 		return
@@ -56,11 +56,11 @@ func (c *Client) MsgMassSendVideoByOpenId(msg *massbyopenid.Video) (msgid int64,
 	if err = msg.CheckValid(); err != nil {
 		return
 	}
-	return c.msgMassSendByOpenId(msg)
+	return c.msgMassSendToUsers(msg)
 }
 
 // 根据用户列表群发图文消息.
-func (c *Client) MsgMassSendNewsByOpenId(msg *massbyopenid.News) (msgid int64, err error) {
+func (c *Client) MsgMassSendNewsToUsers(msg *masstousers.News) (msgid int64, err error) {
 	if msg == nil {
 		err = errors.New("msg == nil")
 		return
@@ -68,10 +68,10 @@ func (c *Client) MsgMassSendNewsByOpenId(msg *massbyopenid.News) (msgid int64, e
 	if err = msg.CheckValid(); err != nil {
 		return
 	}
-	return c.msgMassSendByOpenId(msg)
+	return c.msgMassSendToUsers(msg)
 }
 
-func (c *Client) msgMassSendByOpenId(msg interface{}) (msgid int64, err error) {
+func (c *Client) msgMassSendToUsers(msg interface{}) (msgid int64, err error) {
 	var result struct {
 		Error
 		MsgId int64 `json:"msg_id"`
@@ -84,7 +84,7 @@ func (c *Client) msgMassSendByOpenId(msg interface{}) (msgid int64, err error) {
 
 	hasRetry := false
 RETRY:
-	url_ := messageMassSendByOpenIdURL(token)
+	url_ := messageMassSendToUsersURL(token)
 
 	if err = c.postJSON(url_, msg, &result); err != nil {
 		return

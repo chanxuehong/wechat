@@ -3,7 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package massbyopenid
+package masstogroup
 
 import (
 	"bytes"
@@ -17,20 +17,16 @@ func TestMarshalAndNewFunc(t *testing.T) {
 	// 测试文本消息===============================================================
 
 	want := util.TrimSpace([]byte(`{
-	    "touser":[
-	        "oR5Gjjl_eiZoUpGozMo7dbBJ362A", 
-	        "oR5Gjjo5rXlMUocSEXKT7Q5RQ63Q"
-	    ], 
+	    "filter":{
+	        "group_id":"2"
+	    }, 
 	    "msgtype":"text", 
 	    "text":{
-	        "content":"hello from boxer."
+	        "content":"CONTENT"
 	    }
 	}`))
 
-	text := NewText(
-		[]string{"oR5Gjjl_eiZoUpGozMo7dbBJ362A", "oR5Gjjo5rXlMUocSEXKT7Q5RQ63Q"},
-		"hello from boxer.",
-	)
+	text := NewText(2, "CONTENT")
 
 	have, err := json.Marshal(text)
 	if err != nil {
@@ -42,17 +38,16 @@ func TestMarshalAndNewFunc(t *testing.T) {
 	// 测试图片消息===============================================================
 
 	want = util.TrimSpace([]byte(`{
-	    "touser":[
-	        "OPENID1", 
-	        "OPENID2"
-	    ], 
+	    "filter":{
+	        "group_id":"2"
+	    }, 
 	    "msgtype":"image", 
 	    "image":{
-	        "media_id":"BTgN0opcW3Y5zV_ZebbsD3NFKRWf6cb7OPswPi9Q83fOJHK2P67dzxn11Cp7THat"
+	        "media_id":"123dsdajkasd231jhksad"
 	    }
 	}`))
 
-	image := NewImage([]string{"OPENID1", "OPENID2"}, "BTgN0opcW3Y5zV_ZebbsD3NFKRWf6cb7OPswPi9Q83fOJHK2P67dzxn11Cp7THat")
+	image := NewImage(2, "123dsdajkasd231jhksad")
 
 	have, err = json.Marshal(image)
 	if err != nil {
@@ -64,17 +59,16 @@ func TestMarshalAndNewFunc(t *testing.T) {
 	// 测试语音消息===============================================================
 
 	want = util.TrimSpace([]byte(`{
-	    "touser":[
-	        "OPENID1", 
-	        "OPENID2"
-	    ], 
+	    "filter":{
+	        "group_id":"2"
+	    }, 
 	    "msgtype":"voice", 
 	    "voice":{
-	        "media_id":"mLxl6paC7z2Tl-NJT64yzJve8T9c8u9K2x-Ai6Ujd4lIH9IBuF6-2r66mamn_gIT"
+	        "media_id":"123dsdajkasd231jhksad"
 	    }
 	}`))
 
-	voice := NewVoice([]string{"OPENID1", "OPENID2"}, "mLxl6paC7z2Tl-NJT64yzJve8T9c8u9K2x-Ai6Ujd4lIH9IBuF6-2r66mamn_gIT")
+	voice := NewVoice(2, "123dsdajkasd231jhksad")
 
 	have, err = json.Marshal(voice)
 	if err != nil {
@@ -86,24 +80,16 @@ func TestMarshalAndNewFunc(t *testing.T) {
 	// 测试视频消息===============================================================
 
 	want = util.TrimSpace([]byte(`{
-	    "touser":[
-	        "OPENID1", 
-	        "OPENID2"
-	    ], 
-	    "msgtype":"video", 
-	    "video":{
-	        "media_id":"123dsdajkasd231jhksad", 
-	        "title":"TITLE", 
-	        "description":"DESCRIPTION"
+	    "filter":{
+	        "group_id":"2"
+	    }, 
+	    "msgtype":"mpvideo", 
+	    "mpvideo":{
+	        "media_id":"IhdaAQXuvJtGzwwc0abfXnzeezfO0NgPK6AQYShD8RQYMTtfzbLdBIQkQziv2XJc"
 	    }
 	}`))
 
-	video := NewVideo(
-		[]string{"OPENID1", "OPENID2"},
-		"123dsdajkasd231jhksad",
-		"TITLE",
-		"DESCRIPTION",
-	)
+	video := NewVideo(2, "IhdaAQXuvJtGzwwc0abfXnzeezfO0NgPK6AQYShD8RQYMTtfzbLdBIQkQziv2XJc")
 
 	have, err = json.Marshal(video)
 	if err != nil {
@@ -115,17 +101,16 @@ func TestMarshalAndNewFunc(t *testing.T) {
 	// 测试图文消息===============================================================
 
 	want = util.TrimSpace([]byte(`{
-	    "touser":[
-	        "OPENID1", 
-	        "OPENID2"
-	    ], 
+	    "filter":{
+	        "group_id":"2"
+	    }, 
 	    "msgtype":"mpnews", 
 	    "mpnews":{
 	        "media_id":"123dsdajkasd231jhksad"
 	    }
 	}`))
 
-	news := NewNews([]string{"OPENID1", "OPENID2"}, "123dsdajkasd231jhksad")
+	news := NewNews(2, "123dsdajkasd231jhksad")
 
 	have, err = json.Marshal(news)
 	if err != nil {

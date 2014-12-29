@@ -3,11 +3,11 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package massbygroup
+package masstoall
 
 type CommonHead struct {
 	Filter struct {
-		GroupId int64 `json:"group_id,string"`
+		IsToAll bool `json:"is_to_all"`
 	} `json:"filter"`
 	MsgType string `json:"msgtype"`
 }
@@ -22,9 +22,9 @@ type Text struct {
 }
 
 // 新建文本消息
-func NewText(groupId int64, content string) *Text {
+func NewText(content string) *Text {
 	var msg Text
-	msg.Filter.GroupId = groupId
+	msg.Filter.IsToAll = true
 	msg.MsgType = MSG_TYPE_TEXT
 	msg.Text.Content = content
 
@@ -42,9 +42,9 @@ type Image struct {
 
 // 新建图片消息
 //  mediaId 通过上传多媒体文件得到
-func NewImage(groupId int64, mediaId string) *Image {
+func NewImage(mediaId string) *Image {
 	var msg Image
-	msg.Filter.GroupId = groupId
+	msg.Filter.IsToAll = true
 	msg.MsgType = MSG_TYPE_IMAGE
 	msg.Image.MediaId = mediaId
 
@@ -62,9 +62,9 @@ type Voice struct {
 
 // 新建语音消息
 //  mediaId 通过上传多媒体文件得到
-func NewVoice(groupId int64, mediaId string) *Voice {
+func NewVoice(mediaId string) *Voice {
 	var msg Voice
-	msg.Filter.GroupId = groupId
+	msg.Filter.IsToAll = true
 	msg.MsgType = MSG_TYPE_VOICE
 	msg.Voice.MediaId = mediaId
 
@@ -82,9 +82,9 @@ type Video struct {
 
 // 新建视频消息
 //  NOTE: mediaId 应该通过 Client.MediaCreateVideo 得到
-func NewVideo(groupId int64, mediaId string) *Video {
+func NewVideo(mediaId string) *Video {
 	var msg Video
-	msg.Filter.GroupId = groupId
+	msg.Filter.IsToAll = true
 	msg.MsgType = MSG_TYPE_VIDEO
 	msg.Video.MediaId = mediaId
 
@@ -102,9 +102,9 @@ type News struct {
 
 // 新建图文消息
 //  NOTE: mediaId 应该通过 Client.MediaCreateNews 得到
-func NewNews(groupId int64, mediaId string) *News {
+func NewNews(mediaId string) *News {
 	var msg News
-	msg.Filter.GroupId = groupId
+	msg.Filter.IsToAll = true
 	msg.MsgType = MSG_TYPE_NEWS
 	msg.News.MediaId = mediaId
 

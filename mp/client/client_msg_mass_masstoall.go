@@ -8,55 +8,50 @@ package client
 import (
 	"errors"
 
-	"github.com/chanxuehong/wechat/mp/message/active/massbygroup"
+	"github.com/chanxuehong/wechat/mp/message/active/mass/masstoall"
 )
 
-// 根据分组群发文本消息.
-func (c *Client) MsgMassSendTextByGroup(msg *massbygroup.Text) (msgid int64, err error) {
+func (c *Client) MsgMassSendTextToAll(msg *masstoall.Text) (msgid int64, err error) {
 	if msg == nil {
 		err = errors.New("msg == nil")
 		return
 	}
-	return c.msgMassSendByGroup(msg)
+	return c.msgMassSendToAll(msg)
 }
 
-// 根据分组群发图片消息.
-func (c *Client) MsgMassSendImageByGroup(msg *massbygroup.Image) (msgid int64, err error) {
+func (c *Client) MsgMassSendImageToAll(msg *masstoall.Image) (msgid int64, err error) {
 	if msg == nil {
 		err = errors.New("msg == nil")
 		return
 	}
-	return c.msgMassSendByGroup(msg)
+	return c.msgMassSendToAll(msg)
 }
 
-// 根据分组群发语音消息.
-func (c *Client) MsgMassSendVoiceByGroup(msg *massbygroup.Voice) (msgid int64, err error) {
+func (c *Client) MsgMassSendVoiceToAll(msg *masstoall.Voice) (msgid int64, err error) {
 	if msg == nil {
 		err = errors.New("msg == nil")
 		return
 	}
-	return c.msgMassSendByGroup(msg)
+	return c.msgMassSendToAll(msg)
 }
 
-// 根据分组群发视频消息.
-func (c *Client) MsgMassSendVideoByGroup(msg *massbygroup.Video) (msgid int64, err error) {
+func (c *Client) MsgMassSendVideoToAll(msg *masstoall.Video) (msgid int64, err error) {
 	if msg == nil {
 		err = errors.New("msg == nil")
 		return
 	}
-	return c.msgMassSendByGroup(msg)
+	return c.msgMassSendToAll(msg)
 }
 
-// 根据分组群发图文消息.
-func (c *Client) MsgMassSendNewsByGroup(msg *massbygroup.News) (msgid int64, err error) {
+func (c *Client) MsgMassSendNewsToAll(msg *masstoall.News) (msgid int64, err error) {
 	if msg == nil {
 		err = errors.New("msg == nil")
 		return
 	}
-	return c.msgMassSendByGroup(msg)
+	return c.msgMassSendToAll(msg)
 }
 
-func (c *Client) msgMassSendByGroup(msg interface{}) (msgid int64, err error) {
+func (c *Client) msgMassSendToAll(msg interface{}) (msgid int64, err error) {
 	var result struct {
 		Error
 		MsgId int64 `json:"msg_id"`
@@ -69,7 +64,7 @@ func (c *Client) msgMassSendByGroup(msg interface{}) (msgid int64, err error) {
 
 	hasRetry := false
 RETRY:
-	url_ := messageMassSendByGroupURL(token)
+	url_ := messageMassSendToAllURL(token)
 
 	if err = c.postJSON(url_, msg, &result); err != nil {
 		return

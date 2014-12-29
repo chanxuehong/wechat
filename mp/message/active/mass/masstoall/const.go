@@ -3,7 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package massbygroup
+package masstoall
 
 const (
 	MSG_TYPE_TEXT  = "text"
