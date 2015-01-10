@@ -110,7 +110,7 @@ func qrcodeCreateURL(accesstoken string) string {
 }
 
 // https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=TICKET
-func qrcodeURL(ticket string) string {
+func qrcodePicURL(ticket string) string {
 	return "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=" +
 		url.QueryEscape(ticket)
 }

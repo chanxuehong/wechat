@@ -31,8 +31,8 @@ func (c *Client) QRCodeTemporaryCreate(sceneId uint32, expireSeconds int) (_qrco
 	request.ActionInfo.Scene.SceneId = sceneId
 
 	var result struct {
-		qrcode.TemporaryQRCode
 		Error
+		qrcode.TemporaryQRCode
 	}
 
 	token, err := c.Token()
@@ -83,8 +83,8 @@ func (c *Client) QRCodePermanentCreate(sceneId uint32) (_qrcode *qrcode.Permanen
 	request.ActionInfo.Scene.SceneId = sceneId
 
 	var result struct {
-		qrcode.PermanentQRCode
 		Error
+		qrcode.PermanentQRCode
 	}
 
 	token, err := c.Token()
@@ -122,8 +122,8 @@ RETRY:
 }
 
 // 根据 qrcode ticket 得到 qrcode 图片的 url
-func QRCodeURL(ticket string) string {
-	return qrcodeURL(ticket)
+func QRCodePicURL(ticket string) string {
+	return qrcodePicURL(ticket)
 }
 
 // 通过 ticket 换取二维码到 writer
@@ -136,7 +136,7 @@ func QRCodeDownloadToWriter(ticket string, writer io.Writer, httpClient *http.Cl
 		httpClient = http.DefaultClient
 	}
 
-	resp, err := httpClient.Get(qrcodeURL(ticket))
+	resp, err := httpClient.Get(qrcodePicURL(ticket))
 	if err != nil {
 		return
 	}
@@ -158,7 +158,7 @@ func (c *Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (err er
 		return errors.New("writer == nil")
 	}
 
-	resp, err := c.httpClient.Get(qrcodeURL(ticket))
+	resp, err := c.httpClient.Get(qrcodePicURL(ticket))
 	if err != nil {
 		return
 	}
