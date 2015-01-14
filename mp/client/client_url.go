@@ -226,3 +226,8 @@ func getCallbackIPURL(accesstoken string) string {
 	return "https://api.weixin.qq.com/cgi-bin/getcallbackip?access_token=" +
 		accesstoken
 }
+
+// https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=ACCESS_TOKEN&type=jsapi
+func ticketGetTicketURL(accesstoken string) string {
+	return "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=" + accesstoken + "&type=jsapi"
+}
