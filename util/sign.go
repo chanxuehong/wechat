@@ -45,8 +45,7 @@ func MsgSign(token, timestamp, nonce, encryptedMsg string) (signature string) {
 	return hex.EncodeToString(hashsum[:])
 }
 
-// 微信的JS签名
-
+// 微信的JS签名.
 func JSSign(noncestr, jsapi_ticket, timestamp, url string) (signature string) {
 	params := make(map[string]string)
 	params["noncestr"] = noncestr
@@ -57,7 +56,7 @@ func JSSign(noncestr, jsapi_ticket, timestamp, url string) (signature string) {
 	return result
 }
 
-// 微信位置签名，仅在需要兼容6.02版本之前时使用
+// 微信位置签名，仅在需要兼容6.02版本之前时使用.
 func JSAddrSign(noncestr, appId, timestamp, url, accesstoken string) (signature string) {
 	params := make(map[string]string)
 	params["noncestr"] = noncestr
@@ -69,7 +68,7 @@ func JSAddrSign(noncestr, appId, timestamp, url, accesstoken string) (signature 
 	return result
 }
 
-// 通用的签名方法
+// 通用的签名方法.
 func JSCommonSign(params map[string]string) (signature string) {
 	var keys []string
 	for k := range params {
