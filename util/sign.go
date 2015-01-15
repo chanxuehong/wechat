@@ -47,30 +47,30 @@ func MsgSign(token, timestamp, nonce, encryptedMsg string) (signature string) {
 
 // 微信的JS签名
 
-func JsSign(noncestr, jsapi_ticket, timestamp, url string) (signature string) {
+func JSSign(noncestr, jsapi_ticket, timestamp, url string) (signature string) {
 	params := make(map[string]string)
 	params["noncestr"] = noncestr
 	params["jsapi_ticket"] = jsapi_ticket
 	params["timestamp"] = timestamp
 	params["url"] = url
-	result := util.JsCommonSign(params)
+	result := JSCommonSign(params)
 	return result
 }
 
 // 微信位置签名，仅在需要兼容6.02版本之前时使用
-func JsAddrSign(noncestr, appId, timestamp, url, accesstoken string) (signature string) {
+func JSAddrSign(noncestr, appId, timestamp, url, accesstoken string) (signature string) {
 	params := make(map[string]string)
 	params["noncestr"] = noncestr
 	params["appId"] = appId
 	params["timestamp"] = timestamp
 	params["url"] = url
 	params["accesstoken"] = accesstoken
-	result := util.JsCommonSign(params)
+	result := JSCommonSign(params)
 	return result
 }
 
 // 通用的签名方法
-func JsCommonSign(params map[string]string) (signature string) {
+func JSCommonSign(params map[string]string) (signature string) {
 	var keys []string
 	for k := range params {
 		keys = append(keys, k)
