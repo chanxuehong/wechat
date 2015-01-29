@@ -31,7 +31,11 @@ QQ群：    297489459
 ## 捐助
 如果这个项目对您有用，我们欢迎各方任何形式的捐助，也包括参与到项目代码更新或意见反馈中来。谢谢！
 
+资金捐助：
+
 ![捐助wechat](https://github.com/chanxuehong/wechat2/blob/master/alipay.png)
+
+支付宝账户: 15967396@qq.com
 
 ## 授权(LICENSE)
 
