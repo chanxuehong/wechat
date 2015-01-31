@@ -1,10 +1,12 @@
 # wechat SDK for go(golang)
 
+# 如果是公众平台的开发者, 新项目建议移步到 https://github.com/chanxuehong/wechat2
+
 联系方式： chanxuehong@gmail.com / 15967396@qq.com
 
 QQ群：    297489459
 
-#### mp 是订阅号 和 服务号 SDK
+#### mp 是微信公众平台 SDK
 #### corp 是企业号 SDK
 #### json 从 encoding/json fork 而来, 针对微信修改了一点东西
 
@@ -37,7 +39,10 @@ QQ群：    297489459
 
 支付宝账户: 15967396@qq.com
 
+#### [捐助者列表](https://github.com/chanxuehong/wechat2/blob/master/donors.md)
+
+
 ## 授权(LICENSE)
 
-wechat is licensed under the Apache Licence, Version 2.0
+[wechat2 is licensed under the Apache Licence, Version 2.0]
 (http://www.apache.org/licenses/LICENSE-2.0.html)
