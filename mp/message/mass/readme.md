@@ -8,15 +8,15 @@ import (
 	"fmt"
 
 	"github.com/chanxuehong/wechat/mp"
-	"github.com/chanxuehong/wechat/mp/message/mass/masstogroup"
+	"github.com/chanxuehong/wechat/mp/message/mass/mass2group"
 )
 
 var TokenServer = mp.NewDefaultTokenServer("appid", "appsecret", nil)
 
 func main() {
-	text := masstogroup.NewText(1 /* groupid */, "content")
+	text := mass2group.NewText(1 /* groupid */, "content")
 
-	clt := masstogroup.NewClient(TokenServer, nil)
+	clt := mass2group.NewClient(TokenServer, nil)
 
 	msgId, err := clt.SendText(text)
 	if err != nil {
