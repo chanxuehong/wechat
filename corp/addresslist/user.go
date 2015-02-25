@@ -119,7 +119,7 @@ func (clt *Client) UserBatchDelete(UserIdList []int64) (err error) {
 	}
 
 	var request = struct {
-		UserIdList []int64 `json:"useridlist"`
+		UserIdList []int64 `json:"useridlist,omitempty"`
 	}{
 		UserIdList: UserIdList,
 	}

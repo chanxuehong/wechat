@@ -82,8 +82,8 @@ func (clt *Client) TagDelete(id int64) (err error) {
 func (clt *Client) TagInfo(id int64) (userList []UserBaseInfo, departmentList []int64, err error) {
 	var result struct {
 		corp.Error
-		UserList       []UserBaseInfo `json:"userlist,omitempty"`
-		DepartmentList []int64        `json:"partylist,omitempty"`
+		UserList       []UserBaseInfo `json:"userlist"`
+		DepartmentList []int64        `json:"partylist"`
 	}
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/tag/get?tagid=" +
@@ -104,6 +104,10 @@ func (clt *Client) TagInfo(id int64) (userList []UserBaseInfo, departmentList []
 // 增加标签成员
 func (clt *Client) TagAddUser(id int64, userList []string,
 	departmentList []int64) (invalidUserList []string, invalidDepartmentList []int64, err error) {
+
+	if len(userList) <= 0 && len(departmentList) <= 0 {
+		return
+	}
 
 	var request = struct {
 		TagId          int64    `json:"tagid"`
@@ -146,6 +150,10 @@ func (clt *Client) TagAddUser(id int64, userList []string,
 // 删除标签成员
 func (clt *Client) TagDeleteUser(id int64, userList []string,
 	departmentList []int64) (invalidUserList []string, invalidDepartmentList []int64, err error) {
+
+	if len(userList) <= 0 && len(departmentList) <= 0 {
+		return
+	}
 
 	var request = struct {
 		TagId          int64    `json:"tagid"`

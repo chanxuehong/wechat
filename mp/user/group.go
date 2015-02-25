@@ -158,8 +158,12 @@ func (clt *Client) MoveUserToGroup(openId string, toGroupId int64) (err error) {
 
 // 批量移动用户分组.
 func (clt *Client) MoveUsersToGroup(openIdList []string, toGroupId int64) (err error) {
+	if len(openIdList) <= 0 {
+		return
+	}
+
 	var request = struct {
-		OpenIdList []string `json:"openid_list"`
+		OpenIdList []string `json:"openid_list,omitempty"`
 		ToGroupId  int64    `json:"to_groupid"`
 	}{
 		OpenIdList: openIdList,
