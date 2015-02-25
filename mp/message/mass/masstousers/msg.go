@@ -92,7 +92,7 @@ type Video struct {
 
 // 新建视频消息.
 //  NOTE:
-//  MediaId 应该通过 media.Client.MediaCreateVideo 得到;
+//  MediaId 应该通过 media.Client.CreateVideo 得到;
 //  title, description 可以为空.
 func NewVideo(toUser []string, mediaId, title, description string) *Video {
 	var msg Video
@@ -113,7 +113,7 @@ type News struct {
 }
 
 // 新建图文消息.
-//  NOTE: MediaId 应该通过 media.Client.MediaCreateNews 得到
+//  NOTE: MediaId 应该通过 media.Client.CreateNews 得到
 func NewNews(toUser []string, mediaId string) *News {
 	var msg News
 	msg.MsgType = MsgTypeNews
