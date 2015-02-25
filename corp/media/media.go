@@ -5,9 +5,15 @@
 
 package media
 
-// 上传(创建)媒体成功时的回复报文
+const (
+	MediaTypeImage = "image"
+	MediaTypeVoice = "voice"
+	MediaTypeVideo = "video"
+	MediaTypeFile  = "file"
+)
+
 type MediaInfo struct {
-	MediaType string `json:"type"`       // 图片（image）、语音（voice）、视频（video）、普通文件（file）
+	MediaType string `json:"type"`       // 媒体文件类型，分别有图片（image）、语音（voice）、视频（video）,普通文件(file)
 	MediaId   string `json:"media_id"`   // 媒体文件上传后获取的唯一标识
 	CreatedAt int64  `json:"created_at"` // 媒体文件上传时间戳
 }

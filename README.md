@@ -1,14 +1,14 @@
 # wechat SDK for go(golang)
 
-# 如果是公众平台的开发者, 新项目建议移步到 https://github.com/chanxuehong/wechat2
+### 历史版本 https://github.com/chanxuehong/wechat/tree/legacy
 
-联系方式： chanxuehong@gmail.com / 15967396@qq.com
+联系方式： chanxuehong@gmail.com
 
 QQ群：    297489459
 
-#### mp 是微信公众平台 SDK
-#### corp 是企业号 SDK
-#### json 从 encoding/json fork 而来, 针对微信修改了一点东西
+#### mp   是微信公众平台 SDK
+#### corp 是微信企业号 SDK
+#### mch  是微信商户平台（微信支付） SDK
 
 ## 安装
 通过执行下列语句就可以完成安装
@@ -35,14 +35,15 @@ QQ群：    297489459
 
 资金捐助：
 
-![捐助wechat](https://github.com/chanxuehong/wechat2/blob/master/alipay.png)
+![捐助wechat](https://github.com/chanxuehong/wechat/blob/master/alipay.png)
 
 支付宝账户: 15967396@qq.com
 
-#### [捐助者列表](https://github.com/chanxuehong/wechat2/blob/master/donors.md)
+#### [捐助者列表](https://github.com/chanxuehong/wechat/blob/master/donors.md)
 
 
 ## 授权(LICENSE)
 
-[wechat2 is licensed under the Apache Licence, Version 2.0]
+[wechat is licensed under the Apache Licence, Version 2.0]
 (http://www.apache.org/licenses/LICENSE-2.0.html)
+

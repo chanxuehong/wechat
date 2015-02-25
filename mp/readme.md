@@ -1,36 +1,85 @@
-# 微信公众平台 订阅号、服务号 golang SDK
+# 微信公众平台 订阅号, 服务号 golang SDK
 
-Version:   0.8.17
+### 一个 URL 监听一个公众号的消息
+```Go
+package main
 
-NOTE:      在 v1.0.0 之前 API 都有可能微调
+import (
+	"fmt"
+	"github.com/chanxuehong/wechat/mp"
+	"github.com/chanxuehong/wechat/mp/menu"
+	"github.com/chanxuehong/wechat/util"
+	"net/http"
+)
 
-## change log:
+func MenuClickEventHandler(w http.ResponseWriter, r *mp.Request) {
+	event := menu.GetClickEvent(r.MixedMsg)
+	fmt.Println(event.EventKey)
+	return
+}
 
-#### v0.8.17
-random 从 [16]byte 改变为 []byte, 老代码把 [16]byte 替换为 []byte, random[:] 替换为 random 即可
-#### v0.8.16
-server WriteXXX 系列方法独立成函数
-#### v0.8.15
-server 增加消息体签名及加解密
-#### v0.8.14
-client 包里更改了qrcode相关的函数和方法
-#### v0.8.13
-server 里的数据结构命名做了调整
-#### v0.8.12
-server 消息处理方式重构了
-#### v0.8.11
-client 的 Media 系列方法名称做了个调整
+func main() {
+	aesKey, err := util.AESKeyDecode("encodedAESKey")
+	if err != nil {
+		panic(err)
+	}
 
-## 简介
+	messageServeMux := mp.NewMessageServeMux()
+	messageServeMux.EventHandleFunc(menu.EventTypeClick, MenuClickEventHandler)
 
-mp 包主要分为三个部分，client、server 和 oauth2
+	wechatServer := mp.NewDefaultWechatServer("id", "token", "appid", aesKey, messageServeMux)
 
-client 主要实现的是“主动”请求功能，如发送客服消息，群发消息，创建菜单，创建二维码等等，
-详见 https://github.com/chanxuehong/wechat/blob/master/mp/client/readme.md
+	wechatServerFrontend := mp.NewWechatServerFrontend(wechatServer, nil)
 
-server 主要实现的是“被动”接收消息和处理功能，如被动接收文本消息及回复，被动接收语音消息及回复等等，
-详见 https://github.com/chanxuehong/wechat/blob/master/mp/server/readme.md
+	http.Handle("/wechat", wechatServerFrontend)
+	http.ListenAndServe(":80", nil)
+}
+```
 
-oauth2 主要实现的是网页授权获取用户基本信息功能，微信公众号可以引导（自定义菜单或者网页）到一个页面，
-请求用户授权，详见 https://github.com/chanxuehong/wechat/blob/master/mp/oauth2/readme.md
+### 一个 URL 监听多个公众号的消息
+```Go
+package main
 
+import (
+	"fmt"
+	"github.com/chanxuehong/wechat/mp"
+	"github.com/chanxuehong/wechat/mp/menu"
+	"github.com/chanxuehong/wechat/util"
+	"net/http"
+)
+
+func MenuClickEventHandler(w http.ResponseWriter, r *mp.Request) {
+	event := menu.GetClickEvent(r.MixedMsg)
+	fmt.Println(event.EventKey)
+	return
+}
+
+func main() {
+	aesKey1, err := util.AESKeyDecode("encodedAESKey1")
+	if err != nil {
+		panic(err)
+	}
+
+	messageServeMux1 := mp.NewMessageServeMux()
+	messageServeMux1.EventHandleFunc(menu.EventTypeClick, MenuClickEventHandler)
+
+	wechatServer1 := mp.NewDefaultWechatServer("id1", "token1", "appid1", aesKey1, messageServeMux1)
+
+	aesKey2, err := util.AESKeyDecode("encodedAESKey2")
+	if err != nil {
+		panic(err)
+	}
+
+	messageServeMux2 := mp.NewMessageServeMux()
+	messageServeMux2.EventHandleFunc(menu.EventTypeClick, MenuClickEventHandler)
+
+	wechatServer2 := mp.NewDefaultWechatServer("id2", "token2", "appid2", aesKey2, messageServeMux2)
+
+	var multiWechatServerFrontend mp.MultiWechatServerFrontend
+	multiWechatServerFrontend.SetWechatServer("wechat1", wechatServer1)
+	multiWechatServerFrontend.SetWechatServer("wechat", wechatServer2)
+
+	http.Handle("/wechat", &multiWechatServerFrontend)
+	http.ListenAndServe(":80", nil)
+}
+```

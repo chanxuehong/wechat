@@ -8,19 +8,24 @@ package user
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/chanxuehong/wechat/mp"
 )
 
-// 用户分组
-type Group struct {
-	Id        int64  `json:"id"`    // 分组id，由微信分配
-	Name      string `json:"name"`  // 分组名字，UTF8编码
-	UserCount int    `json:"count"` // 分组内用户数量
-}
+const (
+	Language_zh_CN = "zh_CN" // 简体中文
+	Language_zh_TW = "zh_TW" // 繁体中文
+	Language_en    = "en"    // 英文
+)
 
-// 获取用户信息时，如果用户没有关注该公众号时，返回 ErrNotSubscribe 错误
-var ErrNotSubscribe = errors.New("用户没有订阅公众号")
+const (
+	SEX_UNKNOWN = 0 // 未知
+	SEX_MALE    = 1 // 男性
+	SEX_FEMALE  = 2 // 女性
+)
 
 type UserInfo struct {
 	OpenId   string `json:"openid"`   // 用户的标识，对当前公众号唯一
@@ -45,11 +50,11 @@ type UserInfo struct {
 	Remark string `json:"remark,omitempty"`
 }
 
-var ErrNoHeadImage = errors.New("没有图像")
+var ErrNoHeadImage = errors.New("没有头像")
 
 // 获取用户图像的大小, 如果用户没有图像则返回 ErrNoHeadImage 错误.
-func (this *UserInfo) HeadImageSize() (size int, err error) {
-	HeadImageURL := this.HeadImageURL
+func (info *UserInfo) HeadImageSize() (size int, err error) {
+	HeadImageURL := info.HeadImageURL
 	if HeadImageURL == "" {
 		err = ErrNoHeadImage
 		return
@@ -68,7 +73,7 @@ func (this *UserInfo) HeadImageSize() (size int, err error) {
 
 	sizeStr := HeadImageURL[HeadImageIndex:]
 
-	size64, err := strconv.ParseUint(sizeStr, 10, 8)
+	size64, err := strconv.ParseUint(sizeStr, 10, 64)
 	if err != nil {
 		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
 		return
@@ -77,8 +82,70 @@ func (this *UserInfo) HeadImageSize() (size int, err error) {
 	if size64 == 0 {
 		size64 = 640
 	}
-
 	size = int(size64)
+	return
+}
+
+var ErrUserNotSubscriber = errors.New("用户没有订阅公众号")
+
+// 获取用户基本信息, 如果用户没有订阅公众号, 返回 ErrUserNotSubscriber 错误.
+//  lang 可以是 zh_CN, zh_TW, en, 如果留空 "" 则默认为 zh_CN.
+func (clt *Client) UserInfo(openId string, lang string) (userinfo *UserInfo, err error) {
+	switch lang {
+	case "":
+		lang = Language_zh_CN
+	case Language_zh_CN, Language_zh_TW, Language_en:
+	default:
+		err = errors.New("错误的 lang 参数")
+		return
+	}
+
+	var result struct {
+		mp.Error
+		Subscribed int `json:"subscribe"` // 用户是否订阅该公众号标识，值为0时，代表此用户没有关注该公众号，拉取不到其余信息。
+		UserInfo
+	}
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/user/info?openid=" + url.QueryEscape(openId) +
+		"&lang=" + url.QueryEscape(lang) + "&access_token="
+	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	if result.Subscribed == 0 {
+		err = ErrUserNotSubscriber
+		return
+	}
+	userinfo = &result.UserInfo
+	return
+}
+
+// 开发者可以通过该接口对指定用户设置备注名.
+//  NOTE: 该接口暂时开放给微信认证的服务号.
+func (clt *Client) UserUpdateRemark(openId, remark string) (err error) {
+	var request = struct {
+		OpenId string `json:"openid"`
+		Remark string `json:"remark"`
+	}{
+		OpenId: openId,
+		Remark: remark,
+	}
+
+	var result mp.Error
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/user/info/updateremark?access_token="
+	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result
+		return
+	}
 	return
 }
 
@@ -95,22 +162,29 @@ type UserListResult struct {
 	NextOpenId string `json:"next_openid"`
 }
 
-// 关注者的遍历器
-//
-//  iter, err := Client.UserIterator("beginOpenId")
-//  if err != nil {
-//      // TODO: 增加你的代码
-//  }
-//
-//  for iter.HasNext() {
-//      openids, err := iter.NextPage()
-//      if err != nil {
-//          // TODO: 增加你的代码
-//      }
-//      // TODO: 增加你的代码
-//  }
-type UserIterator interface {
-	Total() int // 用户总的个数
-	HasNext() bool
-	NextPage() (openids []string, err error)
+// 获取关注者列表, 每次最多能获取 10000 个用户, 如果 beginOpenId == "" 则表示从头获取
+func (clt *Client) UserList(beginOpenId string) (data *UserListResult, err error) {
+	var result struct {
+		mp.Error
+		UserListResult
+	}
+
+	var incompleteURL string
+	if beginOpenId == "" {
+		incompleteURL = "https://api.weixin.qq.com/cgi-bin/user/get?access_token="
+	} else {
+		incompleteURL = "https://api.weixin.qq.com/cgi-bin/user/get?next_openid=" + url.QueryEscape(beginOpenId) +
+			"&access_token="
+	}
+
+	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	data = &result.UserListResult
+	return
 }
