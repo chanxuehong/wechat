@@ -3,5 +3,5 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 群发消息给所有用户.
-package masstoall
+// 根据分组进行群发消息.
+package mass2group

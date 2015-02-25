@@ -4,4 +4,4 @@
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
 // 根据OpenID列表群发消息.
-package masstousers
+package mass2users

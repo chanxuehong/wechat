@@ -133,7 +133,7 @@ func (clt *Client) UserInWhichGroup(openId string) (groupId int64, err error) {
 }
 
 // 移动用户分组.
-func (clt *Client) UserMoveToGroup(openId string, toGroupId int64) (err error) {
+func (clt *Client) MoveUserToGroup(openId string, toGroupId int64) (err error) {
 	var request = struct {
 		OpenId    string `json:"openid"`
 		ToGroupId int64  `json:"to_groupid"`
@@ -145,6 +145,30 @@ func (clt *Client) UserMoveToGroup(openId string, toGroupId int64) (err error) {
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/groups/members/update?access_token="
+	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result
+		return
+	}
+	return
+}
+
+// 批量移动用户分组.
+func (clt *Client) MoveUsersToGroup(openIdList []string, toGroupId int64) (err error) {
+	var request = struct {
+		OpenIdList []string `json:"openid_list"`
+		ToGroupId  int64    `json:"to_groupid"`
+	}{
+		OpenIdList: openIdList,
+		ToGroupId:  toGroupId,
+	}
+
+	var result mp.Error
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/groups/members/batchupdate?access_token="
 	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
