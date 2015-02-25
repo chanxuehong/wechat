@@ -52,7 +52,7 @@ type UserShareData struct {
 	RefDate    string `json:"ref_date"`
 	UserSource int    `json:"user_source"`
 	ShareScene int    `json:"share_scene"` // 分享的场景：1代表好友转发 2代表朋友圈 3代表腾讯微博 255代表其他
-	ShareCount int    `json:"shareCount"`
+	ShareCount int    `json:"share_count"`
 	ShareUser  int    `json:"share_user"`
 }
 
