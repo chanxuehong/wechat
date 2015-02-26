@@ -11,32 +11,47 @@
 package main
 
 import (
-	"fmt"
 	"github.com/chanxuehong/wechat/mp"
-	"github.com/chanxuehong/wechat/mp/menu"
+	"github.com/chanxuehong/wechat/mp/message/request"
+	"github.com/chanxuehong/wechat/mp/message/response"
 	"github.com/chanxuehong/wechat/util"
+	"io"
+	"log"
 	"net/http"
 )
 
-func MenuClickEventHandler(w http.ResponseWriter, r *mp.Request) {
-	event := menu.GetClickEvent(r.MixedMsg)
-	fmt.Println(event.EventKey)
-	return
+// 非法请求处理函数
+func InvalidRequestHandler(w http.ResponseWriter, r *http.Request, err error) {
+	io.WriteString(w, err.Error())
+	log.Println(err.Error())
+}
+
+// 文本消息的处理
+func TextMessageHandler(w http.ResponseWriter, r *mp.Request) {
+	// 简单起见，把用户发送过来的文本原样回复过去
+	text := request.GetText(r.MixedMsg)
+	resp := response.NewText(text.FromUserName, text.ToUserName, text.CreateTime, text.Content)
+	//mp.WriteRawResponse(w, r, resp) // 明文模式
+	mp.WriteAESResponse(w, r, resp) // 安全模式
 }
 
 func main() {
-	aesKey, err := util.AESKeyDecode("encodedAESKey")
+	aesKey, err := util.AESKeyDecode("encodedAESKey") // 这里 encodedAESKey 改成你自己的参数
 	if err != nil {
 		panic(err)
 	}
 
 	messageServeMux := mp.NewMessageServeMux()
-	messageServeMux.EventHandleFunc(menu.EventTypeClick, MenuClickEventHandler)
+	messageServeMux.MessageHandleFunc(request.MsgTypeText, TextMessageHandler) // 注册文本处理 Handler
 
-	wechatServer := mp.NewDefaultWechatServer("id", "token", "appid", aesKey, messageServeMux)
+	// 下面函数的几个参数设置成你自己的参数: wechatId, token, appId
+	wechatServer := mp.NewDefaultWechatServer("wechatId", "token", "appId", aesKey, messageServeMux)
 
-	wechatServerFrontend := mp.NewWechatServerFrontend(wechatServer, nil)
+	wechatServerFrontend := mp.NewWechatServerFrontend(wechatServer, mp.InvalidRequestHandlerFunc(InvalidRequestHandler))
 
+	// 如果你在微信后台设置的回调地址是
+	//   http://xxx.yyy.zzz/wechat
+	// 那么可以这么注册 http.Handler
 	http.Handle("/wechat", wechatServerFrontend)
 	http.ListenAndServe(":80", nil)
 }
@@ -47,44 +62,61 @@ func main() {
 package main
 
 import (
-	"fmt"
 	"github.com/chanxuehong/wechat/mp"
-	"github.com/chanxuehong/wechat/mp/menu"
+	"github.com/chanxuehong/wechat/mp/message/request"
+	"github.com/chanxuehong/wechat/mp/message/response"
 	"github.com/chanxuehong/wechat/util"
+	"io"
+	"log"
 	"net/http"
 )
 
-func MenuClickEventHandler(w http.ResponseWriter, r *mp.Request) {
-	event := menu.GetClickEvent(r.MixedMsg)
-	fmt.Println(event.EventKey)
-	return
+// 非法请求处理函数
+func InvalidRequestHandler(w http.ResponseWriter, r *http.Request, err error) {
+	io.WriteString(w, err.Error())
+	log.Println(err.Error())
+}
+
+// 文本消息的处理
+func TextMessageHandler(w http.ResponseWriter, r *mp.Request) {
+	// 简单起见，把用户发送过来的文本原样回复过去
+	text := request.GetText(r.MixedMsg)
+	resp := response.NewText(text.FromUserName, text.ToUserName, text.CreateTime, text.Content)
+	//mp.WriteRawResponse(w, r, resp) // 明文模式
+	mp.WriteAESResponse(w, r, resp) // 安全模式
 }
 
 func main() {
-	aesKey1, err := util.AESKeyDecode("encodedAESKey1")
+	aesKey1, err := util.AESKeyDecode("encodedAESKey1") // 这里 encodedAESKey1 改成你自己的参数
 	if err != nil {
 		panic(err)
 	}
 
 	messageServeMux1 := mp.NewMessageServeMux()
-	messageServeMux1.EventHandleFunc(menu.EventTypeClick, MenuClickEventHandler)
+	messageServeMux1.MessageHandleFunc(request.MsgTypeText, TextMessageHandler) // 注册文本处理 Handler
 
-	wechatServer1 := mp.NewDefaultWechatServer("id1", "token1", "appid1", aesKey1, messageServeMux1)
+	// 下面函数的几个参数设置成你自己的参数: wechatId1, token1, appId1
+	wechatServer1 := mp.NewDefaultWechatServer("wechatId1", "token1", "appId1", aesKey1, messageServeMux1)
 
-	aesKey2, err := util.AESKeyDecode("encodedAESKey2")
+	aesKey2, err := util.AESKeyDecode("encodedAESKey2") // 这里 encodedAESKey2 改成你自己的参数
 	if err != nil {
 		panic(err)
 	}
 
 	messageServeMux2 := mp.NewMessageServeMux()
-	messageServeMux2.EventHandleFunc(menu.EventTypeClick, MenuClickEventHandler)
+	messageServeMux2.MessageHandleFunc(request.MsgTypeText, TextMessageHandler) // 注册文本处理 Handler
 
-	wechatServer2 := mp.NewDefaultWechatServer("id2", "token2", "appid2", aesKey2, messageServeMux2)
+	// 下面函数的几个参数设置成你自己的参数: wechatId2, token2, appId2
+	wechatServer2 := mp.NewDefaultWechatServer("wechatId2", "token2", "appId2", aesKey2, messageServeMux2)
 
 	var multiWechatServerFrontend mp.MultiWechatServerFrontend
-	multiWechatServerFrontend.SetWechatServer("wechat1", wechatServer1) // 在回调 url 里要设置相应的参数
-	multiWechatServerFrontend.SetWechatServer("wechat2", wechatServer2) // 在回调 url 里要设置相应的参数
+	multiWechatServerFrontend.SetInvalidRequestHandler(mp.InvalidRequestHandlerFunc(InvalidRequestHandler))
+	multiWechatServerFrontend.SetWechatServer("wechat1", wechatServer1) // 需要相应设置回调 url 的参数
+	multiWechatServerFrontend.SetWechatServer("wechat2", wechatServer2) // 需要相应设置回调 url 的参数
 
+	// 如果你在微信后台设置的回调地址是
+	//   http://xxx.yyy.zzz/wechat
+	// 那么可以这么注册 http.Handler
 	http.Handle("/wechat", &multiWechatServerFrontend)
 	http.ListenAndServe(":80", nil)
 }
