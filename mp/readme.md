@@ -1,4 +1,10 @@
-# 微信公众平台 订阅号, 服务号 golang SDK
+# 微信公众平台（订阅号、服务号） golang SDK
+
+## 整体架构图
+
+![架构图](https://github.com/chanxuehong/wechat/blob/master/mp/mp.png)
+
+## 示例
 
 ### 一个 URL 监听一个公众号的消息
 ```Go
@@ -76,8 +82,8 @@ func main() {
 	wechatServer2 := mp.NewDefaultWechatServer("id2", "token2", "appid2", aesKey2, messageServeMux2)
 
 	var multiWechatServerFrontend mp.MultiWechatServerFrontend
-	multiWechatServerFrontend.SetWechatServer("wechat1", wechatServer1)
-	multiWechatServerFrontend.SetWechatServer("wechat", wechatServer2)
+	multiWechatServerFrontend.SetWechatServer("wechat1", wechatServer1) // 在回调 url 里要设置相应的参数
+	multiWechatServerFrontend.SetWechatServer("wechat2", wechatServer2) // 在回调 url 里要设置相应的参数
 
 	http.Handle("/wechat", &multiWechatServerFrontend)
 	http.ListenAndServe(":80", nil)
