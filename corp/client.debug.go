@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"runtime"
 
 	wechatjson "github.com/chanxuehong/wechat/json"
 )
@@ -43,17 +44,22 @@ func (clt *CorpClient) PostJSON(incompleteURL string, request interface{}, respo
 	}
 	requestBytes := buf.Bytes()
 
-	fmt.Println("corp.CorpClient.PostJSON.incompleteURL:", incompleteURL)
-	fmt.Println("corp.CorpClient.PostJSON.request:", buf.String())
-
 	token, err := clt.Token()
 	if err != nil {
 		return
 	}
 
+	debugPrefix := "corp.CorpClient.PostJSON"
+	if _, file, line, ok := runtime.Caller(1); ok {
+		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
+	}
+
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
+
+	fmt.Println(debugPrefix, "request url:", finalURL)
+	fmt.Println(debugPrefix, "request json:", string(requestBytes))
 
 	httpResp, err := clt.HttpClient.Post(finalURL, "application/json; charset=utf-8", bytes.NewReader(requestBytes))
 	if err != nil {
@@ -69,7 +75,7 @@ RETRY:
 	if err != nil {
 		return
 	}
-	fmt.Println("corp.CorpClient.PostJSON.response:", string(body))
+	fmt.Println(debugPrefix, "response json:", string(body))
 
 	if err = json.Unmarshal(body, response); err != nil {
 		return
@@ -119,6 +125,11 @@ func (clt *CorpClient) GetJSON(incompleteURL string, response interface{}) (err 
 		return
 	}
 
+	debugPrefix := "corp.CorpClient.GetJSON"
+	if _, file, line, ok := runtime.Caller(1); ok {
+		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
+	}
+
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
@@ -137,8 +148,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	fmt.Println("corp.CorpClient.GetJSON.incompleteURL:", incompleteURL)
-	fmt.Println("corp.CorpClient.GetJSON.response:", string(body))
+	fmt.Println(debugPrefix, "request url:", finalURL)
+	fmt.Println(debugPrefix, "response json:", string(body))
 
 	if err = json.Unmarshal(body, response); err != nil {
 		return

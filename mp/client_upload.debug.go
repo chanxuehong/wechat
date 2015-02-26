@@ -17,6 +17,7 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"runtime"
 	"strings"
 )
 
@@ -99,6 +100,11 @@ func (clt *WechatClient) uploadFromOSFile(incompleteURL, filename string,
 		return
 	}
 
+	debugPrefix := "mp.WechatClient.UploadFromReader"
+	if _, file, line, ok := runtime.Caller(2); ok {
+		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
+	}
+
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
@@ -138,8 +144,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	fmt.Println("mp.WechatClient.UploadFromReader.incompleteURL:", incompleteURL)
-	fmt.Println("mp.WechatClient.UploadFromReader.response:", string(body))
+	fmt.Println(debugPrefix, "request url:", finalURL)
+	fmt.Println(debugPrefix, "response json:", string(body))
 
 	if err = json.Unmarshal(body, response); err != nil {
 		return
@@ -187,6 +193,11 @@ func (clt *WechatClient) uploadFromBytesBuffer(incompleteURL, filename string,
 		return
 	}
 
+	debugPrefix := "mp.WechatClient.UploadFromReader"
+	if _, file, line, ok := runtime.Caller(2); ok {
+		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
+	}
+
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
@@ -221,8 +232,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	fmt.Println("mp.WechatClient.UploadFromReader.incompleteURL:", incompleteURL)
-	fmt.Println("mp.WechatClient.UploadFromReader.response:", string(body))
+	fmt.Println(debugPrefix, "request url:", finalURL)
+	fmt.Println(debugPrefix, "response json:", string(body))
 
 	if err = json.Unmarshal(body, response); err != nil {
 		return
@@ -273,6 +284,11 @@ func (clt *WechatClient) uploadFromBytesReader(incompleteURL, filename string,
 		return
 	}
 
+	debugPrefix := "mp.WechatClient.UploadFromReader"
+	if _, file, line, ok := runtime.Caller(2); ok {
+		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
+	}
+
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
@@ -312,8 +328,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	fmt.Println("mp.WechatClient.UploadFromReader.incompleteURL:", incompleteURL)
-	fmt.Println("mp.WechatClient.UploadFromReader.response:", string(body))
+	fmt.Println(debugPrefix, "request url:", finalURL)
+	fmt.Println(debugPrefix, "response json:", string(body))
 
 	if err = json.Unmarshal(body, response); err != nil {
 		return
@@ -364,6 +380,11 @@ func (clt *WechatClient) uploadFromStringsReader(incompleteURL, filename string,
 		return
 	}
 
+	debugPrefix := "mp.WechatClient.UploadFromReader"
+	if _, file, line, ok := runtime.Caller(2); ok {
+		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
+	}
+
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
@@ -403,8 +424,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	fmt.Println("mp.WechatClient.UploadFromReader.incompleteURL:", incompleteURL)
-	fmt.Println("mp.WechatClient.UploadFromReader.response:", string(body))
+	fmt.Println(debugPrefix, "request url:", finalURL)
+	fmt.Println(debugPrefix, "response json:", string(body))
 
 	if err = json.Unmarshal(body, response); err != nil {
 		return
@@ -463,6 +484,11 @@ func (clt *WechatClient) uploadFromIOReader(incompleteURL, filename string,
 		return
 	}
 
+	debugPrefix := "mp.WechatClient.UploadFromReader"
+	if _, file, line, ok := runtime.Caller(2); ok {
+		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
+	}
+
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
@@ -482,8 +508,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	fmt.Println("mp.WechatClient.UploadFromReader.incompleteURL:", incompleteURL)
-	fmt.Println("mp.WechatClient.UploadFromReader.response:", string(body))
+	fmt.Println(debugPrefix, "request url:", finalURL)
+	fmt.Println(debugPrefix, "response json:", string(body))
 
 	if err = json.Unmarshal(body, response); err != nil {
 		return

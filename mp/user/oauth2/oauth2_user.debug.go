@@ -14,6 +14,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -149,7 +150,13 @@ func (clt *Client) UserInfo(lang string) (info *UserInfo, err error) {
 	if err != nil {
 		return
 	}
-	fmt.Println("oauth2.Client.UserInfo.response:", string(body))
+
+	debugPrefix := "oauth2.Client.UserInfo"
+	if _, file, line, ok := runtime.Caller(1); ok {
+		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
+	}
+	fmt.Println(debugPrefix, "request url:", _url)
+	fmt.Println(debugPrefix, "response json:", string(body))
 
 	if err = json.Unmarshal(body, &result); err != nil {
 		return
