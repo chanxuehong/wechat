@@ -12,6 +12,7 @@ import (
 	"time"
 )
 
+// NewTLSHttpClient 创建支持双向证书认证的 http.Client
 func NewTLSHttpClient(certFile, keyFile string) (httpClient *http.Client, err error) {
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {

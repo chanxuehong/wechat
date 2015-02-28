@@ -14,10 +14,10 @@ import (
 
 // 回调 URL 上索引 MessageServer 的 key 的名称.
 //  比如下面的回调地址里面就可以根据 server1 来索引对应的 MessageServer.
-//  http://www.xxx.com/?msg_server_key=server1
+//  http://www.xxx.com/?msg_server=server1
 //
 //  索引值一般为 mchid|appid.
-const URLQueryMessageServerKeyName = "msg_server_key"
+const URLQueryMessageServerKeyName = "msg_server"
 
 // 多个 MessageServer 的前端, 负责处理 http 请求, net/http.Handler 的实现
 //
@@ -26,16 +26,16 @@ const URLQueryMessageServerKeyName = "msg_server_key"
 //  查询参数，参考常量 URLQueryMessageServerKeyName，这个参数的值就是 MultiMessageServerFrontend
 //  索引 MessageServer 的 key。
 //
-//  例如回调 URL 为 http://www.xxx.com/notify_url?msg_server_key=1234567890，那么就可以在后端调用
+//  例如回调 URL 为 http://www.xxx.com/notify_url?msg_server=1234567890，那么就可以在后端调用
 //
 //    MultiMessageServerFrontend.SetMessageServer("1234567890", MessageServer)
 //
-//  来增加一个 MessageServer 来处理 msg_server_key=1234567890 的消息。
+//  来增加一个 MessageServer 来处理 msg_server=1234567890 的消息。
 //
 //  MultiMessageServerFrontend 并发安全，可以在运行中动态增加和删除 MessageServer。
 type MultiMessageServerFrontend struct {
 	rwmutex               sync.RWMutex
-	serverMap             map[string]MessageServer
+	messageServerMap      map[string]MessageServer
 	invalidRequestHandler InvalidRequestHandler
 }
 
@@ -64,10 +64,10 @@ func (frontend *MultiMessageServerFrontend) SetMessageServer(serverKey string, s
 	frontend.rwmutex.Lock()
 	defer frontend.rwmutex.Unlock()
 
-	if frontend.serverMap == nil {
-		frontend.serverMap = make(map[string]MessageServer)
+	if frontend.messageServerMap == nil {
+		frontend.messageServerMap = make(map[string]MessageServer)
 	}
-	frontend.serverMap[serverKey] = server
+	frontend.messageServerMap[serverKey] = server
 }
 
 // 删除 serverKey 对应的 MessageServer
@@ -75,7 +75,7 @@ func (frontend *MultiMessageServerFrontend) DeleteMessageServer(serverKey string
 	frontend.rwmutex.Lock()
 	defer frontend.rwmutex.Unlock()
 
-	delete(frontend.serverMap, serverKey)
+	delete(frontend.messageServerMap, serverKey)
 }
 
 // 删除所有的 MessageServer
@@ -83,7 +83,7 @@ func (frontend *MultiMessageServerFrontend) DeleteAllMessageServer() {
 	frontend.rwmutex.Lock()
 	defer frontend.rwmutex.Unlock()
 
-	frontend.serverMap = make(map[string]MessageServer)
+	frontend.messageServerMap = make(map[string]MessageServer)
 }
 
 // 实现 http.Handler
@@ -117,7 +117,7 @@ func (frontend *MultiMessageServerFrontend) ServeHTTP(w http.ResponseWriter, r *
 
 	frontend.rwmutex.RLock()
 	invalidRequestHandler := frontend.invalidRequestHandler
-	messageServer := frontend.serverMap[serverKey]
+	messageServer := frontend.messageServerMap[serverKey]
 	frontend.rwmutex.RUnlock()
 
 	if invalidRequestHandler == nil {

@@ -8,7 +8,7 @@ package pay
 type MessageServer interface {
 	AppId() string
 	MchId() string
-	APIKey() string
+	APIKey() string // API密钥
 
 	MessageHandler() MessageHandler // 获取 MessageHandler
 }

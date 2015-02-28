@@ -11,7 +11,7 @@ import (
 
 // 处理单个APP的消息.
 type MessageServerFrontend struct {
-	server                MessageServer
+	messageServer         MessageServer
 	invalidRequestHandler InvalidRequestHandler
 }
 
@@ -24,14 +24,14 @@ func NewMessageServerFrontend(server MessageServer, handler InvalidRequestHandle
 	}
 
 	return &MessageServerFrontend{
-		server:                server,
+		messageServer:         server,
 		invalidRequestHandler: handler,
 	}
 }
 
 // 实现 http.Handler.
 func (frontend *MessageServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	messageServer := frontend.server
+	messageServer := frontend.messageServer
 	invalidRequestHandler := frontend.invalidRequestHandler
 
 	ServeHTTP(w, r, nil, messageServer, invalidRequestHandler)

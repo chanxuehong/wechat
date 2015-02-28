@@ -16,8 +16,8 @@ import (
 // 微信支付签名.
 //  parameters: 待签名的参数集合
 //  apiKey:     API密钥
-//  h:          hash.Hash, 如果 h == nil 则默认用 md5.New()
-func Sign(parameters map[string]string, apiKey string, h hash.Hash) string {
+//  fn:         func() hash.Hash, 如果 fn == nil 则默认用 md5.New
+func Sign(parameters map[string]string, apiKey string, fn func() hash.Hash) string {
 	ks := make([]string, 0, len(parameters))
 	for k := range parameters {
 		if k == "sign" {
@@ -27,9 +27,10 @@ func Sign(parameters map[string]string, apiKey string, h hash.Hash) string {
 	}
 	sort.Strings(ks)
 
-	if h == nil {
-		h = md5.New()
+	if fn == nil {
+		fn = md5.New
 	}
+	h := fn()
 	signature := make([]byte, h.Size()*2)
 
 	for _, k := range ks {
