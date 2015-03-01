@@ -158,11 +158,13 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 		r := &Request{
 			HttpRequest: r,
 
+			QueryValues:  urlValues,
 			MsgSignature: msgSignature1,
 			TimeStamp:    timestamp,
 			Nonce:        nonce,
-			RawMsgXML:    RawMsgXML,
-			MixedMsg:     &MixedMsg,
+
+			RawMsgXML: RawMsgXML,
+			MixedMsg:  &MixedMsg,
 
 			AESKey: AESKey,
 			Random: Random,

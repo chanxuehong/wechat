@@ -8,6 +8,7 @@ package corp
 import (
 	"io"
 	"net/http"
+	"net/url"
 )
 
 // 微信服务器推送过来的消息(事件)处理接口
@@ -45,19 +46,21 @@ type Request struct {
 
 	// 下面的字段必须提供
 
-	MsgSignature string        // 请求 URL 中的消息体签名: msg_signature
-	TimeStamp    int64         // 请求 URL 中的时间戳: timestamp
-	Nonce        string        // 请求 URL 中的随机数: nonce
-	RawMsgXML    []byte        // 消息的"明文"XML 文本
-	MixedMsg     *MixedMessage // RawMsgXML 解析后的消息
+	QueryValues  url.Values // 回调请求 URL 中的查询参数集合
+	MsgSignature string     // 回调请求 URL 中的消息体签名: msg_signature
+	TimeStamp    int64      // 回调请求 URL 中的时间戳: timestamp
+	Nonce        string     // 回调请求 URL 中的随机数: nonce
+
+	RawMsgXML []byte        // 消息的"明文"XML 文本
+	MixedMsg  *MixedMessage // RawMsgXML 解析后的消息
 
 	AESKey [32]byte // 当前消息 AES 加密的 key
 	Random []byte   // 当前消息加密时所用的 random, 16 bytes
 
 	// 下面字段是企业号应用的基本信息
-	CorpId     string
-	AgentId    int64
-	AgentToken string
+	CorpId     string // 请求消息所属企业号的 ID
+	AgentId    int64  // 请求消息所属企业号应用的 ID
+	AgentToken string // 请求消息所属企业号应用的 Token
 }
 
 // 微信服务器推送过来的消息(事件)通用的消息头

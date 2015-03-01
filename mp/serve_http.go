@@ -147,9 +147,11 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 			r := &Request{
 				HttpRequest: r,
 
-				Signature: signature1,
-				TimeStamp: timestamp,
-				Nonce:     nonce,
+				QueryValues: urlValues,
+				Signature:   signature1,
+				TimeStamp:   timestamp,
+				Nonce:       nonce,
+
 				RawMsgXML: RawMsgXML,
 				MixedMsg:  &MixedMsg,
 
@@ -211,9 +213,11 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 			r := &Request{
 				HttpRequest: r,
 
-				Signature: signature1,
-				TimeStamp: timestamp,
-				Nonce:     nonce,
+				QueryValues: urlValues,
+				Signature:   signature1,
+				TimeStamp:   timestamp,
+				Nonce:       nonce,
+
 				RawMsgXML: RawMsgXML,
 				MixedMsg:  &MixedMsg,
 

@@ -8,6 +8,7 @@ package mp
 import (
 	"io"
 	"net/http"
+	"net/url"
 )
 
 // 微信服务器推送过来的消息(事件)处理接口
@@ -44,9 +45,12 @@ type Request struct {
 	HttpRequest *http.Request // 可以为 nil, 因为某些 http 框架没有提供此参数
 
 	// 下面的字段必须提供, 如果有的话
-	Signature string        // 请求 URL 中的签名: signature
-	TimeStamp int64         // 请求 URL 中的时间戳: timestamp
-	Nonce     string        // 请求 URL 中的随机数: nonce
+
+	QueryValues url.Values // 回调请求 URL 中的查询参数集合
+	Signature   string     // 回调请求 URL URL 中的签名: signature
+	TimeStamp   int64      // 回调请求 URL URL 中的时间戳: timestamp
+	Nonce       string     // 回调请求 URL URL 中的随机数: nonce
+
 	RawMsgXML []byte        // "明文"消息的 XML 文本
 	MixedMsg  *MixedMessage // RawMsgXML 解析后的消息
 
@@ -57,9 +61,9 @@ type Request struct {
 	Random       []byte   // 当前消息加密时所用的 random, 16 bytes
 
 	// 下面字段是公众号的基本信息
-	WechatId    string // 公众号的原始 id, 等于 MixedMessage.ToUserName
-	WechatToken string
-	WechatAppId string
+	WechatId    string // 请求消息所属公众号的原始 ID, 等于 MixedMessage.ToUserName
+	WechatToken string // 请求消息所属公众号的 Token
+	WechatAppId string // 请求消息所属公众号的 AppId
 }
 
 // 微信服务器推送过来的消息(事件)通用的消息头
