@@ -169,8 +169,8 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 			AESKey: AESKey,
 			Random: Random,
 
-			CorpId:     wantCorpId,
-			AgentId:    wantAgentId,
+			CorpId:     haveCorpId,
+			AgentId:    haveAgentId,
 			AgentToken: agentToken,
 		}
 		agentServer.MessageHandler().ServeMessage(w, r)

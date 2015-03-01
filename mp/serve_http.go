@@ -160,7 +160,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 				AESKey:       AESKey,
 				Random:       Random,
 
-				WechatId:    wantToUserName,
+				WechatId:    haveToUserName,
 				WechatToken: wechatToken,
 				WechatAppId: WechatAppId,
 			}
@@ -221,7 +221,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 				RawMsgXML: RawMsgXML,
 				MixedMsg:  &MixedMsg,
 
-				WechatId:    wantToUserName,
+				WechatId:    haveToUserName,
 				WechatToken: WechatToken,
 				WechatAppId: wechatServer.AppId(),
 			}
