@@ -22,7 +22,7 @@ type WechatServer interface {
 	MessageHandler() MessageHandler // 获取 MessageHandler
 }
 
-var _ WechatServer = new(DefaultWechatServer)
+var _ WechatServer = (*DefaultWechatServer)(nil)
 
 type DefaultWechatServer struct {
 	wechatId string

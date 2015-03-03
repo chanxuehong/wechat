@@ -30,7 +30,7 @@ type TicketServer interface {
 	TicketRefresh() (ticket string, err error)
 }
 
-var _ TicketServer = new(DefaultTicketServer)
+var _ TicketServer = (*DefaultTicketServer)(nil)
 
 // TicketServer 的简单实现.
 //  NOTE:

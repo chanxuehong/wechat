@@ -22,7 +22,7 @@ type AgentServer interface {
 	MessageHandler() MessageHandler // 获取 MessageHandler
 }
 
-var _ AgentServer = new(DefaultAgentServer)
+var _ AgentServer = (*DefaultAgentServer)(nil)
 
 type DefaultAgentServer struct {
 	corpId  string

@@ -10,7 +10,7 @@ import (
 	"sync"
 )
 
-var _ MessageHandler = new(MessageServeMux)
+var _ MessageHandler = (*MessageServeMux)(nil)
 
 // MessageServeMux 实现了一个简单的消息路由器, 同时也是一个 MessageHandler.
 type MessageServeMux struct {

@@ -33,7 +33,7 @@ type TokenServer interface {
 	TokenRefresh() (token string, err error)
 }
 
-var _ TokenServer = new(DefaultTokenServer)
+var _ TokenServer = (*DefaultTokenServer)(nil)
 
 // TokenServer 的简单实现.
 //  NOTE:

@@ -13,7 +13,7 @@ type MessageServer interface {
 	MessageHandler() MessageHandler // 获取 MessageHandler
 }
 
-var _ MessageServer = new(DefaultMessageServer)
+var _ MessageServer = (*DefaultMessageServer)(nil)
 
 type DefaultMessageServer struct {
 	appId  string
