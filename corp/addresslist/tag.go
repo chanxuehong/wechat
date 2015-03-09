@@ -6,9 +6,10 @@
 package addresslist
 
 import (
-	"github.com/chanxuehong/wechat/corp"
 	"strconv"
 	"strings"
+
+	"github.com/chanxuehong/wechat/corp"
 )
 
 // 创建标签

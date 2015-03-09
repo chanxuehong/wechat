@@ -7,6 +7,7 @@ package addresslist
 
 import (
 	"errors"
+	"net/url"
 	"strconv"
 
 	"github.com/chanxuehong/wechat/corp"
@@ -96,11 +97,11 @@ func (clt *Client) UserUpdate(para *UserUpdateParameters) (err error) {
 }
 
 // 删除成员
-func (clt *Client) UserDelete(userId int64) (err error) {
+func (clt *Client) UserDelete(userId string) (err error) {
 	var result corp.Error
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/user/delete?userid=" +
-		strconv.FormatInt(userId, 10) + "&access_token="
+		url.QueryEscape(userId) + "&access_token="
 	if err = clt.GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
@@ -113,13 +114,13 @@ func (clt *Client) UserDelete(userId int64) (err error) {
 }
 
 // 批量删除成员
-func (clt *Client) UserBatchDelete(UserIdList []int64) (err error) {
+func (clt *Client) UserBatchDelete(UserIdList []string) (err error) {
 	if len(UserIdList) <= 0 {
 		return
 	}
 
 	var request = struct {
-		UserIdList []int64 `json:"useridlist,omitempty"`
+		UserIdList []string `json:"useridlist,omitempty"`
 	}{
 		UserIdList: UserIdList,
 	}
@@ -153,14 +154,14 @@ type UserInfo struct {
 	} `json:"extattr"` // 扩展属性
 }
 
-func (clt *Client) UserInfo(userId int64) (info *UserInfo, err error) {
+func (clt *Client) UserInfo(userId string) (info *UserInfo, err error) {
 	var result struct {
 		corp.Error
 		UserInfo
 	}
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/user/get?userid=" +
-		strconv.FormatInt(userId, 10) + "&access_token="
+		url.QueryEscape(userId) + "&access_token="
 	if err = clt.GetJSON(incompleteURL, &result); err != nil {
 		return
 	}

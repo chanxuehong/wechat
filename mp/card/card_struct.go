@@ -39,37 +39,32 @@ type Card struct {
 // 通用券
 type GeneralCoupon struct {
 	*CardBaseInfo `json:"base_info,omitempty"`
-
 	DefaultDetail string `json:"default_detail,omitempty"` // 描述文本
 }
 
 // 团购券
 type Groupon struct {
 	*CardBaseInfo `json:"base_info,omitempty"`
-
-	DealDetail string `json:"deal_detail,omitempty"` // 团购券专用，团购详情
+	DealDetail    string `json:"deal_detail,omitempty"` // 团购券专用，团购详情
 }
 
 // 礼品券
 type Gift struct {
 	*CardBaseInfo `json:"base_info,omitempty"`
-
-	Gift string `json:"gift,omitempty"` // 礼品券专用，表示礼品名字
+	Gift          string `json:"gift,omitempty"` // 礼品券专用，表示礼品名字
 }
 
 // 代金券
 type Cash struct {
 	*CardBaseInfo `json:"base_info,omitempty"`
-
-	LeastCost  *int `json:"least_cost,omitempty"`  // 可选; 代金券专用，表示起用金额（单位为分）
-	ReduceCost *int `json:"reduce_cost,omitempty"` // 代金券专用，表示减免金额（单位为分）
+	LeastCost     *int `json:"least_cost,omitempty"`  // 可选; 代金券专用，表示起用金额（单位为分）
+	ReduceCost    *int `json:"reduce_cost,omitempty"` // 代金券专用，表示减免金额（单位为分）
 }
 
 // 折扣券
 type Discount struct {
 	*CardBaseInfo `json:"base_info,omitempty"`
-
-	Discount *int `json:"discount,omitempty"` // 折扣券专用，表示打折额度（百分比）。填30 就是七折。
+	Discount      *int `json:"discount,omitempty"` // 折扣券专用，表示打折额度（百分比）。填30 就是七折。
 }
 
 // 会员卡
@@ -91,16 +86,14 @@ type MemberCard struct {
 // 景点门票
 type ScenicTicket struct {
 	*CardBaseInfo `json:"base_info,omitempty"`
-
-	TicketClass string `json:"ticket_class,omitempty"` // 可选; 票类型，例如平日全票，套票等
-	GuideURL    string `json:"guide_url,omitempty"`    // 可选; 导览图url
+	TicketClass   string `json:"ticket_class,omitempty"` // 可选; 票类型，例如平日全票，套票等
+	GuideURL      string `json:"guide_url,omitempty"`    // 可选; 导览图url
 }
 
 // 电影票
 type MovieTicket struct {
 	*CardBaseInfo `json:"base_info,omitempty"`
-
-	Detail string `json:"detail,omitempty"` // 可选; 电影票详情
+	Detail        string `json:"detail,omitempty"` // 可选; 电影票详情
 }
 
 // 飞机票
@@ -126,9 +119,8 @@ type LuckyMoney struct {
 // 会议门票
 type MeetingTicket struct {
 	*CardBaseInfo `json:"base_info,omitempty"`
-
-	MeetingDetail string `json:"meeting_detail"`    // 会议详情
-	MapURL        string `json:"map_url,omitempty"` // 可选; 会议导览图
+	MeetingDetail string `json:"meeting_detail,omitempty"` // 会议详情
+	MapURL        string `json:"map_url,omitempty"`        // 可选; 会议导览图
 }
 
 // base_info ===================================================================

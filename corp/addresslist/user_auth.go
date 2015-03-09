@@ -6,7 +6,7 @@
 package addresslist
 
 import (
-	"strconv"
+	"net/url"
 
 	"github.com/chanxuehong/wechat/corp"
 )
@@ -18,11 +18,11 @@ import (
 //  根据code和agentid获取员工的userid。
 //
 //  企业在员工验证成功后，调用如下接口即可让员工关注成功。
-func (clt *Client) UserAuthSuccess(userId int64) (err error) {
+func (clt *Client) UserAuthSuccess(userId string) (err error) {
 	var result corp.Error
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/user/authsucc?userid=" +
-		strconv.FormatInt(userId, 10) + "&access_token="
+		url.QueryEscape(userId) + "&access_token="
 	if err = clt.GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
