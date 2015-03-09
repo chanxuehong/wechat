@@ -27,7 +27,7 @@ type CommonMessageHeader struct {
 
 	MsgType string `json:"msgtype"`        // 必须; 消息类型
 	AgentId int64  `json:"agentid"`        // 必须; 企业应用的id，整型
-	Safe    int    `json:"safe,omitempty"` // 非必须; 表示是否是保密消息，0表示否，1表示是，默认0
+	Safe    *int   `json:"safe,omitempty"` // 非必须; 表示是否是保密消息，0表示否，1表示是，默认0
 }
 
 type Text struct {
@@ -105,13 +105,21 @@ func (this *News) CheckValid() (err error) {
 }
 
 type MPNewsArticle struct {
-	ThumbMediaId     string `json:"thumb_media_id"`                  // 图文消息缩略图的media_id, 可以在上传多媒体文件接口中获得。此处thumb_media_id即上传接口返回的media_id
-	Title            string `json:"title"`                           // 图文消息的标题
-	Author           string `json:"author,omitempty"`                // 图文消息的作者
-	ContentSourceURL string `json:"content_source_url,omitempty"`    // 图文消息点击“阅读原文”之后的页面链接
-	Content          string `json:"content"`                         // 图文消息的内容，支持html标签
-	Digest           string `json:"digest,omitempty"`                // 图文消息的描述
-	ShowCoverPic     int    `json:"show_cover_pic,string,omitempty"` // 是否显示封面，1为显示，0为不显示
+	ThumbMediaId     string `json:"thumb_media_id"`               // 图文消息缩略图的media_id, 可以在上传多媒体文件接口中获得。此处thumb_media_id即上传接口返回的media_id
+	Title            string `json:"title"`                        // 图文消息的标题
+	Author           string `json:"author,omitempty"`             // 图文消息的作者
+	ContentSourceURL string `json:"content_source_url,omitempty"` // 图文消息点击“阅读原文”之后的页面链接
+	Content          string `json:"content"`                      // 图文消息的内容，支持html标签
+	Digest           string `json:"digest,omitempty"`             // 图文消息的描述
+	ShowCoverPic     int    `json:"show_cover_pic"`               // 是否显示封面，1为显示，0为不显示
+}
+
+func (article *MPNewsArticle) SetShowCoverPic(b bool) {
+	if b {
+		article.ShowCoverPic = 1
+	} else {
+		article.ShowCoverPic = 0
+	}
 }
 
 // MPNews 消息与 News 消息类似，不同的是图文消息内容存储在微信后台，并且支持保密选项。

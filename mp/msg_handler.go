@@ -133,4 +133,10 @@ type MixedMessage struct {
 	OrderStatus int     `xml:"OrderStatus" json:"OrderStatus"`
 	ProductId   string  `xml:"ProductId"   json:"ProductId"`
 	SKUInfo     string  `xml:"SkuInfo"     json:"SkuInfo"`
+
+	CardId         string `xml:"CardId"         json:"CardId"`
+	IsGiveByFriend int    `xml:"IsGiveByFriend" json:"IsGiveByFriend"`
+	FriendUserName string `xml:"FriendUserName" json:"FriendUserName"`
+	UserCardCode   string `xml:"UserCardCode"   json:"UserCardCode"`
+	OuterId        int64  `xml:"OuterId"        json:"OuterId"`
 }

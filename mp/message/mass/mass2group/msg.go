@@ -15,7 +15,7 @@ const (
 
 type CommonMessageHeader struct {
 	Filter struct {
-		GroupId int64 `json:"group_id,string"`
+		GroupId int64 `json:"group_id"`
 	} `json:"filter"`
 	MsgType string `json:"msgtype"`
 }

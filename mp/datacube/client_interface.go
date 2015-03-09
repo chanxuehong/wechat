@@ -47,7 +47,7 @@ func (clt *Client) GetInterfaceSummary(req *Request) (list []InterfaceSummaryDat
 
 type InterfaceSummaryHourData struct {
 	InterfaceSummaryData
-	RefHour int `json:"ref_hour,omitempty"` // 数据的小时，包括从000到2300，分别代表的是[000,100)到[2300,2400)，即每日的第1小时和最后1小时
+	RefHour *int `json:"ref_hour,omitempty"` // 数据的小时，包括从000到2300，分别代表的是[000,100)到[2300,2400)，即每日的第1小时和最后1小时
 }
 
 // 获取接口分析分时数据.
