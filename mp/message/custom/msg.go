@@ -168,11 +168,11 @@ type Music struct {
 	CommonMessageHeader
 
 	Music struct {
-		Title        string `json:"title,omitempty"`       // 音乐标题
-		Description  string `json:"description,omitempty"` // 音乐描述
-		MusicURL     string `json:"musicurl"`              // 音乐链接
-		HQMusicURL   string `json:"hqmusicurl"`            // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
-		ThumbMediaId string `json:"thumb_media_id"`        // 缩略图的媒体id, 通过上传多媒体文件得到
+		Title        string `json:"title,omitempty"`          // 音乐标题
+		Description  string `json:"description,omitempty"`    // 音乐描述
+		MusicURL     string `json:"musicurl,omitempty"`       // 音乐链接
+		HQMusicURL   string `json:"hqmusicurl,omitempty"`     // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
+		ThumbMediaId string `json:"thumb_media_id,omitempty"` // 缩略图的媒体id, 通过上传多媒体文件得到
 	} `json:"music"`
 
 	*CustomService `json:"customservice,omitempty"`

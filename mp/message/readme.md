@@ -47,5 +47,4 @@ func main() {
 	http.Handle("/wechat", wechatServerFrontend)
 	http.ListenAndServe(":80", nil)
 }
-
 ```

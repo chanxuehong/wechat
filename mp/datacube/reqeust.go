@@ -14,11 +14,11 @@ type Request struct {
 	// 获取数据的起始日期, YYYY-MM-DD 格式.
 	// begin_date 和 end_date 的差值需小于"最大时间跨度"(比如最大时间跨度为1时,
 	// begin_date 和 end_date 的差值只能为0, 才能小于1), 否则会报错
-	BeginDate string `json:"begin_date"`
+	BeginDate string `json:"begin_date,omitempty"`
 
 	// 获取数据的结束日期, YYYY-MM-DD 格式.
 	// end_date 允许设置的最大值为昨日
-	EndDate string `json:"end_date"`
+	EndDate string `json:"end_date,omitempty"`
 }
 
 // NewRequest 创建一个 Request.

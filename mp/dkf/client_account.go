@@ -131,9 +131,9 @@ func (clt *Client) AddKfAccount(account, nickname, password string, isPwdPlain b
 	}
 
 	request := struct {
-		Account  string `json:"kf_account"`
-		Nickname string `json:"nickname"`
-		Password string `json:"password"`
+		Account  string `json:"kf_account,omitempty"`
+		Nickname string `json:"nickname,omitempty"`
+		Password string `json:"password,omitempty"`
 	}{
 		Account:  account,
 		Nickname: nickname,
@@ -166,9 +166,9 @@ func (clt *Client) SetKfAccount(account, nickname, password string, isPwdPlain b
 	}
 
 	request := struct {
-		Account  string `json:"kf_account"`
-		Nickname string `json:"nickname"`
-		Password string `json:"password"`
+		Account  string `json:"kf_account,omitempty"`
+		Nickname string `json:"nickname,omitempty"`
+		Password string `json:"password,omitempty"`
 	}{
 		Account:  account,
 		Nickname: nickname,

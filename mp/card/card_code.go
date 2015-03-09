@@ -116,8 +116,8 @@ func (clt *Client) CardCodeGet(code, cardId string) (card *CardCode, openId stri
 func (clt *Client) CardCodeUpdate(code, cardId, newCode string) (err error) {
 	var request = struct {
 		Code    string `json:"code"`
-		CardId  string `json:"card_id"`
-		NewCode string `json:"new_code"`
+		CardId  string `json:"card_id,omitempty"`
+		NewCode string `json:"new_code,omitempty"`
 	}{
 		Code:    code,
 		CardId:  cardId,

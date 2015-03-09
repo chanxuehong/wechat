@@ -202,7 +202,7 @@ type Tag struct {
 func (clt *Client) TagList() (list []Tag, err error) {
 	var result struct {
 		corp.Error
-		TagList []Tag `json:"taglist,omitempty"`
+		TagList []Tag `json:"taglist"`
 	}
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/tag/list?access_token="

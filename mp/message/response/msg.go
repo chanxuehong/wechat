@@ -131,11 +131,11 @@ type Music struct {
 	mp.CommonMessageHeader
 
 	Music struct {
-		Title        string `xml:"Title,omitempty"       json:"Title,omitempty"`       // 音乐标题
-		Description  string `xml:"Description,omitempty" json:"Description,omitempty"` // 音乐描述
-		MusicURL     string `xml:"MusicUrl"              json:"MusicUrl"`              // 音乐链接
-		HQMusicURL   string `xml:"HQMusicUrl"            json:"HQMusicUrl"`            // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
-		ThumbMediaId string `xml:"ThumbMediaId"          json:"ThumbMediaId"`          // 缩略图的媒体id, 通过上传多媒体文件得到
+		Title        string `xml:"Title,omitempty"        json:"Title,omitempty"`        // 音乐标题
+		Description  string `xml:"Description,omitempty"  json:"Description,omitempty"`  // 音乐描述
+		MusicURL     string `xml:"MusicUrl,omitempty"     json:"MusicUrl,omitempty"`     // 音乐链接
+		HQMusicURL   string `xml:"HQMusicUrl,omitempty"   json:"HQMusicUrl,omitempty"`   // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
+		ThumbMediaId string `xml:"ThumbMediaId,omitempty" json:"ThumbMediaId,omitempty"` // 缩略图的媒体id, 通过上传多媒体文件得到
 	} `xml:"Music" json:"Music"`
 }
 
