@@ -166,22 +166,8 @@ type CardBaseInfo struct {
 	Notice      string `json:"notice,omitempty"`      // 使用提醒，字数上限为9 个汉字。（一句话描述，展示在首页，示例：请出示二维码核销卡券）
 	Description string `json:"description,omitempty"` // 使用说明。长文本描述，可以分行，上限为1000 个汉字。
 
-	DateInfo struct {
-		// 使用时间的类型1：固定日期区间，2：固定时长（自领取后按天算）
-		Type int `json:"type,omitempty"`
-		// 固定日期区间专用，表示起用时间。从1970 年1 月1 日00:00:00至起用时间的秒数，最终需转换为字符串形态传入，下同。（单位为秒）
-		BeginTimestamp int64 `json:"begin_timestamp,omitempty"`
-		// 固定日期区间专用，表示结束时间。（单位为秒）
-		EndTimestamp int64 `json:"end_timestamp,omitempty"`
-		// 固定时长专用，表示自领取后多少天内有效。（单位为天）领取后当天有效填写0。
-		FixedTerm *int `json:"fixed_term,omitempty"`
-		// 固定时长专用，表示自领取后多少天开始生效。（单位为天）
-		FixedBeginTerm *int `json:"fixed_begin_term,omitempty"`
-	} `json:"date_info"` // 有效日期
-
-	SKU struct {
-		Quantity int `json:"quantity,omitempty"` // 上架的数量。（不支持填写0或无限大）
-	} `json:"sku"` // 商品信息
+	*DateInfo `json:"date_info,omitempty"` // 有效日期
+	*SKU      `json:"sku,omitempty"`       // 商品信息
 
 	LocationIdList []int64 `json:"location_id_list,omitempty"` // 可选; 门店地址ID
 	UseCustomCode  *bool   `json:"use_custom_code,omitempty"`  // 可选; 是否自定义code 码。
@@ -194,4 +180,21 @@ type CardBaseInfo struct {
 	Source         string  `json:"source,omitempty"`           // 可选; 第三方来源名，如携程
 	URLNameType    string  `json:"url_name_type,omitempty"`    // 可选; 商户自定义cell 名称， 与custom_url 字段共同使用
 	CustomURL      string  `json:"custom_url,omitempty"`       // 可选; 商户自定义cell 跳转外链的地址链接,跳转页面内容需与自定义cell 名称保持一致。
+}
+
+type DateInfo struct {
+	// 使用时间的类型1：固定日期区间，2：固定时长（自领取后按天算）
+	Type int `json:"type,omitempty"`
+	// 固定日期区间专用，表示起用时间。从1970 年1 月1 日00:00:00至起用时间的秒数，最终需转换为字符串形态传入，下同。（单位为秒）
+	BeginTimestamp int64 `json:"begin_timestamp,omitempty"`
+	// 固定日期区间专用，表示结束时间。（单位为秒）
+	EndTimestamp int64 `json:"end_timestamp,omitempty"`
+	// 固定时长专用，表示自领取后多少天内有效。（单位为天）领取后当天有效填写0。
+	FixedTerm *int `json:"fixed_term,omitempty"`
+	// 固定时长专用，表示自领取后多少天开始生效。（单位为天）
+	FixedBeginTerm *int `json:"fixed_begin_term,omitempty"`
+}
+
+type SKU struct {
+	Quantity int `json:"quantity,omitempty"` // 上架的数量。（不支持填写0或无限大）
 }
