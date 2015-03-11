@@ -26,7 +26,7 @@ func WXVersion(userAgent string) (x, y, z int, err error) {
 	}
 
 	strArr := strings.Split(userAgent[versionIndex:], ".")
-	verArr := make([]int, len(strArr)) // len(strArr) == len(verArr) >= 1, why?
+	verArr := make([]int, len(strArr))
 
 	for i, str := range strArr {
 		var ver uint64
@@ -38,24 +38,21 @@ func WXVersion(userAgent string) (x, y, z int, err error) {
 		verArr[i] = int(ver)
 	}
 
+	// len(verArr) == len(strArr) >= 1, why?
 	switch len(verArr) {
 	case 3:
 		x = verArr[0]
 		y = verArr[1]
 		z = verArr[2]
-
 	case 2:
 		x = verArr[0]
 		y = verArr[1]
-
 	case 1:
 		x = verArr[0]
-
 	default:
 		x = verArr[0]
 		y = verArr[1]
 		z = verArr[2]
 	}
-
 	return
 }

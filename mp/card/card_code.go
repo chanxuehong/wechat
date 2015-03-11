@@ -10,6 +10,11 @@ import (
 )
 
 // 卡券核销, 消耗code
+//  消耗code 接口是核销卡券的唯一接口，仅支持核销有效期内的卡券，否则会返回错误码invalid time。
+//  自定义code（use_custom_code 为true）的优惠券，在code 被核销时，必须调用此接口。
+//  用于将用户客户端的code 状态变更。自定义code 的卡券调用接口时， post 数据中需包含card_id，
+//  非自定义code 不需上报。
+//
 //  code:   要消耗序列号
 //  cardId: 卡券ID。创建卡券时use_custom_code 填写true时必填。非自定义code 不必填写。
 func (clt *Client) CardCodeConsume(code, cardId string) (_cardId, openId string, err error) {
@@ -44,6 +49,9 @@ func (clt *Client) CardCodeConsume(code, cardId string) (_cardId, openId string,
 }
 
 // code 解码接口
+//  code 解码接口支持两种场景：
+//  1.商家获取choos_card_info 后，将card_id 和encrypt_code 字段通过解码接口，获取真实code。
+//  2.卡券内跳转外链的签名中会对code 进行加密处理，通过调用解码接口获取真实code。
 func (clt *Client) CardCodeDecrypt(encryptCode string) (code string, err error) {
 	var request = struct {
 		EncryptCode string `json:"encrypt_code"`

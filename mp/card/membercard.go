@@ -16,8 +16,8 @@ type MemberCardActivateParameters struct {
 	CardId           string `json:"card_id,omitempty"` // 可选; 卡券ID。自定义code 的会员卡必填card_id，非自定义code 的会员卡不必填。
 	MembershipNumber string `json:"membership_number"` // 必填，会员卡编号，作为序列号显示在用户的卡包里。
 
-	InitBonus   int `json:"init_bonus,omitempty"`   // 可选; 初始积分，不填为0
-	InitBalance int `json:"init_balance,omitempty"` // 可选; 初始余额，不填为0
+	InitBonus   *int `json:"init_bonus,omitempty"`   // 可选; 初始积分，不填为0
+	InitBalance *int `json:"init_balance,omitempty"` // 可选; 初始余额，不填为0
 
 	BonusURL   string `json:"bonus_url,omitempty"`   // 可选; 积分查询，仅用于init_bonus 无法同步的情况填写，调转外链查询积分
 	BalanceURL string `json:"balance_url,omitempty"` // 可选; 余额查询，仅用于init_balance 无法同步的情况填写，调转外链查询积分
@@ -44,13 +44,13 @@ func (clt *Client) MemberCardActivate(para *MemberCardActivateParameters) (err e
 }
 
 type MemberCardUpdateUserParameters struct {
-	Code   string `json:"code"`              // 要消耗的序列号。
-	CardId string `json:"card_id,omitempty"` // 要消耗序列号所述的card_id。自定义code 的会员卡必填
+	Code   string `json:"code"`              // 必须; 要消耗的序列号。
+	CardId string `json:"card_id,omitempty"` // 可选; 要消耗序列号所述的card_id。自定义code 的会员卡必填
 
-	AddBonus      int    `json:"add_bonus,omitempty"`      // 需要变更的积分，扣除积分用“-“表示。
-	RecordBonus   string `json:"record_bonus,omitempty"`   // 商家自定义积分消耗记录，不超过14 个汉字
-	AddBalance    int    `json:"add_balance,omitempty"`    // 需要变更的余额，扣除金额用“-”表示。单位为分
-	RecordBalance string `json:"record_balance,omitempty"` // 商家自定义金额消耗记录，不超过14 个汉字
+	AddBonus      int    `json:"add_bonus,omitempty"`      // 可选; 需要变更的积分，扣除积分用“-“表示。
+	RecordBonus   string `json:"record_bonus,omitempty"`   // 可选; 商家自定义积分消耗记录，不超过14 个汉字
+	AddBalance    int    `json:"add_balance,omitempty"`    // 可选; 需要变更的余额，扣除金额用“-”表示。单位为分
+	RecordBalance string `json:"record_balance,omitempty"` // 可选; 商家自定义金额消耗记录，不超过14 个汉字
 }
 
 type MemberCardUpdateUserResult struct {

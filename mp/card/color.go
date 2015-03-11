@@ -14,7 +14,7 @@ type Color struct {
 	Value string `json:"value"`
 }
 
-// 获取颜色列表接口.
+// 获得卡券的最新颜色列表，用于卡券创建.
 func (clt *Client) GetColors() (colors []Color, err error) {
 	var result struct {
 		mp.Error

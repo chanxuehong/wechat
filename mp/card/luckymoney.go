@@ -12,10 +12,10 @@ import (
 )
 
 type LuckyMoneyUpdateUserBalanceParameters struct {
-	Code   string `json:"code"`              // 红包的序列号
-	CardId string `json:"card_id,omitempty"` // 自定义code 的卡券必填。非自定义code可不填。
+	Code   string `json:"code"`              // 必须; 红包的序列号
+	CardId string `json:"card_id,omitempty"` // 可选; 自定义code 的卡券必填。非自定义code可不填。
 
-	Balance int `json:"balance"` // 红包余额
+	Balance *int `json:"balance"` // 必须; 红包余额
 }
 
 // 更新红包金额.

@@ -10,11 +10,11 @@ import (
 )
 
 const (
+	// 推送到公众号URL上的事件类型
 	EventTypeCardPassCheck    = "card_pass_check"     // 卡券通过审核
 	EventTypeCardNotPassCheck = "card_not_pass_check" // 卡券未通过审核
 	EventTypeUserGetCard      = "user_get_card"       // 领取卡券事件
 	EventTypeUserDelCard      = "user_del_card"       // 删除卡券事件
-
 )
 
 // 卡券通过审核，微信会把这个事件推送到开发者填写的URL

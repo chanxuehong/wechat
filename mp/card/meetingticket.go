@@ -12,12 +12,12 @@ import (
 )
 
 type MeetingTicketUpdateUserParameters struct {
-	Code   string `json:"code"`              // 用户的门票唯一序列号
-	CardId string `json:"card_id,omitempty"` // 要更新门票序列号所述的card_id ， 生成券时use_custom_code 填写true 时必填。
+	Code   string `json:"code"`              // 必须; 用户的门票唯一序列号
+	CardId string `json:"card_id,omitempty"` // 可选; 要更新门票序列号所述的card_id ， 生成券时use_custom_code 填写true 时必填。
 
-	Zone       string `json:"zone,omitempty"`        // 区域
-	Entrance   string `json:"entrance,omitempty"`    // 入口
-	SeatNumber string `json:"seat_number,omitempty"` // 座位号
+	Zone       string `json:"zone,omitempty"`        // 可选; 区域
+	Entrance   string `json:"entrance,omitempty"`    // 可选; 入口
+	SeatNumber string `json:"seat_number,omitempty"` // 可选; 座位号
 }
 
 // 更新电影票.

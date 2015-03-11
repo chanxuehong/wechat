@@ -13,23 +13,24 @@ import (
 )
 
 type LocationAddParameters struct {
-	BusinessName string  `json:"business_name"`         // 门店名称
-	BranchName   string  `json:"branch_name,omitempty"` // 分店名
-	Province     string  `json:"province"`              // 门店所在的省
-	City         string  `json:"city"`                  // 门店所在的市
-	District     string  `json:"district"`              // 门店所在的区
-	Address      string  `json:"address"`               // 门店所在的详细街道地址
-	Telephone    string  `json:"telephone"`             // 门店的电话
-	Category     string  `json:"category"`              // 门店的类型（酒店、餐饮、购物...）
-	Longitude    float64 `json:"longitude"`             // 门店所在地理位置的经度（建议使用腾讯地图定位经纬度）
-	Latitude     float64 `json:"latitude"`              // 门店所在地理位置的纬度（建议使用腾讯地图定位经纬度）
+	BusinessName string  `json:"business_name"`         // 必须; 门店名称
+	BranchName   string  `json:"branch_name,omitempty"` // 可选; 分店名
+	Province     string  `json:"province"`              // 必须; 门店所在的省
+	City         string  `json:"city"`                  // 必须; 门店所在的市
+	District     string  `json:"district"`              // 必须; 门店所在的区
+	Address      string  `json:"address"`               // 必须; 门店所在的详细街道地址
+	Telephone    string  `json:"telephone"`             // 必须; 门店的电话
+	Category     string  `json:"category"`              // 必须; 门店的类型（酒店、餐饮、购物...）
+	Longitude    float64 `json:"longitude"`             // 必须; 门店所在地理位置的经度（建议使用腾讯地图定位经纬度）
+	Latitude     float64 `json:"latitude"`              // 必须; 门店所在地理位置的纬度（建议使用腾讯地图定位经纬度）
 }
 
 // 批量导入门店信息.
-//  1.通过该接口导入的门店信息将进入门店审核流程，审核期间可正常使用。
-//     若导入的门店信息未通过审核，则会被剔除出门店列表。
+//  1.支持商户调用该接口批量导入/新建门店信息，获取门店ID。
+//    通过该接口导入的门店信息将进入门店审核流程，审核期间可正常使用。若导入的
+//    门店信息未通过审核，则会被剔除出门店列表。
 //  2.LocationList 和 LocationIdList 长度相等, 如果 LocationList 某个门店导入失败,
-//    那么 LocationIdList 对应的位置就是 -1
+//    那么 LocationIdList 对应的位置就是等于 -1
 func (clt *Client) LocationBatchAdd(LocationList []LocationAddParameters) (LocationIdList []int64, err error) {
 	if len(LocationList) <= 0 {
 		return
@@ -69,7 +70,7 @@ type Location struct {
 	Latitude     float64 `json:"latitude"`
 }
 
-// 拉取门店列表.
+// 拉取门店列表, 获取在公众平台上申请创建及API导入的门店列表，用于创建卡券.
 //  offset: 偏移量，0 开始
 //  count:  拉取数量
 //  注：“offset”，“count”为0 时默认拉取全部门店。

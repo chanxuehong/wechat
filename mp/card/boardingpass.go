@@ -12,15 +12,15 @@ import (
 )
 
 type BoardingPassCheckinParameters struct {
-	Code   string `json:"code"`              // 飞机票的序列号
-	CardId string `json:"card_id,omitempty"` // 需办理值机的机票card_id。自定义code 的飞机票为必填
+	Code   string `json:"code"`              // 必须; 飞机票的序列号
+	CardId string `json:"card_id,omitempty"` // 可选; 需办理值机的机票card_id。自定义code 的飞机票为必填
 
-	PassengerName string `json:"passenger_name,omitempty"` // 乘客姓名，上限为15 个汉字。
-	Class         string `json:"class,omitempty"`          // 舱等，如头等舱等，上限为5 个汉字。
-	Seat          string `json:"seat,omitempty"`           // 乘客座位号。
-	ETKT_NBR      string `json:"etkt_bnr,omitempty"`       // 电子客票号，上限为14 个数字
-	QRCodeData    string `json:"qrcode_data,omitempty"`    // 二维码数据。乘客用于值机的二维码字符串，微信会通过此数据为用户生成值机用的二维码。
-	IsCancel      *bool  `json:"is_cancel,omitempty"`      // 是否取消值机。填写true 或false。true 代表取消，如填写true 上述字段（如calss 等）均不做判断，机票返回未值机状态，乘客可重新值机。默认填写false
+	PassengerName string `json:"passenger_name,omitempty"` // 必须; 乘客姓名，上限为15 个汉字。
+	Class         string `json:"class,omitempty"`          // 必须; 舱等，如头等舱等，上限为5 个汉字。
+	Seat          string `json:"seat,omitempty"`           // 可选; 乘客座位号。
+	ETKT_NBR      string `json:"etkt_bnr,omitempty"`       // 必须; 电子客票号，上限为14 个数字
+	QRCodeData    string `json:"qrcode_data,omitempty"`    // 可选; 二维码数据。乘客用于值机的二维码字符串，微信会通过此数据为用户生成值机用的二维码。
+	IsCancel      *bool  `json:"is_cancel,omitempty"`      // 可选; 是否取消值机。填写true 或false。true 代表取消，如填写true 上述字段（如calss 等）均不做判断，机票返回未值机状态，乘客可重新值机。默认填写false
 }
 
 // 在线值机接口.
