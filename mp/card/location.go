@@ -61,13 +61,12 @@ func (clt *Client) LocationBatchAdd(LocationList []LocationAddParameters) (Locat
 }
 
 type Location struct {
-	LocationId   int64   `json:"location_id,string"`
-	BusinessName string  `json:"business_name"`
-	BranchName   string  `json:"branch_name,omitempty"`
-	Phone        string  `json:"phone"`
-	Address      string  `json:"address"`
-	Longitude    float64 `json:"longitude"`
-	Latitude     float64 `json:"latitude"`
+	Id        int64   `json:"id"`
+	Name      string  `json:"name"`
+	Phone     string  `json:"phone"`
+	Address   string  `json:"address"`
+	Longitude float64 `json:"longitude"`
+	Latitude  float64 `json:"latitude"`
 }
 
 // 拉取门店列表, 获取在公众平台上申请创建及API导入的门店列表，用于创建卡券.
