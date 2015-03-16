@@ -22,29 +22,32 @@ const (
 
 // 永久二维码
 type PermanentQRCode struct {
-	// 下面两个字段同时只有一个有效
-	SceneId     uint32 `json:"scene_id"`  // 场景值
-	SceneString string `json:"scene_str"` // 场景值ID（字符串形式的ID），字符串类型，长度限制为1到64
+	// 下面两个字段同时只有一个有效, 非zero值表示有效.
+	SceneId     uint32 `json:"scene_id,omitempty"`  // 场景值ID，临时二维码时为32位非0整型，永久二维码时最大值为100000（目前参数只支持1--100000）
+	SceneString string `json:"scene_str,omitempty"` // 场景值ID（字符串形式的ID），字符串类型，长度限制为1到64，仅永久二维码支持此字段
 
 	Ticket string `json:"ticket"` // 获取的二维码ticket，凭借此ticket可以在有效时间内换取二维码。
 	URL    string `json:"url"`    // 二维码图片解析后的地址，开发者可根据该地址自行生成需要的二维码图片
 }
 
-// 二维码图片的URL, 可以GET此URL下载二维码或者在线显示此二维码.
-func (qrcode *PermanentQRCode) PicURL() string {
-	return "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=" + url.QueryEscape(qrcode.Ticket)
-}
-
 // 临时二维码
 type TemporaryQRCode struct {
 	PermanentQRCode
-	ExpiresIn int `json:"expire_seconds"` // 二维码的有效时间，以秒为单位。
+	ExpireSeconds int `json:"expire_seconds,omitempty"` // 二维码的有效时间，以秒为单位。最大不超过1800。
 }
 
 // 创建临时二维码
 //  SceneId:       场景值ID，为32位非0整型
-//  ExpireSeconds: 二维码的有效时间，以秒为单位。
+//  ExpireSeconds: 二维码有效时间，以秒为单位。 最大不超过1800。
 func (clt *Client) CreateTemporaryQRCode(SceneId uint32, ExpireSeconds int) (qrcode *TemporaryQRCode, err error) {
+	if SceneId == 0 {
+		err = errors.New("SceneId should be greater than 0")
+		return
+	}
+	if ExpireSeconds <= 0 {
+		err = errors.New("ExpireSeconds should be greater than 0")
+		return
+	}
 	var request struct {
 		ExpireSeconds int    `json:"expire_seconds"`
 		ActionName    string `json:"action_name"`
@@ -78,8 +81,12 @@ func (clt *Client) CreateTemporaryQRCode(SceneId uint32, ExpireSeconds int) (qrc
 }
 
 // 创建永久二维码
-//  SceneId: 场景值ID，最大值为100000（目前参数只支持1--100000）
+//  SceneId: 场景值ID，目前参数只支持1--100000
 func (clt *Client) CreatePermanentQRCode(SceneId uint32) (qrcode *PermanentQRCode, err error) {
+	if SceneId == 0 {
+		err = errors.New("SceneId should be greater than 0")
+		return
+	}
 	var request struct {
 		ActionName string `json:"action_name"`
 		ActionInfo struct {
@@ -121,7 +128,7 @@ func (clt *Client) CreatePermanentQRCodeWithSceneString(SceneString string) (qrc
 			} `json:"scene"`
 		} `json:"action_info"`
 	}
-	request.ActionName = "QR_LIMIT_SCENE"
+	request.ActionName = "QR_LIMIT_STR_SCENE"
 	request.ActionInfo.Scene.SceneString = SceneString
 
 	var result struct {
@@ -143,11 +150,15 @@ func (clt *Client) CreatePermanentQRCodeWithSceneString(SceneString string) (qrc
 	return
 }
 
+// 二维码图片的URL, 可以GET此URL下载二维码或者在线显示此二维码.
+func QRCodePicURL(ticket string) string {
+	return "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=" + url.QueryEscape(ticket)
+}
+
 // 通过ticket换取二维码, 写入到 writer.
 //  NOTE: 调用者保证所有参数有效.
 func qrcodeDownloadToWriter(ticket string, writer io.Writer, httpClient *http.Client) (err error) {
-	qrcodeURL := "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=" + url.QueryEscape(ticket)
-	httpResp, err := httpClient.Get(qrcodeURL)
+	httpResp, err := httpClient.Get(QRCodePicURL(ticket))
 	if err != nil {
 		return
 	}
