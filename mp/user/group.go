@@ -21,10 +21,10 @@ type Group struct {
 }
 
 // 创建分组.
-//  name: 分组名字（30个字符以内）.
-func (clt *Client) CreateGroup(name string) (group *Group, err error) {
+//  name: 分组名字（30个字符以内）
+func (clt *Client) GroupCreate(name string) (group *Group, err error) {
 	if name == "" {
-		err = errors.New(`name == ""`)
+		err = errors.New("empty name")
 		return
 	}
 
@@ -55,7 +55,7 @@ func (clt *Client) CreateGroup(name string) (group *Group, err error) {
 }
 
 // 查询所有分组.
-func (clt *Client) ListGroup() (groups []Group, err error) {
+func (clt *Client) GroupList() (groups []Group, err error) {
 	var result = struct {
 		mp.Error
 		Groups []Group `json:"groups"`
@@ -78,9 +78,10 @@ func (clt *Client) ListGroup() (groups []Group, err error) {
 
 // 修改分组名.
 //  name: 分组名字（30个字符以内）.
-func (clt *Client) GroupRename(groupId int64, newName string) (err error) {
+func (clt *Client) GroupUpdate(groupId int64, newName string) (err error) {
 	if newName == "" {
-		return errors.New(`newName == ""`)
+		err = errors.New("empty newName")
+		return
 	}
 
 	var request struct {

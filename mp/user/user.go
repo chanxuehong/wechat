@@ -22,9 +22,9 @@ const (
 )
 
 const (
-	SEX_UNKNOWN = 0 // 未知
-	SEX_MALE    = 1 // 男性
-	SEX_FEMALE  = 2 // 女性
+	SexUnknown = 0 // 未知
+	SexMale    = 1 // 男性
+	SexFemale  = 2 // 女性
 )
 
 type UserInfo struct {
@@ -91,12 +91,17 @@ var ErrUserNotSubscriber = errors.New("用户没有订阅公众号")
 // 获取用户基本信息, 如果用户没有订阅公众号, 返回 ErrUserNotSubscriber 错误.
 //  lang 可以是 zh_CN, zh_TW, en, 如果留空 "" 则默认为 zh_CN.
 func (clt *Client) UserInfo(openId string, lang string) (userinfo *UserInfo, err error) {
+	if openId == "" {
+		err = errors.New("empty openId")
+		return
+	}
+
 	switch lang {
 	case "":
 		lang = Language_zh_CN
 	case Language_zh_CN, Language_zh_TW, Language_en:
 	default:
-		err = errors.New("错误的 lang 参数")
+		err = errors.New("invalid lang: " + lang)
 		return
 	}
 
@@ -173,8 +178,8 @@ func (clt *Client) UserList(beginOpenId string) (data *UserListResult, err error
 	if beginOpenId == "" {
 		incompleteURL = "https://api.weixin.qq.com/cgi-bin/user/get?access_token="
 	} else {
-		incompleteURL = "https://api.weixin.qq.com/cgi-bin/user/get?next_openid=" + url.QueryEscape(beginOpenId) +
-			"&access_token="
+		incompleteURL = "https://api.weixin.qq.com/cgi-bin/user/get?next_openid=" +
+			url.QueryEscape(beginOpenId) + "&access_token="
 	}
 
 	if err = clt.GetJSON(incompleteURL, &result); err != nil {

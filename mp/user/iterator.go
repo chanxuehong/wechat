@@ -60,7 +60,7 @@ func (iter *UserIterator) HasNext() bool {
 	//     },
 	//     "next_openid": "os-IKuHd9pJ6xsn4mS7GyL4HxqI4"
 	// }
-	return len(iter.lastUserListData.NextOpenId) != 0 &&
+	return iter.lastUserListData.NextOpenId != "" &&
 		iter.lastUserListData.GotCount == UserPageSizeLimit
 }
 
