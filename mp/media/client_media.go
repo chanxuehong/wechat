@@ -19,6 +19,7 @@ import (
 )
 
 // 下载多媒体到文件.
+//  请注意，视频文件不支持下载
 func (clt *Client) DownloadMedia(mediaId, filepath string) (err error) {
 	file, err := os.Create(filepath)
 	if err != nil {
@@ -30,6 +31,7 @@ func (clt *Client) DownloadMedia(mediaId, filepath string) (err error) {
 }
 
 // 下载多媒体到 io.Writer.
+//  请注意，视频文件不支持下载
 func (clt *Client) DownloadMediaToWriter(mediaId string, writer io.Writer) error {
 	if writer == nil {
 		return errors.New("nil writer")
@@ -60,8 +62,7 @@ RETRY:
 	}
 
 	ContentType, _, _ := mime.ParseMediaType(httpResp.Header.Get("Content-Type"))
-	if ContentType != "text/plain" && ContentType != "application/json" {
-		// 返回的是媒体流
+	if ContentType != "text/plain" && ContentType != "application/json" { // 返回的是媒体流
 		_, err = io.Copy(writer, httpResp.Body)
 		return
 	}
@@ -91,8 +92,7 @@ RETRY:
 	}
 }
 
-// 根据上传的缩略图媒体创建图文消息素材.
-//  articles 的长度不能大于 NewsArticleCountLimit.
+// 创建图文消息素材.
 func (clt *Client) CreateNews(articles []Article) (info *MediaInfo, err error) {
 	if len(articles) == 0 {
 		err = errors.New("图文消息是空的")
@@ -127,9 +127,15 @@ func (clt *Client) CreateNews(articles []Article) (info *MediaInfo, err error) {
 	return
 }
 
-// 根据上传的视频文件 media_id 创建视频媒体, 群发视频消息应该用这个函数得到的 media_id.
-//  NOTE: title, description 可以为空.
+// 创建视频素材.
+//  mediaId:     通过上传视频文件得到
+//  title:       标题, 可以为空
+//  description: 描述, 可以为空
 func (clt *Client) CreateVideo(mediaId, title, description string) (info *MediaInfo, err error) {
+	if mediaId == "" {
+		err = errors.New("empty mediaId")
+		return
+	}
 	var request = struct {
 		MediaId     string `json:"media_id"`
 		Title       string `json:"title,omitempty"`
@@ -145,7 +151,7 @@ func (clt *Client) CreateVideo(mediaId, title, description string) (info *MediaI
 		MediaInfo
 	}
 
-	incompleteURL := "https://file.api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token="
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token="
 	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
