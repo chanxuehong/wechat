@@ -120,6 +120,10 @@ func (clt *Client) CreatePermanentQRCode(SceneId uint32) (qrcode *PermanentQRCod
 // 创建永久二维码
 //  SceneString: 场景值ID（字符串形式的ID），字符串类型，长度限制为1到64
 func (clt *Client) CreatePermanentQRCodeWithSceneString(SceneString string) (qrcode *PermanentQRCode, err error) {
+	if SceneString == "" {
+		err = errors.New("SceneString should not be empty")
+		return
+	}
 	var request struct {
 		ActionName string `json:"action_name"`
 		ActionInfo struct {
@@ -150,6 +154,72 @@ func (clt *Client) CreatePermanentQRCodeWithSceneString(SceneString string) (qrc
 	return
 }
 
+// 通过ticket换取二维码, 写入到 writer.
+func (clt *Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (err error) {
+	if ticket == "" {
+		return errors.New("empty ticket")
+	}
+	if writer == nil {
+		return errors.New("nil writer")
+	}
+	if clt.HttpClient == nil {
+		clt.HttpClient = http.DefaultClient
+	}
+	return qrcodeDownloadToWriter(ticket, writer, clt.HttpClient)
+}
+
+// 通过ticket换取二维码, 写入到 filepath 路径的文件.
+func (clt *Client) QRCodeDownload(ticket, filepath string) (err error) {
+	if ticket == "" {
+		return errors.New("empty ticket")
+	}
+
+	file, err := os.Create(filepath)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	if clt.HttpClient == nil {
+		clt.HttpClient = http.DefaultClient
+	}
+	return qrcodeDownloadToWriter(ticket, file, clt.HttpClient)
+}
+
+// 通过ticket换取二维码, 写入到 writer.
+//  如果 httpClient == nil 则默认用 http.DefaultClient.
+func QRCodeDownloadToWriter(ticket string, writer io.Writer, httpClient *http.Client) (err error) {
+	if ticket == "" {
+		return errors.New("empty ticket")
+	}
+	if writer == nil {
+		return errors.New("nil writer")
+	}
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+	return qrcodeDownloadToWriter(ticket, writer, httpClient)
+}
+
+// 通过ticket换取二维码, 写入到 filepath 路径的文件.
+//  如果 httpClient == nil 则默认用 http.DefaultClient
+func QRCodeDownload(ticket, filepath string, httpClient *http.Client) (err error) {
+	if ticket == "" {
+		return errors.New("empty ticket")
+	}
+
+	file, err := os.Create(filepath)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+	return qrcodeDownloadToWriter(ticket, file, httpClient)
+}
+
 // 二维码图片的URL, 可以GET此URL下载二维码或者在线显示此二维码.
 func QRCodePicURL(ticket string) string {
 	return "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=" + url.QueryEscape(ticket)
@@ -169,56 +239,4 @@ func qrcodeDownloadToWriter(ticket string, writer io.Writer, httpClient *http.Cl
 		return
 	}
 	return errors.New("下载二维码出错, ticket: " + ticket)
-}
-
-// 通过ticket换取二维码, 写入到 writer.
-//  如果 httpClient == nil 则默认用 http.DefaultClient.
-func QRCodeDownloadToWriter(ticket string, writer io.Writer, httpClient *http.Client) (err error) {
-	if writer == nil {
-		return errors.New("nil writer")
-	}
-	if httpClient == nil {
-		httpClient = http.DefaultClient
-	}
-	return qrcodeDownloadToWriter(ticket, writer, httpClient)
-}
-
-// 通过ticket换取二维码, 写入到 writer.
-func (clt *Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (err error) {
-	if writer == nil {
-		return errors.New("nil writer")
-	}
-	if clt.HttpClient == nil {
-		clt.HttpClient = http.DefaultClient
-	}
-	return qrcodeDownloadToWriter(ticket, writer, clt.HttpClient)
-}
-
-// 通过ticket换取二维码, 写入到 filepath 路径的文件.
-//  如果 httpClient == nil 则默认用 http.DefaultClient
-func QRCodeDownload(ticket, filepath string, httpClient *http.Client) (err error) {
-	file, err := os.Create(filepath)
-	if err != nil {
-		return
-	}
-	defer file.Close()
-
-	if httpClient == nil {
-		httpClient = http.DefaultClient
-	}
-	return qrcodeDownloadToWriter(ticket, file, httpClient)
-}
-
-// 通过ticket换取二维码, 写入到 filepath 路径的文件.
-func (clt *Client) QRCodeDownload(ticket, filepath string) (err error) {
-	file, err := os.Create(filepath)
-	if err != nil {
-		return
-	}
-	defer file.Close()
-
-	if clt.HttpClient == nil {
-		clt.HttpClient = http.DefaultClient
-	}
-	return qrcodeDownloadToWriter(ticket, file, clt.HttpClient)
 }
