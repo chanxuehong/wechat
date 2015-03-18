@@ -228,7 +228,7 @@ func (clt *Client) uploadKfHeadImageFromReader(kfAccount, filename string, reade
 
 	incompleteURL := "http://api.weixin.qq.com/customservice/kfaccount/uploadheadimg?kf_account=" +
 		url.QueryEscape(kfAccount) + "&access_token="
-	if err = clt.UploadFromReader(incompleteURL, filename, reader, &result); err != nil {
+	if err = clt.UploadFromReader(incompleteURL, "media", filename, reader, "", nil, &result); err != nil {
 		return
 	}
 

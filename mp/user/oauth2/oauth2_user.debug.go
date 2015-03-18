@@ -146,7 +146,7 @@ func (clt *Client) UserInfo(lang string) (info *UserInfo, err error) {
 		UserInfo
 	}
 
-	body, err := ioutil.ReadAll(httpResp.Body)
+	respBody, err := ioutil.ReadAll(httpResp.Body)
 	if err != nil {
 		return
 	}
@@ -156,9 +156,9 @@ func (clt *Client) UserInfo(lang string) (info *UserInfo, err error) {
 		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
 	}
 	fmt.Println(debugPrefix, "request url:", _url)
-	fmt.Println(debugPrefix, "response json:", string(body))
+	fmt.Println(debugPrefix, "response json:", string(respBody))
 
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.Unmarshal(respBody, &result); err != nil {
 		return
 	}
 

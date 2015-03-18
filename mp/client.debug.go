@@ -71,13 +71,13 @@ RETRY:
 		return fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
 
-	body, err := ioutil.ReadAll(httpResp.Body)
+	respBody, err := ioutil.ReadAll(httpResp.Body)
 	if err != nil {
 		return
 	}
-	fmt.Println(debugPrefix, "response json:", string(body))
+	fmt.Println(debugPrefix, "response json:", string(respBody))
 
-	if err = json.Unmarshal(body, response); err != nil {
+	if err = json.Unmarshal(respBody, response); err != nil {
 		return
 	}
 
@@ -144,14 +144,14 @@ RETRY:
 		return fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
 
-	body, err := ioutil.ReadAll(httpResp.Body)
+	respBody, err := ioutil.ReadAll(httpResp.Body)
 	if err != nil {
 		return
 	}
 	fmt.Println(debugPrefix, "request url:", finalURL)
-	fmt.Println(debugPrefix, "response json:", string(body))
+	fmt.Println(debugPrefix, "response json:", string(respBody))
 
-	if err = json.Unmarshal(body, response); err != nil {
+	if err = json.Unmarshal(respBody, response); err != nil {
 		return
 	}
 

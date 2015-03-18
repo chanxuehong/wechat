@@ -159,7 +159,7 @@ func (clt *Client) CheckAccessTokenValid() (valid bool, err error) {
 
 	var result mp.Error
 
-	body, err := ioutil.ReadAll(httpResp.Body)
+	respBody, err := ioutil.ReadAll(httpResp.Body)
 	if err != nil {
 		return
 	}
@@ -169,9 +169,9 @@ func (clt *Client) CheckAccessTokenValid() (valid bool, err error) {
 		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
 	}
 	fmt.Println(debugPrefix, "request url:", _url)
-	fmt.Println(debugPrefix, "response json:", string(body))
+	fmt.Println(debugPrefix, "response json:", string(respBody))
 
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.Unmarshal(respBody, &result); err != nil {
 		return
 	}
 
@@ -212,7 +212,7 @@ func (clt *Client) updateToken(tk *OAuth2Token, url string) (err error) {
 		Scope        string `json:"scope"`         // 用户授权的作用域，使用逗号（,）分隔
 	}
 
-	body, err := ioutil.ReadAll(httpResp.Body)
+	respBody, err := ioutil.ReadAll(httpResp.Body)
 	if err != nil {
 		return
 	}
@@ -222,9 +222,9 @@ func (clt *Client) updateToken(tk *OAuth2Token, url string) (err error) {
 		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
 	}
 	fmt.Println(debugPrefix, "request url:", url)
-	fmt.Println(debugPrefix, "response json:", string(body))
+	fmt.Println(debugPrefix, "response json:", string(respBody))
 
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.Unmarshal(respBody, &result); err != nil {
 		return
 	}
 

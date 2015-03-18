@@ -194,7 +194,7 @@ func (srv *DefaultTokenServer) getToken() (token tokenInfo, cached bool, err err
 		tokenInfo
 	}
 
-	body, err := ioutil.ReadAll(httpResp.Body)
+	respBody, err := ioutil.ReadAll(httpResp.Body)
 	if err != nil {
 		return
 	}
@@ -204,9 +204,9 @@ func (srv *DefaultTokenServer) getToken() (token tokenInfo, cached bool, err err
 		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
 	}
 	fmt.Println(debugPrefix, "request url:", _url)
-	fmt.Println(debugPrefix, "response json:", string(body))
+	fmt.Println(debugPrefix, "response json:", string(respBody))
 
-	if err = json.Unmarshal(body, &result); err != nil {
+	if err = json.Unmarshal(respBody, &result); err != nil {
 		return
 	}
 

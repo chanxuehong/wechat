@@ -73,18 +73,18 @@ func (clt *Client) DownloadBill(req map[string]string) (data []byte, err error) 
 		return
 	}
 
-	httpBody, err := ioutil.ReadAll(httpResp.Body)
+	respBody, err := ioutil.ReadAll(httpResp.Body)
 	if err != nil {
 		return
 	}
 
 	var result Error
-	if err = xml.Unmarshal(httpBody, &result); err == nil {
+	if err = xml.Unmarshal(respBody, &result); err == nil {
 		err = &result
 		return
 	}
 
-	data = httpBody
+	data = respBody
 	err = nil
 	return
 }

@@ -56,7 +56,7 @@ func (clt *Client) uploadImageFromReader(filename string, reader io.Reader) (inf
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/media/uploadimg?access_token="
-	if err = clt.UploadFromReader(incompleteURL, filename, reader, &result); err != nil {
+	if err = clt.UploadFromReader(incompleteURL, "buffer", filename, reader, "", nil, &result); err != nil {
 		return
 	}
 

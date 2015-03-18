@@ -23,7 +23,6 @@ type MediaInfo struct {
 	CreatedAt int64  `json:"created_at"` // 媒体创建的时间戳
 }
 
-// 图文消息里的 Article
 type Article struct {
 	ThumbMediaId     string `json:"thumb_media_id"`               // 必须; 图文消息缩略图的 media_id, 可以在上传多媒体文件接口中获得
 	Title            string `json:"title"`                        // 必须; 图文消息的标题

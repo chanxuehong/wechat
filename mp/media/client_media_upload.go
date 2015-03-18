@@ -89,9 +89,9 @@ func (clt *Client) uploadMediaFromReader(mediaType, filename string, reader io.R
 		MediaInfo
 	}
 
-	incompleteURL := "http://file.api.weixin.qq.com/cgi-bin/media/upload?type=" +
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/media/upload?type=" +
 		url.QueryEscape(mediaType) + "&access_token="
-	if err = clt.UploadFromReader(incompleteURL, filename, reader, &result); err != nil {
+	if err = clt.UploadFromReader(incompleteURL, "media", filename, reader, "", nil, &result); err != nil {
 		return
 	}
 
@@ -138,9 +138,8 @@ func (clt *Client) uploadThumbFromReader(filename string, reader io.Reader) (inf
 		CreatedAt int64  `json:"created_at"`
 	}
 
-	incompleteURL := "http://file.api.weixin.qq.com/cgi-bin/media/upload?type=" +
-		url.QueryEscape(MediaTypeThumb) + "&access_token="
-	if err = clt.UploadFromReader(incompleteURL, filename, reader, &result); err != nil {
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/media/upload?type=thumb&access_token="
+	if err = clt.UploadFromReader(incompleteURL, "media", filename, reader, "", nil, &result); err != nil {
 		return
 	}
 

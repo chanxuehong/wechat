@@ -3,9 +3,10 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package media
+package material
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -41,6 +42,17 @@ func (clt *Client) DownloadMediaToWriter(mediaId string, writer io.Writer) error
 
 // 下载多媒体到 io.Writer.
 func (clt *Client) downloadMediaToWriter(mediaId string, writer io.Writer) (err error) {
+	request := struct {
+		MediaId string `json:"media_id"`
+	}{
+		MediaId: mediaId,
+	}
+
+	requestBody, err := json.Marshal(&request)
+	if err != nil {
+		return
+	}
+
 	token, err := clt.Token()
 	if err != nil {
 		return
@@ -48,10 +60,9 @@ func (clt *Client) downloadMediaToWriter(mediaId string, writer io.Writer) (err 
 
 	hasRetried := false
 RETRY:
-	finalURL := "https://api.weixin.qq.com/cgi-bin/media/get?media_id=" + url.QueryEscape(mediaId) +
-		"&access_token=" + url.QueryEscape(token)
+	finalURL := "https://api.weixin.qq.com/cgi-bin/material/get_material?access_token=" + url.QueryEscape(token)
 
-	httpResp, err := clt.HttpClient.Get(finalURL)
+	httpResp, err := clt.HttpClient.Post(finalURL, "application/json; charset=utf-8", bytes.NewReader(requestBody))
 	if err != nil {
 		return
 	}
@@ -90,76 +101,4 @@ RETRY:
 		err = &result
 		return
 	}
-}
-
-// 创建图文消息素材.
-func (clt *Client) CreateNews(articles []Article) (info *MediaInfo, err error) {
-	if len(articles) == 0 {
-		err = errors.New("图文消息是空的")
-		return
-	}
-	if len(articles) > NewsArticleCountLimit {
-		err = fmt.Errorf("图文消息的文章个数不能超过 %d, 现在为 %d", NewsArticleCountLimit, len(articles))
-		return
-	}
-
-	var request = struct {
-		Articles []Article `json:"articles,omitempty"`
-	}{
-		Articles: articles,
-	}
-
-	var result struct {
-		mp.Error
-		MediaInfo
-	}
-
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/media/uploadnews?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
-		return
-	}
-
-	if result.ErrCode != mp.ErrCodeOK {
-		err = &result.Error
-		return
-	}
-	info = &result.MediaInfo
-	return
-}
-
-// 创建视频素材.
-//  mediaId:     通过上传视频文件得到
-//  title:       标题, 可以为空
-//  description: 描述, 可以为空
-func (clt *Client) CreateVideo(mediaId, title, description string) (info *MediaInfo, err error) {
-	if mediaId == "" {
-		err = errors.New("empty mediaId")
-		return
-	}
-	var request = struct {
-		MediaId     string `json:"media_id"`
-		Title       string `json:"title,omitempty"`
-		Description string `json:"description,omitempty"`
-	}{
-		MediaId:     mediaId,
-		Title:       title,
-		Description: description,
-	}
-
-	var result struct {
-		mp.Error
-		MediaInfo
-	}
-
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
-		return
-	}
-
-	if result.ErrCode != mp.ErrCodeOK {
-		err = &result.Error
-		return
-	}
-	info = &result.MediaInfo
-	return
 }

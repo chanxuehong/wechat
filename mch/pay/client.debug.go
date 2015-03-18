@@ -65,13 +65,13 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 		return
 	}
 
-	body, err := ioutil.ReadAll(httpResp.Body)
+	respBody, err := ioutil.ReadAll(httpResp.Body)
 	if err != nil {
 		return
 	}
-	fmt.Println(debugPrefix, "response xml:", string(body))
+	fmt.Println(debugPrefix, "response xml:", string(respBody))
 
-	if resp, err = util.ParseXMLToMap(bytes.NewReader(body)); err != nil {
+	if resp, err = util.ParseXMLToMap(bytes.NewReader(respBody)); err != nil {
 		return
 	}
 

@@ -110,7 +110,7 @@ func (clt *Client) uploadMediaFromReader(mediaType, filename string, reader io.R
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/media/upload?type=" +
 		url.QueryEscape(mediaType) + "&access_token="
-	if err = clt.UploadFromReader(incompleteURL, filename, reader, &result); err != nil {
+	if err = clt.UploadFromReader(incompleteURL, "media", filename, reader, "", nil, &result); err != nil {
 		return
 	}
 
