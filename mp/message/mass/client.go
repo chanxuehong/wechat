@@ -48,7 +48,7 @@ func (clt *Client) DeleteMass(msgid int64) (err error) {
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/message/mass/delete?access_token="
-	if err = clt.PostJSON(incompleteURL, request, &result); err != nil {
+	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -78,7 +78,7 @@ func (clt *Client) GetMassStatus(msgid int64) (status *MassStatus, err error) {
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/message/mass/get?access_token="
-	if err = clt.PostJSON(incompleteURL, request, &result); err != nil {
+	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 

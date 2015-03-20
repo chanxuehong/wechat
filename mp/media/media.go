@@ -6,7 +6,7 @@
 package media
 
 const (
-	NewsArticleCountLimit = 10 // 图文消息里文章的个数限制
+	NewsArticleCountLimit = 10 // 图文素材里文章的个数限制
 )
 
 const (

@@ -17,36 +17,37 @@ import (
 )
 
 const (
-	MediaTypeImage = "image"
-	MediaTypeVoice = "voice"
-	MediaTypeVideo = "video"
-	MediaTypeThumb = "thumb"
+	MaterialTypeImage = "image"
+	MaterialTypeVoice = "voice"
+	MaterialTypeVideo = "video"
+	MaterialTypeThumb = "thumb"
+	MaterialTypeNews  = "news"
 )
 
 // 上传多媒体图片
 func (clt *Client) UploadImage(filepath string) (mediaId string, err error) {
-	return clt.uploadMedia(MediaTypeImage, filepath)
+	return clt.uploadMaterial(MaterialTypeImage, filepath)
 }
 
 // 上传多媒体缩略图
 func (clt *Client) UploadThumb(filepath string) (mediaId string, err error) {
-	return clt.uploadMedia(MediaTypeThumb, filepath)
+	return clt.uploadMaterial(MaterialTypeThumb, filepath)
 }
 
 // 上传多媒体语音
 func (clt *Client) UploadVoice(filepath string) (mediaId string, err error) {
-	return clt.uploadMedia(MediaTypeVoice, filepath)
+	return clt.uploadMaterial(MaterialTypeVoice, filepath)
 }
 
 // 上传多媒体
-func (clt *Client) uploadMedia(mediaType, _filepath string) (mediaId string, err error) {
+func (clt *Client) uploadMaterial(materialType, _filepath string) (mediaId string, err error) {
 	file, err := os.Open(_filepath)
 	if err != nil {
 		return
 	}
 	defer file.Close()
 
-	return clt.uploadMediaFromReader(mediaType, filepath.Base(_filepath), file)
+	return clt.uploadMaterialFromReader(materialType, filepath.Base(_filepath), file)
 }
 
 // 上传多媒体图片
@@ -60,7 +61,7 @@ func (clt *Client) UploadImageFromReader(filename string, reader io.Reader) (med
 		err = errors.New("nil reader")
 		return
 	}
-	return clt.uploadMediaFromReader(MediaTypeImage, filename, reader)
+	return clt.uploadMaterialFromReader(MaterialTypeImage, filename, reader)
 }
 
 // 上传多媒体缩略图
@@ -74,7 +75,7 @@ func (clt *Client) UploadThumbFromReader(filename string, reader io.Reader) (med
 		err = errors.New("nil reader")
 		return
 	}
-	return clt.uploadMediaFromReader(MediaTypeThumb, filename, reader)
+	return clt.uploadMaterialFromReader(MaterialTypeThumb, filename, reader)
 }
 
 // 上传多媒体语音
@@ -88,17 +89,17 @@ func (clt *Client) UploadVoiceFromReader(filename string, reader io.Reader) (med
 		err = errors.New("nil reader")
 		return
 	}
-	return clt.uploadMediaFromReader(MediaTypeVoice, filename, reader)
+	return clt.uploadMaterialFromReader(MaterialTypeVoice, filename, reader)
 }
 
-func (clt *Client) uploadMediaFromReader(mediaType, filename string, reader io.Reader) (mediaId string, err error) {
+func (clt *Client) uploadMaterialFromReader(materialType, filename string, reader io.Reader) (mediaId string, err error) {
 	var result struct {
 		mp.Error
 		MediaId string `json:"media_id"`
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/add_material?type=" +
-		url.QueryEscape(mediaType) + "&access_token="
+		url.QueryEscape(materialType) + "&access_token="
 	if err = clt.UploadFromReader(incompleteURL, "media", filename, reader, "", nil, &result); err != nil {
 		return
 	}

@@ -38,7 +38,7 @@ func (clt *Client) CreateMenu(menu Menu) (err error) {
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/create?access_token="
-	if err = clt.PostJSON(incompleteURL, menu, &result); err != nil {
+	if err = clt.PostJSON(incompleteURL, &menu, &result); err != nil {
 		return
 	}
 

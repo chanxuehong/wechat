@@ -95,11 +95,11 @@ RETRY:
 // 创建图文消息素材.
 func (clt *Client) CreateNews(articles []Article) (info *MediaInfo, err error) {
 	if len(articles) == 0 {
-		err = errors.New("图文消息是空的")
+		err = errors.New("图文素材是空的")
 		return
 	}
 	if len(articles) > NewsArticleCountLimit {
-		err = fmt.Errorf("图文消息的文章个数不能超过 %d, 现在为 %d", NewsArticleCountLimit, len(articles))
+		err = fmt.Errorf("图文素材的文章个数不能超过 %d, 现在为 %d", NewsArticleCountLimit, len(articles))
 		return
 	}
 

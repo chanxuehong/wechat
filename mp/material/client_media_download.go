@@ -20,29 +20,27 @@ import (
 )
 
 // 下载多媒体到文件.
-//  请注意，视频文件不支持下载
-func (clt *Client) DownloadMedia(mediaId, filepath string) (err error) {
+func (clt *Client) DownloadMaterial(mediaId, filepath string) (err error) {
 	file, err := os.Create(filepath)
 	if err != nil {
 		return
 	}
 	defer file.Close()
 
-	return clt.downloadMediaToWriter(mediaId, file)
+	return clt.downloadMaterialToWriter(mediaId, file)
 }
 
 // 下载多媒体到 io.Writer.
-//  请注意，视频文件不支持下载
-func (clt *Client) DownloadMediaToWriter(mediaId string, writer io.Writer) error {
+func (clt *Client) DownloadMaterialToWriter(mediaId string, writer io.Writer) error {
 	if writer == nil {
 		return errors.New("nil writer")
 	}
-	return clt.downloadMediaToWriter(mediaId, writer)
+	return clt.downloadMaterialToWriter(mediaId, writer)
 }
 
 // 下载多媒体到 io.Writer.
-func (clt *Client) downloadMediaToWriter(mediaId string, writer io.Writer) (err error) {
-	request := struct {
+func (clt *Client) downloadMaterialToWriter(mediaId string, writer io.Writer) (err error) {
+	var request = struct {
 		MediaId string `json:"media_id"`
 	}{
 		MediaId: mediaId,

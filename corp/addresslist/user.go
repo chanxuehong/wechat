@@ -128,7 +128,7 @@ func (clt *Client) UserBatchDelete(UserIdList []string) (err error) {
 	var result corp.Error
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/user/batchdelete?access_token="
-	if err = clt.PostJSON(incompleteURL, request, &result); err != nil {
+	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 

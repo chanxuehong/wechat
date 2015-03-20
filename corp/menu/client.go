@@ -40,7 +40,7 @@ func (clt *Client) CreateMenu(agentId int64, menu Menu) (err error) {
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/menu/create?agentid=" +
 		strconv.FormatInt(agentId, 10) + "&access_token="
-	if err = clt.PostJSON(incompleteURL, menu, &result); err != nil {
+	if err = clt.PostJSON(incompleteURL, &menu, &result); err != nil {
 		return
 	}
 
