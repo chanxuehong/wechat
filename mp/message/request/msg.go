@@ -11,13 +11,14 @@ import (
 
 const (
 	// 微信服务器推送过来的消息类型
-	MsgTypeText     = "text"     // 文本消息
-	MsgTypeImage    = "image"    // 图片消息
-	MsgTypeVoice    = "voice"    // 语音消息
-	MsgTypeVideo    = "video"    // 视频消息
-	MsgTypeLocation = "location" // 地理位置消息
-	MsgTypeLink     = "link"     // 链接消息
-	MsgTypeEvent    = "event"    // 事件推送
+	MsgTypeText       = "text"       // 文本消息
+	MsgTypeImage      = "image"      // 图片消息
+	MsgTypeVoice      = "voice"      // 语音消息
+	MsgTypeVideo      = "video"      // 视频消息
+	MsgTypeShortVideo = "shortvideo" // 小视频消息
+	MsgTypeLocation   = "location"   // 地理位置消息
+	MsgTypeLink       = "link"       // 链接消息
+	MsgTypeEvent      = "event"      // 事件推送
 )
 
 // 文本消息
@@ -92,6 +93,25 @@ type Video struct {
 
 func GetVideo(msg *mp.MixedMessage) *Video {
 	return &Video{
+		CommonMessageHeader: msg.CommonMessageHeader,
+		MsgId:               msg.MsgId,
+		MediaId:             msg.MediaId,
+		ThumbMediaId:        msg.ThumbMediaId,
+	}
+}
+
+// 小视频消息
+type ShortVideo struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+	mp.CommonMessageHeader
+
+	MsgId        int64  `xml:"MsgId"        json:"MsgId"`        // 消息id, 64位整型
+	MediaId      string `xml:"MediaId"      json:"MediaId"`      // 视频消息媒体id，可以调用多媒体文件下载接口拉取数据。
+	ThumbMediaId string `xml:"ThumbMediaId" json:"ThumbMediaId"` // 视频消息缩略图的媒体id，可以调用多媒体文件下载接口拉取数据。
+}
+
+func GetShortVideo(msg *mp.MixedMessage) *ShortVideo {
+	return &ShortVideo{
 		CommonMessageHeader: msg.CommonMessageHeader,
 		MsgId:               msg.MsgId,
 		MediaId:             msg.MediaId,

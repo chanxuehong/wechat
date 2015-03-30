@@ -1,0 +1,77 @@
+新手开发者指南
+	接入指南(http://mp.weixin.qq.com/wiki/17/2d4265491f12608cd170a95559800f2d.html)
+	典型案例介绍(http://mp.weixin.qq.com/wiki/7/38253a54da5b96126abea6925321f64b.html)
+	开发者规范(http://mp.weixin.qq.com/wiki/3/8b07e4a79cef674d4bcb788e1280c1b7.html)
+	公众号类型的接口权限说明(http://mp.weixin.qq.com/wiki/7/2d301d4b757dedc333b9a9854b457b47.html)
+	微信开发者互助问答系统(http://mp.weixin.qq.com/qa)
+在线调试与测试号申请
+	接口调试工具(http://mp.weixin.qq.com/debug/)
+	接口体验测试号申请(http://mp.weixin.qq.com/debug/cgi-bin/sandbox?t=sandbox/login)
+返回码与报警排查
+	接口频率限制说明(http://mp.weixin.qq.com/wiki/0/2e2239fa5f49388d5b5136ecc8e0e440.html)
+	全局接口返回码说明(http://mp.weixin.qq.com/wiki/17/fa4e1434e57290788bde25603fa2fcbd.html)
+	报警排查指引(http://mp.weixin.qq.com/wiki/6/01405db0092f76bb96b12a9f954cd866.html)
+	微信推送消息与事件说明(http://mp.weixin.qq.com/wiki/10/b6103072d2ff5fed5fea203bcd0af256.html)
+消息体签名与加解密
+	方案概述(http://mp.weixin.qq.com/wiki/13/80a1a25adbc46faf2716774c423b3151.html)
+	接入指引(http://mp.weixin.qq.com/wiki/0/61c3a8b9d50ac74f18bdf2e54ddfc4e0.html)
+	技术方案(http://mp.weixin.qq.com/wiki/2/3478f69c0d0bbe8deb48d66a3111ff6e.html)
+	开发者FAQ(http://mp.weixin.qq.com/wiki/1/66bc8fb495f80faeacc65cfb8d931acd.html)
+基础接口
+	获取access_token(http://mp.weixin.qq.com/wiki/11/0e4b294685f817b95cbed85ba5e82b8f.html)
+	获取微信服务器IP地址(http://mp.weixin.qq.com/wiki/0/2ad4b6bfd29f30f71d39616c2a0fcedc.html)
+接收消息
+	验证消息真实性(http://mp.weixin.qq.com/wiki/4/2ccadaef44fe1e4b0322355c2312bfa8.html)
+	接收普通消息(http://mp.weixin.qq.com/wiki/10/79502792eef98d6e0c6e1739da387346.html)
+	接收事件推送(http://mp.weixin.qq.com/wiki/2/5baf56ce4947d35003b86a9805634b1e.html)
+	接收语音识别结果(http://mp.weixin.qq.com/wiki/2/f2bef3230362d18851ee22953abfadde.html)
+发送消息
+	被动回复用户消息(http://mp.weixin.qq.com/wiki/14/89b871b5466b19b3efa4ada8e577d45e.html)
+	客服接口(http://mp.weixin.qq.com/wiki/1/70a29afed17f56d537c833f89be979c9.html)
+	高级群发接口(http://mp.weixin.qq.com/wiki/15/5380a4e6f02f2ffdc7981a8ed7a40753.html)
+	模板消息接口(http://mp.weixin.qq.com/wiki/17/304c1885ea66dbedf7dc170d84999a9d.html)
+素材管理
+	新增临时素材(http://mp.weixin.qq.com/wiki/5/963fc70b80dc75483a271298a76a8d59.html)
+	获取临时素材(http://mp.weixin.qq.com/wiki/11/07b6b76a6b6e8848e855a435d5e34a5f.html)
+	新增永久素材(http://mp.weixin.qq.com/wiki/14/7e6c03263063f4813141c3e17dd4350a.html)
+	获取永久素材(http://mp.weixin.qq.com/wiki/4/b3546879f07623cb30df9ca0e420a5d0.html)
+	删除永久素材(http://mp.weixin.qq.com/wiki/5/e66f61c303db51a6c0f90f46b15af5f5.html)
+	修改永久图文素材(http://mp.weixin.qq.com/wiki/4/19a59cba020d506e767360ca1be29450.html)
+	获取素材总数(http://mp.weixin.qq.com/wiki/16/8cc64f8c189674b421bee3ed403993b8.html)
+	获取素材列表(http://mp.weixin.qq.com/wiki/12/2108cd7aafff7f388f41f37efa710204.html)
+用户管理
+	用户分组管理(http://mp.weixin.qq.com/wiki/0/56d992c605a97245eb7e617854b169fc.html)
+	设置用户备注名(http://mp.weixin.qq.com/wiki/1/4a566d20d67def0b3c1afc55121d2419.html)
+	获取用户基本信息(UnionID机制)(http://mp.weixin.qq.com/wiki/14/bb5031008f1494a59c6f71fa0f319c66.html)
+	获取用户列表(http://mp.weixin.qq.com/wiki/0/d0e07720fc711c02a3eab6ec33054804.html)
+	获取用户地理位置(http://mp.weixin.qq.com/wiki/8/1b86529d05db9f960e48c3c7ca5be288.html)
+	网页授权获取用户基本信息(http://mp.weixin.qq.com/wiki/17/c0f37d5704f0b64713d5d2c37b468d75.html)
+自定义菜单管理
+	自定义菜单创建接口(http://mp.weixin.qq.com/wiki/13/43de8269be54a0a6f64413e4dfa94f39.html)
+	自定义菜单查询接口(http://mp.weixin.qq.com/wiki/16/ff9b7b85220e1396ffa16794a9d95adc.html)
+	自定义菜单删除接口(http://mp.weixin.qq.com/wiki/16/8ed41ba931e4845844ad6d1eeb8060c8.html)
+	自定义菜单事件推送(http://mp.weixin.qq.com/wiki/9/981d772286d10d153a3dc4286c1ee5b5.html)
+帐号管理
+	生成带参数的二维码(http://mp.weixin.qq.com/wiki/18/28fc21e7ed87bec960651f0ce873ef8a.html)
+	长链接转短链接接口(http://mp.weixin.qq.com/wiki/10/165c9b15eddcfbd8699ac12b0bd89ae6.html)
+数据统计接口
+	用户分析数据接口(http://mp.weixin.qq.com/wiki/3/ecfed6e1a0a03b5f35e5efac98e864b7.html)
+	图文分析数据接口(http://mp.weixin.qq.com/wiki/8/c0453610fb5131d1fcb17b4e87c82050.html)
+	消息分析数据接口(http://mp.weixin.qq.com/wiki/12/32d42ad542f2e4fc8a8aa60e1bce9838.html)
+	接口分析数据接口(http://mp.weixin.qq.com/wiki/8/30ed81ae38cf4f977194bf1a5db73668.html)
+微信JS-SDK
+	微信JS-SDK说明文档(http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html)
+微信小店接口
+	微信小店接口(http://mp.weixin.qq.com/wiki/8/703923b7349a607f13fb3100163837f0.html)
+微信卡券接口
+	微信卡券接口(http://mp.weixin.qq.com/wiki/9/d8a5f3b102915f30516d79b44fe665ed.html)
+微信智能接口
+	语义理解接口(http://mp.weixin.qq.com/wiki/0/0ce78b3c9524811fee34aba3e33f3448.html)
+设备功能介绍
+	设备功能介绍(http://mp.weixin.qq.com/wiki/5/131b418c04b1f4fc1752f7652b14b235.html)
+多客服功能
+	将消息转发到多客服(http://mp.weixin.qq.com/wiki/5/ae230189c9bd07a6b221f48619aeef35.html)
+	客服管理(http://mp.weixin.qq.com/wiki/9/6fff6f191ef92c126b043ada035cc935.html)
+	多客服会话控制(http://mp.weixin.qq.com/wiki/2/6c20f3e323bdf5986cfcb33cbd3b829a.html)
+	获取客服聊天记录(http://mp.weixin.qq.com/wiki/19/7c129ec71ddfa60923ea9334557e8b23.html)
+	PC客户端自定义插件接口(http://mp.weixin.qq.com/wiki/17/0160b650bc11ca90776343276e91082d.html)
