@@ -98,7 +98,8 @@ func (clt *Client) GetArticleTotal(req *Request) (list []ArticleTotalData, err e
 
 // 图文统计数据
 type UserReadData struct {
-	RefDate string `json:"ref_date"` // 数据的日期, YYYY-MM-DD 格式
+	RefDate    string `json:"ref_date"` // 数据的日期, YYYY-MM-DD 格式
+	UserSource int    `json:"user_source"`
 	ArticleBaseData
 }
 
