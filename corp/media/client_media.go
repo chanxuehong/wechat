@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"mime"
 	"net/http"
 	"net/url"
@@ -76,14 +77,19 @@ RETRY:
 	case corp.ErrCodeOK:
 		return // 基本不会出现
 	case corp.ErrCodeInvalidCredential, corp.ErrCodeTimeout: // 失效(过期)重试一次
+		log.Println("wechat/corp/media.downloadMediaToWriter: RETRY, err_code:", result.ErrCode, ", err_msg:", result.ErrMsg)
+		log.Println("wechat/corp/media.downloadMediaToWriter: RETRY, current token:", token)
+
 		if !hasRetried {
 			hasRetried = true
 
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
+			log.Println("wechat/corp/media.downloadMediaToWriter: RETRY, new token:", token)
 			goto RETRY
 		}
+		log.Println("wechat/corp/media.downloadMediaToWriter: RETRY fallthrough, current token:", token)
 		fallthrough
 	default:
 		err = &result

@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -116,14 +117,20 @@ RETRY:
 	case ErrCodeOK:
 		return
 	case ErrCodeInvalidCredential, ErrCodeTimeout:
+		ErrMsg := reflect.ValueOf(response).Elem().FieldByName("ErrMsg").String()
+		log.Println("wechat/mp.UploadFromReader: RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
+		log.Println("wechat/mp.UploadFromReader: RETRY, current token:", token)
+
 		if !hasRetried {
 			hasRetried = true
 
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
+			log.Println("wechat/mp.UploadFromReader: RETRY, new token:", token)
 			goto RETRY
 		}
+		log.Println("wechat/mp.UploadFromReader: RETRY fallthrough, current token:", token)
 		fallthrough
 	default:
 		return

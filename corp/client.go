@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -82,14 +83,20 @@ RETRY:
 	case ErrCodeOK:
 		return
 	case ErrCodeTimeout, ErrCodeInvalidCredential:
+		ErrMsg := reflect.ValueOf(response).Elem().FieldByName("ErrMsg").String()
+		log.Println("wechat/corp.PostJSON: RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
+		log.Println("wechat/corp.PostJSON: RETRY, current token:", token)
+
 		if !hasRetried {
 			hasRetried = true
 
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
+			log.Println("wechat/corp.PostJSON: RETRY, new token:", token)
 			goto RETRY
 		}
+		log.Println("wechat/corp.PostJSON: RETRY fallthrough, current token:", token)
 		fallthrough
 	default:
 		return
@@ -144,14 +151,20 @@ RETRY:
 	case ErrCodeOK:
 		return
 	case ErrCodeTimeout, ErrCodeInvalidCredential:
+		ErrMsg := reflect.ValueOf(response).Elem().FieldByName("ErrMsg").String()
+		log.Println("wechat/corp.GetJSON: RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
+		log.Println("wechat/corp.GetJSON: RETRY, current token:", token)
+
 		if !hasRetried {
 			hasRetried = true
 
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
+			log.Println("wechat/corp.GetJSON: RETRY, new token:", token)
 			goto RETRY
 		}
+		log.Println("wechat/corp.GetJSON: RETRY fallthrough, current token:", token)
 		fallthrough
 	default:
 		return
