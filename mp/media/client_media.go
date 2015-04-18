@@ -88,6 +88,8 @@ RETRY:
 				return
 			}
 			log.Println("wechat/mp/media.downloadMediaToWriter: RETRY, new token:", token)
+
+			result = mp.Error{}
 			goto RETRY
 		}
 		log.Println("wechat/mp/media.downloadMediaToWriter: RETRY fallthrough, current token:", token)

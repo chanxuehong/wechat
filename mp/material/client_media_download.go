@@ -97,6 +97,8 @@ RETRY:
 				return
 			}
 			log.Println("wechat/mp/material.downloadMaterialToWriter: RETRY, new token:", token)
+
+			result = mp.Error{}
 			goto RETRY
 		}
 		log.Println("wechat/mp/material.downloadMaterialToWriter: RETRY fallthrough, current token:", token)

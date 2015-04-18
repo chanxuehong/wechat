@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"runtime"
 
@@ -51,8 +52,8 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 	if _, file, line, ok := runtime.Caller(1); ok {
 		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
 	}
-	fmt.Println(debugPrefix, "request url:", url)
-	fmt.Println(debugPrefix, "request xml:", bodyBuf.String())
+	log.Println(debugPrefix, "request url:", url)
+	log.Println(debugPrefix, "request xml:", bodyBuf.String())
 
 	httpResp, err := clt.httpClient.Post(url, "text/xml; charset=utf-8", bodyBuf)
 	if err != nil {
@@ -69,7 +70,7 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 	if err != nil {
 		return
 	}
-	fmt.Println(debugPrefix, "response xml:", string(respBody))
+	log.Println(debugPrefix, "response xml:", string(respBody))
 
 	if resp, err = util.ParseXMLToMap(bytes.NewReader(respBody)); err != nil {
 		return

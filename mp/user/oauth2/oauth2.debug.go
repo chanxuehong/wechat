@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"runtime"
@@ -168,8 +169,8 @@ func (clt *Client) CheckAccessTokenValid() (valid bool, err error) {
 	if _, file, line, ok := runtime.Caller(1); ok {
 		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
 	}
-	fmt.Println(debugPrefix, "request url:", _url)
-	fmt.Println(debugPrefix, "response json:", string(respBody))
+	log.Println(debugPrefix, "request url:", _url)
+	log.Println(debugPrefix, "response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, &result); err != nil {
 		return
@@ -221,8 +222,8 @@ func (clt *Client) updateToken(tk *OAuth2Token, url string) (err error) {
 	if _, file, line, ok := runtime.Caller(1); ok {
 		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
 	}
-	fmt.Println(debugPrefix, "request url:", url)
-	fmt.Println(debugPrefix, "response json:", string(respBody))
+	log.Println(debugPrefix, "request url:", url)
+	log.Println(debugPrefix, "response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, &result); err != nil {
 		return

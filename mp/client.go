@@ -77,13 +77,14 @@ RETRY:
 	// 的结构, 所以用下面简单的方法得到 ErrCode.
 	//
 	// 如果你是直接调用这个函数, 那么要根据你的 response 数据结构修改下面的代码.
-	ErrCode := reflect.ValueOf(response).Elem().FieldByName("ErrCode").Int()
+	responseStructValue := reflect.ValueOf(response).Elem()
+	ErrCode := responseStructValue.FieldByName("ErrCode").Int()
 
 	switch ErrCode {
 	case ErrCodeOK:
 		return
 	case ErrCodeInvalidCredential, ErrCodeTimeout:
-		ErrMsg := reflect.ValueOf(response).Elem().FieldByName("ErrMsg").String()
+		ErrMsg := responseStructValue.FieldByName("ErrMsg").String()
 		log.Println("wechat/mp.PostJSON: RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
 		log.Println("wechat/mp.PostJSON: RETRY, current token:", token)
 
@@ -94,6 +95,8 @@ RETRY:
 				return
 			}
 			log.Println("wechat/mp.PostJSON: RETRY, new token:", token)
+
+			responseStructValue.Set(reflect.New(responseStructValue.Type()).Elem())
 			goto RETRY
 		}
 		log.Println("wechat/mp.PostJSON: RETRY fallthrough, current token:", token)
@@ -145,13 +148,14 @@ RETRY:
 	// 的结构, 所以用下面简单的方法得到 ErrCode.
 	//
 	// 如果你是直接调用这个函数, 那么要根据你的 response 数据结构修改下面的代码.
-	ErrCode := reflect.ValueOf(response).Elem().FieldByName("ErrCode").Int()
+	responseStructValue := reflect.ValueOf(response).Elem()
+	ErrCode := responseStructValue.FieldByName("ErrCode").Int()
 
 	switch ErrCode {
 	case ErrCodeOK:
 		return
 	case ErrCodeInvalidCredential, ErrCodeTimeout:
-		ErrMsg := reflect.ValueOf(response).Elem().FieldByName("ErrMsg").String()
+		ErrMsg := responseStructValue.FieldByName("ErrMsg").String()
 		log.Println("wechat/mp.GetJSON: RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
 		log.Println("wechat/mp.GetJSON: RETRY, current token:", token)
 
@@ -162,6 +166,8 @@ RETRY:
 				return
 			}
 			log.Println("wechat/mp.GetJSON: RETRY, new token:", token)
+
+			responseStructValue.Set(reflect.New(responseStructValue.Type()).Elem())
 			goto RETRY
 		}
 		log.Println("wechat/mp.GetJSON: RETRY fallthrough, current token:", token)

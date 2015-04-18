@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"runtime"
@@ -203,8 +204,8 @@ func (srv *DefaultTokenServer) getToken() (token tokenInfo, cached bool, err err
 	if _, file, line, ok := runtime.Caller(1); ok {
 		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
 	}
-	fmt.Println(debugPrefix, "request url:", _url)
-	fmt.Println(debugPrefix, "response json:", string(respBody))
+	log.Println(debugPrefix, "request url:", _url)
+	log.Println(debugPrefix, "response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, &result); err != nil {
 		return

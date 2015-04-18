@@ -59,8 +59,8 @@ func (clt *CorpClient) PostJSON(incompleteURL string, request interface{}, respo
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
 
-	fmt.Println(debugPrefix, "request url:", finalURL)
-	fmt.Println(debugPrefix, "request json:", string(requestBytes))
+	log.Println(debugPrefix, "request url:", finalURL)
+	log.Println(debugPrefix, "request json:", string(requestBytes))
 
 	httpResp, err := clt.HttpClient.Post(finalURL, "application/json; charset=utf-8", bytes.NewReader(requestBytes))
 	if err != nil {
@@ -76,7 +76,7 @@ RETRY:
 	if err != nil {
 		return
 	}
-	fmt.Println(debugPrefix, "response json:", string(respBody))
+	log.Println(debugPrefix, "response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, response); err != nil {
 		return
@@ -93,13 +93,14 @@ RETRY:
 	// 的结构, 所以用下面简单的方法得到 ErrCode.
 	//
 	// 如果你是直接调用这个函数, 那么要根据你的 response 数据结构修改下面的代码.
-	ErrCode := reflect.ValueOf(response).Elem().FieldByName("ErrCode").Int()
+	responseStructValue := reflect.ValueOf(response).Elem()
+	ErrCode := responseStructValue.FieldByName("ErrCode").Int()
 
 	switch ErrCode {
 	case ErrCodeOK:
 		return
 	case ErrCodeTimeout, ErrCodeInvalidCredential:
-		ErrMsg := reflect.ValueOf(response).Elem().FieldByName("ErrMsg").String()
+		ErrMsg := responseStructValue.FieldByName("ErrMsg").String()
 		log.Println("wechat/corp.PostJSON: RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
 		log.Println("wechat/corp.PostJSON: RETRY, current token:", token)
 
@@ -110,6 +111,8 @@ RETRY:
 				return
 			}
 			log.Println("wechat/corp.PostJSON: RETRY, new token:", token)
+
+			responseStructValue.Set(reflect.New(responseStructValue.Type()).Elem())
 			goto RETRY
 		}
 		log.Println("wechat/corp.PostJSON: RETRY fallthrough, current token:", token)
@@ -155,8 +158,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	fmt.Println(debugPrefix, "request url:", finalURL)
-	fmt.Println(debugPrefix, "response json:", string(respBody))
+	log.Println(debugPrefix, "request url:", finalURL)
+	log.Println(debugPrefix, "response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, response); err != nil {
 		return
@@ -173,13 +176,14 @@ RETRY:
 	// 的结构, 所以用下面简单的方法得到 ErrCode.
 	//
 	// 如果你是直接调用这个函数, 那么要根据你的 response 数据结构修改下面的代码.
-	ErrCode := reflect.ValueOf(response).Elem().FieldByName("ErrCode").Int()
+	responseStructValue := reflect.ValueOf(response).Elem()
+	ErrCode := responseStructValue.FieldByName("ErrCode").Int()
 
 	switch ErrCode {
 	case ErrCodeOK:
 		return
 	case ErrCodeTimeout, ErrCodeInvalidCredential:
-		ErrMsg := reflect.ValueOf(response).Elem().FieldByName("ErrMsg").String()
+		ErrMsg := responseStructValue.FieldByName("ErrMsg").String()
 		log.Println("wechat/corp.GetJSON: RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
 		log.Println("wechat/corp.GetJSON: RETRY, current token:", token)
 
@@ -190,6 +194,8 @@ RETRY:
 				return
 			}
 			log.Println("wechat/corp.GetJSON: RETRY, new token:", token)
+
+			responseStructValue.Set(reflect.New(responseStructValue.Type()).Elem())
 			goto RETRY
 		}
 		log.Println("wechat/corp.GetJSON: RETRY fallthrough, current token:", token)
