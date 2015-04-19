@@ -128,12 +128,12 @@ func (clt *Client) CardDelete(cardId string) (err error) {
 // 批量查询卡列表.
 //  offset: 查询卡列表的起始偏移量，从0 开始，即offset: 5 是指从从列表里的第六个开始读取。
 //  count : 需要查询的卡片的数量（数量最大50）
-func (clt *Client) CardBatchGet(offset, count int) (cardIdList []string, err error) {
+func (clt *Client) CardBatchGet(offset, count int) (cardIdList []string, totalNum int, err error) {
 	if offset < 0 {
 		err = fmt.Errorf("invalid offset: %d", offset)
 		return
 	}
-	if count < 0 {
+	if count <= 0 {
 		err = fmt.Errorf("invalid count: %d", count)
 		return
 	}
@@ -161,11 +161,8 @@ func (clt *Client) CardBatchGet(offset, count int) (cardIdList []string, err err
 		err = &result.Error
 		return
 	}
-	if result.TotalNum != len(result.CardIdList) {
-		err = errors.New("the total_num and length of card_id_list does not match")
-		return
-	}
 	cardIdList = result.CardIdList
+	totalNum = result.TotalNum
 	return
 }
 

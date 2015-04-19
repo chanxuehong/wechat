@@ -6,7 +6,6 @@
 package card
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/chanxuehong/wechat/mp"
@@ -73,12 +72,12 @@ type Location struct {
 //  offset: 偏移量，0 开始
 //  count:  拉取数量
 //  注：“offset”，“count”为0 时默认拉取全部门店。
-func (clt *Client) LocationBatchGet(offset, count int) (LocationList []Location, err error) {
+func (clt *Client) LocationBatchGet(offset, count int) (LocationList []Location, totalCount int, err error) {
 	if offset < 0 {
 		err = fmt.Errorf("invalid offset: %d", offset)
 		return
 	}
-	if count < 0 {
+	if count <= 0 {
 		err = fmt.Errorf("invalid count: %d", count)
 		return
 	}
@@ -106,10 +105,7 @@ func (clt *Client) LocationBatchGet(offset, count int) (LocationList []Location,
 		err = &result.Error
 		return
 	}
-	if result.Count != len(result.LocationList) {
-		err = errors.New("the count and length of location_list does not match")
-		return
-	}
 	LocationList = result.LocationList
+	totalCount = result.Count
 	return
 }
