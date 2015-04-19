@@ -134,9 +134,16 @@ type MixedMessage struct {
 	ProductId   string  `xml:"ProductId"   json:"ProductId"`
 	SKUInfo     string  `xml:"SkuInfo"     json:"SkuInfo"`
 
+	// card
 	CardId         string `xml:"CardId"         json:"CardId"`
 	IsGiveByFriend int    `xml:"IsGiveByFriend" json:"IsGiveByFriend"`
 	FriendUserName string `xml:"FriendUserName" json:"FriendUserName"`
 	UserCardCode   string `xml:"UserCardCode"   json:"UserCardCode"`
 	OuterId        int64  `xml:"OuterId"        json:"OuterId"`
+
+	// poi
+	UniqId string `xml:"UniqId" json:"UniqId"`
+	PoiId  string `xml:"PoiId"  json:"PoiId"`
+	Result string `xml:"Result" json:"Result"`
+	Msg    string `xml:"Msg"    json:"Msg"`
 }

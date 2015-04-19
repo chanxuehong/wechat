@@ -133,7 +133,7 @@ func (clt *Client) CardBatchGet(offset, count int) (cardIdList []string, totalNu
 		err = fmt.Errorf("invalid offset: %d", offset)
 		return
 	}
-	if count <= 0 {
+	if count < 0 {
 		err = fmt.Errorf("invalid count: %d", count)
 		return
 	}
