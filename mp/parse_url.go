@@ -24,6 +24,11 @@ func parsePostURLQuery(urlValues url.Values) (signature, timestamp, nonce,
 		err = errors.New("timestamp is empty")
 		return
 	}
+	
+	// verify the timestamp
+	if err = util.VtimestampStr(timestampStr, 30); err !=nil {
+		return
+	}
 
 	nonce = urlValues.Get("nonce")
 	if nonce == "" {
