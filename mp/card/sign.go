@@ -8,6 +8,7 @@ package card
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"io"
 	"sort"
 )
 
@@ -18,7 +19,7 @@ func Sign(strs []string) (signature string) {
 
 	Hash := sha1.New()
 	for _, str := range strs {
-		Hash.Write([]byte(str))
+		io.WriteString(Hash, str)
 	}
 	return hex.EncodeToString(Hash.Sum(nil))
 }

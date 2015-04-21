@@ -18,6 +18,8 @@ type MeetingTicketUpdateUserParameters struct {
 	Zone       string `json:"zone,omitempty"`        // 可选; 区域
 	Entrance   string `json:"entrance,omitempty"`    // 可选; 入口
 	SeatNumber string `json:"seat_number,omitempty"` // 可选; 座位号
+	BeginTime  int64  `json:"begin_time,omitempty"`  // 开场时间
+	EndTime    int64  `json:"end_time,omitempty"`    // 结束时间
 }
 
 // 更新电影票.

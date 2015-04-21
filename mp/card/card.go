@@ -78,7 +78,7 @@ func (clt *Client) CardUpdate(cardId string, card *Card) (err error) {
 	if card == nil {
 		return errors.New("nil Card")
 	}
-	card.CardType = "" //
+	card.CardType = "" // NOTE
 
 	var request = struct {
 		CardId string `json:"card_id"`

@@ -17,7 +17,7 @@ const (
 	CardTypeMovieTicket   = "MOVIE_TICKET"   // 电影票
 	CardTypeBoardingPass  = "BOARDING_PASS"  // 飞机票
 	CardTypeLuckyMoney    = "LUCKY_MONEY"    // 红包
-	CardTypeMeetingTicket = "MEERING_TICKET" // 会议门票
+	CardTypeMeetingTicket = "MEETING_TICKET" // 会议门票
 )
 
 // 卡卷数据结构
@@ -82,6 +82,7 @@ type MemberCard struct {
 	Prerogative       string `json:"prerogative,omitempty"`       // 特权说明
 	BindOldCardURL    string `json:"bind_old_card_url,omitempty"` // 绑定旧卡的url，与“activate_url”字段二选一必填。
 	ActivateURL       string `json:"activate_url,omitempty"`      // 激活会员卡的url，与“bind_old_card_url”字段二选一必填。
+	NeedPushOnView    *bool  `json:"need_push_on_view,omitempty"` // true 为用户点击进入会员卡时是否推送事件。
 }
 
 // 景点门票
@@ -136,13 +137,12 @@ const (
 )
 
 const (
-	// 自定义cell字段type类型
-	URLNameTypeTakeAway       = "URL_NAME_TYPE_TAKE_AWAY"       // 外卖
-	URLNameTypeReservation    = "URL_NAME_TYPE_RESERVATION"     // 在线预订
-	URLNameTypeUseImmediately = "URL_NAME_TYPE_USE_IMMEDIATELY" // 立即使用
-	URLNameTypeAppointment    = "URL_NAME_TYPE_APPOINTMENT"     // 在线预约
-	URLNameTypeExchange       = "URL_NAME_TYPE_EXCHANGE"        // 在线兑换
-	URLNameTypeVIPService     = "URL_NAME_TYPE_VIP_SERVICE"     // 会员服务(仅会员卡类型可用)
+	// 卡卷的状态
+	CardStatusNotVerify    = "CARD_STATUS_NOT_VERIFY"    // 待审核
+	CardStatusVerifyFail   = "CARD_STATUS_VERIFY_FALL"   // 审核失败
+	CardStatusVerifyOk     = "CARD_STATUS_VERIFY_OK"     // 通过审核
+	CardStatusUserDelete   = "CARD_STATUS_USER_DELETE"   // 卡券被用户删除
+	CardStatusUserDispatch = "CARD_STATUS_USER_DISPATCH" // 在公众平台投放过的卡券
 )
 
 // 基本的卡券数据，所有卡券通用
@@ -162,17 +162,21 @@ type CardBaseInfo struct {
 	*DateInfo `json:"date_info,omitempty"` // 有效日期
 	*SKU      `json:"sku,omitempty"`       // 商品信息
 
-	LocationIdList []int64 `json:"location_id_list,omitempty"` // 门店地址ID
-	UseCustomCode  *bool   `json:"use_custom_code,omitempty"`  // 是否自定义code 码。
-	BindOpenId     *bool   `json:"bind_openid,omitempty"`      // 是否指定用户领取，填写true或false。不填代表默认为否。
-	CanShare       *bool   `json:"can_share,omitempty"`        // 领取卡券原生页面是否可分享，填写true 或false，true 代表可分享。默认可分享。
-	CanGiveFriend  *bool   `json:"can_give_friend,omitempty"`  // 卡券是否可转赠，填写true 或false,true 代表可转赠。默认可转赠。
-	UseLimit       *int    `json:"use_limit,omitempty"`        // 每人使用次数限制。
-	GetLimit       *int    `json:"get_limit,omitempty"`        // 每人最大领取次数，不填写默认等于quantity。
-	ServicePhone   string  `json:"service_phone,omitempty"`    // 客服电话
-	Source         string  `json:"source,omitempty"`           // 第三方来源名，如携程
-	URLNameType    string  `json:"url_name_type,omitempty"`    // 商户自定义cell 名称， 与custom_url 字段共同使用
-	CustomURL      string  `json:"custom_url,omitempty"`       // 商户自定义cell 跳转外链的地址链接,跳转页面内容需与自定义cell 名称保持一致。
+	LocationIdList       []int64 `json:"location_id_list,omitempty"`        // 门店地址ID
+	UseCustomCode        *bool   `json:"use_custom_code,omitempty"`         // 是否自定义code 码。
+	BindOpenId           *bool   `json:"bind_openid,omitempty"`             // 是否指定用户领取，填写true或false。不填代表默认为否。
+	CanShare             *bool   `json:"can_share,omitempty"`               // 领取卡券原生页面是否可分享，填写true 或false，true 代表可分享。默认可分享。
+	CanGiveFriend        *bool   `json:"can_give_friend,omitempty"`         // 卡券是否可转赠，填写true 或false,true 代表可转赠。默认可转赠。
+	UseLimit             *int    `json:"use_limit,omitempty"`               // 每人使用次数限制。
+	GetLimit             *int    `json:"get_limit,omitempty"`               // 每人最大领取次数，不填写默认等于quantity。
+	ServicePhone         string  `json:"service_phone,omitempty"`           // 客服电话
+	Source               string  `json:"source,omitempty"`                  // 第三方来源名，如携程
+	CustomURLName        string  `json:"custom_url_name,omitempty"`         // 商户自定义入口名称，与custom_url 字段共同使用，长度限制在5 个汉字内。
+	CustomURL            string  `json:"custom_url,omitempty"`              // 商户自定义入口跳转外链的地址链接,跳转页面内容需与自定义cell 名称保持匹配。
+	CustomURLSubTitle    string  `json:"custom_url_sub_title,omitempty"`    // 显示在入口右侧的tips，长度限制在6 个汉字内。
+	PromotionURLName     string  `json:"promotion_url_name,omitempty"`      // 营销场景的自定义入口
+	PromotionURL         string  `json:"promotion_url,omitempty"`           // 入口跳转外链的地址链接
+	PromotionURLSubTitle string  `json:"promotion_url_sub_title,omitempty"` // 显示在入口右侧的tips，长度限制在6 个汉字内。
 }
 
 type DateInfo struct {
@@ -183,11 +187,11 @@ type DateInfo struct {
 	// 固定日期区间专用，表示结束时间。（单位为秒）
 	EndTimestamp int64 `json:"end_timestamp,omitempty"`
 	// 固定时长专用，表示自领取后多少天内有效。（单位为天）领取后当天有效填写0。
-	FixedTerm *int `json:"fixed_term,omitempty"`
+	FixedTerm int `json:"fixed_term,omitempty"`
 	// 固定时长专用，表示自领取后多少天开始生效。（单位为天）
-	FixedBeginTerm *int `json:"fixed_begin_term,omitempty"`
+	FixedBeginTerm int `json:"fixed_begin_term,omitempty"`
 }
 
 type SKU struct {
-	Quantity *int `json:"quantity,omitempty"` // 上架的数量。（不支持填写0或无限大）
+	Quantity int `json:"quantity,omitempty"` // 上架的数量。（不支持填写0或无限大）
 }

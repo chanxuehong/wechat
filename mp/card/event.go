@@ -15,6 +15,8 @@ const (
 	EventTypeCardNotPassCheck = "card_not_pass_check" // 卡券未通过审核
 	EventTypeUserGetCard      = "user_get_card"       // 领取卡券事件
 	EventTypeUserDelCard      = "user_del_card"       // 删除卡券事件
+	EventTypeUserViewCard     = "user_view_card"      // 进入会员卡事件推送
+	EventTypeUserConsumeCard  = "user_consume_card"   // 核销事件推送
 )
 
 // 卡券通过审核，微信会把这个事件推送到开发者填写的URL
@@ -88,6 +90,44 @@ type UserDelCardEvent struct {
 
 func GetUserDelCardEvent(msg *mp.MixedMessage) *UserDelCardEvent {
 	return &UserDelCardEvent{
+		CommonMessageHeader: msg.CommonMessageHeader,
+		Event:               msg.Event,
+		CardId:              msg.CardId,
+		UserCardCode:        msg.UserCardCode,
+	}
+}
+
+// 用户在进入会员卡时，微信会把这个事件推送到开发者填写的URL
+type UserViewCardEvent struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+	mp.CommonMessageHeader
+
+	Event        string `xml:"Event"          json:"Event"`        // 事件类型, user_view_card
+	CardId       string `xml:"CardId"         json:"CardId"`       // 卡券ID
+	UserCardCode string `xml:"UserCardCode"   json:"UserCardCode"` // 商户自定义code 值。非自定code 推送为空串
+}
+
+func GetUserViewCardEvent(msg *mp.MixedMessage) *UserViewCardEvent {
+	return &UserViewCardEvent{
+		CommonMessageHeader: msg.CommonMessageHeader,
+		Event:               msg.Event,
+		CardId:              msg.CardId,
+		UserCardCode:        msg.UserCardCode,
+	}
+}
+
+// 卡券被核销时，微信会把这个事件推送到开发者填写的URL
+type UserConsumeCardEvent struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+	mp.CommonMessageHeader
+
+	Event        string `xml:"Event"          json:"Event"`        // 事件类型, user_consume_card
+	CardId       string `xml:"CardId"         json:"CardId"`       // 卡券ID
+	UserCardCode string `xml:"UserCardCode"   json:"UserCardCode"` // 商户自定义code 值。非自定code 推送为空串
+}
+
+func GetUserConsumeCardEvent(msg *mp.MixedMessage) *UserConsumeCardEvent {
+	return &UserConsumeCardEvent{
 		CommonMessageHeader: msg.CommonMessageHeader,
 		Event:               msg.Event,
 		CardId:              msg.CardId,

@@ -12,9 +12,9 @@ import (
 )
 
 type MemberCardActivateParameters struct {
-	Code             string `json:"code"`              // 必填，创建会员卡时获取的code。
-	CardId           string `json:"card_id,omitempty"` // 可选; 卡券ID。自定义code 的会员卡必填card_id，非自定义code 的会员卡不必填。
-	MembershipNumber string `json:"membership_number"` // 必填，会员卡编号，作为序列号显示在用户的卡包里。
+	Code             string `json:"code"`                        // 必填，创建会员卡时获取的code。
+	CardId           string `json:"card_id,omitempty"`           // 可选; 卡券ID。自定义code 的会员卡必填card_id，非自定义code 的会员卡不必填。
+	MembershipNumber string `json:"membership_number,omitempty"` // 必填，会员卡编号，作为序列号显示在用户的卡包里。
 
 	InitBonus   *int `json:"init_bonus,omitempty"`   // 可选; 初始积分，不填为0
 	InitBalance *int `json:"init_balance,omitempty"` // 可选; 初始余额，不填为0
