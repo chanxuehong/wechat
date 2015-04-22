@@ -24,53 +24,53 @@ const (
 type Card struct {
 	CardType string `json:"card_type,omitempty"`
 
-	*GeneralCoupon `json:"general_coupon,omitempty"`
-	*Groupon       `json:"groupon,omitempty"`
-	*Gift          `json:"gift,omitempty"`
-	*Cash          `json:"cash,omitempty"`
-	*Discount      `json:"discount,omitempty"`
-	*MemberCard    `json:"member_card,omitempty"`
-	*ScenicTicket  `json:"scenic_ticket,omitempty"`
-	*MovieTicket   `json:"movie_ticket,omitempty"`
-	*BoardingPass  `json:"boarding_pass,omitempty"`
-	*LuckyMoney    `json:"lucky_money,omitempty"`
-	*MeetingTicket `json:"meeting_ticket,omitempty"`
+	GeneralCoupon *GeneralCoupon `json:"general_coupon,omitempty"`
+	Groupon       *Groupon       `json:"groupon,omitempty"`
+	Gift          *Gift          `json:"gift,omitempty"`
+	Cash          *Cash          `json:"cash,omitempty"`
+	Discount      *Discount      `json:"discount,omitempty"`
+	MemberCard    *MemberCard    `json:"member_card,omitempty"`
+	ScenicTicket  *ScenicTicket  `json:"scenic_ticket,omitempty"`
+	MovieTicket   *MovieTicket   `json:"movie_ticket,omitempty"`
+	BoardingPass  *BoardingPass  `json:"boarding_pass,omitempty"`
+	LuckyMoney    *LuckyMoney    `json:"lucky_money,omitempty"`
+	MeetingTicket *MeetingTicket `json:"meeting_ticket,omitempty"`
 }
 
 // 通用券
 type GeneralCoupon struct {
-	*CardBaseInfo `json:"base_info,omitempty"`
-	DefaultDetail string `json:"default_detail,omitempty"` // 描述文本
+	BaseInfo      *CardBaseInfo `json:"base_info,omitempty"`
+	DefaultDetail string        `json:"default_detail,omitempty"` // 描述文本
 }
 
 // 团购券
 type Groupon struct {
-	*CardBaseInfo `json:"base_info,omitempty"`
-	DealDetail    string `json:"deal_detail,omitempty"` // 团购券专用，团购详情
+	BaseInfo   *CardBaseInfo `json:"base_info,omitempty"`
+	DealDetail string        `json:"deal_detail,omitempty"` // 团购券专用，团购详情
 }
 
 // 礼品券
 type Gift struct {
-	*CardBaseInfo `json:"base_info,omitempty"`
-	Gift          string `json:"gift,omitempty"` // 礼品券专用，表示礼品名字
+	BaseInfo *CardBaseInfo `json:"base_info,omitempty"`
+	Gift     string        `json:"gift,omitempty"` // 礼品券专用，表示礼品名字
 }
 
 // 代金券
 type Cash struct {
-	*CardBaseInfo `json:"base_info,omitempty"`
-	LeastCost     *int `json:"least_cost,omitempty"`  // 代金券专用，表示起用金额（单位为分）
-	ReduceCost    *int `json:"reduce_cost,omitempty"` // 代金券专用，表示减免金额（单位为分）
+	BaseInfo   *CardBaseInfo `json:"base_info,omitempty"`
+	LeastCost  *int          `json:"least_cost,omitempty"`  // 代金券专用，表示起用金额（单位为分）
+	ReduceCost *int          `json:"reduce_cost,omitempty"` // 代金券专用，表示减免金额（单位为分）
 }
 
 // 折扣券
 type Discount struct {
-	*CardBaseInfo `json:"base_info,omitempty"`
-	Discount      *int `json:"discount,omitempty"` // 折扣券专用，表示打折额度（百分比）。填30 就是七折。
+	BaseInfo *CardBaseInfo `json:"base_info,omitempty"`
+	Discount *int          `json:"discount,omitempty"` // 折扣券专用，表示打折额度（百分比）。填30 就是七折。
 }
 
 // 会员卡
 type MemberCard struct {
-	*CardBaseInfo `json:"base_info,omitempty"`
+	BaseInfo *CardBaseInfo `json:"base_info,omitempty"`
 
 	// 是否支持积分，填写true 或false，如填写true，积分相关字段均为必填。
 	// 填写false，积分字段无需填写。储值字段处理方式相同。
@@ -87,20 +87,20 @@ type MemberCard struct {
 
 // 景点门票
 type ScenicTicket struct {
-	*CardBaseInfo `json:"base_info,omitempty"`
-	TicketClass   string `json:"ticket_class,omitempty"` // 票类型，例如平日全票，套票等
-	GuideURL      string `json:"guide_url,omitempty"`    // 导览图url
+	BaseInfo    *CardBaseInfo `json:"base_info,omitempty"`
+	TicketClass string        `json:"ticket_class,omitempty"` // 票类型，例如平日全票，套票等
+	GuideURL    string        `json:"guide_url,omitempty"`    // 导览图url
 }
 
 // 电影票
 type MovieTicket struct {
-	*CardBaseInfo `json:"base_info,omitempty"`
-	Detail        string `json:"detail,omitempty"` // 电影票详情
+	BaseInfo *CardBaseInfo `json:"base_info,omitempty"`
+	Detail   string        `json:"detail,omitempty"` // 电影票详情
 }
 
 // 飞机票
 type BoardingPass struct {
-	*CardBaseInfo `json:"base_info,omitempty"`
+	BaseInfo *CardBaseInfo `json:"base_info,omitempty"`
 
 	From          string `json:"from,omitempty"`           // 起点，上限为18 个汉字
 	To            string `json:"to,omitempty"`             // 终点，上限为18 个汉字
@@ -115,14 +115,14 @@ type BoardingPass struct {
 
 // 红包
 type LuckyMoney struct {
-	*CardBaseInfo `json:"base_info,omitempty"`
+	BaseInfo *CardBaseInfo `json:"base_info,omitempty"`
 }
 
 // 会议门票
 type MeetingTicket struct {
-	*CardBaseInfo `json:"base_info,omitempty"`
-	MeetingDetail string `json:"meeting_detail,omitempty"` // 会议详情
-	MapURL        string `json:"map_url,omitempty"`        // 会议导览图
+	BaseInfo      *CardBaseInfo `json:"base_info,omitempty"`
+	MeetingDetail string        `json:"meeting_detail,omitempty"` // 会议详情
+	MapURL        string        `json:"map_url,omitempty"`        // 会议导览图
 }
 
 // base_info ===================================================================
@@ -159,8 +159,8 @@ type CardBaseInfo struct {
 	Notice      string `json:"notice,omitempty"`      // 使用提醒，字数上限为9 个汉字。（一句话描述，展示在首页，示例：请出示二维码核销卡券）
 	Description string `json:"description,omitempty"` // 使用说明。长文本描述，可以分行，上限为1000 个汉字。
 
-	*DateInfo `json:"date_info,omitempty"` // 有效日期
-	*SKU      `json:"sku,omitempty"`       // 商品信息
+	DateInfo *DateInfo `json:"date_info,omitempty"` // 有效日期
+	SKU      *SKU      `json:"sku,omitempty"`       // 商品信息
 
 	LocationIdList       []int64 `json:"location_id_list,omitempty"`        // 门店地址ID
 	UseCustomCode        *bool   `json:"use_custom_code,omitempty"`         // 是否自定义code 码。
