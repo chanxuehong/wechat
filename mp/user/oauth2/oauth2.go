@@ -44,10 +44,9 @@ type OAuth2Token struct {
 	RefreshToken string
 	ExpiresAt    int64 // 过期时间, unixtime, 分布式系统要求时间同步, 建议使用 NTP
 
-	OpenId string
-	Scopes []string // 用户授权的作用域
-
-	UnionId string // UnionID机制
+	OpenId  string
+	UnionId string   // UnionID机制
+	Scopes  []string // 用户授权的作用域
 }
 
 // 判断授权的 OAuth2Token.AccessToken 是否过期, 过期返回 true, 否则返回 false
@@ -197,8 +196,8 @@ func (clt *Client) updateToken(tk *OAuth2Token, url string) (err error) {
 		RefreshToken string `json:"refresh_token"` // 用户刷新access_token
 		ExpiresIn    int64  `json:"expires_in"`    // access_token接口调用凭证超时时间，单位（秒）
 		OpenId       string `json:"openid"`        // 用户唯一标识，请注意，在未关注公众号时，用户访问公众号的网页，也会产生一个用户和公众号唯一的OpenID
-		Scope        string `json:"scope"`         // 用户授权的作用域，使用逗号（,）分隔
 		UnionId      string `json:"unionid"`       // UnionID机制
+		Scope        string `json:"scope"`         // 用户授权的作用域，使用逗号（,）分隔
 	}
 
 	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
@@ -234,6 +233,7 @@ func (clt *Client) updateToken(tk *OAuth2Token, url string) (err error) {
 	tk.ExpiresAt = time.Now().Unix() + result.ExpiresIn
 
 	tk.OpenId = result.OpenId
+	tk.UnionId = result.UnionId
 
 	strs := strings.Split(result.Scope, ",")
 	tk.Scopes = make([]string, 0, len(strs))
@@ -244,8 +244,6 @@ func (clt *Client) updateToken(tk *OAuth2Token, url string) (err error) {
 		}
 		tk.Scopes = append(tk.Scopes, str)
 	}
-
-	tk.UnionId = result.UnionId
 
 	return
 }
