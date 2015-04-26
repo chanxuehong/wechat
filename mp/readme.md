@@ -45,7 +45,6 @@ func main() {
 package main
 
 import (
-	"io"
 	"log"
 	"net/http"
 
@@ -57,7 +56,6 @@ import (
 
 // 非法请求的 Handler
 func InvalidRequestHandler(w http.ResponseWriter, r *http.Request, err error) {
-	io.WriteString(w, err.Error())
 	log.Println(err.Error())
 }
 
@@ -97,7 +95,6 @@ func main() {
 package main
 
 import (
-	"io"
 	"log"
 	"net/http"
 
@@ -109,7 +106,6 @@ import (
 
 // 非法请求处理函数
 func InvalidRequestHandler(w http.ResponseWriter, r *http.Request, err error) {
-	io.WriteString(w, err.Error())
 	log.Println(err.Error())
 }
 
