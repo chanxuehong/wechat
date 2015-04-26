@@ -142,16 +142,17 @@ func (mux *MessageServeMux) eventHandler(eventType string) (handler MessageHandl
 
 // MessageServeMux 实现了 MessageHandler 接口.
 func (mux *MessageServeMux) ServeMessage(w http.ResponseWriter, r *Request) {
-	MsgType := r.MixedMsg.MsgType
-	if MsgType == "event" {
-		if handler := mux.eventHandler(r.MixedMsg.Event); handler != nil {
-			handler.ServeMessage(w, r)
-			return
+	if MsgType := r.MixedMsg.MsgType; MsgType == "event" {
+		handler := mux.eventHandler(r.MixedMsg.Event)
+		if handler == nil {
+			return // 返回空串, 符合微信协议
 		}
-	}
-	if handler := mux.messageHandler(MsgType); handler != nil {
 		handler.ServeMessage(w, r)
-		return
+	} else {
+		handler := mux.messageHandler(MsgType)
+		if handler == nil {
+			return // 返回空串, 符合微信协议
+		}
+		handler.ServeMessage(w, r)
 	}
-	return // 返回空串, 符合微信协议
 }
