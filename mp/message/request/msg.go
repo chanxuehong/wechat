@@ -18,7 +18,6 @@ const (
 	MsgTypeShortVideo = "shortvideo" // 小视频消息
 	MsgTypeLocation   = "location"   // 地理位置消息
 	MsgTypeLink       = "link"       // 链接消息
-	MsgTypeEvent      = "event"      // 事件推送
 )
 
 // 文本消息

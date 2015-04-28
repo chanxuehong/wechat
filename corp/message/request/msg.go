@@ -16,7 +16,6 @@ const (
 	MsgTypeVoice    = "voice"    // 语音消息
 	MsgTypeVideo    = "video"    // 视频消息
 	MsgTypeLocation = "location" // 地理位置消息
-	MsgTypeEvent    = "event"    // 事件推送
 )
 
 type Text struct {
