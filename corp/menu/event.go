@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	EventTypeClick = "CLICK" // 点击菜单拉取消息时的事件推送
-	EventTypeView  = "VIEW"  // 点击菜单跳转链接时的事件推送
+	EventTypeClick = "click" // 点击菜单拉取消息时的事件推送
+	EventTypeView  = "view"  // 点击菜单跳转链接时的事件推送
 
 	// 请注意, 下面的事件仅支持微信iPhone5.4.1以上版本, 和Android5.4以上版本的微信用户,
 	// 旧版本微信用户点击后将没有回应, 开发者也不能正常接收到事件推送.
