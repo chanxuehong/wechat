@@ -71,28 +71,32 @@ func (clt *Client) AddNews(news News) (mediaId string, err error) {
 	return
 }
 
-// 修改永久图文素材.(测试没有通过, 格式不对)
-//func (clt *Client) UpdateNews(mediaId string, indexArr []int, articleArr []Article) (err error) {
-//	var request = struct {
-//		MediaId    string    `json:"media_id"`
-//		IndexArr   []int     `json:"index,omitempty"`
-//		ArticleArr []Article `json:"articles,omitempty"`
-//	}{
-//		MediaId:    mediaId,
-//		IndexArr:   indexArr,
-//		ArticleArr: articleArr,
-//	}
-//	var result mp.Error
-//	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/update_news?access_token="
-//	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
-//		return
-//	}
-//	if result.ErrCode != mp.ErrCodeOK {
-//		err = &result
-//		return
-//	}
-//	return
-//}
+// 修改永久图文素材.
+// 再次fuck微信開發組, 這個api是猜的!
+func (clt *Client) UpdateNews(mediaId string, index int, article *Article) (err error) {
+	var request = struct {
+		MediaId string   `json:"media_id"`
+		Index   int      `json:"index"`
+		Article *Article `json:"articles,omitempty"`
+	}{
+		MediaId: mediaId,
+		Index:   index,
+		Article: article,
+	}
+
+	var result mp.Error
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/update_news?access_token="
+	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result
+		return
+	}
+	return
+}
 
 // 获取永久图文素材.
 func (clt *Client) GetNews(mediaId string) (news News, err error) {
