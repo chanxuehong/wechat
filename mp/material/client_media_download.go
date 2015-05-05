@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"mime"
 	"net/http"
 	"net/url"
 	"os"
@@ -38,6 +37,11 @@ func (clt *Client) DownloadMaterialToWriter(mediaId string, writer io.Writer) er
 	}
 	return clt.downloadMaterialToWriter(mediaId, writer)
 }
+
+var (
+	errRespBeginCode = []byte(`{"errcode":`)
+	errRespBeginMsg  = []byte(`{"errmsg":"`)
+)
 
 // 下载多媒体到 io.Writer.
 func (clt *Client) downloadMaterialToWriter(mediaId string, writer io.Writer) (err error) {
@@ -71,15 +75,33 @@ RETRY:
 		return fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
 
-	ContentType, _, _ := mime.ParseMediaType(httpResp.Header.Get("Content-Type"))
-	if ContentType != "text/plain" && ContentType != "application/json" { // 返回的是媒体流
-		_, err = io.Copy(writer, httpResp.Body)
+	// fuck, 騰訊這次又蛋疼了, Content-Type 不能區分返回的是媒體類型還是錯誤
+	var respBegin [11]byte // {"errcode": or {"errmsg":"
+
+	n, err := io.ReadFull(httpResp.Body, respBegin[:])
+	switch {
+	case err == nil:
+		break
+	case err == io.ErrUnexpectedEOF:
+		_, err = writer.Write(respBegin[:n])
+		return
+	case err == io.EOF:
+		err = nil
+		return
+	default:
+		return
+	}
+
+	httpRespBody := io.MultiReader(bytes.NewReader(respBegin[:]), httpResp.Body)
+
+	if !bytes.Equal(respBegin[:], errRespBeginCode) && !bytes.Equal(respBegin[:], errRespBeginMsg) { // 返回的是媒體內容
+		_, err = io.Copy(writer, httpRespBody)
 		return
 	}
 
 	// 返回的是错误信息
 	var result mp.Error
-	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
+	if err = json.NewDecoder(httpRespBody).Decode(&result); err != nil {
 		return
 	}
 
