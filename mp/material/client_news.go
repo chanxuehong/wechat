@@ -72,7 +72,7 @@ func (clt *Client) AddNews(news News) (mediaId string, err error) {
 }
 
 // 修改永久图文素材.
-// 再次fuck微信開發組, 這個api是猜的!
+//  再次fuck微信開發組, 這個api是猜的!
 func (clt *Client) UpdateNews(mediaId string, index int, article *Article) (err error) {
 	var request = struct {
 		MediaId string   `json:"media_id"`
