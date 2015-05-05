@@ -27,7 +27,7 @@ type CommonMessageHeader struct {
 // 如果需要以某个客服帐号来发消息（在微信6.0.2及以上版本中显示自定义头像），
 // 则需在JSON数据包的后半部分加入 customservice 参数
 type CustomService struct {
-	KfAccount string `json:"kfaccount"`
+	KfAccount string `json:"kf_account"`
 }
 
 // 文本消息
