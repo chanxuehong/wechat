@@ -164,8 +164,8 @@ func (clt *Client) CheckAccessTokenValid() (valid bool, err error) {
 		return
 	}
 
-	log.Println("request url:", _url)
-	log.Println("response json:", string(respBody))
+	log.Println("[WECHAT_DEBUG] request url:", _url)
+	log.Println("[WECHAT_DEBUG] response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, &result); err != nil {
 		return
@@ -213,8 +213,8 @@ func (clt *Client) updateToken(tk *OAuth2Token, url string) (err error) {
 		return
 	}
 
-	log.Println("request url:", url)
-	log.Println("response json:", string(respBody))
+	log.Println("[WECHAT_DEBUG] request url:", url)
+	log.Println("[WECHAT_DEBUG] response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, &result); err != nil {
 		return

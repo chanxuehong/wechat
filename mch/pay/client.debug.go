@@ -47,8 +47,8 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 		return
 	}
 
-	log.Println("request url:", url)
-	log.Println("request xml:", bodyBuf.String())
+	log.Println("[WECHAT_DEBUG] request url:", url)
+	log.Println("[WECHAT_DEBUG] request xml:", bodyBuf.String())
 
 	httpResp, err := clt.httpClient.Post(url, "text/xml; charset=utf-8", bodyBuf)
 	if err != nil {
@@ -65,7 +65,7 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 	if err != nil {
 		return
 	}
-	log.Println("response xml:", string(respBody))
+	log.Println("[WECHAT_DEBUG] response xml:", string(respBody))
 
 	if resp, err = util.ParseXMLToMap(bytes.NewReader(respBody)); err != nil {
 		return

@@ -18,6 +18,6 @@ var textBufferPool = sync.Pool{
 
 var mediaBufferPool = sync.Pool{
 	New: func() interface{} {
-		return bytes.NewBuffer(make([]byte, 0, 10<<20)) // 默认 10MB
+		return bytes.NewBuffer(make([]byte, 0, 10<<20)) // 10MB
 	},
 }

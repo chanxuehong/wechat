@@ -199,8 +199,8 @@ func (srv *DefaultTokenServer) getToken() (token tokenInfo, cached bool, err err
 		return
 	}
 
-	log.Println("request url:", _url)
-	log.Println("response json:", string(respBody))
+	log.Println("[WECHAT_DEBUG] request url:", _url)
+	log.Println("[WECHAT_DEBUG] response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, &result); err != nil {
 		return
