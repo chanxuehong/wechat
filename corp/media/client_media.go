@@ -25,7 +25,12 @@ func (clt *Client) DownloadMedia(mediaId, filepath string) (err error) {
 	if err != nil {
 		return
 	}
-	defer file.Close()
+	defer func() {
+		file.Close()
+		if err != nil {
+			os.Remove(filepath)
+		}
+	}()
 
 	return clt.downloadMediaToWriter(mediaId, file)
 }
