@@ -76,8 +76,8 @@ func NewDefaultTokenServer(appId, appSecret string,
 		resetTickerChan: make(chan time.Duration),
 	}
 
-	const tenYears time.Duration = time.Minute * 5259492 // time.Minute * 60 * 24 * 365.2425 * 10
-	go srv.tokenDaemon(tenYears)                         // 启动 tokenDaemon
+	const tenYears time.Duration = time.Hour * 24
+	go srv.tokenDaemon(tenYears) // 启动 tokenDaemon
 	return
 }
 
