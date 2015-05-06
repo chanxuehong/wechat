@@ -82,8 +82,8 @@ RETRY:
 	case corp.ErrCodeOK:
 		return // 基本不会出现
 	case corp.ErrCodeInvalidCredential, corp.ErrCodeTimeout: // 失效(过期)重试一次
-		log.Println("wechat/corp/media.downloadMediaToWriter: RETRY, err_code:", result.ErrCode, ", err_msg:", result.ErrMsg)
-		log.Println("wechat/corp/media.downloadMediaToWriter: RETRY, current token:", token)
+		log.Println("RETRY, err_code:", result.ErrCode, ", err_msg:", result.ErrMsg)
+		log.Println("RETRY, current token:", token)
 
 		if !hasRetried {
 			hasRetried = true
@@ -91,12 +91,12 @@ RETRY:
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
-			log.Println("wechat/corp/media.downloadMediaToWriter: RETRY, new token:", token)
+			log.Println("RETRY, new token:", token)
 
 			result = corp.Error{}
 			goto RETRY
 		}
-		log.Println("wechat/corp/media.downloadMediaToWriter: RETRY fallthrough, current token:", token)
+		log.Println("RETRY fallthrough, current token:", token)
 		fallthrough
 	default:
 		err = &result

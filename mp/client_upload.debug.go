@@ -127,8 +127,8 @@ RETRY:
 		return
 	case ErrCodeInvalidCredential, ErrCodeTimeout:
 		ErrMsg := responseStructValue.FieldByName("ErrMsg").String()
-		log.Println("wechat/mp.UploadFromReader: RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
-		log.Println("wechat/mp.UploadFromReader: RETRY, current token:", token)
+		log.Println("RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
+		log.Println("RETRY, current token:", token)
 
 		if !hasRetried {
 			hasRetried = true
@@ -136,12 +136,12 @@ RETRY:
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
-			log.Println("wechat/mp.UploadFromReader: RETRY, new token:", token)
+			log.Println("RETRY, new token:", token)
 
 			responseStructValue.Set(reflect.New(responseStructValue.Type()).Elem())
 			goto RETRY
 		}
-		log.Println("wechat/mp.UploadFromReader: RETRY fallthrough, current token:", token)
+		log.Println("RETRY fallthrough, current token:", token)
 		fallthrough
 	default:
 		return
