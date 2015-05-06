@@ -72,8 +72,8 @@ func NewDefaultTicketServer(tokenServer corp.TokenServer, httpClient *http.Clien
 		resetTickerChan: make(chan time.Duration),
 	}
 
-	const tenYears time.Duration = time.Hour * 24
-	go srv.ticketDaemon(tenYears) // 启动 tokenDaemon
+	const oneDay time.Duration = time.Hour * 24
+	go srv.ticketDaemon(oneDay) // 启动 tokenDaemon
 	return
 }
 
