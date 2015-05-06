@@ -11,7 +11,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -101,8 +100,8 @@ RETRY:
 		return
 	case ErrCodeTimeout, ErrCodeInvalidCredential:
 		ErrMsg := responseStructValue.FieldByName("ErrMsg").String()
-		log.Println("[WECHAT_RETRY] err_code:", ErrCode, ", err_msg:", ErrMsg)
-		log.Println("[WECHAT_RETRY] current token:", token)
+		LogInfoln("[WECHAT_RETRY] err_code:", ErrCode, ", err_msg:", ErrMsg)
+		LogInfoln("[WECHAT_RETRY] current token:", token)
 
 		if !hasRetried {
 			hasRetried = true
@@ -110,12 +109,12 @@ RETRY:
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
-			log.Println("[WECHAT_RETRY] new token:", token)
+			LogInfoln("[WECHAT_RETRY] new token:", token)
 
 			responseStructValue.Set(reflect.New(responseStructValue.Type()).Elem())
 			goto RETRY
 		}
-		log.Println("[WECHAT_RETRY] fallthrough, current token:", token)
+		LogInfoln("[WECHAT_RETRY] fallthrough, current token:", token)
 		fallthrough
 	default:
 		return
@@ -172,8 +171,8 @@ RETRY:
 		return
 	case ErrCodeTimeout, ErrCodeInvalidCredential:
 		ErrMsg := responseStructValue.FieldByName("ErrMsg").String()
-		log.Println("[WECHAT_RETRY] err_code:", ErrCode, ", err_msg:", ErrMsg)
-		log.Println("[WECHAT_RETRY] current token:", token)
+		LogInfoln("[WECHAT_RETRY] err_code:", ErrCode, ", err_msg:", ErrMsg)
+		LogInfoln("[WECHAT_RETRY] current token:", token)
 
 		if !hasRetried {
 			hasRetried = true
@@ -181,12 +180,12 @@ RETRY:
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
-			log.Println("[WECHAT_RETRY] new token:", token)
+			LogInfoln("[WECHAT_RETRY] new token:", token)
 
 			responseStructValue.Set(reflect.New(responseStructValue.Type()).Elem())
 			goto RETRY
 		}
-		log.Println("[WECHAT_RETRY] fallthrough, current token:", token)
+		LogInfoln("[WECHAT_RETRY] fallthrough, current token:", token)
 		fallthrough
 	default:
 		return

@@ -12,7 +12,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -69,8 +68,8 @@ func (clt *WechatClient) PostJSON(incompleteURL string, request interface{}, res
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
 
-	log.Println("[WECHAT_DEBUG] request url:", finalURL)
-	log.Println("[WECHAT_DEBUG] request json:", string(requestBytes))
+	LogInfoln("[WECHAT_DEBUG] request url:", finalURL)
+	LogInfoln("[WECHAT_DEBUG] request json:", string(requestBytes))
 
 	httpResp, err := clt.HttpClient.Post(finalURL, "application/json; charset=utf-8", bytes.NewReader(requestBytes))
 	if err != nil {
@@ -86,7 +85,7 @@ RETRY:
 	if err != nil {
 		return
 	}
-	log.Println("[WECHAT_DEBUG] response json:", string(respBody))
+	LogInfoln("[WECHAT_DEBUG] response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, response); err != nil {
 		return
@@ -111,8 +110,8 @@ RETRY:
 		return
 	case ErrCodeInvalidCredential, ErrCodeTimeout:
 		ErrMsg := responseStructValue.FieldByName("ErrMsg").String()
-		log.Println("[WECHAT_RETRY] err_code:", ErrCode, ", err_msg:", ErrMsg)
-		log.Println("[WECHAT_RETRY] current token:", token)
+		LogInfoln("[WECHAT_RETRY] err_code:", ErrCode, ", err_msg:", ErrMsg)
+		LogInfoln("[WECHAT_RETRY] current token:", token)
 
 		if !hasRetried {
 			hasRetried = true
@@ -120,12 +119,12 @@ RETRY:
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
-			log.Println("[WECHAT_RETRY] new token:", token)
+			LogInfoln("[WECHAT_RETRY] new token:", token)
 
 			responseStructValue.Set(reflect.New(responseStructValue.Type()).Elem())
 			goto RETRY
 		}
-		log.Println("[WECHAT_RETRY] fallthrough, current token:", token)
+		LogInfoln("[WECHAT_RETRY] fallthrough, current token:", token)
 		fallthrough
 	default:
 		return
@@ -163,8 +162,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	log.Println("[WECHAT_DEBUG] request url:", finalURL)
-	log.Println("[WECHAT_DEBUG] response json:", string(respBody))
+	LogInfoln("[WECHAT_DEBUG] request url:", finalURL)
+	LogInfoln("[WECHAT_DEBUG] response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, response); err != nil {
 		return
@@ -189,8 +188,8 @@ RETRY:
 		return
 	case ErrCodeInvalidCredential, ErrCodeTimeout:
 		ErrMsg := responseStructValue.FieldByName("ErrMsg").String()
-		log.Println("[WECHAT_RETRY] err_code:", ErrCode, ", err_msg:", ErrMsg)
-		log.Println("[WECHAT_RETRY] current token:", token)
+		LogInfoln("[WECHAT_RETRY] err_code:", ErrCode, ", err_msg:", ErrMsg)
+		LogInfoln("[WECHAT_RETRY] current token:", token)
 
 		if !hasRetried {
 			hasRetried = true
@@ -198,12 +197,12 @@ RETRY:
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
-			log.Println("[WECHAT_RETRY] new token:", token)
+			LogInfoln("[WECHAT_RETRY] new token:", token)
 
 			responseStructValue.Set(reflect.New(responseStructValue.Type()).Elem())
 			goto RETRY
 		}
-		log.Println("[WECHAT_RETRY] fallthrough, current token:", token)
+		LogInfoln("[WECHAT_RETRY] fallthrough, current token:", token)
 		fallthrough
 	default:
 		return

@@ -12,7 +12,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -199,8 +198,8 @@ func (srv *DefaultTokenServer) getToken() (token tokenInfo, cached bool, err err
 		return
 	}
 
-	log.Println("[WECHAT_DEBUG] request url:", _url)
-	log.Println("[WECHAT_DEBUG] response json:", string(respBody))
+	LogInfoln("[WECHAT_DEBUG] request url:", _url)
+	LogInfoln("[WECHAT_DEBUG] response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, &result); err != nil {
 		return

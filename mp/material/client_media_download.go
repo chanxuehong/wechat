@@ -11,7 +11,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -114,8 +113,8 @@ RETRY:
 	case mp.ErrCodeOK:
 		return // 基本不会出现
 	case mp.ErrCodeInvalidCredential, mp.ErrCodeTimeout: // 失效(过期)重试一次
-		log.Println("[WECHAT_RETRY] err_code:", result.ErrCode, ", err_msg:", result.ErrMsg)
-		log.Println("[WECHAT_RETRY] current token:", token)
+		mp.LogInfoln("[WECHAT_RETRY] err_code:", result.ErrCode, ", err_msg:", result.ErrMsg)
+		mp.LogInfoln("[WECHAT_RETRY] current token:", token)
 
 		if !hasRetried {
 			hasRetried = true
@@ -123,12 +122,12 @@ RETRY:
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
-			log.Println("[WECHAT_RETRY] new token:", token)
+			mp.LogInfoln("[WECHAT_RETRY] new token:", token)
 
 			result = mp.Error{}
 			goto RETRY
 		}
-		log.Println("[WECHAT_RETRY] fallthrough, current token:", token)
+		mp.LogInfoln("[WECHAT_RETRY] fallthrough, current token:", token)
 		fallthrough
 	default:
 		err = &result

@@ -12,7 +12,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"github.com/chanxuehong/util"
@@ -47,8 +46,8 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 		return
 	}
 
-	log.Println("[WECHAT_DEBUG] request url:", url)
-	log.Println("[WECHAT_DEBUG] request xml:", bodyBuf.String())
+	LogInfoln("[WECHAT_DEBUG] request url:", url)
+	LogInfoln("[WECHAT_DEBUG] request xml:", bodyBuf.String())
 
 	httpResp, err := clt.httpClient.Post(url, "text/xml; charset=utf-8", bodyBuf)
 	if err != nil {
@@ -65,7 +64,7 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 	if err != nil {
 		return
 	}
-	log.Println("[WECHAT_DEBUG] response xml:", string(respBody))
+	LogInfoln("[WECHAT_DEBUG] response xml:", string(respBody))
 
 	if resp, err = util.ParseXMLToMap(bytes.NewReader(respBody)); err != nil {
 		return

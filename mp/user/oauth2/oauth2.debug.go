@@ -12,7 +12,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -165,8 +164,8 @@ func (clt *Client) CheckAccessTokenValid() (valid bool, err error) {
 		return
 	}
 
-	log.Println("[WECHAT_DEBUG] request url:", _url)
-	log.Println("[WECHAT_DEBUG] response json:", string(respBody))
+	mp.LogInfoln("[WECHAT_DEBUG] request url:", _url)
+	mp.LogInfoln("[WECHAT_DEBUG] response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, &result); err != nil {
 		return
@@ -215,8 +214,8 @@ func (clt *Client) updateToken(tk *OAuth2Token, url string) (err error) {
 		return
 	}
 
-	log.Println("[WECHAT_DEBUG] request url:", url)
-	log.Println("[WECHAT_DEBUG] response json:", string(respBody))
+	mp.LogInfoln("[WECHAT_DEBUG] request url:", url)
+	mp.LogInfoln("[WECHAT_DEBUG] response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, &result); err != nil {
 		return
