@@ -40,11 +40,17 @@ type Level2 struct {
 
 // 下载二级目录的html文件
 func htmlDownload(dir, filename, url string) (err error) {
-	file, err := os.Create(filepath.Join(dir, filename+".html"))
+	fp := filepath.Join(dir, filename+".html")
+	file, err := os.Create(fp)
 	if err != nil {
 		return
 	}
-	defer file.Close()
+	defer func() {
+		file.Close()
+		if err != nil {
+			os.Remove(fp)
+		}
+	}()
 
 	httpResp, err := http.Get(url)
 	if err != nil {

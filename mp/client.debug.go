@@ -16,7 +16,6 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
-	"runtime"
 
 	wechatjson "github.com/chanxuehong/wechat/json"
 )
@@ -25,6 +24,22 @@ import (
 type WechatClient struct {
 	TokenServer
 	HttpClient *http.Client
+}
+
+// 创建一个新的 WechatClient.
+//  如果 HttpClient == nil 则默认用 http.DefaultClient
+func NewWechatClient(TokenServer TokenServer, HttpClient *http.Client) *WechatClient {
+	if TokenServer == nil {
+		panic("TokenServer == nil")
+	}
+	if HttpClient == nil {
+		HttpClient = http.DefaultClient
+	}
+
+	return &WechatClient{
+		TokenServer: TokenServer,
+		HttpClient:  HttpClient,
+	}
 }
 
 // 用 encoding/json 把 request marshal 为 JSON, 放入 http 请求的 body 中,
@@ -50,17 +65,12 @@ func (clt *WechatClient) PostJSON(incompleteURL string, request interface{}, res
 		return
 	}
 
-	debugPrefix := "mp.WechatClient.PostJSON"
-	if _, file, line, ok := runtime.Caller(1); ok {
-		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
-	}
-
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
 
-	log.Println(debugPrefix, "request url:", finalURL)
-	log.Println(debugPrefix, "request json:", string(requestBytes))
+	log.Println("request url:", finalURL)
+	log.Println("request json:", string(requestBytes))
 
 	httpResp, err := clt.HttpClient.Post(finalURL, "application/json; charset=utf-8", bytes.NewReader(requestBytes))
 	if err != nil {
@@ -76,7 +86,7 @@ RETRY:
 	if err != nil {
 		return
 	}
-	log.Println(debugPrefix, "response json:", string(respBody))
+	log.Println("response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, response); err != nil {
 		return
@@ -101,8 +111,8 @@ RETRY:
 		return
 	case ErrCodeInvalidCredential, ErrCodeTimeout:
 		ErrMsg := responseStructValue.FieldByName("ErrMsg").String()
-		log.Println("wechat/mp.PostJSON: RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
-		log.Println("wechat/mp.PostJSON: RETRY, current token:", token)
+		log.Println("RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
+		log.Println("RETRY, current token:", token)
 
 		if !hasRetried {
 			hasRetried = true
@@ -110,12 +120,12 @@ RETRY:
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
-			log.Println("wechat/mp.PostJSON: RETRY, new token:", token)
+			log.Println("RETRY, new token:", token)
 
 			responseStructValue.Set(reflect.New(responseStructValue.Type()).Elem())
 			goto RETRY
 		}
-		log.Println("wechat/mp.PostJSON: RETRY fallthrough, current token:", token)
+		log.Println("RETRY fallthrough, current token:", token)
 		fallthrough
 	default:
 		return
@@ -133,11 +143,6 @@ func (clt *WechatClient) GetJSON(incompleteURL string, response interface{}) (er
 	token, err := clt.Token()
 	if err != nil {
 		return
-	}
-
-	debugPrefix := "mp.WechatClient.GetJSON"
-	if _, file, line, ok := runtime.Caller(1); ok {
-		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
 	}
 
 	hasRetried := false
@@ -158,8 +163,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	log.Println(debugPrefix, "request url:", finalURL)
-	log.Println(debugPrefix, "response json:", string(respBody))
+	log.Println("request url:", finalURL)
+	log.Println("response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, response); err != nil {
 		return
@@ -184,8 +189,8 @@ RETRY:
 		return
 	case ErrCodeInvalidCredential, ErrCodeTimeout:
 		ErrMsg := responseStructValue.FieldByName("ErrMsg").String()
-		log.Println("wechat/mp.GetJSON: RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
-		log.Println("wechat/mp.GetJSON: RETRY, current token:", token)
+		log.Println("RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
+		log.Println("RETRY, current token:", token)
 
 		if !hasRetried {
 			hasRetried = true
@@ -193,12 +198,12 @@ RETRY:
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
-			log.Println("wechat/mp.GetJSON: RETRY, new token:", token)
+			log.Println("RETRY, new token:", token)
 
 			responseStructValue.Set(reflect.New(responseStructValue.Type()).Elem())
 			goto RETRY
 		}
-		log.Println("wechat/mp.GetJSON: RETRY fallthrough, current token:", token)
+		log.Println("RETRY fallthrough, current token:", token)
 		fallthrough
 	default:
 		return

@@ -18,7 +18,6 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
-	"runtime"
 )
 
 // 通用上传接口.
@@ -83,11 +82,6 @@ func (clt *CorpClient) UploadFromReader(incompleteURL,
 		return
 	}
 
-	debugPrefix := "corp.CorpClient.UploadFromReader"
-	if _, file, line, ok := runtime.Caller(1); ok {
-		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
-	}
-
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
@@ -107,8 +101,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	log.Println(debugPrefix, "request url:", finalURL)
-	log.Println(debugPrefix, "response json:", string(respBody))
+	log.Println("request url:", finalURL)
+	log.Println("response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, response); err != nil {
 		return
@@ -133,8 +127,8 @@ RETRY:
 		return
 	case ErrCodeTimeout, ErrCodeInvalidCredential:
 		ErrMsg := responseStructValue.FieldByName("ErrMsg").String()
-		log.Println("wechat/corp.UploadFromReader: RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
-		log.Println("wechat/corp.UploadFromReader: RETRY, current token:", token)
+		log.Println("RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
+		log.Println("RETRY, current token:", token)
 
 		if !hasRetried {
 			hasRetried = true
@@ -142,12 +136,12 @@ RETRY:
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
-			log.Println("wechat/corp.UploadFromReader: RETRY, new token:", token)
+			log.Println("RETRY, new token:", token)
 
 			responseStructValue.Set(reflect.New(responseStructValue.Type()).Elem())
 			goto RETRY
 		}
-		log.Println("wechat/corp.UploadFromReader: RETRY fallthrough, current token:", token)
+		log.Println("RETRY fallthrough, current token:", token)
 		fallthrough
 	default:
 		return

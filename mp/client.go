@@ -25,6 +25,22 @@ type WechatClient struct {
 	HttpClient *http.Client
 }
 
+// 创建一个新的 WechatClient.
+//  如果 HttpClient == nil 则默认用 http.DefaultClient
+func NewWechatClient(TokenServer TokenServer, HttpClient *http.Client) *WechatClient {
+	if TokenServer == nil {
+		panic("TokenServer == nil")
+	}
+	if HttpClient == nil {
+		HttpClient = http.DefaultClient
+	}
+
+	return &WechatClient{
+		TokenServer: TokenServer,
+		HttpClient:  HttpClient,
+	}
+}
+
 // 用 encoding/json 把 request marshal 为 JSON, 放入 http 请求的 body 中,
 // POST 到微信服务器, 然后将微信服务器返回的 JSON 用 encoding/json 解析到 response.
 //
@@ -85,8 +101,8 @@ RETRY:
 		return
 	case ErrCodeInvalidCredential, ErrCodeTimeout:
 		ErrMsg := responseStructValue.FieldByName("ErrMsg").String()
-		log.Println("wechat/mp.PostJSON: RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
-		log.Println("wechat/mp.PostJSON: RETRY, current token:", token)
+		log.Println("RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
+		log.Println("RETRY, current token:", token)
 
 		if !hasRetried {
 			hasRetried = true
@@ -94,12 +110,12 @@ RETRY:
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
-			log.Println("wechat/mp.PostJSON: RETRY, new token:", token)
+			log.Println("RETRY, new token:", token)
 
 			responseStructValue.Set(reflect.New(responseStructValue.Type()).Elem())
 			goto RETRY
 		}
-		log.Println("wechat/mp.PostJSON: RETRY fallthrough, current token:", token)
+		log.Println("RETRY fallthrough, current token:", token)
 		fallthrough
 	default:
 		return
@@ -156,8 +172,8 @@ RETRY:
 		return
 	case ErrCodeInvalidCredential, ErrCodeTimeout:
 		ErrMsg := responseStructValue.FieldByName("ErrMsg").String()
-		log.Println("wechat/mp.GetJSON: RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
-		log.Println("wechat/mp.GetJSON: RETRY, current token:", token)
+		log.Println("RETRY, err_code:", ErrCode, ", err_msg:", ErrMsg)
+		log.Println("RETRY, current token:", token)
 
 		if !hasRetried {
 			hasRetried = true
@@ -165,12 +181,12 @@ RETRY:
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
-			log.Println("wechat/mp.GetJSON: RETRY, new token:", token)
+			log.Println("RETRY, new token:", token)
 
 			responseStructValue.Set(reflect.New(responseStructValue.Type()).Elem())
 			goto RETRY
 		}
-		log.Println("wechat/mp.GetJSON: RETRY fallthrough, current token:", token)
+		log.Println("RETRY fallthrough, current token:", token)
 		fallthrough
 	default:
 		return

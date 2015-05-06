@@ -178,7 +178,12 @@ func (clt *Client) QRCodeDownload(ticket, filepath string) (err error) {
 	if err != nil {
 		return
 	}
-	defer file.Close()
+	defer func() {
+		file.Close()
+		if err != nil {
+			os.Remove(filepath)
+		}
+	}()
 
 	if clt.HttpClient == nil {
 		clt.HttpClient = http.DefaultClient
@@ -212,7 +217,12 @@ func QRCodeDownload(ticket, filepath string, httpClient *http.Client) (err error
 	if err != nil {
 		return
 	}
-	defer file.Close()
+	defer func() {
+		file.Close()
+		if err != nil {
+			os.Remove(filepath)
+		}
+	}()
 
 	if httpClient == nil {
 		httpClient = http.DefaultClient
