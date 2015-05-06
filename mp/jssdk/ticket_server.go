@@ -72,15 +72,8 @@ func NewDefaultTicketServer(tokenServer mp.TokenServer, httpClient *http.Client)
 		resetTickerChan: make(chan time.Duration),
 	}
 
-	// 获取 jsapi_ticket 并启动 goroutine ticketDaemon
-	ticketInfo, cached, err := srv.getTicket()
-	if err != nil {
-		panic(err)
-	}
-	if !cached {
-		srv.ticketCache.Ticket = ticketInfo.Ticket
-		go srv.ticketDaemon(time.Duration(ticketInfo.ExpiresIn) * time.Second)
-	}
+	const tenYears time.Duration = time.Minute * 5259492 // time.Minute * 60 * 24 * 365.2425 * 10
+	go srv.ticketDaemon(tenYears)                        // 启动 tokenDaemon
 	return
 }
 
@@ -98,16 +91,9 @@ func (srv *DefaultTicketServer) Ticket() (ticket string, err error) {
 func (srv *DefaultTicketServer) TicketRefresh() (ticket string, err error) {
 	ticketInfo, cached, err := srv.getTicket()
 	if err != nil {
-		srv.ticketCache.Lock()
-		srv.ticketCache.Ticket = ""
-		srv.ticketCache.Unlock()
 		return
 	}
 	if !cached {
-		srv.ticketCache.Lock()
-		srv.ticketCache.Ticket = ticketInfo.Ticket
-		srv.ticketCache.Unlock()
-
 		srv.resetTickerChan <- time.Duration(ticketInfo.ExpiresIn) * time.Second
 	}
 	ticket = ticketInfo.Ticket
@@ -127,20 +113,13 @@ NEW_TICK_DURATION:
 		case <-ticker.C:
 			ticketInfo, cached, err := srv.getTicket()
 			if err != nil {
-				srv.ticketCache.Lock()
-				srv.ticketCache.Ticket = ""
-				srv.ticketCache.Unlock()
 				break
 			}
 			if !cached {
-				srv.ticketCache.Lock()
-				srv.ticketCache.Ticket = ticketInfo.Ticket
-				srv.ticketCache.Unlock()
-
 				newTickDuration := time.Duration(ticketInfo.ExpiresIn) * time.Second
 				if tickDuration != newTickDuration {
-					ticker.Stop()
 					tickDuration = newTickDuration
+					ticker.Stop()
 					goto NEW_TICK_DURATION
 				}
 			}
@@ -154,6 +133,7 @@ type ticketInfo struct {
 }
 
 // 从微信服务器获取 jsapi_ticket.
+//  同一时刻只能一个 goroutine 进入, 防止没必要的重复获取.
 func (srv *DefaultTicketServer) getTicket() (ticket ticketInfo, cached bool, err error) {
 	srv.ticketGet.Lock()
 	defer srv.ticketGet.Unlock()
@@ -161,10 +141,11 @@ func (srv *DefaultTicketServer) getTicket() (ticket ticketInfo, cached bool, err
 	timeNowUnix := time.Now().Unix()
 
 	// 在收敛周期内直接返回最近一次获取的 jsapi_ticket, 这里的收敛时间设定为4秒
-	if n := srv.ticketGet.LastTimestamp; timeNowUnix >= n && timeNowUnix < n+4 {
+	if n := srv.ticketGet.LastTimestamp; n <= timeNowUnix && timeNowUnix < n+4 {
+		// 因为只有成功获取后才会更新 srv.tokenGet.LastTimestamp, 所以这些都是有效数据
 		ticket = ticketInfo{
 			Ticket:    srv.ticketGet.LastTicketInfo.Ticket,
-			ExpiresIn: srv.ticketGet.LastTicketInfo.ExpiresIn + n - timeNowUnix,
+			ExpiresIn: srv.ticketGet.LastTicketInfo.ExpiresIn - timeNowUnix + n,
 		}
 		cached = true
 		return
@@ -177,10 +158,17 @@ func (srv *DefaultTicketServer) getTicket() (ticket ticketInfo, cached bool, err
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=jsapi&access_token="
 	if err = srv.wechatClient.GetJSON(incompleteURL, &result); err != nil {
+		srv.ticketCache.Lock()
+		srv.ticketCache.Ticket = ""
+		srv.ticketCache.Unlock()
 		return
 	}
 
 	if result.ErrCode != mp.ErrCodeOK {
+		srv.ticketCache.Lock()
+		srv.ticketCache.Ticket = ""
+		srv.ticketCache.Unlock()
+
 		err = &result.Error
 		return
 	}
@@ -195,14 +183,22 @@ func (srv *DefaultTicketServer) getTicket() (ticket ticketInfo, cached bool, err
 		result.ExpiresIn -= 60
 	case result.ExpiresIn > 60:
 		result.ExpiresIn -= 10
-	case result.ExpiresIn > 0:
 	default:
-		err = errors.New("invalid expires_in: " + strconv.FormatInt(result.ExpiresIn, 10))
+		srv.ticketCache.Lock()
+		srv.ticketCache.Ticket = ""
+		srv.ticketCache.Unlock()
+
+		err = errors.New("expires_in too small: " + strconv.FormatInt(result.ExpiresIn, 10))
 		return
 	}
 
 	srv.ticketGet.LastTicketInfo = result.ticketInfo
 	srv.ticketGet.LastTimestamp = timeNowUnix
+
+	srv.ticketCache.Lock()
+	srv.ticketCache.Ticket = result.ticketInfo.Ticket
+	srv.ticketCache.Unlock()
+
 	ticket = result.ticketInfo
 	return
 }

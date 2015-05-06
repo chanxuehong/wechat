@@ -75,15 +75,8 @@ func NewDefaultTokenServer(corpId, corpSecret string,
 		resetTickerChan: make(chan time.Duration),
 	}
 
-	// 获取 access_token 并启动 goroutine tokenDaemon
-	tokenInfo, cached, err := srv.getToken()
-	if err != nil {
-		panic(err)
-	}
-	if !cached {
-		srv.tokenCache.Token = tokenInfo.Token
-		go srv.tokenDaemon(time.Duration(tokenInfo.ExpiresIn) * time.Second)
-	}
+	const tenYears time.Duration = time.Minute * 5259492 // time.Minute * 60 * 24 * 365.2425 * 10
+	go srv.tokenDaemon(tenYears)                         // 启动 tokenDaemon
 	return
 }
 
@@ -101,16 +94,9 @@ func (srv *DefaultTokenServer) Token() (token string, err error) {
 func (srv *DefaultTokenServer) TokenRefresh() (token string, err error) {
 	tokenInfo, cached, err := srv.getToken()
 	if err != nil {
-		srv.tokenCache.Lock()
-		srv.tokenCache.Token = ""
-		srv.tokenCache.Unlock()
 		return
 	}
 	if !cached {
-		srv.tokenCache.Lock()
-		srv.tokenCache.Token = tokenInfo.Token
-		srv.tokenCache.Unlock()
-
 		srv.resetTickerChan <- time.Duration(tokenInfo.ExpiresIn) * time.Second
 	}
 	token = tokenInfo.Token
@@ -130,20 +116,13 @@ NEW_TICK_DURATION:
 		case <-ticker.C:
 			tokenInfo, cached, err := srv.getToken()
 			if err != nil {
-				srv.tokenCache.Lock()
-				srv.tokenCache.Token = ""
-				srv.tokenCache.Unlock()
-				break
+				continue
 			}
 			if !cached {
-				srv.tokenCache.Lock()
-				srv.tokenCache.Token = tokenInfo.Token
-				srv.tokenCache.Unlock()
-
 				newTickDuration := time.Duration(tokenInfo.ExpiresIn) * time.Second
 				if tickDuration != newTickDuration {
-					ticker.Stop()
 					tickDuration = newTickDuration
+					ticker.Stop()
 					goto NEW_TICK_DURATION
 				}
 			}
@@ -157,6 +136,7 @@ type tokenInfo struct {
 }
 
 // 从微信服务器获取 access_token.
+//  同一时刻只能一个 goroutine 进入, 防止没必要的重复获取.
 func (srv *DefaultTokenServer) getToken() (token tokenInfo, cached bool, err error) {
 	srv.tokenGet.Lock()
 	defer srv.tokenGet.Unlock()
@@ -165,10 +145,11 @@ func (srv *DefaultTokenServer) getToken() (token tokenInfo, cached bool, err err
 
 	// 在收敛周期内直接返回最近一次获取的 access_token,
 	// 这里的收敛时间设定为2秒, 因为在同一个进程内, 收敛周期为2个http周期
-	if n := srv.tokenGet.LastTimestamp; timeNowUnix >= n && timeNowUnix < n+2 {
+	if n := srv.tokenGet.LastTimestamp; n <= timeNowUnix && timeNowUnix < n+2 {
+		// 因为只有成功获取后才会更新 srv.tokenGet.LastTimestamp, 所以这些都是有效数据
 		token = tokenInfo{
 			Token:     srv.tokenGet.LastTokenInfo.Token,
-			ExpiresIn: srv.tokenGet.LastTokenInfo.ExpiresIn + n - timeNowUnix,
+			ExpiresIn: srv.tokenGet.LastTokenInfo.ExpiresIn - timeNowUnix + n,
 		}
 		cached = true
 		return
@@ -178,11 +159,18 @@ func (srv *DefaultTokenServer) getToken() (token tokenInfo, cached bool, err err
 		"&corpsecret=" + url.QueryEscape(srv.corpSecret)
 	httpResp, err := srv.httpClient.Get(_url)
 	if err != nil {
+		srv.tokenCache.Lock()
+		srv.tokenCache.Token = ""
+		srv.tokenCache.Unlock()
 		return
 	}
 	defer httpResp.Body.Close()
 
 	if httpResp.StatusCode != http.StatusOK {
+		srv.tokenCache.Lock()
+		srv.tokenCache.Token = ""
+		srv.tokenCache.Unlock()
+
 		err = fmt.Errorf("http.Status: %s", httpResp.Status)
 		return
 	}
@@ -193,15 +181,27 @@ func (srv *DefaultTokenServer) getToken() (token tokenInfo, cached bool, err err
 	}
 
 	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
+		srv.tokenCache.Lock()
+		srv.tokenCache.Token = ""
+		srv.tokenCache.Unlock()
 		return
 	}
 
 	if result.ErrCode != ErrCodeOK {
+		srv.tokenCache.Lock()
+		srv.tokenCache.Token = ""
+		srv.tokenCache.Unlock()
+
 		err = &result.Error
 		return
 	}
-	if result.ExpiresIn <= 0 {
-		err = errors.New("invalid expires_in: " + strconv.FormatInt(result.ExpiresIn, 10))
+
+	if result.ExpiresIn <= 60 {
+		srv.tokenCache.Lock()
+		srv.tokenCache.Token = ""
+		srv.tokenCache.Unlock()
+
+		err = errors.New("expires_in too small: " + strconv.FormatInt(result.ExpiresIn, 10))
 		return
 	}
 
@@ -209,8 +209,15 @@ func (srv *DefaultTokenServer) getToken() (token tokenInfo, cached bool, err err
 	// 所以这里故意增加1秒, 让其过期, 获取一个不同的 access_token.
 	result.ExpiresIn++
 
+	// 更新 tokenGet 信息
 	srv.tokenGet.LastTokenInfo = result.tokenInfo
 	srv.tokenGet.LastTimestamp = timeNowUnix
+
+	// 更新缓存
+	srv.tokenCache.Lock()
+	srv.tokenCache.Token = result.tokenInfo.Token
+	srv.tokenCache.Unlock()
+
 	token = result.tokenInfo
 	return
 }
