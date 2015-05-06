@@ -16,7 +16,6 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
-	"runtime"
 
 	wechatjson "github.com/chanxuehong/wechat/json"
 )
@@ -25,6 +24,22 @@ import (
 type CorpClient struct {
 	TokenServer
 	HttpClient *http.Client
+}
+
+// 创建一个新的 CorpClient.
+//  如果 HttpClient == nil 则默认用 http.DefaultClient
+func NewCorpClient(TokenServer TokenServer, HttpClient *http.Client) *CorpClient {
+	if TokenServer == nil {
+		panic("TokenServer == nil")
+	}
+	if HttpClient == nil {
+		HttpClient = http.DefaultClient
+	}
+
+	return &CorpClient{
+		TokenServer: TokenServer,
+		HttpClient:  HttpClient,
+	}
 }
 
 // 用 encoding/json 把 request marshal 为 JSON, 放入 http 请求的 body 中,
@@ -50,17 +65,12 @@ func (clt *CorpClient) PostJSON(incompleteURL string, request interface{}, respo
 		return
 	}
 
-	debugPrefix := "corp.CorpClient.PostJSON"
-	if _, file, line, ok := runtime.Caller(1); ok {
-		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
-	}
-
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
 
-	log.Println(debugPrefix, "request url:", finalURL)
-	log.Println(debugPrefix, "request json:", string(requestBytes))
+	log.Println("request url:", finalURL)
+	log.Println("request json:", string(requestBytes))
 
 	httpResp, err := clt.HttpClient.Post(finalURL, "application/json; charset=utf-8", bytes.NewReader(requestBytes))
 	if err != nil {
@@ -76,7 +86,7 @@ RETRY:
 	if err != nil {
 		return
 	}
-	log.Println(debugPrefix, "response json:", string(respBody))
+	log.Println("response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, response); err != nil {
 		return
@@ -135,11 +145,6 @@ func (clt *CorpClient) GetJSON(incompleteURL string, response interface{}) (err 
 		return
 	}
 
-	debugPrefix := "corp.CorpClient.GetJSON"
-	if _, file, line, ok := runtime.Caller(1); ok {
-		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
-	}
-
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
@@ -158,8 +163,8 @@ RETRY:
 	if err != nil {
 		return
 	}
-	log.Println(debugPrefix, "request url:", finalURL)
-	log.Println(debugPrefix, "response json:", string(respBody))
+	log.Println("request url:", finalURL)
+	log.Println("response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, response); err != nil {
 		return

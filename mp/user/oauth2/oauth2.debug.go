@@ -15,7 +15,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"runtime"
 	"strings"
 	"time"
 
@@ -165,12 +164,8 @@ func (clt *Client) CheckAccessTokenValid() (valid bool, err error) {
 		return
 	}
 
-	debugPrefix := "oauth2.Client.CheckAccessTokenValid"
-	if _, file, line, ok := runtime.Caller(1); ok {
-		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
-	}
-	log.Println(debugPrefix, "request url:", _url)
-	log.Println(debugPrefix, "response json:", string(respBody))
+	log.Println("request url:", _url)
+	log.Println("response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, &result); err != nil {
 		return
@@ -218,12 +213,8 @@ func (clt *Client) updateToken(tk *OAuth2Token, url string) (err error) {
 		return
 	}
 
-	debugPrefix := "oauth2.Client.updateToken"
-	if _, file, line, ok := runtime.Caller(1); ok {
-		debugPrefix += fmt.Sprintf("(called at %s:%d)", file, line)
-	}
-	log.Println(debugPrefix, "request url:", url)
-	log.Println(debugPrefix, "response json:", string(respBody))
+	log.Println("request url:", url)
+	log.Println("response json:", string(respBody))
 
 	if err = json.Unmarshal(respBody, &result); err != nil {
 		return

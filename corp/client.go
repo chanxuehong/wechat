@@ -25,6 +25,22 @@ type CorpClient struct {
 	HttpClient *http.Client
 }
 
+// 创建一个新的 CorpClient.
+//  如果 HttpClient == nil 则默认用 http.DefaultClient
+func NewCorpClient(TokenServer TokenServer, HttpClient *http.Client) *CorpClient {
+	if TokenServer == nil {
+		panic("TokenServer == nil")
+	}
+	if HttpClient == nil {
+		HttpClient = http.DefaultClient
+	}
+
+	return &CorpClient{
+		TokenServer: TokenServer,
+		HttpClient:  HttpClient,
+	}
+}
+
 // 用 encoding/json 把 request marshal 为 JSON, 放入 http 请求的 body 中,
 // POST 到微信服务器, 然后将微信服务器返回的 JSON 用 encoding/json 解析到 response.
 //
