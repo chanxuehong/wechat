@@ -26,7 +26,7 @@ type Article struct {
 	Content          string `json:"content"`                      // 必须; 图文消息的具体内容，支持HTML标签，必须少于2万字符，小于1M，且此处会去除JS
 	ContentSourceURL string `json:"content_source_url,omitempty"` // 必须; 图文消息的原文地址，即点击“阅读原文”后的URL
 	ShowCoverPic     int    `json:"show_cover_pic"`               // 必须; 是否显示封面，0为false，即不显示，1为true，即显示
-	URL              string `json:"url,omitempty"`                // 非必须；图文页的URL，文章创建成功以后，会由微信自动生成
+	URL              string `json:"url,omitempty"`                // 可选; 图文页的URL，文章创建成功以后，会由微信自动生成
 }
 
 func (article *Article) SetShowCoverPic(b bool) {
