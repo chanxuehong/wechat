@@ -117,7 +117,7 @@ NEW_TICK_DURATION:
 		case <-ticker.C:
 			tokenInfo, cached, err := srv.getToken()
 			if err != nil {
-				continue
+				break
 			}
 			if !cached {
 				newTickDuration := time.Duration(tokenInfo.ExpiresIn) * time.Second
