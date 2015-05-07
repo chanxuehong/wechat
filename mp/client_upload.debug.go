@@ -110,10 +110,10 @@ RETRY:
 		return
 	}
 
-	responseStructValue := reflect.ValueOf(response).Elem()
 	var ErrorStructValue reflect.Value // Error
 
 	// 下面的代码对 response 有特定要求, 见此函数 NOTE
+	responseStructValue := reflect.ValueOf(response).Elem()
 	if v := responseStructValue.Field(0); v.Kind() == reflect.Struct {
 		ErrorStructValue = v
 	} else {
