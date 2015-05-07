@@ -14,6 +14,7 @@ const (
 )
 
 type Error struct {
+	// StructField 固定这个顺序, RETRY 依赖这个顺序
 	ErrCode int    `json:"errcode"`
 	ErrMsg  string `json:"errmsg"`
 }
