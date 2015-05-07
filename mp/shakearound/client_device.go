@@ -16,10 +16,18 @@ type ShakeDeviceIdentifier struct {
 }
 type ShakearoundDevice struct {
 	ShakeDeviceIdentifier
-	Comment string   `json:"comment,omitempty"`
-	PageIds []string `json:"page_ids,omitempty"`
-	Status  int      `json:"status,omitempty"`
-	PoiId   int64    `json:"poi_id,omitempty"`
+	Comment string  `json:"comment,omitempty"`
+	PageIds []int64 `json:"page_ids,omitempty"`
+	Status  int     `json:"status,omitempty"`
+	PoiId   int64   `json:"poi_id,omitempty"`
+}
+
+type ShakearoundDeviceString struct {
+	ShakeDeviceIdentifier
+	Comment string `json:"comment,omitempty"`
+	PageIds string `json:"page_ids,omitempty"`
+	Status  int    `json:"status,omitempty"`
+	PoiId   int64  `json:"poi_id,omitempty"`
 }
 
 func (clt *Client) DeviceApplyId(quantity int64, applyReason, comment string, poiId int64) (applyId int64,
@@ -116,24 +124,48 @@ func (clt *Client) DeviceBindLocation(device ShakeDeviceIdentifier, poiId int64)
 	return
 }
 
-// 测试没有通过
-func (clt *Client) DeviceSearch(deviceIndentifier []ShakeDeviceIdentifier, applyId, begin, count int64) (devices []ShakearoundDevice, totalCount int64, err error) {
+// 微信的这个类型给的有问题
+// 查询指定设备时：
+// {
+//     "device_identifiers":[
+//  		{
+// 			"device_id":10100,
+// 			"uuid":"FDA50693-A4E2-4FB1-AFCF-C6EB07647825",
+// 			"major":10001,
+// 			"minor":10002
+// 		}
+// 	]
+// }
+// 这个测试没有通过
+// 需要分页查询或者指定范围内的设备时：
+// {
+//     "begin": 0,
+//     "count": 3
+// }
+// 当需要根据批次ID查询时：
+// {
+//     "apply_id": 1231,
+//     "begin": 0,
+//     "count": 3
+// }
+func (clt *Client) DeviceSearch(deviceIndentifiers []ShakeDeviceIdentifier, applyId, begin, count int64) (devices []ShakearoundDeviceString, totalCount int64, err error) {
+
 	var request = struct {
-		DeviceIdentifier []ShakeDeviceIdentifier `json:"device_identifiers,omitempty"`
-		ApplyId          int64                   `json:"apply_id,omitempty"`
-		Begin            int64                   `json:"begin,omitempty"`
-		Count            int64                   `json:"count,omitempty"`
+		DeviceIdentifiers []ShakeDeviceIdentifier `json:"device_identifiers,omitempty"`
+		// ApplyId           int64                   `json:"apply_id,omitempty"`
+		Begin int64 `json:"begin,omitempty"`
+		Count int64 `json:"count,omitempty"`
 	}{
-		DeviceIdentifier: deviceIndentifier,
-		ApplyId:          applyId,
-		Begin:            begin,
-		Count:            count,
+		DeviceIdentifiers: deviceIndentifiers,
+		// ApplyId:           applyId,
+		Begin: begin,
+		Count: count,
 	}
 	var result struct {
 		mp.Error
 		Data struct {
-			Devices    []ShakearoundDevice `json:"devices"`
-			TotalCount int64               `json:"total_count"`
+			Devices    []ShakearoundDeviceString `json:"devices"`
+			TotalCount int64                     `json:"total_count"`
 		} `json:"data"`
 	}
 
