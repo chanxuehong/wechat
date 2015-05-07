@@ -16,20 +16,12 @@ type ShakeDeviceIdentifier struct {
 }
 type ShakearoundDevice struct {
 	ShakeDeviceIdentifier
-	// omtiempty
-	Comment string   `json:"comment,omtiempty"`
-	PageIds []string `json:"page_ids,omtiempty"`
-	Status  int      `json:"status,omtiempty"`
-	PoiId   int64    `json:"poi_id,omtiempty"`
+	Comment string   `json:"comment,omitempty"`
+	PageIds []string `json:"page_ids,omitempty"`
+	Status  int      `json:"status,omitempty"`
+	PoiId   int64    `json:"poi_id,omitempty"`
 }
 
-// 接口说明 申请配置设备所需的UUID、Major、Minor。申请成功后返回批次ID，可用返回的批次ID用“查询设备列表”接口拉取本次申请的设备ID。
-// 单次新增设备超过500个，需走人工审核流程，大概需要三个工作日；单次新增设备不超过500个的，当日可返回申请的设备ID。
-// 一个公众账号最多可申请99999个设备ID，如需申请的设备ID数超过最大限额，请邮件至zhoubian@tencent.com，
-// 邮件格式如下： 标题：申请提升设备ID额度 内容：1、公众账号名称及appid（wx开头的字符串，在mp平台可查看）
-// 2、用途 3、预估需要多少设备ID
-
-// 新增页面
 func (clt *Client) DeviceApplyId(quantity int64, applyReason, comment string, poiId int64) (applyId int64,
 	deviceIdentifiers []ShakeDeviceIdentifier,
 	auditStatus int,
@@ -37,8 +29,8 @@ func (clt *Client) DeviceApplyId(quantity int64, applyReason, comment string, po
 	var request = struct {
 		Quantity    int64  `json:"quantity"`
 		ApplyReason string `json:"apply_reason"`
-		Comment     string `json:"comment"`
-		PoiId       int64  `json:"poi_id"`
+		Comment     string `json:"comment,omtiempty"`
+		PoiId       int64  `json:"poi_id,omtiempty"`
 	}{
 		Quantity:    quantity,
 		ApplyReason: applyReason,
@@ -72,7 +64,6 @@ func (clt *Client) DeviceApplyId(quantity int64, applyReason, comment string, po
 	return
 }
 
-// 新增页面
 func (clt *Client) DeviceUpdate(device ShakeDeviceIdentifier, comment string) (err error) {
 	var request = struct {
 		DeviceIdentifier ShakeDeviceIdentifier `json:"device_identifier"`
@@ -83,8 +74,7 @@ func (clt *Client) DeviceUpdate(device ShakeDeviceIdentifier, comment string) (e
 	}
 	var result struct {
 		mp.Error
-		Data struct {
-		} `json:"data"`
+		Data interface{} `json:"data"`
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/shakearound/device/update?access_token="
@@ -100,7 +90,6 @@ func (clt *Client) DeviceUpdate(device ShakeDeviceIdentifier, comment string) (e
 	return
 }
 
-// 新增页面
 func (clt *Client) DeviceBindLocation(device ShakeDeviceIdentifier, poiId int64) (err error) {
 	var request = struct {
 		DeviceIdentifier ShakeDeviceIdentifier `json:"device_identifier"`
@@ -111,8 +100,7 @@ func (clt *Client) DeviceBindLocation(device ShakeDeviceIdentifier, poiId int64)
 	}
 	var result struct {
 		mp.Error
-		Data struct {
-		} `json:"data"`
+		Data interface{} `json:"data"`
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/shakearound/device/bindlocation?access_token="
@@ -128,18 +116,18 @@ func (clt *Client) DeviceBindLocation(device ShakeDeviceIdentifier, poiId int64)
 	return
 }
 
-// 新增页面
-func (clt *Client) DeviceSearch(device ShakeDeviceIdentifier, applyId, begin, end int64) (devices []ShakearoundDevice, totalCount int64, err error) {
+// 测试没有通过
+func (clt *Client) DeviceSearch(deviceIndentifier []ShakeDeviceIdentifier, applyId, begin, count int64) (devices []ShakearoundDevice, totalCount int64, err error) {
 	var request = struct {
-		DeviceIdentifier ShakeDeviceIdentifier `json:"device_identifier"`
-		ApplyId          int64                 `json:"apply_id"`
-		Begin            int64                 `json:"begin"`
-		End              int64                 `json:"end"`
+		DeviceIdentifier []ShakeDeviceIdentifier `json:"device_identifiers,omitempty"`
+		ApplyId          int64                   `json:"apply_id,omitempty"`
+		Begin            int64                   `json:"begin,omitempty"`
+		Count            int64                   `json:"count,omitempty"`
 	}{
-		DeviceIdentifier: device,
+		DeviceIdentifier: deviceIndentifier,
 		ApplyId:          applyId,
 		Begin:            begin,
-		End:              end,
+		Count:            count,
 	}
 	var result struct {
 		mp.Error
@@ -164,7 +152,6 @@ func (clt *Client) DeviceSearch(device ShakeDeviceIdentifier, applyId, begin, en
 	return
 }
 
-// 新增页面
 func (clt *Client) DeviceBindPage(device ShakeDeviceIdentifier, pageIds []int64, bind, append_ int64) (err error) {
 	var request = struct {
 		DeviceIdentifier ShakeDeviceIdentifier `json:"device_identifier"`

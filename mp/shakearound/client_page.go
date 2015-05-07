@@ -4,24 +4,25 @@
 // @authors     magicshui(shuiyuzhe@gmail.com)
 package shakearound
 
+// 测试通过
 import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
 type ShakearoundPage struct {
-	PageId      int64  `json:"page_id,omtiempty"`
+	PageId      int64  `json:"page_id,omitempty"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
-	PageUrl     string `json:"page_url"`
+	PageURL     string `json:"page_url"`
 	Comment     string `json:"comment"`
-	IconUrl     string `json:"icon_url,omtiempty"`
+	IconURL     string `json:"icon_url,omitempty"`
 }
 
-func (clt *Client) PageAdd(page ShakearoundPage) (pageId string, err error) {
+func (clt *Client) PageAdd(page ShakearoundPage) (pageId int64, err error) {
 	var result struct {
 		mp.Error
 		Data struct {
-			PageId string `json:"page_id"`
+			PageId int64 `json:"page_id"`
 		} `json:"data"`
 	}
 
@@ -39,11 +40,11 @@ func (clt *Client) PageAdd(page ShakearoundPage) (pageId string, err error) {
 	return
 }
 
-func (clt *Client) PageUpdate(page ShakearoundPage) (pageId string, err error) {
+func (clt *Client) PageUpdate(page ShakearoundPage) (pageId int64, err error) {
 	var result struct {
 		mp.Error
 		Data struct {
-			PageId string `json:"page_id"`
+			PageId int64 `json:"page_id"`
 		} `json:"data"`
 	}
 
@@ -60,16 +61,24 @@ func (clt *Client) PageUpdate(page ShakearoundPage) (pageId string, err error) {
 	return
 }
 
-// 查询页面
-func (clt *Client) PageSearch(pageIds []int64, begin, end int64) (totalCount int64, pages []ShakearoundPage, err error) {
+// 需要查询指定页面时：
+// {
+//     "page_ids":[12345, 23456, 34567]
+// }
+// 需要分页查询或者指定范围内的页面时：
+// {
+//     "begin": 0,
+//     "count": 3
+// }
+func (clt *Client) PageSearch(pageIds []int64, begin, count int64) (totalCount int64, pages []ShakearoundPage, err error) {
 	var request = struct {
 		PageIds []int64 `json:"page_ids,omtiempty"`
-		Begin   int64   `json:"begin,omtiempty"`
-		End     int64   `json:"end,omtiempty"`
+		Begin   int64   `json:"begin,omitempty"` // 页面列表的起始索引值
+		Count   int64   `json:"count,omitempty"` // 待查询的页面个数
 	}{
 		PageIds: pageIds,
 		Begin:   begin,
-		End:     end,
+		Count:   count,
 	}
 	var result struct {
 		mp.Error
@@ -93,10 +102,9 @@ func (clt *Client) PageSearch(pageIds []int64, begin, end int64) (totalCount int
 	return
 }
 
-// 删除页面
 func (clt *Client) PageDelete(pageIds []int64) (err error) {
 	var request = struct {
-		PageIds []int64 `json:"page_ids,omtiempty"`
+		PageIds []int64 `json:"page_ids,omitempty"`
 	}{
 		PageIds: pageIds,
 	}

@@ -4,11 +4,11 @@
 // @authors     magicshui(shuiyuzhe@gmail.com)
 package shakearound
 
+// 暂时没有测试
 import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
-// 新增页面
 func (clt *Client) UserGetShakeInfo(ticket string, needPoi int) (pageId int64, beaconInfo ShakeBeaconInfo, err error) {
 	var request = struct {
 		Ticket  string `json:"ticket"`

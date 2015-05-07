@@ -4,6 +4,7 @@
 // @authors     magicshui(shuiyuzhe@gmail.com)
 package shakearound
 
+// 测试通过
 import (
 	"github.com/chanxuehong/wechat/mp"
 )
@@ -16,11 +17,11 @@ type ShakeBeaconInfo struct {
 }
 
 type ShakeBeaconStatistics struct {
-	ClickPv int64 `json:"click_pv"`
-	ClickUv int64 `json:"click_uv"`
+	ClickPV int64 `json:"click_PV"`
+	ClickUV int64 `json:"click_uv"`
 	Ftime   int64 `json:"ftime"`
-	ShakePv int64 `json:"shake_pv"`
-	ShakeUv int64 `json:"shake_uv"`
+	ShakePV int64 `json:"shake_PV"`
+	ShakeUV int64 `json:"shake_uv"`
 }
 
 func (clt *Client) StatisticsDevice(device ShakeDeviceIdentifier, beginDate, endDate int64) (data []ShakeBeaconStatistics, err error) {
