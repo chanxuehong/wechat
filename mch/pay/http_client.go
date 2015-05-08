@@ -26,13 +26,13 @@ func NewTLSHttpClient(certFile, keyFile string) (httpClient *http.Client, err er
 		Transport: &http.Transport{
 			Proxy: http.ProxyFromEnvironment,
 			Dial: (&net.Dialer{
-				Timeout:   5 * time.Second,
+				Timeout:   30 * time.Second,
 				KeepAlive: 30 * time.Second,
 			}).Dial,
+			TLSHandshakeTimeout: 10 * time.Second,
 			TLSClientConfig:     tlsConfig,
-			TLSHandshakeTimeout: 5 * time.Second,
 		},
-		Timeout: 15 * time.Second,
+		Timeout: 60 * time.Second,
 	}
 	return
 }
