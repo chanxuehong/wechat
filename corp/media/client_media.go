@@ -80,7 +80,7 @@ RETRY:
 	switch result.ErrCode {
 	case corp.ErrCodeOK:
 		return // 基本不会出现
-	case corp.ErrCodeInvalidCredential, corp.ErrCodeTimeout: // 失效(过期)重试一次
+	case corp.ErrCodeInvalidCredential, corp.ErrCodeAccessTokenInvalid: // 失效(过期)重试一次
 		corp.LogInfoln("[WECHAT_RETRY] err_code:", result.ErrCode, ", err_msg:", result.ErrMsg)
 		corp.LogInfoln("[WECHAT_RETRY] current token:", token)
 
