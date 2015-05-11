@@ -21,23 +21,23 @@ import (
 
 // 企业号"主动"请求功能的基本封装.
 type CorpClient struct {
-	TokenServer
+	AccessTokenServer
 	HttpClient *http.Client
 }
 
 // 创建一个新的 CorpClient.
 //  如果 HttpClient == nil 则默认用 http.DefaultClient
-func NewCorpClient(TokenServer TokenServer, HttpClient *http.Client) *CorpClient {
-	if TokenServer == nil {
-		panic("TokenServer == nil")
+func NewCorpClient(AccessTokenServer AccessTokenServer, HttpClient *http.Client) *CorpClient {
+	if AccessTokenServer == nil {
+		panic("AccessTokenServer == nil")
 	}
 	if HttpClient == nil {
 		HttpClient = http.DefaultClient
 	}
 
 	return &CorpClient{
-		TokenServer: TokenServer,
-		HttpClient:  HttpClient,
+		AccessTokenServer: AccessTokenServer,
+		HttpClient:        HttpClient,
 	}
 }
 

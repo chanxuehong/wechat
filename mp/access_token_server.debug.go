@@ -3,14 +3,15 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// +build !wechatdebug
+// +build wechatdebug
 
-package corp
+package mp
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -18,8 +19,8 @@ import (
 	"time"
 )
 
-// access_token 中控服务器接口, see token_server.png
-type TokenServer interface {
+// access_token 中控服务器接口, see access_token_server.png
+type AccessTokenServer interface {
 	// 从中控服务器获取被缓存的 access_token.
 	Token() (token string, err error)
 
@@ -27,22 +28,22 @@ type TokenServer interface {
 	//
 	//  高并发场景下某个时间点可能有很多请求(比如缓存的access_token刚好过期时), 但是我们
 	//  不期望也没有必要让这些请求都去微信服务器获取 access_token(有可能导致api超过调用限制),
-	//  实际上这些请求只需要一个新的 access_token 即可, 所以建议 TokenServer 从微信服务器
+	//  实际上这些请求只需要一个新的 access_token 即可, 所以建议 AccessTokenServer 从微信服务器
 	//  获取一次 access_token 之后的至多5秒内(收敛时间, 视情况而定, 理论上至多5个http或tcp周期)
 	//  再次调用该函数不再去微信服务器获取, 而是直接返回之前的结果.
 	TokenRefresh() (token string, err error)
 }
 
-var _ TokenServer = (*DefaultTokenServer)(nil)
+var _ AccessTokenServer = (*DefaultAccessTokenServer)(nil)
 
-// TokenServer 的简单实现.
+// AccessTokenServer 的简单实现.
 //  NOTE:
 //  1. 用于单进程环境.
-//  2. 因为 DefaultTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 TokenServer 接口,
-//     所以整个系统只能存在一个 DefaultTokenServer 实例!
-type DefaultTokenServer struct {
-	corpId     string
-	corpSecret string
+//  2. 因为 DefaultAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 AccessTokenServer 接口,
+//     所以整个系统只能存在一个 DefaultAccessTokenServer 实例!
+type DefaultAccessTokenServer struct {
+	appId      string
+	appSecret  string
 	httpClient *http.Client
 
 	resetTickerChan chan time.Duration // 用于重置 tokenDaemon 里的 ticker
@@ -59,18 +60,18 @@ type DefaultTokenServer struct {
 	}
 }
 
-// 创建一个新的 DefaultTokenServer.
+// 创建一个新的 DefaultAccessTokenServer.
 //  如果 httpClient == nil 则默认使用 http.DefaultClient.
-func NewDefaultTokenServer(corpId, corpSecret string,
-	httpClient *http.Client) (srv *DefaultTokenServer) {
+func NewDefaultAccessTokenServer(appId, appSecret string,
+	httpClient *http.Client) (srv *DefaultAccessTokenServer) {
 
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 
-	srv = &DefaultTokenServer{
-		corpId:          corpId,
-		corpSecret:      corpSecret,
+	srv = &DefaultAccessTokenServer{
+		appId:           appId,
+		appSecret:       appSecret,
 		httpClient:      httpClient,
 		resetTickerChan: make(chan time.Duration),
 	}
@@ -80,7 +81,7 @@ func NewDefaultTokenServer(corpId, corpSecret string,
 	return
 }
 
-func (srv *DefaultTokenServer) Token() (token string, err error) {
+func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
 	srv.tokenCache.RLock()
 	token = srv.tokenCache.Token
 	srv.tokenCache.RUnlock()
@@ -91,7 +92,7 @@ func (srv *DefaultTokenServer) Token() (token string, err error) {
 	return srv.TokenRefresh()
 }
 
-func (srv *DefaultTokenServer) TokenRefresh() (token string, err error) {
+func (srv *DefaultAccessTokenServer) TokenRefresh() (token string, err error) {
 	tokenInfo, cached, err := srv.getToken()
 	if err != nil {
 		return
@@ -103,7 +104,7 @@ func (srv *DefaultTokenServer) TokenRefresh() (token string, err error) {
 	return
 }
 
-func (srv *DefaultTokenServer) tokenDaemon(tickDuration time.Duration) {
+func (srv *DefaultAccessTokenServer) tokenDaemon(tickDuration time.Duration) {
 NEW_TICK_DURATION:
 	ticker := time.NewTicker(tickDuration)
 
@@ -137,7 +138,7 @@ type tokenInfo struct {
 
 // 从微信服务器获取 access_token.
 //  同一时刻只能一个 goroutine 进入, 防止没必要的重复获取.
-func (srv *DefaultTokenServer) getToken() (token tokenInfo, cached bool, err error) {
+func (srv *DefaultAccessTokenServer) getToken() (token tokenInfo, cached bool, err error) {
 	srv.tokenGet.Lock()
 	defer srv.tokenGet.Unlock()
 
@@ -155,8 +156,8 @@ func (srv *DefaultTokenServer) getToken() (token tokenInfo, cached bool, err err
 		return
 	}
 
-	_url := "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=" + url.QueryEscape(srv.corpId) +
-		"&corpsecret=" + url.QueryEscape(srv.corpSecret)
+	_url := "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + url.QueryEscape(srv.appId) +
+		"&secret=" + url.QueryEscape(srv.appSecret)
 	httpResp, err := srv.httpClient.Get(_url)
 	if err != nil {
 		srv.tokenCache.Lock()
@@ -180,7 +181,18 @@ func (srv *DefaultTokenServer) getToken() (token tokenInfo, cached bool, err err
 		tokenInfo
 	}
 
-	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
+	respBody, err := ioutil.ReadAll(httpResp.Body)
+	if err != nil {
+		srv.tokenCache.Lock()
+		srv.tokenCache.Token = ""
+		srv.tokenCache.Unlock()
+		return
+	}
+
+	LogInfoln("[WECHAT_DEBUG] request url:", _url)
+	LogInfoln("[WECHAT_DEBUG] response json:", string(respBody))
+
+	if err = json.Unmarshal(respBody, &result); err != nil {
 		srv.tokenCache.Lock()
 		srv.tokenCache.Token = ""
 		srv.tokenCache.Unlock()
@@ -196,7 +208,17 @@ func (srv *DefaultTokenServer) getToken() (token tokenInfo, cached bool, err err
 		return
 	}
 
-	if result.ExpiresIn <= 60 {
+	// 由于网络的延时, access_token 过期时间留了一个缓冲区
+	switch {
+	case result.ExpiresIn > 60*60:
+		result.ExpiresIn -= 60 * 10
+	case result.ExpiresIn > 60*30:
+		result.ExpiresIn -= 60 * 5
+	case result.ExpiresIn > 60*5:
+		result.ExpiresIn -= 60
+	case result.ExpiresIn > 60:
+		result.ExpiresIn -= 10
+	default:
 		srv.tokenCache.Lock()
 		srv.tokenCache.Token = ""
 		srv.tokenCache.Unlock()
@@ -204,10 +226,6 @@ func (srv *DefaultTokenServer) getToken() (token tokenInfo, cached bool, err err
 		err = errors.New("expires_in too small: " + strconv.FormatInt(result.ExpiresIn, 10))
 		return
 	}
-
-	// 由于企业号的 access_token 会自动续期, 并且不做改变, 这样对于安全不利,
-	// 所以这里故意增加1秒, 让其过期, 获取一个不同的 access_token.
-	result.ExpiresIn++
 
 	// 更新 tokenGet 信息
 	srv.tokenGet.LastTokenInfo = result.tokenInfo

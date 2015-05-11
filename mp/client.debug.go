@@ -21,23 +21,23 @@ import (
 
 // 微信公众号"主动"请求功能的基本封装.
 type WechatClient struct {
-	TokenServer
+	AccessTokenServer
 	HttpClient *http.Client
 }
 
 // 创建一个新的 WechatClient.
 //  如果 HttpClient == nil 则默认用 http.DefaultClient
-func NewWechatClient(TokenServer TokenServer, HttpClient *http.Client) *WechatClient {
-	if TokenServer == nil {
-		panic("TokenServer == nil")
+func NewWechatClient(AccessTokenServer AccessTokenServer, HttpClient *http.Client) *WechatClient {
+	if AccessTokenServer == nil {
+		panic("AccessTokenServer == nil")
 	}
 	if HttpClient == nil {
 		HttpClient = http.DefaultClient
 	}
 
 	return &WechatClient{
-		TokenServer: TokenServer,
-		HttpClient:  HttpClient,
+		AccessTokenServer: AccessTokenServer,
+		HttpClient:        HttpClient,
 	}
 }
 

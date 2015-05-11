@@ -24,7 +24,7 @@ type TicketServer interface {
 	//
 	//  高并发场景下某个时间点可能有很多请求(比如缓存的jsapi_ticket刚好过期时), 但是我们
 	//  不期望也没有必要让这些请求都去微信服务器获取 jsapi_ticket(有可能导致api超过调用限制),
-	//  实际上这些请求只需要一个新的 jsapi_ticket 即可, 所以建议 TokenServer 从微信服务器
+	//  实际上这些请求只需要一个新的 jsapi_ticket 即可, 所以建议 TicketServer 从微信服务器
 	//  获取一次 jsapi_ticket 之后的至多5秒内(收敛时间, 视情况而定, 理论上至多5个http或tcp周期)
 	//  再次调用该函数不再去微信服务器获取, 而是直接返回之前的结果.
 	TicketRefresh() (ticket string, err error)
@@ -56,9 +56,9 @@ type DefaultTicketServer struct {
 
 // 创建一个新的 DefaultTicketServer.
 //  如果 httpClient == nil 则默认使用 http.DefaultClient.
-func NewDefaultTicketServer(tokenServer mp.TokenServer, httpClient *http.Client) (srv *DefaultTicketServer) {
-	if tokenServer == nil {
-		panic("nil tokenServer")
+func NewDefaultTicketServer(AccessTokenServer mp.AccessTokenServer, httpClient *http.Client) (srv *DefaultTicketServer) {
+	if AccessTokenServer == nil {
+		panic("nil AccessTokenServer")
 	}
 	if httpClient == nil {
 		httpClient = http.DefaultClient
@@ -66,8 +66,8 @@ func NewDefaultTicketServer(tokenServer mp.TokenServer, httpClient *http.Client)
 
 	srv = &DefaultTicketServer{
 		wechatClient: mp.WechatClient{
-			TokenServer: tokenServer,
-			HttpClient:  httpClient,
+			AccessTokenServer: AccessTokenServer,
+			HttpClient:        httpClient,
 		},
 		resetTickerChan: make(chan time.Duration),
 	}
