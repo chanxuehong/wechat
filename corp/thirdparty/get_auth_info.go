@@ -12,7 +12,7 @@ import (
 // 获取企业号的授权信息
 //  AuthCorpId:    授权方corpid
 //  PermanentCode: 永久授权码，通过get_permanent_code获取
-func (clt *SuiteClient) GetAuthInfo(AuthCorpId, PermanentCode string) (info *AuthInfo, err error) {
+func (clt *SuiteClient) GetAuthInfo(AuthCorpId, PermanentCode string) (info *AuthInfoEx, err error) {
 	request := struct {
 		SuiteId       string `json:"suite_id"`
 		AuthCorpId    string `json:"auth_corpid"`
@@ -25,10 +25,10 @@ func (clt *SuiteClient) GetAuthInfo(AuthCorpId, PermanentCode string) (info *Aut
 
 	var result struct {
 		corp.Error
-		AuthInfo
+		AuthInfoEx
 	}
 
-	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/service/get_agent?suite_access_token="
+	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/service/get_auth_info?suite_access_token="
 	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
@@ -37,26 +37,29 @@ func (clt *SuiteClient) GetAuthInfo(AuthCorpId, PermanentCode string) (info *Aut
 		err = &result.Error
 		return
 	}
-	info = &result.AuthInfo
+	info = &result.AuthInfoEx
 	return
 }
 
-type AuthInfo struct {
-	AuthCorpInfo struct {
-		CorpId            string `json:"corpid"`
-		CorpName          string `json:"corp_name"`
-		CorpType          string `json:"corp_type"`
-		CorpRoundLogoURL  string `json:"corp_round_logo_url"`
-		CorpSquareLogoURL string `json:"corp_square_logo_url"`
-		CorpUserMax       int64  `json:"corp_user_max"`
-		CorpAgentMax      int64  `json:"corp_agent_max"`
-		CorpWxQrCode      string `json:"corp_wxqrcode"`
-	} `json:"auth_corp_info"`
+type AuthInfoEx struct {
+	AuthCorpInfo AuthCorpInfo `json:"auth_corp_info"`
+	AuthInfo     AuthInfo     `json:"auth_info"`
+}
 
-	AuthInfo struct {
-		Agent      []AuthInfoAgent      `json:"agent,omitempty"`
-		Department []AuthInfoDepartment `json:"department,omitempty"`
-	} `json:"auth_info"`
+type AuthCorpInfo struct {
+	CorpId            string `json:"corpid"`
+	CorpName          string `json:"corp_name"`
+	CorpType          string `json:"corp_type"`
+	CorpRoundLogoURL  string `json:"corp_round_logo_url"`
+	CorpSquareLogoURL string `json:"corp_square_logo_url"`
+	CorpUserMax       int64  `json:"corp_user_max"`
+	CorpAgentMax      int64  `json:"corp_agent_max"`
+	CorpWxQrCode      string `json:"corp_wxqrcode"`
+}
+
+type AuthInfo struct {
+	AgentList      []AuthInfoAgent      `json:"agent,omitempty"`
+	DepartmentList []AuthInfoDepartment `json:"department,omitempty"`
 }
 
 type AuthInfoAgent struct {
@@ -72,5 +75,5 @@ type AuthInfoDepartment struct {
 	Id       int64  `json:"id"`
 	Name     string `json:"name"`
 	ParentId int64  `json:"parentid"`
-	Writable bool   `json:"writable,omitempty"`
+	Writable bool   `json:"writable"`
 }

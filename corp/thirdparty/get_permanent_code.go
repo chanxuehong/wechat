@@ -10,10 +10,11 @@ import (
 )
 
 type PermanentCodeInfo struct {
-	PermanentCode string `json:"permanent_code"`
 	AccessTokenInfo
-	AuthInfo
-	AuthUserInfo `json:"auth_user_info"`
+	PermanentCode string       `json:"permanent_code"`
+	AuthCorpInfo  AuthCorpInfo `json:"auth_corp_info"`
+	AuthInfo      AuthInfo     `json:"auth_info"`
+	AuthUserInfo  AuthUserInfo `json:"auth_user_info"`
 }
 
 type AuthUserInfo struct {

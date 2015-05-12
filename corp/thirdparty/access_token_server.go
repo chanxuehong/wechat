@@ -158,8 +158,8 @@ func (srv *DefaultAccessTokenServer) getToken() (token AccessTokenInfo, cached b
 		AccessTokenInfo
 	}
 
-	url := "https://qyapi.weixin.qq.com/cgi-bin/service/get_corp_token?suite_access_token="
-	if err = srv.suiteClient.PostJSON(url, &request, &result); err != nil {
+	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/service/get_corp_token?suite_access_token="
+	if err = srv.suiteClient.PostJSON(incompleteURL, &request, &result); err != nil {
 		srv.tokenCache.Lock()
 		srv.tokenCache.Token = ""
 		srv.tokenCache.Unlock()

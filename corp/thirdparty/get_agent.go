@@ -16,22 +16,24 @@ type AgentInfo struct {
 	RoundLogoURL   string `json:"round_logo_url"`
 	Description    string `json:"description"`
 	AllowUserInfos struct {
-		Users []struct {
-			UserId string `json:"userid"`
-			Status int    `json:"status"`
-		} `json:"user,omitempty"`
+		UserList []AgentInfoUser `json:"user,omitempty"`
 	} `json:"allow_userinfos"`
 	AllowParties struct {
-		PartyIds []int64 `json:"partyid,omitempty"`
+		PartyIdList []int64 `json:"partyid,omitempty"`
 	} `json:"allow_partys"`
 	AllowTags struct {
-		TagIds []int64 `json:"tagid,omitempty"`
+		TagIdList []int64 `json:"tagid,omitempty"`
 	} `json:"allow_tags"`
 	Closed             int    `json:"close"`
 	RedirectDomain     string `json:"redirect_domain"`
 	ReportLocationFlag int    `json:"report_location_flag"`
 	IsReportUser       int    `json:"isreportuser"`
 	IsReportEnter      int    `json:"isreportenter"`
+}
+
+type AgentInfoUser struct {
+	UserId string `json:"userid"`
+	Status int    `json:"status"`
 }
 
 // 获取企业号应用
