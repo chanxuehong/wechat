@@ -53,8 +53,8 @@ type DefaultSuiteAccessTokenServer struct {
 
 	tokenGet struct {
 		sync.Mutex
-		LastTokenInfo tokenInfo // 最后一次成功从微信服务器获取的 suite_access_token 信息
-		LastTimestamp int64     // 最后一次成功从微信服务器获取 suite_access_token 的时间戳
+		LastTokenInfo suiteAccessTokenInfo // 最后一次成功从微信服务器获取的 suite_access_token 信息
+		LastTimestamp int64                // 最后一次成功从微信服务器获取 suite_access_token 的时间戳
 	}
 
 	tokenCache struct {
@@ -106,14 +106,14 @@ func (srv *DefaultSuiteAccessTokenServer) Token() (token string, err error) {
 }
 
 func (srv *DefaultSuiteAccessTokenServer) TokenRefresh() (token string, err error) {
-	tokenInfo, cached, err := srv.getToken()
+	suiteAccessTokenInfo, cached, err := srv.getToken()
 	if err != nil {
 		return
 	}
 	if !cached {
-		srv.resetTickerChan <- time.Duration(tokenInfo.ExpiresIn) * time.Second
+		srv.resetTickerChan <- time.Duration(suiteAccessTokenInfo.ExpiresIn) * time.Second
 	}
-	token = tokenInfo.Token
+	token = suiteAccessTokenInfo.Token
 	return
 }
 
@@ -128,12 +128,12 @@ NEW_TICK_DURATION:
 			goto NEW_TICK_DURATION
 
 		case <-ticker.C:
-			tokenInfo, cached, err := srv.getToken()
+			suiteAccessTokenInfo, cached, err := srv.getToken()
 			if err != nil {
 				break
 			}
 			if !cached {
-				newTickDuration := time.Duration(tokenInfo.ExpiresIn) * time.Second
+				newTickDuration := time.Duration(suiteAccessTokenInfo.ExpiresIn) * time.Second
 				if tickDuration != newTickDuration {
 					tickDuration = newTickDuration
 					ticker.Stop()
@@ -144,14 +144,14 @@ NEW_TICK_DURATION:
 	}
 }
 
-type tokenInfo struct {
+type suiteAccessTokenInfo struct {
 	Token     string `json:"suite_access_token"`
 	ExpiresIn int64  `json:"expires_in"` // 有效时间, seconds
 }
 
 // 从微信服务器获取 suite_access_token.
 //  同一时刻只能一个 goroutine 进入, 防止没必要的重复获取.
-func (srv *DefaultSuiteAccessTokenServer) getToken() (token tokenInfo, cached bool, err error) {
+func (srv *DefaultSuiteAccessTokenServer) getToken() (token suiteAccessTokenInfo, cached bool, err error) {
 	srv.tokenGet.Lock()
 	defer srv.tokenGet.Unlock()
 
@@ -160,7 +160,7 @@ func (srv *DefaultSuiteAccessTokenServer) getToken() (token tokenInfo, cached bo
 	// 在收敛周期内直接返回最近一次获取的 suite_access_token, 这里的收敛时间设定为4秒.
 	if n := srv.tokenGet.LastTimestamp; n <= timeNowUnix && timeNowUnix < n+4 {
 		// 因为只有成功获取后才会更新 srv.tokenGet.LastTimestamp, 所以这些都是有效数据
-		token = tokenInfo{
+		token = suiteAccessTokenInfo{
 			Token:     srv.tokenGet.LastTokenInfo.Token,
 			ExpiresIn: srv.tokenGet.LastTokenInfo.ExpiresIn - timeNowUnix + n,
 		}
@@ -223,7 +223,7 @@ func (srv *DefaultSuiteAccessTokenServer) getToken() (token tokenInfo, cached bo
 
 	var result struct {
 		corp.Error
-		tokenInfo
+		suiteAccessTokenInfo
 	}
 
 	respBody, err := ioutil.ReadAll(httpResp.Body)
@@ -272,14 +272,14 @@ func (srv *DefaultSuiteAccessTokenServer) getToken() (token tokenInfo, cached bo
 	}
 
 	// 更新 tokenGet 信息
-	srv.tokenGet.LastTokenInfo = result.tokenInfo
+	srv.tokenGet.LastTokenInfo = result.suiteAccessTokenInfo
 	srv.tokenGet.LastTimestamp = timeNowUnix
 
 	// 更新缓存
 	srv.tokenCache.Lock()
-	srv.tokenCache.Token = result.tokenInfo.Token
+	srv.tokenCache.Token = result.suiteAccessTokenInfo.Token
 	srv.tokenCache.Unlock()
 
-	token = result.tokenInfo
+	token = result.suiteAccessTokenInfo
 	return
 }

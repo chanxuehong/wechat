@@ -49,8 +49,8 @@ type DefaultAccessTokenServer struct {
 
 	tokenGet struct {
 		sync.Mutex
-		LastTokenInfo tokenInfo // 最后一次成功从微信服务器获取的 access_token 信息
-		LastTimestamp int64     // 最后一次成功从微信服务器获取 access_token 的时间戳
+		LastTokenInfo accessTokenInfo // 最后一次成功从微信服务器获取的 access_token 信息
+		LastTimestamp int64           // 最后一次成功从微信服务器获取 access_token 的时间戳
 	}
 
 	tokenCache struct {
@@ -92,14 +92,14 @@ func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
 }
 
 func (srv *DefaultAccessTokenServer) TokenRefresh() (token string, err error) {
-	tokenInfo, cached, err := srv.getToken()
+	accessTokenInfo, cached, err := srv.getToken()
 	if err != nil {
 		return
 	}
 	if !cached {
-		srv.resetTickerChan <- time.Duration(tokenInfo.ExpiresIn) * time.Second
+		srv.resetTickerChan <- time.Duration(accessTokenInfo.ExpiresIn) * time.Second
 	}
-	token = tokenInfo.Token
+	token = accessTokenInfo.Token
 	return
 }
 
@@ -114,12 +114,12 @@ NEW_TICK_DURATION:
 			goto NEW_TICK_DURATION
 
 		case <-ticker.C:
-			tokenInfo, cached, err := srv.getToken()
+			accessTokenInfo, cached, err := srv.getToken()
 			if err != nil {
 				break
 			}
 			if !cached {
-				newTickDuration := time.Duration(tokenInfo.ExpiresIn) * time.Second
+				newTickDuration := time.Duration(accessTokenInfo.ExpiresIn) * time.Second
 				if tickDuration != newTickDuration {
 					tickDuration = newTickDuration
 					ticker.Stop()
@@ -130,14 +130,14 @@ NEW_TICK_DURATION:
 	}
 }
 
-type tokenInfo struct {
+type accessTokenInfo struct {
 	Token     string `json:"access_token"`
 	ExpiresIn int64  `json:"expires_in"` // 有效时间, seconds
 }
 
 // 从微信服务器获取 access_token.
 //  同一时刻只能一个 goroutine 进入, 防止没必要的重复获取.
-func (srv *DefaultAccessTokenServer) getToken() (token tokenInfo, cached bool, err error) {
+func (srv *DefaultAccessTokenServer) getToken() (token accessTokenInfo, cached bool, err error) {
 	srv.tokenGet.Lock()
 	defer srv.tokenGet.Unlock()
 
@@ -147,7 +147,7 @@ func (srv *DefaultAccessTokenServer) getToken() (token tokenInfo, cached bool, e
 	// 这里的收敛时间设定为2秒, 因为在同一个进程内, 收敛周期为2个http周期
 	if n := srv.tokenGet.LastTimestamp; n <= timeNowUnix && timeNowUnix < n+2 {
 		// 因为只有成功获取后才会更新 srv.tokenGet.LastTimestamp, 所以这些都是有效数据
-		token = tokenInfo{
+		token = accessTokenInfo{
 			Token:     srv.tokenGet.LastTokenInfo.Token,
 			ExpiresIn: srv.tokenGet.LastTokenInfo.ExpiresIn - timeNowUnix + n,
 		}
@@ -177,7 +177,7 @@ func (srv *DefaultAccessTokenServer) getToken() (token tokenInfo, cached bool, e
 
 	var result struct {
 		Error
-		tokenInfo
+		accessTokenInfo
 	}
 
 	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
@@ -210,14 +210,14 @@ func (srv *DefaultAccessTokenServer) getToken() (token tokenInfo, cached bool, e
 	result.ExpiresIn++
 
 	// 更新 tokenGet 信息
-	srv.tokenGet.LastTokenInfo = result.tokenInfo
+	srv.tokenGet.LastTokenInfo = result.accessTokenInfo
 	srv.tokenGet.LastTimestamp = timeNowUnix
 
 	// 更新缓存
 	srv.tokenCache.Lock()
-	srv.tokenCache.Token = result.tokenInfo.Token
+	srv.tokenCache.Token = result.accessTokenInfo.Token
 	srv.tokenCache.Unlock()
 
-	token = result.tokenInfo
+	token = result.accessTokenInfo
 	return
 }
