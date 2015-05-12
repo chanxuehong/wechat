@@ -210,6 +210,13 @@ func (srv *DefaultAccessTokenServer) getToken() (token accessTokenInfo, cached b
 
 	// 由于网络的延时, access_token 过期时间留了一个缓冲区
 	switch {
+	case result.ExpiresIn > 31556952: // 60*60*24*365.2425
+		srv.tokenCache.Lock()
+		srv.tokenCache.Token = ""
+		srv.tokenCache.Unlock()
+
+		err = errors.New("expires_in too large: " + strconv.FormatInt(result.ExpiresIn, 10))
+		return
 	case result.ExpiresIn > 60*60:
 		result.ExpiresIn -= 60 * 10
 	case result.ExpiresIn > 60*30:

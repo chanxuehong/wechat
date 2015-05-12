@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -210,6 +211,9 @@ func (clt *Client) updateToken(tk *OAuth2Token, url string) (err error) {
 
 	// 由于网络的延时, 分布式服务器之间的时间可能不是绝对同步, access_token 过期时间留了一个缓冲区;
 	switch {
+	case result.ExpiresIn > 31556952: // 60*60*24*365.2425
+		err = errors.New("expires_in too large: " + strconv.FormatInt(result.ExpiresIn, 10))
+		return
 	case result.ExpiresIn > 60*60:
 		result.ExpiresIn -= 60 * 20
 	case result.ExpiresIn > 60*30:
@@ -220,9 +224,8 @@ func (clt *Client) updateToken(tk *OAuth2Token, url string) (err error) {
 		result.ExpiresIn -= 60
 	case result.ExpiresIn > 60:
 		result.ExpiresIn -= 20
-	case result.ExpiresIn > 0:
 	default:
-		err = fmt.Errorf("invalid expires_in: %d", result.ExpiresIn)
+		err = errors.New("expires_in too small: " + strconv.FormatInt(result.ExpiresIn, 10))
 		return
 	}
 

@@ -175,6 +175,13 @@ func (srv *DefaultTicketServer) getTicket() (ticket ticketInfo, cached bool, err
 
 	// 由于网络的延时, jsapi_ticket 过期时间留了一个缓冲区
 	switch {
+	case result.ExpiresIn > 31556952: // 60*60*24*365.2425
+		srv.ticketCache.Lock()
+		srv.ticketCache.Ticket = ""
+		srv.ticketCache.Unlock()
+
+		err = errors.New("expires_in too large: " + strconv.FormatInt(result.ExpiresIn, 10))
+		return
 	case result.ExpiresIn > 60*60:
 		result.ExpiresIn -= 60 * 10
 	case result.ExpiresIn > 60*30:
