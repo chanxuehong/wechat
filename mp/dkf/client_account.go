@@ -226,7 +226,7 @@ func (clt *Client) UploadKfHeadImageFromReader(kfAccount, filename string, reade
 func (clt *Client) uploadKfHeadImageFromReader(kfAccount, filename string, reader io.Reader) (err error) {
 	var result mp.Error
 
-	incompleteURL := "http://api.weixin.qq.com/customservice/kfaccount/uploadheadimg?kf_account=" +
+	incompleteURL := "https://api.weixin.qq.com/customservice/kfaccount/uploadheadimg?kf_account=" +
 		url.QueryEscape(kfAccount) + "&access_token="
 	if err = clt.UploadFromReader(incompleteURL, "media", filename, reader, "", nil, &result); err != nil {
 		return
