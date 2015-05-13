@@ -13,29 +13,18 @@ import (
 )
 
 type Client struct {
-	corp.CorpClient
+	*corp.CorpClient
 }
 
-// 创建一个新的 Client.
-//  如果 HttpClient == nil 则默认用 http.DefaultClient
-func NewClient(AccessTokenServer corp.AccessTokenServer, HttpClient *http.Client) *Client {
-	if AccessTokenServer == nil {
-		panic("AccessTokenServer == nil")
-	}
-	if HttpClient == nil {
-		HttpClient = http.DefaultClient
-	}
-
-	return &Client{
-		CorpClient: corp.CorpClient{
-			AccessTokenServer: AccessTokenServer,
-			HttpClient:        HttpClient,
-		},
+// 兼容保留, 建議實際項目全局維護一個 *corp.CorpClient
+func NewClient(AccessTokenServer corp.AccessTokenServer, httpClient *http.Client) Client {
+	return Client{
+		CorpClient: corp.NewCorpClient(AccessTokenServer, httpClient),
 	}
 }
 
 // 创建自定义菜单.
-func (clt *Client) CreateMenu(agentId int64, menu Menu) (err error) {
+func (clt Client) CreateMenu(agentId int64, menu Menu) (err error) {
 	var result corp.Error
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/menu/create?agentid=" +
@@ -52,7 +41,7 @@ func (clt *Client) CreateMenu(agentId int64, menu Menu) (err error) {
 }
 
 // 删除自定义菜单
-func (clt *Client) DeleteMenu(agentId int64) (err error) {
+func (clt Client) DeleteMenu(agentId int64) (err error) {
 	var result corp.Error
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/menu/delete?agentid=" +
@@ -69,7 +58,7 @@ func (clt *Client) DeleteMenu(agentId int64) (err error) {
 }
 
 // 获取自定义菜单
-func (clt *Client) GetMenu(agentId int64) (menu Menu, err error) {
+func (clt Client) GetMenu(agentId int64) (menu Menu, err error) {
 	var result struct {
 		corp.Error
 		Menu Menu `json:"menu"`

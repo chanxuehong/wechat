@@ -10,7 +10,7 @@ import (
 )
 
 // 删除门店.
-func (clt *Client) PoiDelete(poiId string) (err error) {
+func (clt Client) PoiDelete(poiId string) (err error) {
 	var request = struct {
 		PoiId string `json:"poi_id"`
 	}{

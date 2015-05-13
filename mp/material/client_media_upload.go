@@ -25,22 +25,22 @@ const (
 )
 
 // 上传多媒体图片
-func (clt *Client) UploadImage(filepath string) (mediaId string, err error) {
+func (clt Client) UploadImage(filepath string) (mediaId string, err error) {
 	return clt.uploadMaterial(MaterialTypeImage, filepath)
 }
 
 // 上传多媒体缩略图
-func (clt *Client) UploadThumb(filepath string) (mediaId string, err error) {
+func (clt Client) UploadThumb(filepath string) (mediaId string, err error) {
 	return clt.uploadMaterial(MaterialTypeThumb, filepath)
 }
 
 // 上传多媒体语音
-func (clt *Client) UploadVoice(filepath string) (mediaId string, err error) {
+func (clt Client) UploadVoice(filepath string) (mediaId string, err error) {
 	return clt.uploadMaterial(MaterialTypeVoice, filepath)
 }
 
 // 上传多媒体
-func (clt *Client) uploadMaterial(materialType, _filepath string) (mediaId string, err error) {
+func (clt Client) uploadMaterial(materialType, _filepath string) (mediaId string, err error) {
 	file, err := os.Open(_filepath)
 	if err != nil {
 		return
@@ -52,7 +52,7 @@ func (clt *Client) uploadMaterial(materialType, _filepath string) (mediaId strin
 
 // 上传多媒体图片
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt *Client) UploadImageFromReader(filename string, reader io.Reader) (mediaId string, err error) {
+func (clt Client) UploadImageFromReader(filename string, reader io.Reader) (mediaId string, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
 		return
@@ -66,7 +66,7 @@ func (clt *Client) UploadImageFromReader(filename string, reader io.Reader) (med
 
 // 上传多媒体缩略图
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt *Client) UploadThumbFromReader(filename string, reader io.Reader) (mediaId string, err error) {
+func (clt Client) UploadThumbFromReader(filename string, reader io.Reader) (mediaId string, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
 		return
@@ -80,7 +80,7 @@ func (clt *Client) UploadThumbFromReader(filename string, reader io.Reader) (med
 
 // 上传多媒体语音
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt *Client) UploadVoiceFromReader(filename string, reader io.Reader) (mediaId string, err error) {
+func (clt Client) UploadVoiceFromReader(filename string, reader io.Reader) (mediaId string, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
 		return
@@ -92,7 +92,7 @@ func (clt *Client) UploadVoiceFromReader(filename string, reader io.Reader) (med
 	return clt.uploadMaterialFromReader(MaterialTypeVoice, filename, reader)
 }
 
-func (clt *Client) uploadMaterialFromReader(materialType, filename string, reader io.Reader) (mediaId string, err error) {
+func (clt Client) uploadMaterialFromReader(materialType, filename string, reader io.Reader) (mediaId string, err error) {
 	var result struct {
 		mp.Error
 		MediaId string `json:"media_id"`
@@ -115,7 +115,7 @@ func (clt *Client) uploadMaterialFromReader(materialType, filename string, reade
 // =============================================================================
 
 // 上传多媒体视频
-func (clt *Client) UploadVideo(_filepath string, title, introduction string) (mediaId string, err error) {
+func (clt Client) UploadVideo(_filepath string, title, introduction string) (mediaId string, err error) {
 	file, err := os.Open(_filepath)
 	if err != nil {
 		return
@@ -127,7 +127,7 @@ func (clt *Client) UploadVideo(_filepath string, title, introduction string) (me
 
 // 上传多媒体缩视频
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt *Client) UploadVideoFromReader(filename string, reader io.Reader, title, introduction string) (mediaId string, err error) {
+func (clt Client) UploadVideoFromReader(filename string, reader io.Reader, title, introduction string) (mediaId string, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
 		return
@@ -139,7 +139,7 @@ func (clt *Client) UploadVideoFromReader(filename string, reader io.Reader, titl
 	return clt.uploadVideoFromReader(filename, reader, title, introduction)
 }
 
-func (clt *Client) uploadVideoFromReader(filename string, reader io.Reader,
+func (clt Client) uploadVideoFromReader(filename string, reader io.Reader,
 	title, introduction string) (mediaId string, err error) {
 
 	var desc = struct {

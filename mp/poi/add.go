@@ -35,7 +35,7 @@ type PoiAddParameters struct {
 }
 
 // 创建门店.
-func (clt *Client) PoiAdd(para *PoiAddParameters) (err error) {
+func (clt Client) PoiAdd(para *PoiAddParameters) (err error) {
 	if para == nil {
 		return errors.New("nil PoiAddParameters")
 	}

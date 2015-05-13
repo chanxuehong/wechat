@@ -21,7 +21,7 @@ type DepartmentCreateParameters struct {
 }
 
 // 创建部门
-func (clt *Client) DepartmentCreate(para *DepartmentCreateParameters) (id int64, err error) {
+func (clt Client) DepartmentCreate(para *DepartmentCreateParameters) (id int64, err error) {
 	if para == nil {
 		err = errors.New("nil parameters")
 		return
@@ -54,7 +54,7 @@ type DepartmentUpdateParameters struct {
 }
 
 // 更新部门
-func (clt *Client) DepartmentUpdate(para *DepartmentUpdateParameters) (err error) {
+func (clt Client) DepartmentUpdate(para *DepartmentUpdateParameters) (err error) {
 	if para == nil {
 		err = errors.New("nil parameters")
 		return
@@ -75,7 +75,7 @@ func (clt *Client) DepartmentUpdate(para *DepartmentUpdateParameters) (err error
 }
 
 // 删除部门
-func (clt *Client) DepartmentDelete(id int64) (err error) {
+func (clt Client) DepartmentDelete(id int64) (err error) {
 	var result corp.Error
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/department/delete?id=" +
@@ -98,7 +98,7 @@ type Department struct {
 }
 
 // 获取 rootId 部门的子部门
-func (clt *Client) DepartmentList(rootId int64) (departments []Department, err error) {
+func (clt Client) DepartmentList(rootId int64) (departments []Department, err error) {
 	var result struct {
 		corp.Error
 		Departments []Department `json:"department"`

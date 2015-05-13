@@ -16,27 +16,27 @@ import (
 )
 
 // 上传多媒体图片
-func (clt *Client) UploadImage(filepath string) (info *MediaInfo, err error) {
+func (clt Client) UploadImage(filepath string) (info *MediaInfo, err error) {
 	return clt.uploadMedia(MediaTypeImage, filepath)
 }
 
 // 上传多媒体语音
-func (clt *Client) UploadVoice(filepath string) (info *MediaInfo, err error) {
+func (clt Client) UploadVoice(filepath string) (info *MediaInfo, err error) {
 	return clt.uploadMedia(MediaTypeVoice, filepath)
 }
 
 // 上传多媒体视频
-func (clt *Client) UploadVideo(filepath string) (info *MediaInfo, err error) {
+func (clt Client) UploadVideo(filepath string) (info *MediaInfo, err error) {
 	return clt.uploadMedia(MediaTypeVideo, filepath)
 }
 
 // 上传普通文件
-func (clt *Client) UploadFile(filepath string) (info *MediaInfo, err error) {
+func (clt Client) UploadFile(filepath string) (info *MediaInfo, err error) {
 	return clt.uploadMedia(MediaTypeFile, filepath)
 }
 
 // 上传多媒体
-func (clt *Client) uploadMedia(mediaType, _filepath string) (info *MediaInfo, err error) {
+func (clt Client) uploadMedia(mediaType, _filepath string) (info *MediaInfo, err error) {
 	file, err := os.Open(_filepath)
 	if err != nil {
 		return
@@ -48,7 +48,7 @@ func (clt *Client) uploadMedia(mediaType, _filepath string) (info *MediaInfo, er
 
 // 上传多媒体图片
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt *Client) UploadImageFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
+func (clt Client) UploadImageFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
 		return
@@ -62,7 +62,7 @@ func (clt *Client) UploadImageFromReader(filename string, reader io.Reader) (inf
 
 // 上传多媒体语音
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt *Client) UploadVoiceFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
+func (clt Client) UploadVoiceFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
 		return
@@ -76,7 +76,7 @@ func (clt *Client) UploadVoiceFromReader(filename string, reader io.Reader) (inf
 
 // 上传多媒体视频
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt *Client) UploadVideoFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
+func (clt Client) UploadVideoFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
 		return
@@ -90,7 +90,7 @@ func (clt *Client) UploadVideoFromReader(filename string, reader io.Reader) (inf
 
 // 上传普通文件
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt *Client) UploadFileFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
+func (clt Client) UploadFileFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
 		return
@@ -102,7 +102,7 @@ func (clt *Client) UploadFileFromReader(filename string, reader io.Reader) (info
 	return clt.uploadMediaFromReader(MediaTypeFile, filename, reader)
 }
 
-func (clt *Client) uploadMediaFromReader(mediaType, filename string, reader io.Reader) (info *MediaInfo, err error) {
+func (clt Client) uploadMediaFromReader(mediaType, filename string, reader io.Reader) (info *MediaInfo, err error) {
 	var result struct {
 		corp.Error
 		MediaInfo

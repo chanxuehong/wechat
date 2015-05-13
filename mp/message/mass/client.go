@@ -12,24 +12,13 @@ import (
 )
 
 type Client struct {
-	mp.WechatClient
+	*mp.WechatClient
 }
 
-// 创建一个新的 Client.
-//  如果 HttpClient == nil 则默认用 http.DefaultClient
-func NewClient(AccessTokenServer mp.AccessTokenServer, HttpClient *http.Client) *Client {
-	if AccessTokenServer == nil {
-		panic("AccessTokenServer == nil")
-	}
-	if HttpClient == nil {
-		HttpClient = http.DefaultClient
-	}
-
-	return &Client{
-		WechatClient: mp.WechatClient{
-			AccessTokenServer: AccessTokenServer,
-			HttpClient:        HttpClient,
-		},
+// 兼容保留, 建議實際項目全局維護一個 *mp.WechatClient
+func NewClient(AccessTokenServer mp.AccessTokenServer, httpClient *http.Client) Client {
+	return Client{
+		WechatClient: mp.NewWechatClient(AccessTokenServer, httpClient),
 	}
 }
 
@@ -38,7 +27,7 @@ func NewClient(AccessTokenServer mp.AccessTokenServer, HttpClient *http.Client) 
 //  只有已经发送成功的消息才能删除删除消息只是将消息的图文详情页失效，已经收到的用户，
 //  还是能在其本地看到消息卡片。 另外，删除群发消息只能删除图文消息和视频消息，
 //  其他类型的消息一经发送，无法删除。
-func (clt *Client) DeleteMass(msgid int64) (err error) {
+func (clt Client) DeleteMass(msgid int64) (err error) {
 	var request = struct {
 		MsgId int64 `json:"msg_id"`
 	}{
@@ -65,7 +54,7 @@ type MassStatus struct {
 }
 
 // 查询群发消息发送状态
-func (clt *Client) GetMassStatus(msgid int64) (status *MassStatus, err error) {
+func (clt Client) GetMassStatus(msgid int64) (status *MassStatus, err error) {
 	var request = struct {
 		MsgId int64 `json:"msg_id"`
 	}{

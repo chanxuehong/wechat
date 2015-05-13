@@ -28,7 +28,7 @@ type PoiUpdateParameters struct {
 // 修改门店服务信息.
 //  商户可以通过该接口，修改门店的服务信息，包括：图片列表、营业时间、推荐、特色服务、简
 //  介、人均价格、电话7 个字段。目前基础字段包括（名称、坐标、地址等不可修改）
-func (clt *Client) PoiUpdate(para *PoiUpdateParameters) (err error) {
+func (clt Client) PoiUpdate(para *PoiUpdateParameters) (err error) {
 	if para == nil {
 		return errors.New("nil PoiUpdateParameters")
 	}

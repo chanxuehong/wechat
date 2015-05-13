@@ -13,24 +13,13 @@ import (
 )
 
 type Client struct {
-	corp.CorpClient
+	*corp.CorpClient
 }
 
-// 创建一个新的 Client.
-//  如果 HttpClient == nil 则默认用 http.DefaultClient
-func NewClient(AccessTokenServer corp.AccessTokenServer, HttpClient *http.Client) *Client {
-	if AccessTokenServer == nil {
-		panic("AccessTokenServer == nil")
-	}
-	if HttpClient == nil {
-		HttpClient = http.DefaultClient
-	}
-
-	return &Client{
-		CorpClient: corp.CorpClient{
-			AccessTokenServer: AccessTokenServer,
-			HttpClient:        HttpClient,
-		},
+// 兼容保留, 建議實際項目全局維護一個 *corp.CorpClient
+func NewClient(AccessTokenServer corp.AccessTokenServer, httpClient *http.Client) Client {
+	return Client{
+		CorpClient: corp.NewCorpClient(AccessTokenServer, httpClient),
 	}
 }
 
@@ -41,7 +30,7 @@ type Result struct {
 	InvalidTag   string `json:"invalidtag"`
 }
 
-func (clt *Client) SendText(msg *Text) (r *Result, err error) {
+func (clt Client) SendText(msg *Text) (r *Result, err error) {
 	if msg == nil {
 		err = errors.New("nil msg")
 		return
@@ -49,7 +38,7 @@ func (clt *Client) SendText(msg *Text) (r *Result, err error) {
 	return clt.send(msg)
 }
 
-func (clt *Client) SendImage(msg *Image) (r *Result, err error) {
+func (clt Client) SendImage(msg *Image) (r *Result, err error) {
 	if msg == nil {
 		err = errors.New("nil msg")
 		return
@@ -57,7 +46,7 @@ func (clt *Client) SendImage(msg *Image) (r *Result, err error) {
 	return clt.send(msg)
 }
 
-func (clt *Client) SendVoice(msg *Voice) (r *Result, err error) {
+func (clt Client) SendVoice(msg *Voice) (r *Result, err error) {
 	if msg == nil {
 		err = errors.New("nil msg")
 		return
@@ -65,7 +54,7 @@ func (clt *Client) SendVoice(msg *Voice) (r *Result, err error) {
 	return clt.send(msg)
 }
 
-func (clt *Client) SendVideo(msg *Video) (r *Result, err error) {
+func (clt Client) SendVideo(msg *Video) (r *Result, err error) {
 	if msg == nil {
 		err = errors.New("nil msg")
 		return
@@ -73,7 +62,7 @@ func (clt *Client) SendVideo(msg *Video) (r *Result, err error) {
 	return clt.send(msg)
 }
 
-func (clt *Client) SendFile(msg *File) (r *Result, err error) {
+func (clt Client) SendFile(msg *File) (r *Result, err error) {
 	if msg == nil {
 		err = errors.New("nil msg")
 		return
@@ -81,18 +70,7 @@ func (clt *Client) SendFile(msg *File) (r *Result, err error) {
 	return clt.send(msg)
 }
 
-func (clt *Client) SendNews(msg *News) (r *Result, err error) {
-	if msg == nil {
-		err = errors.New("nil msg")
-		return
-	}
-	if err = msg.CheckValid(); err != nil {
-		return
-	}
-	return clt.send(msg)
-}
-
-func (clt *Client) SendMPNews(msg *MPNews) (r *Result, err error) {
+func (clt Client) SendNews(msg *News) (r *Result, err error) {
 	if msg == nil {
 		err = errors.New("nil msg")
 		return
@@ -103,7 +81,18 @@ func (clt *Client) SendMPNews(msg *MPNews) (r *Result, err error) {
 	return clt.send(msg)
 }
 
-func (clt *Client) send(msg interface{}) (r *Result, err error) {
+func (clt Client) SendMPNews(msg *MPNews) (r *Result, err error) {
+	if msg == nil {
+		err = errors.New("nil msg")
+		return
+	}
+	if err = msg.CheckValid(); err != nil {
+		return
+	}
+	return clt.send(msg)
+}
+
+func (clt Client) send(msg interface{}) (r *Result, err error) {
 	var result struct {
 		corp.Error
 		Result

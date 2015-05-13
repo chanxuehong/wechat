@@ -30,7 +30,7 @@ type CardQRCodeInfo struct {
 
 // 卡券投放, 创建二维码.
 //  创建卡券后，商户可通过接口生成一张卡券二维码供用户扫码后添加卡券到卡包。
-func (clt *Client) CardQRCodeCreate(qrcodeInfo *CardQRCodeInfo) (ticket string, err error) {
+func (clt Client) CardQRCodeCreate(qrcodeInfo *CardQRCodeInfo) (ticket string, err error) {
 	if qrcodeInfo == nil {
 		err = errors.New("nil CardQRCodeInfo")
 		return

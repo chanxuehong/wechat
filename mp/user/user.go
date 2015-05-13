@@ -90,7 +90,7 @@ var ErrUserNotSubscriber = errors.New("用户没有订阅公众号")
 
 // 获取用户基本信息, 如果用户没有订阅公众号, 返回 ErrUserNotSubscriber 错误.
 //  lang 可以是 zh_CN, zh_TW, en, 如果留空 "" 则默认为 zh_CN.
-func (clt *Client) UserInfo(openId string, lang string) (userinfo *UserInfo, err error) {
+func (clt Client) UserInfo(openId string, lang string) (userinfo *UserInfo, err error) {
 	if openId == "" {
 		err = errors.New("empty openId")
 		return
@@ -131,7 +131,7 @@ func (clt *Client) UserInfo(openId string, lang string) (userinfo *UserInfo, err
 
 // 开发者可以通过该接口对指定用户设置备注名.
 //  NOTE: 该接口暂时开放给微信认证的服务号.
-func (clt *Client) UserUpdateRemark(openId, remark string) (err error) {
+func (clt Client) UserUpdateRemark(openId, remark string) (err error) {
 	var request = struct {
 		OpenId string `json:"openid"`
 		Remark string `json:"remark"`
@@ -168,7 +168,7 @@ type UserListResult struct {
 }
 
 // 获取关注者列表, 每次最多能获取 10000 个用户, 如果 beginOpenId == "" 则表示从头获取
-func (clt *Client) UserList(beginOpenId string) (data *UserListResult, err error) {
+func (clt Client) UserList(beginOpenId string) (data *UserListResult, err error) {
 	var result struct {
 		mp.Error
 		UserListResult

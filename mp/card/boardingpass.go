@@ -25,7 +25,7 @@ type BoardingPassCheckinParameters struct {
 
 // 在线值机接口.
 //  领取电影票后通过调用“更新电影票”接口update 电影信息及用户选座信息
-func (clt *Client) BoardingPassCheckin(para *BoardingPassCheckinParameters) (err error) {
+func (clt Client) BoardingPassCheckin(para *BoardingPassCheckinParameters) (err error) {
 	if para == nil {
 		return errors.New("nil BoardingPassCheckinParameters")
 	}

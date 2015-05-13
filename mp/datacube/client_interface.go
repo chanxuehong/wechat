@@ -21,7 +21,7 @@ type InterfaceSummaryData struct {
 }
 
 // 获取接口分析数据.
-func (clt *Client) GetInterfaceSummary(req *Request) (list []InterfaceSummaryData, err error) {
+func (clt Client) GetInterfaceSummary(req *Request) (list []InterfaceSummaryData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -51,7 +51,7 @@ type InterfaceSummaryHourData struct {
 }
 
 // 获取接口分析分时数据.
-func (clt *Client) GetInterfaceSummaryHour(req *Request) (list []InterfaceSummaryHourData, err error) {
+func (clt Client) GetInterfaceSummaryHour(req *Request) (list []InterfaceSummaryHourData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return

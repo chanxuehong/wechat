@@ -12,23 +12,12 @@ import (
 )
 
 type Client struct {
-	corp.CorpClient
+	*corp.CorpClient
 }
 
-// 创建一个新的 Client.
-//  如果 HttpClient == nil 则默认用 http.DefaultClient
-func NewClient(AccessTokenServer corp.AccessTokenServer, HttpClient *http.Client) *Client {
-	if AccessTokenServer == nil {
-		panic("AccessTokenServer == nil")
-	}
-	if HttpClient == nil {
-		HttpClient = http.DefaultClient
-	}
-
-	return &Client{
-		CorpClient: corp.CorpClient{
-			AccessTokenServer: AccessTokenServer,
-			HttpClient:        HttpClient,
-		},
+// 兼容保留, 建議實際項目全局維護一個 *corp.CorpClient
+func NewClient(AccessTokenServer corp.AccessTokenServer, httpClient *http.Client) Client {
+	return Client{
+		CorpClient: corp.NewCorpClient(AccessTokenServer, httpClient),
 	}
 }

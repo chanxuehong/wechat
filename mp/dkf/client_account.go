@@ -65,7 +65,7 @@ func (info *KfInfo) HeadImageSize() (size int, err error) {
 }
 
 // 获取客服基本信息.
-func (clt *Client) KfList() (KfList []KfInfo, err error) {
+func (clt Client) KfList() (KfList []KfInfo, err error) {
 	var result struct {
 		mp.Error
 		KfList []KfInfo `json:"kf_list"`
@@ -100,7 +100,7 @@ type OnlineKfInfo struct {
 }
 
 // 获取在线客服接待信息.
-func (clt *Client) OnlineKfList() (KfList []OnlineKfInfo, err error) {
+func (clt Client) OnlineKfList() (KfList []OnlineKfInfo, err error) {
 	var result struct {
 		mp.Error
 		KfList []OnlineKfInfo `json:"kf_online_list"`
@@ -124,7 +124,7 @@ func (clt *Client) OnlineKfList() (KfList []OnlineKfInfo, err error) {
 //  nickname:   客服昵称，最长6个汉字或12个英文字符
 //  password:   客服账号登录密码
 //  isPwdPlain: 标识 password 是否为明文格式, true 表示是明文密码, false 表示是密文密码.
-func (clt *Client) AddKfAccount(account, nickname, password string, isPwdPlain bool) (err error) {
+func (clt Client) AddKfAccount(account, nickname, password string, isPwdPlain bool) (err error) {
 	if isPwdPlain {
 		md5Sum := md5.Sum([]byte(password))
 		password = hex.EncodeToString(md5Sum[:])
@@ -159,7 +159,7 @@ func (clt *Client) AddKfAccount(account, nickname, password string, isPwdPlain b
 //  nickname:   客服昵称，最长6个汉字或12个英文字符
 //  password:   客服账号登录密码
 //  isPwdPlain: 标识 password 是否为明文格式, true 表示是明文密码, false 表示是密文密码.
-func (clt *Client) SetKfAccount(account, nickname, password string, isPwdPlain bool) (err error) {
+func (clt Client) SetKfAccount(account, nickname, password string, isPwdPlain bool) (err error) {
 	if isPwdPlain {
 		md5Sum := md5.Sum([]byte(password))
 		password = hex.EncodeToString(md5Sum[:])
@@ -191,7 +191,7 @@ func (clt *Client) SetKfAccount(account, nickname, password string, isPwdPlain b
 
 // 上传客服头像.
 //  开发者可调用本接口来上传图片作为客服人员的头像，头像图片文件必须是jpg格式，推荐使用640*640大小的图片以达到最佳效果。
-func (clt *Client) UploadKfHeadImage(kfAccount, imagePath string) (err error) {
+func (clt Client) UploadKfHeadImage(kfAccount, imagePath string) (err error) {
 	if kfAccount == "" {
 		return errors.New("empty kfAccount")
 	}
@@ -207,7 +207,7 @@ func (clt *Client) UploadKfHeadImage(kfAccount, imagePath string) (err error) {
 // 上传客服头像.
 //  开发者可调用本接口来上传图片作为客服人员的头像，头像图片文件必须是jpg格式，推荐使用640*640大小的图片以达到最佳效果。
 //  注意参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt *Client) UploadKfHeadImageFromReader(kfAccount, filename string, reader io.Reader) (err error) {
+func (clt Client) UploadKfHeadImageFromReader(kfAccount, filename string, reader io.Reader) (err error) {
 	if kfAccount == "" {
 		return errors.New("empty kfAccount")
 	}
@@ -223,7 +223,7 @@ func (clt *Client) UploadKfHeadImageFromReader(kfAccount, filename string, reade
 
 // 上传客服头像.
 //  注意参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt *Client) uploadKfHeadImageFromReader(kfAccount, filename string, reader io.Reader) (err error) {
+func (clt Client) uploadKfHeadImageFromReader(kfAccount, filename string, reader io.Reader) (err error) {
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/customservice/kfaccount/uploadheadimg?kf_account=" +
@@ -240,7 +240,7 @@ func (clt *Client) uploadKfHeadImageFromReader(kfAccount, filename string, reade
 }
 
 // 删除客服账号
-func (clt *Client) DeleteKfAccount(kfAccount string) (err error) {
+func (clt Client) DeleteKfAccount(kfAccount string) (err error) {
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/customservice/kfaccount/del?kf_account=" +

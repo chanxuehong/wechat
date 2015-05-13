@@ -38,7 +38,7 @@ func (article *Article) SetShowCoverPic(b bool) {
 }
 
 // 新增永久图文素材.
-func (clt *Client) AddNews(news News) (mediaId string, err error) {
+func (clt Client) AddNews(news News) (mediaId string, err error) {
 	if len(news) == 0 {
 		err = errors.New("图文素材是空的")
 		return
@@ -74,7 +74,7 @@ func (clt *Client) AddNews(news News) (mediaId string, err error) {
 
 // 修改永久图文素材.
 //  再次fuck微信開發組, 這個api是猜的!
-func (clt *Client) UpdateNews(mediaId string, index int, article *Article) (err error) {
+func (clt Client) UpdateNews(mediaId string, index int, article *Article) (err error) {
 	var request = struct {
 		MediaId string   `json:"media_id"`
 		Index   int      `json:"index"`
@@ -100,7 +100,7 @@ func (clt *Client) UpdateNews(mediaId string, index int, article *Article) (err 
 }
 
 // 获取永久图文素材.
-func (clt *Client) GetNews(mediaId string) (news News, err error) {
+func (clt Client) GetNews(mediaId string) (news News, err error) {
 	var request = struct {
 		MediaId string `json:"media_id"`
 	}{
@@ -141,7 +141,7 @@ type NewsInfo struct {
 //  TotalCount:   该类型的素材的总数
 //  ItemCount:    本次调用获取的素材的数量
 //  Items:        本次调用获取的素材
-func (clt *Client) BatchGetNews(offset, count int) (TotalCount, ItemCount int, Items []NewsInfo, err error) {
+func (clt Client) BatchGetNews(offset, count int) (TotalCount, ItemCount int, Items []NewsInfo, err error) {
 	var request = struct {
 		MaterialType string `json:"type"`
 		Offset       int    `json:"offset"`

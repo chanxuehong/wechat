@@ -10,7 +10,7 @@ import (
 )
 
 // 删除永久素材.
-func (clt *Client) DeleteMaterial(mediaId string) (err error) {
+func (clt Client) DeleteMaterial(mediaId string) (err error) {
 	var request = struct {
 		MediaId string `json:"media_id"`
 	}{
@@ -40,7 +40,7 @@ type MaterialCountInfo struct {
 }
 
 // 获取素材总数.
-func (clt *Client) GetMaterialCount() (info *MaterialCountInfo, err error) {
+func (clt Client) GetMaterialCount() (info *MaterialCountInfo, err error) {
 	var result struct {
 		mp.Error
 		MaterialCountInfo
@@ -74,7 +74,7 @@ type MaterialInfo struct {
 //  TotalCount:   该类型的素材的总数
 //  ItemCount:    本次调用获取的素材的数量
 //  Items:        本次调用获取的素材
-func (clt *Client) BatchGetMaterial(materialType string, offset, count int) (TotalCount, ItemCount int, Items []MaterialInfo, err error) {
+func (clt Client) BatchGetMaterial(materialType string, offset, count int) (TotalCount, ItemCount int, Items []MaterialInfo, err error) {
 	var request = struct {
 		MaterialType string `json:"type"`
 		Offset       int    `json:"offset"`

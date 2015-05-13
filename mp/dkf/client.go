@@ -12,23 +12,12 @@ import (
 )
 
 type Client struct {
-	mp.WechatClient
+	*mp.WechatClient
 }
 
-// 创建一个新的 Client.
-//  如果 HttpClient == nil 则默认用 http.DefaultClient
-func NewClient(AccessTokenServer mp.AccessTokenServer, HttpClient *http.Client) *Client {
-	if AccessTokenServer == nil {
-		panic("AccessTokenServer == nil")
-	}
-	if HttpClient == nil {
-		HttpClient = http.DefaultClient
-	}
-
-	return &Client{
-		WechatClient: mp.WechatClient{
-			AccessTokenServer: AccessTokenServer,
-			HttpClient:        HttpClient,
-		},
+// 兼容保留, 建議實際項目全局維護一個 *mp.WechatClient
+func NewClient(AccessTokenServer mp.AccessTokenServer, httpClient *http.Client) Client {
+	return Client{
+		WechatClient: mp.NewWechatClient(AccessTokenServer, httpClient),
 	}
 }

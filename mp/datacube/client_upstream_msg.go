@@ -27,7 +27,7 @@ type UpstreamMsgData struct {
 }
 
 // 获取消息发送概况数据.
-func (clt *Client) GetUpstreamMsg(req *Request) (list []UpstreamMsgData, err error) {
+func (clt Client) GetUpstreamMsg(req *Request) (list []UpstreamMsgData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -58,7 +58,7 @@ type UpstreamMsgHourData struct {
 }
 
 // 获取消息分送分时数据.
-func (clt *Client) GetUpstreamMsgHour(req *Request) (list []UpstreamMsgHourData, err error) {
+func (clt Client) GetUpstreamMsgHour(req *Request) (list []UpstreamMsgHourData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -88,7 +88,7 @@ type UpstreamMsgWeekData struct {
 }
 
 // 获取消息发送周数据.
-func (clt *Client) GetUpstreamMsgWeek(req *Request) (list []UpstreamMsgWeekData, err error) {
+func (clt Client) GetUpstreamMsgWeek(req *Request) (list []UpstreamMsgWeekData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -118,7 +118,7 @@ type UpstreamMsgMonthData struct {
 }
 
 // 获取消息发送月数据.
-func (clt *Client) GetUpstreamMsgMonth(req *Request) (list []UpstreamMsgMonthData, err error) {
+func (clt Client) GetUpstreamMsgMonth(req *Request) (list []UpstreamMsgMonthData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -150,7 +150,7 @@ type UpstreamMsgDistData struct {
 }
 
 // 获取消息发送分布数据.
-func (clt *Client) GetUpstreamMsgDist(req *Request) (list []UpstreamMsgDistData, err error) {
+func (clt Client) GetUpstreamMsgDist(req *Request) (list []UpstreamMsgDistData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -180,7 +180,7 @@ type UpstreamMsgDistWeekData struct {
 }
 
 // 获取消息发送分布周数据.
-func (clt *Client) GetUpstreamMsgDistWeek(req *Request) (list []UpstreamMsgDistWeekData, err error) {
+func (clt Client) GetUpstreamMsgDistWeek(req *Request) (list []UpstreamMsgDistWeekData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -210,7 +210,7 @@ type UpstreamMsgDistMonthData struct {
 }
 
 // 获取消息发送分布月数据.
-func (clt *Client) GetUpstreamMsgDistMonth(req *Request) (list []UpstreamMsgDistMonthData, err error) {
+func (clt Client) GetUpstreamMsgDistMonth(req *Request) (list []UpstreamMsgDistMonthData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return

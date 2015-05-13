@@ -20,7 +20,7 @@ import (
 
 // 下载多媒体到文件.
 //  请注意，视频文件不支持下载
-func (clt *Client) DownloadMedia(mediaId, filepath string) (err error) {
+func (clt Client) DownloadMedia(mediaId, filepath string) (err error) {
 	file, err := os.Create(filepath)
 	if err != nil {
 		return
@@ -37,7 +37,7 @@ func (clt *Client) DownloadMedia(mediaId, filepath string) (err error) {
 
 // 下载多媒体到 io.Writer.
 //  请注意，视频文件不支持下载
-func (clt *Client) DownloadMediaToWriter(mediaId string, writer io.Writer) error {
+func (clt Client) DownloadMediaToWriter(mediaId string, writer io.Writer) error {
 	if writer == nil {
 		return errors.New("nil writer")
 	}
@@ -45,7 +45,7 @@ func (clt *Client) DownloadMediaToWriter(mediaId string, writer io.Writer) error
 }
 
 // 下载多媒体到 io.Writer.
-func (clt *Client) downloadMediaToWriter(mediaId string, writer io.Writer) (err error) {
+func (clt Client) downloadMediaToWriter(mediaId string, writer io.Writer) (err error) {
 	token, err := clt.Token()
 	if err != nil {
 		return
@@ -105,7 +105,7 @@ RETRY:
 }
 
 // 创建图文消息素材.
-func (clt *Client) CreateNews(articles []Article) (info *MediaInfo, err error) {
+func (clt Client) CreateNews(articles []Article) (info *MediaInfo, err error) {
 	if len(articles) == 0 {
 		err = errors.New("图文素材是空的")
 		return
@@ -143,7 +143,7 @@ func (clt *Client) CreateNews(articles []Article) (info *MediaInfo, err error) {
 //  mediaId:     通过上传视频文件得到
 //  title:       标题, 可以为空
 //  description: 描述, 可以为空
-func (clt *Client) CreateVideo(mediaId, title, description string) (info *MediaInfo, err error) {
+func (clt Client) CreateVideo(mediaId, title, description string) (info *MediaInfo, err error) {
 	if mediaId == "" {
 		err = errors.New("empty mediaId")
 		return

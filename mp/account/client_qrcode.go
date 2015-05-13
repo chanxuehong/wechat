@@ -39,7 +39,7 @@ type TemporaryQRCode struct {
 // 创建临时二维码
 //  SceneId:       场景值ID，为32位非0整型
 //  ExpireSeconds: 二维码有效时间，以秒为单位。 最大不超过1800。
-func (clt *Client) CreateTemporaryQRCode(SceneId uint32, ExpireSeconds int) (qrcode *TemporaryQRCode, err error) {
+func (clt Client) CreateTemporaryQRCode(SceneId uint32, ExpireSeconds int) (qrcode *TemporaryQRCode, err error) {
 	if SceneId == 0 {
 		err = errors.New("SceneId should be greater than 0")
 		return
@@ -82,7 +82,7 @@ func (clt *Client) CreateTemporaryQRCode(SceneId uint32, ExpireSeconds int) (qrc
 
 // 创建永久二维码
 //  SceneId: 场景值ID，目前参数只支持1--100000
-func (clt *Client) CreatePermanentQRCode(SceneId uint32) (qrcode *PermanentQRCode, err error) {
+func (clt Client) CreatePermanentQRCode(SceneId uint32) (qrcode *PermanentQRCode, err error) {
 	if SceneId == 0 {
 		err = errors.New("SceneId should be greater than 0")
 		return
@@ -119,7 +119,7 @@ func (clt *Client) CreatePermanentQRCode(SceneId uint32) (qrcode *PermanentQRCod
 
 // 创建永久二维码
 //  SceneString: 场景值ID（字符串形式的ID），字符串类型，长度限制为1到64
-func (clt *Client) CreatePermanentQRCodeWithSceneString(SceneString string) (qrcode *PermanentQRCode, err error) {
+func (clt Client) CreatePermanentQRCodeWithSceneString(SceneString string) (qrcode *PermanentQRCode, err error) {
 	if SceneString == "" {
 		err = errors.New("SceneString should not be empty")
 		return
@@ -155,7 +155,7 @@ func (clt *Client) CreatePermanentQRCodeWithSceneString(SceneString string) (qrc
 }
 
 // 通过ticket换取二维码, 写入到 writer.
-func (clt *Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (err error) {
+func (clt Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (err error) {
 	if ticket == "" {
 		return errors.New("empty ticket")
 	}
@@ -169,7 +169,7 @@ func (clt *Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (err 
 }
 
 // 通过ticket换取二维码, 写入到 filepath 路径的文件.
-func (clt *Client) QRCodeDownload(ticket, filepath string) (err error) {
+func (clt Client) QRCodeDownload(ticket, filepath string) (err error) {
 	if ticket == "" {
 		return errors.New("empty ticket")
 	}

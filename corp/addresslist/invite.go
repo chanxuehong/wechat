@@ -14,7 +14,7 @@ import (
 //  InviteTips: 可选, 推送到微信上的提示语（只有认证号可以使用）。
 //              当使用微信推送时，该字段默认为“请关注XXX企业号”，邮件邀请时，该字段无效。
 //  Type:       1:微信邀请 2.邮件邀请
-func (clt *Client) InviteSend(UserId, InviteTips string) (Type int, err error) {
+func (clt Client) InviteSend(UserId, InviteTips string) (Type int, err error) {
 	var request = struct {
 		UserId     string `json:"userid"`
 		InviteTips string `json:"invite_tips,omitempty"`

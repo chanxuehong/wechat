@@ -24,7 +24,7 @@ type MeetingTicketUpdateUserParameters struct {
 
 // 更新电影票.
 //  领取电影票后通过调用“更新电影票”接口update 电影信息及用户选座信息
-func (clt *Client) MeetingTicketUpdateUser(para *MeetingTicketUpdateUserParameters) (err error) {
+func (clt Client) MeetingTicketUpdateUser(para *MeetingTicketUpdateUserParameters) (err error) {
 	if para == nil {
 		return errors.New("nil MeetingTicketUpdateUserParameters")
 	}

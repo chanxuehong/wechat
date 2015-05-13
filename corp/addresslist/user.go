@@ -33,7 +33,7 @@ type UserCreateParameters struct {
 }
 
 // 创建成员
-func (clt *Client) UserCreate(para *UserCreateParameters) (err error) {
+func (clt Client) UserCreate(para *UserCreateParameters) (err error) {
 	if para == nil {
 		err = errors.New("nil parameters")
 		return
@@ -76,7 +76,7 @@ func (para *UserUpdateParameters) SetEnable(b bool) {
 }
 
 // 更新成员
-func (clt *Client) UserUpdate(para *UserUpdateParameters) (err error) {
+func (clt Client) UserUpdate(para *UserUpdateParameters) (err error) {
 	if para == nil {
 		err = errors.New("nil parameters")
 		return
@@ -97,7 +97,7 @@ func (clt *Client) UserUpdate(para *UserUpdateParameters) (err error) {
 }
 
 // 删除成员
-func (clt *Client) UserDelete(userId string) (err error) {
+func (clt Client) UserDelete(userId string) (err error) {
 	var result corp.Error
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/user/delete?userid=" +
@@ -114,7 +114,7 @@ func (clt *Client) UserDelete(userId string) (err error) {
 }
 
 // 批量删除成员
-func (clt *Client) UserBatchDelete(UserIdList []string) (err error) {
+func (clt Client) UserBatchDelete(UserIdList []string) (err error) {
 	if len(UserIdList) <= 0 {
 		return
 	}
@@ -154,7 +154,7 @@ type UserInfo struct {
 	} `json:"extattr"` // 扩展属性
 }
 
-func (clt *Client) UserInfo(userId string) (info *UserInfo, err error) {
+func (clt Client) UserInfo(userId string) (info *UserInfo, err error) {
 	var result struct {
 		corp.Error
 		UserInfo
@@ -184,7 +184,7 @@ type UserBaseInfo struct {
 //  fetchChild:   是否递归获取子部门下面的成员
 //  status:       0 获取全部员工，1 获取已关注成员列表，2 获取禁用成员列表，4 获取未关注成员列表。
 //                status可叠加（可用逻辑运算符 | 来叠加, 一般都是后面 3 个叠加）。
-func (clt *Client) UserSimpleList(departmentId int64,
+func (clt Client) UserSimpleList(departmentId int64,
 	fetchChild bool, status int) (UserList []UserBaseInfo, err error) {
 
 	var result struct {
@@ -221,7 +221,7 @@ func (clt *Client) UserSimpleList(departmentId int64,
 //  fetchChild:   是否递归获取子部门下面的成员
 //  status:       0 获取全部员工，1 获取已关注成员列表，2 获取禁用成员列表，4 获取未关注成员列表。
 //                status可叠加（可用逻辑运算符 | 来叠加, 一般都是后面 3 个叠加）。
-func (clt *Client) UserList(departmentId int64,
+func (clt Client) UserList(departmentId int64,
 	fetchChild bool, status int) (UserList []UserInfo, err error) {
 
 	var result struct {

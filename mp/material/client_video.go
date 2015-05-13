@@ -16,7 +16,7 @@ type VideoInfo struct {
 }
 
 // 获取视频消息素材.
-func (clt *Client) GetVideo(mediaId string) (info *VideoInfo, err error) {
+func (clt Client) GetVideo(mediaId string) (info *VideoInfo, err error) {
 	var request = struct {
 		MediaId string `json:"media_id"`
 	}{

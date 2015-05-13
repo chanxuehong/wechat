@@ -29,24 +29,13 @@ func AuthCodeURL(corpId, redirectURL, scope, state string) string {
 }
 
 type Client struct {
-	corp.CorpClient
+	*corp.CorpClient
 }
 
-// 创建一个新的 Client.
-//  如果 HttpClient == nil 则默认用 http.DefaultClient
-func NewClient(AccessTokenServer corp.AccessTokenServer, HttpClient *http.Client) *Client {
-	if AccessTokenServer == nil {
-		panic("AccessTokenServer == nil")
-	}
-	if HttpClient == nil {
-		HttpClient = http.DefaultClient
-	}
-
-	return &Client{
-		CorpClient: corp.CorpClient{
-			AccessTokenServer: AccessTokenServer,
-			HttpClient:        HttpClient,
-		},
+// 兼容保留, 建議實際項目全局維護一個 *corp.CorpClient
+func NewClient(AccessTokenServer corp.AccessTokenServer, httpClient *http.Client) Client {
+	return Client{
+		CorpClient: corp.NewCorpClient(AccessTokenServer, httpClient),
 	}
 }
 
@@ -59,7 +48,7 @@ type UserInfo struct {
 //  agentId: 跳转链接时所在的企业应用ID
 //  code:    通过员工授权获取到的code，每次员工授权带上的code将不一样，
 //           code只能使用一次，5分钟未被使用自动过期
-func (clt *Client) UserInfo(agentId int64, code string) (info *UserInfo, err error) {
+func (clt Client) UserInfo(agentId int64, code string) (info *UserInfo, err error) {
 	var result struct {
 		corp.Error
 		UserInfo

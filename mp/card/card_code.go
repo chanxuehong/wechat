@@ -17,7 +17,7 @@ import (
 //
 //  code:   要消耗序列号
 //  cardId: 卡券ID。创建卡券时use_custom_code 填写true时必填。非自定义code 不必填写。
-func (clt *Client) CardCodeConsume(code, cardId string) (_cardId, openId string, err error) {
+func (clt Client) CardCodeConsume(code, cardId string) (_cardId, openId string, err error) {
 	var request = struct {
 		Code   string `json:"code"`
 		CardId string `json:"card_id,omitempty"`
@@ -52,7 +52,7 @@ func (clt *Client) CardCodeConsume(code, cardId string) (_cardId, openId string,
 //  code 解码接口支持两种场景：
 //  1.商家获取choos_card_info 后，将card_id 和encrypt_code 字段通过解码接口，获取真实code。
 //  2.卡券内跳转外链的签名中会对code 进行加密处理，通过调用解码接口获取真实code。
-func (clt *Client) CardCodeDecrypt(encryptCode string) (code string, err error) {
+func (clt Client) CardCodeDecrypt(encryptCode string) (code string, err error) {
 	var request = struct {
 		EncryptCode string `json:"encrypt_code"`
 	}{
@@ -87,7 +87,7 @@ type CardCode struct {
 // 查询code
 //  code:   要查询的序列号
 //  cardId: 要消耗序列号所述的card_id， 生成券时use_custom_code 填写true 时必填。非自定义code 不必填写。
-func (clt *Client) CardCodeGet(code, cardId string) (card *CardCode, openId string, err error) {
+func (clt Client) CardCodeGet(code, cardId string) (card *CardCode, openId string, err error) {
 	var request = struct {
 		Code   string `json:"code"`
 		CardId string `json:"card_id,omitempty"`
@@ -121,7 +121,7 @@ func (clt *Client) CardCodeGet(code, cardId string) (card *CardCode, openId stri
 //  为确保转赠后的安全性，微信允许自定义code的商户对已下发的code进行更改。
 //  注：为避免用户疑惑，建议仅在发生转赠行为后（发生转赠后，微信会通过事件推送的方
 //  式告知商户被转赠的卡券code）对用户的code进行更改。
-func (clt *Client) CardCodeUpdate(code, cardId, newCode string) (err error) {
+func (clt Client) CardCodeUpdate(code, cardId, newCode string) (err error) {
 	var request = struct {
 		Code    string `json:"code"`
 		CardId  string `json:"card_id,omitempty"`
@@ -149,7 +149,7 @@ func (clt *Client) CardCodeUpdate(code, cardId, newCode string) (err error) {
 // 设置卡券失效接口.
 //  为满足改票、退款等异常情况，可调用卡券失效接口将用户的卡券设置为失效状态。
 //  注：设置卡券失效的操作不可逆，即无法将设置为失效的卡券调回有效状态，商家须慎重调用该接口。
-func (clt *Client) CardCodeUnavailable(code, cardId string) (err error) {
+func (clt Client) CardCodeUnavailable(code, cardId string) (err error) {
 	var request = struct {
 		Code   string `json:"code"`
 		CardId string `json:"card_id,omitempty"`

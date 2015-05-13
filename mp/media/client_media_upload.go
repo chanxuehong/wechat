@@ -16,22 +16,22 @@ import (
 )
 
 // 上传多媒体图片
-func (clt *Client) UploadImage(filepath string) (info *MediaInfo, err error) {
+func (clt Client) UploadImage(filepath string) (info *MediaInfo, err error) {
 	return clt.uploadMedia(MediaTypeImage, filepath)
 }
 
 // 上传多媒体语音
-func (clt *Client) UploadVoice(filepath string) (info *MediaInfo, err error) {
+func (clt Client) UploadVoice(filepath string) (info *MediaInfo, err error) {
 	return clt.uploadMedia(MediaTypeVoice, filepath)
 }
 
 // 上传多媒体视频
-func (clt *Client) UploadVideo(filepath string) (info *MediaInfo, err error) {
+func (clt Client) UploadVideo(filepath string) (info *MediaInfo, err error) {
 	return clt.uploadMedia(MediaTypeVideo, filepath)
 }
 
 // 上传多媒体
-func (clt *Client) uploadMedia(mediaType, _filepath string) (info *MediaInfo, err error) {
+func (clt Client) uploadMedia(mediaType, _filepath string) (info *MediaInfo, err error) {
 	file, err := os.Open(_filepath)
 	if err != nil {
 		return
@@ -43,7 +43,7 @@ func (clt *Client) uploadMedia(mediaType, _filepath string) (info *MediaInfo, er
 
 // 上传多媒体图片
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt *Client) UploadImageFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
+func (clt Client) UploadImageFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
 		return
@@ -57,7 +57,7 @@ func (clt *Client) UploadImageFromReader(filename string, reader io.Reader) (inf
 
 // 上传多媒体语音
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt *Client) UploadVoiceFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
+func (clt Client) UploadVoiceFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
 		return
@@ -71,7 +71,7 @@ func (clt *Client) UploadVoiceFromReader(filename string, reader io.Reader) (inf
 
 // 上传多媒体视频
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt *Client) UploadVideoFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
+func (clt Client) UploadVideoFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
 		return
@@ -83,7 +83,7 @@ func (clt *Client) UploadVideoFromReader(filename string, reader io.Reader) (inf
 	return clt.uploadMediaFromReader(MediaTypeVideo, filename, reader)
 }
 
-func (clt *Client) uploadMediaFromReader(mediaType, filename string, reader io.Reader) (info *MediaInfo, err error) {
+func (clt Client) uploadMediaFromReader(mediaType, filename string, reader io.Reader) (info *MediaInfo, err error) {
 	var result struct {
 		mp.Error
 		MediaInfo
@@ -106,7 +106,7 @@ func (clt *Client) uploadMediaFromReader(mediaType, filename string, reader io.R
 // =============================================================================
 
 // 上传多媒体缩略图
-func (clt *Client) UploadThumb(_filepath string) (info *MediaInfo, err error) {
+func (clt Client) UploadThumb(_filepath string) (info *MediaInfo, err error) {
 	file, err := os.Open(_filepath)
 	if err != nil {
 		return
@@ -118,7 +118,7 @@ func (clt *Client) UploadThumb(_filepath string) (info *MediaInfo, err error) {
 
 // 上传多媒体缩略图
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt *Client) UploadThumbFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
+func (clt Client) UploadThumbFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
 		return
@@ -130,7 +130,7 @@ func (clt *Client) UploadThumbFromReader(filename string, reader io.Reader) (inf
 	return clt.uploadThumbFromReader(filename, reader)
 }
 
-func (clt *Client) uploadThumbFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
+func (clt Client) uploadThumbFromReader(filename string, reader io.Reader) (info *MediaInfo, err error) {
 	var result struct {
 		mp.Error
 		MediaType string `json:"type"`

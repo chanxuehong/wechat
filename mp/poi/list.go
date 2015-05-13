@@ -25,7 +25,7 @@ type PoiBrief struct {
 // 查询门店列表.
 //  begin: 开始位置，0 即为从第一条开始查询
 //  limit: 返回数据条数，最大允许50，默认为20
-func (clt *Client) PoiList(begin, limit int) (list []PoiBrief, totalCount int, err error) {
+func (clt Client) PoiList(begin, limit int) (list []PoiBrief, totalCount int, err error) {
 	if begin < 0 {
 		err = fmt.Errorf("invalid begin: %d", begin)
 		return

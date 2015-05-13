@@ -44,7 +44,7 @@ type GetRecordRequest struct {
 }
 
 // 获取客服聊天记录
-func (clt *Client) GetRecord(request *GetRecordRequest) (recordList []Record, err error) {
+func (clt Client) GetRecord(request *GetRecordRequest) (recordList []Record, err error) {
 	if request == nil {
 		err = errors.New("nil request")
 		return
@@ -92,8 +92,8 @@ type RecordIterator struct {
 	lastGetRecordRequest *GetRecordRequest // 上一次查询的 request
 	lastGetRecordResult  []Record          // 上一次查询的 result
 
-	wechatClient   *Client // 关联的微信 Client
-	nextPageCalled bool    // NextPage() 是否调用过
+	wechatClient   Client // 关联的微信 Client
+	nextPageCalled bool   // NextPage() 是否调用过
 }
 
 func (iter *RecordIterator) HasNext() bool {
@@ -125,7 +125,7 @@ func (iter *RecordIterator) NextPage() (records []Record, err error) {
 }
 
 // 获取聊天记录遍历器.
-func (clt *Client) RecordIterator(request *GetRecordRequest) (iter *RecordIterator, err error) {
+func (clt Client) RecordIterator(request *GetRecordRequest) (iter *RecordIterator, err error) {
 	records, err := clt.GetRecord(request)
 	if err != nil {
 		return

@@ -37,7 +37,7 @@ type Poi struct {
 }
 
 // 查询门店信息.
-func (clt *Client) PoiGet(poiId string) (poi *Poi, err error) {
+func (clt Client) PoiGet(poiId string) (poi *Poi, err error) {
 	var request = struct {
 		PoiId string `json:"poi_id"`
 	}{

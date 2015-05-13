@@ -17,7 +17,8 @@ import (
 	"github.com/chanxuehong/wechat/corp/menu"
 )
 
-var TokenServer = corp.NewDefaultTokenServer("corpId", "corpSecret", nil) // 一個應用只能有一個實例
+var AccessTokenServer = corp.NewDefaultAccessTokenServer("corpId", "corpSecret", nil) // 一個應用只能有一個實例
+var CorpClient = corp.NewCorpClient(AccessTokenServer, nil)
 
 func main() {
 	var mn menu.Menu
@@ -31,7 +32,7 @@ func main() {
 
 	mn.Buttons[2].SetAsSubMenuButton("子菜单", subButtons)
 
-	clt := menu.NewClient(TokenServer, nil)
+	clt := menu.Client{CorpClient: CorpClient}
 	if err := clt.CreateMenu(0 /* agentId */, mn); err != nil {
 		fmt.Println(err)
 		return
