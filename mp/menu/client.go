@@ -73,3 +73,27 @@ func (clt Client) GetMenu() (menu Menu, err error) {
 	menu = result.Menu
 	return
 }
+
+// 获取自定义菜单配置接口
+func (clt Client) GetCurrentSelfMenuInfo() (info MenuInfo, isMenuOpen bool, err error) {
+	var result struct {
+		mp.Error
+		IsMenuOpen int      `json:"is_menu_open"`
+		MenuInfo   MenuInfo `json:"selfmenu_info"`
+	}
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/get_current_selfmenu_info?access_token="
+	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	info = result.MenuInfo
+	if result.IsMenuOpen == 1 {
+		isMenuOpen = true
+	}
+	return
+}
