@@ -111,7 +111,7 @@ RETRY:
 	switch ErrCode := ErrorStructValue.Field(0).Int(); ErrCode {
 	case corp.ErrCodeOK:
 		return
-	case corp.ErrCodeSuiteAccessTokenInvalid: // 具体的值要最确定
+	case corp.ErrCodeSuiteAccessTokenExpired:
 		ErrMsg := ErrorStructValue.Field(1).String()
 		corp.LogInfoln("[WECHAT_RETRY] err_code:", ErrCode, ", err_msg:", ErrMsg)
 		corp.LogInfoln("[WECHAT_RETRY] current token:", token)
@@ -188,7 +188,7 @@ RETRY:
 	switch ErrCode := ErrorStructValue.Field(0).Int(); ErrCode {
 	case corp.ErrCodeOK:
 		return
-	case corp.ErrCodeSuiteAccessTokenInvalid: // 具体的值要最确定
+	case corp.ErrCodeSuiteAccessTokenExpired:
 		ErrMsg := ErrorStructValue.Field(1).String()
 		corp.LogInfoln("[WECHAT_RETRY] err_code:", ErrCode, ", err_msg:", ErrMsg)
 		corp.LogInfoln("[WECHAT_RETRY] current token:", token)

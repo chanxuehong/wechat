@@ -107,7 +107,7 @@ RETRY:
 	switch ErrCode := ErrorStructValue.Field(0).Int(); ErrCode {
 	case ErrCodeOK:
 		return
-	case ErrCodeAccessTokenInvalid, ErrCodeInvalidCredential:
+	case ErrCodeAccessTokenExpired:
 		ErrMsg := ErrorStructValue.Field(1).String()
 		LogInfoln("[WECHAT_RETRY] err_code:", ErrCode, ", err_msg:", ErrMsg)
 		LogInfoln("[WECHAT_RETRY] current token:", token)
@@ -184,7 +184,7 @@ RETRY:
 	switch ErrCode := ErrorStructValue.Field(0).Int(); ErrCode {
 	case ErrCodeOK:
 		return
-	case ErrCodeAccessTokenInvalid, ErrCodeInvalidCredential:
+	case ErrCodeAccessTokenExpired:
 		ErrMsg := ErrorStructValue.Field(1).String()
 		LogInfoln("[WECHAT_RETRY] err_code:", ErrCode, ", err_msg:", ErrMsg)
 		LogInfoln("[WECHAT_RETRY] current token:", token)

@@ -112,7 +112,7 @@ RETRY:
 	switch result.ErrCode {
 	case mp.ErrCodeOK:
 		return // 基本不会出现
-	case mp.ErrCodeInvalidCredential, mp.ErrCodeTimeout: // 失效(过期)重试一次
+	case mp.ErrCodeInvalidCredential, mp.ErrCodeAccessTokenExpired: // 失效(过期)重试一次
 		mp.LogInfoln("[WECHAT_RETRY] err_code:", result.ErrCode, ", err_msg:", result.ErrMsg)
 		mp.LogInfoln("[WECHAT_RETRY] current token:", token)
 
