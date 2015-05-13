@@ -3,6 +3,13 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 微信支付接口.
-//  http://pay.weixin.qq.com/wiki/doc/api/index.php
-package pay
+package payutil
+
+import (
+	"github.com/chanxuehong/wechat/mch"
+)
+
+// 测速上报.
+func Report(clt *mch.Client, req map[string]string) (resp map[string]string, err error) {
+	return clt.PostXML("https://api.mch.weixin.qq.com/payitil/report", req)
+}

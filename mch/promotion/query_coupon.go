@@ -3,10 +3,13 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package pay
+package promotion
 
-// 红包发放API.
-//  NOTE: 请求需要双向证书
-func (clt *Client) SendRedPack(req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack", req)
+import (
+	"github.com/chanxuehong/wechat/mch"
+)
+
+// 查询代金券信息.
+func QueryCoupon(clt *mch.Client, req map[string]string) (resp map[string]string, err error) {
+	return clt.PostXML("https://api.mch.weixin.qq.com/promotion/query_coupon", req)
 }

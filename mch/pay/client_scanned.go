@@ -5,13 +5,17 @@
 
 package pay
 
+import (
+	"github.com/chanxuehong/wechat/mch"
+)
+
 // 提交被扫支付API.
-func (clt *Client) MicroPay(req map[string]string) (resp map[string]string, err error) {
+func MicroPay(clt *mch.Client, req map[string]string) (resp map[string]string, err error) {
 	return clt.PostXML("https://api.mch.weixin.qq.com/pay/micropay", req)
 }
 
 // 撤销支付API.
 //  NOTE: 请求需要双向证书.
-func (clt *Client) Reverse(req map[string]string) (resp map[string]string, err error) {
+func Reverse(clt *mch.Client, req map[string]string) (resp map[string]string, err error) {
 	return clt.PostXML("https://api.mch.weixin.qq.com/secapi/pay/reverse", req)
 }

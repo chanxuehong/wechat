@@ -13,46 +13,41 @@ import (
 	"net/http"
 
 	"github.com/chanxuehong/util"
+	"github.com/chanxuehong/wechat/mch"
 )
 
 // 统一下单.
-func (clt *Client) UnifiedOrder(req map[string]string) (resp map[string]string, err error) {
+func UnifiedOrder(clt *mch.Client, req map[string]string) (resp map[string]string, err error) {
 	return clt.PostXML("https://api.mch.weixin.qq.com/pay/unifiedorder", req)
 }
 
 // 订单查询.
-func (clt *Client) OrderQuery(req map[string]string) (resp map[string]string, err error) {
+func OrderQuery(clt *mch.Client, req map[string]string) (resp map[string]string, err error) {
 	return clt.PostXML("https://api.mch.weixin.qq.com/pay/orderquery", req)
 }
 
 // 关闭订单.
-func (clt *Client) CloseOrder(req map[string]string) (resp map[string]string, err error) {
+func CloseOrder(clt *mch.Client, req map[string]string) (resp map[string]string, err error) {
 	return clt.PostXML("https://api.mch.weixin.qq.com/pay/closeorder", req)
 }
 
 // 申请退款.
 //  NOTE: 请求需要双向证书.
-func (clt *Client) Refund(req map[string]string) (resp map[string]string, err error) {
+func Refund(clt *mch.Client, req map[string]string) (resp map[string]string, err error) {
 	return clt.PostXML("https://api.mch.weixin.qq.com/secapi/pay/refund", req)
 }
 
 // 退款查询.
-func (clt *Client) RefundQuery(req map[string]string) (resp map[string]string, err error) {
+func RefundQuery(clt *mch.Client, req map[string]string) (resp map[string]string, err error) {
 	return clt.PostXML("https://api.mch.weixin.qq.com/pay/refundquery", req)
 }
 
-// 测速上报.
-func (clt *Client) Report(req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.mch.weixin.qq.com/payitil/report", req)
-}
-
-// 转换短链接.
-func (clt *Client) ShortURL(req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.mch.weixin.qq.com/tools/shorturl", req)
-}
-
 // 下载对账单.
-func (clt *Client) DownloadBill(req map[string]string) (data []byte, err error) {
+func DownloadBill(httpClient *http.Client, req map[string]string) (data []byte, err error) {
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+
 	bodyBuf := textBufferPool.Get().(*bytes.Buffer)
 	bodyBuf.Reset()
 	defer textBufferPool.Put(bodyBuf)
@@ -61,8 +56,7 @@ func (clt *Client) DownloadBill(req map[string]string) (data []byte, err error) 
 		return
 	}
 
-	url := "https://api.mch.weixin.qq.com/pay/downloadbill"
-	httpResp, err := clt.httpClient.Post(url, "text/xml; charset=utf-8", bodyBuf)
+	httpResp, err := httpClient.Post("https://api.mch.weixin.qq.com/pay/downloadbill", "text/xml; charset=utf-8", bodyBuf)
 	if err != nil {
 		return
 	}
@@ -78,7 +72,7 @@ func (clt *Client) DownloadBill(req map[string]string) (data []byte, err error) 
 		return
 	}
 
-	var result Error
+	var result mch.Error
 	if err = xml.Unmarshal(respBody, &result); err == nil {
 		err = &result
 		return

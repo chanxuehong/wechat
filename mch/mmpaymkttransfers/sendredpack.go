@@ -3,22 +3,14 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package pay
+package mmpaymkttransfers
 
 import (
-	"log"
+	"github.com/chanxuehong/wechat/mch"
 )
 
-var LogInfoln = log.Println
-
-// 沒有加锁, 请确保在初始化阶段调用!
-func SetLogInfoln(fn func(v ...interface{})) {
-	if fn == nil {
-		return
-	}
-	LogInfoln = fn
-}
-
-func init() {
-	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds | log.Lshortfile)
+// 红包发放.
+//  NOTE: 请求需要双向证书
+func SendRedPack(clt *mch.Client, req map[string]string) (resp map[string]string, err error) {
+	return clt.PostXML("https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack", req)
 }

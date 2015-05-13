@@ -5,7 +5,7 @@
 
 // +build wechatdebug
 
-package pay
+package mch
 
 import (
 	"bytes"
