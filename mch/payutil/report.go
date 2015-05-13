@@ -10,6 +10,6 @@ import (
 )
 
 // 测速上报.
-func Report(clt *mch.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.mch.weixin.qq.com/payitil/report", req)
+func Report(proxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
+	return proxy.PostXML("https://api.mch.weixin.qq.com/payitil/report", req)
 }

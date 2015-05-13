@@ -17,19 +17,19 @@ import (
 	"github.com/chanxuehong/util"
 )
 
-type Client struct {
+type Proxy struct {
 	apiKey     string
 	httpClient *http.Client
 }
 
-// 创建一个新的 Client.
+// 创建一个新的 Proxy.
 //  如果 httpClient == nil 则默认用 http.DefaultClient.
-func NewClient(apiKey string, httpClient *http.Client) *Client {
+func NewProxy(apiKey string, httpClient *http.Client) *Proxy {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 
-	return &Client{
+	return &Proxy{
 		apiKey:     apiKey,
 		httpClient: httpClient,
 	}
@@ -37,7 +37,7 @@ func NewClient(apiKey string, httpClient *http.Client) *Client {
 
 // 微信支付通用请求方法.
 //  注意: err == nil 表示协议状态都为 SUCCESS.
-func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]string, err error) {
+func (proxy *Proxy) PostXML(url string, req map[string]string) (resp map[string]string, err error) {
 	bodyBuf := textBufferPool.Get().(*bytes.Buffer)
 	bodyBuf.Reset()
 	defer textBufferPool.Put(bodyBuf)
@@ -49,7 +49,7 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 	LogInfoln("[WECHAT_DEBUG] request url:", url)
 	LogInfoln("[WECHAT_DEBUG] request xml:", bodyBuf.String())
 
-	httpResp, err := clt.httpClient.Post(url, "text/xml; charset=utf-8", bodyBuf)
+	httpResp, err := proxy.httpClient.Post(url, "text/xml; charset=utf-8", bodyBuf)
 	if err != nil {
 		return
 	}
@@ -90,7 +90,7 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 		err = errors.New("no sign parameter")
 		return
 	}
-	signature2 := Sign(resp, clt.apiKey, nil)
+	signature2 := Sign(resp, proxy.apiKey, nil)
 	if signature1 != signature2 {
 		err = fmt.Errorf("check signature failed, \r\ninput: %q, \r\nlocal: %q", signature1, signature2)
 		return

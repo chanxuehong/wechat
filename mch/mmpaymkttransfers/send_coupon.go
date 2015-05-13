@@ -10,6 +10,6 @@ import (
 )
 
 // 发放代金券.
-func SendCoupon(clt *mch.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.mch.weixin.qq.com/mmpaymkttransfers/send_coupon", req)
+func SendCoupon(proxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
+	return proxy.PostXML("https://api.mch.weixin.qq.com/mmpaymkttransfers/send_coupon", req)
 }

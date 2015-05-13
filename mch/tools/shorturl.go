@@ -10,6 +10,6 @@ import (
 )
 
 // 转换短链接.
-func ShortURL(clt *mch.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.mch.weixin.qq.com/tools/shorturl", req)
+func ShortURL(proxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
+	return proxy.PostXML("https://api.mch.weixin.qq.com/tools/shorturl", req)
 }
