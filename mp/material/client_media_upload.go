@@ -6,6 +6,7 @@
 package material
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"io"
@@ -100,7 +101,13 @@ func (clt Client) uploadMaterialFromReader(materialType, filename string, reader
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/add_material?type=" +
 		url.QueryEscape(materialType) + "&access_token="
-	if err = clt.UploadFromReader(incompleteURL, "media", filename, reader, "", nil, &result); err != nil {
+	fields := []mp.MultipartFormField{{
+		ContentType: 0,
+		FieldName:   "media",
+		FileName:    filename,
+		Value:       reader,
+	}}
+	if err = clt.PostMultipartForm(incompleteURL, fields, &result); err != nil {
 		return
 	}
 
@@ -161,7 +168,20 @@ func (clt Client) uploadVideoFromReader(filename string, reader io.Reader,
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/add_material?type=video&access_token="
-	if err = clt.UploadFromReader(incompleteURL, "media", filename, reader, "description", descBytes, &result); err != nil {
+	fields := []mp.MultipartFormField{
+		{
+			ContentType: 0,
+			FieldName:   "media",
+			FileName:    filename,
+			Value:       reader,
+		},
+		{
+			ContentType: 1,
+			FieldName:   "description",
+			Value:       bytes.NewReader(descBytes),
+		},
+	}
+	if err = clt.PostMultipartForm(incompleteURL, fields, &result); err != nil {
 		return
 	}
 

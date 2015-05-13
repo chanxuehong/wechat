@@ -228,7 +228,13 @@ func (clt Client) uploadKfHeadImageFromReader(kfAccount, filename string, reader
 
 	incompleteURL := "https://api.weixin.qq.com/customservice/kfaccount/uploadheadimg?kf_account=" +
 		url.QueryEscape(kfAccount) + "&access_token="
-	if err = clt.UploadFromReader(incompleteURL, "media", filename, reader, "", nil, &result); err != nil {
+	fields := []mp.MultipartFormField{{
+		ContentType: 0,
+		FieldName:   "media",
+		FileName:    filename,
+		Value:       reader,
+	}}
+	if err = clt.PostMultipartForm(incompleteURL, fields, &result); err != nil {
 		return
 	}
 

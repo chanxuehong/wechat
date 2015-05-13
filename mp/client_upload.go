@@ -18,6 +18,13 @@ import (
 	"reflect"
 )
 
+type MultipartFormField struct {
+	ContentType int // 0==文件field, 1==普通的文本field
+	FieldName   string
+	FileName    string
+	Value       io.Reader
+}
+
 // 通用上传接口.
 //
 //  --BOUNDARY
@@ -35,40 +42,36 @@ import (
 //  NOTE:
 //  1. 一般不需要调用这个方法, 请直接调用高层次的封装方法;
 //  2. 最终的 URL == incompleteURL + access_token;
-//  3. part1 是一个文件, part2 是普通的字符串(如果不需要 part2 则把 part2FieldName 留空);
-//  4. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
+//  3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
 //      struct {
 //          Error
 //          ...
 //      }
-func (clt *WechatClient) UploadFromReader(incompleteURL,
-	part1FieldName, part1FileName string, part1ValueReader io.Reader,
-	part2FieldName string, part2Value []byte,
-	response interface{}) (err error) {
-
-	// 构造 multipart/form-data, 存入一个字节数组里
-
+func (clt *WechatClient) PostMultipartForm(incompleteURL string, fields []MultipartFormField, response interface{}) (err error) {
 	bodyBuf := mediaBufferPool.Get().(*bytes.Buffer)
 	bodyBuf.Reset()
 	defer mediaBufferPool.Put(bodyBuf)
 
 	multipartWriter := multipart.NewWriter(bodyBuf)
 
-	part1Writer, err := multipartWriter.CreateFormFile(part1FieldName, part1FileName)
-	if err != nil {
-		return
-	}
-	if _, err = io.Copy(part1Writer, part1ValueReader); err != nil {
-		return
-	}
-
-	if part2FieldName != "" && len(part2Value) > 0 {
-		part2Writer, err := multipartWriter.CreateFormField(part2FieldName)
-		if err != nil {
-			return err
-		}
-		if _, err = part2Writer.Write(part2Value); err != nil {
-			return err
+	for _, field := range fields {
+		switch field.ContentType {
+		case 0: // 文件
+			partWriter, err := multipartWriter.CreateFormFile(field.FieldName, field.FileName)
+			if err != nil {
+				return err
+			}
+			if _, err = io.Copy(partWriter, field.Value); err != nil {
+				return err
+			}
+		case 1: // 文本
+			partWriter, err := multipartWriter.CreateFormField(field.FieldName)
+			if err != nil {
+				return err
+			}
+			if _, err = io.Copy(partWriter, field.Value); err != nil {
+				return err
+			}
 		}
 	}
 
