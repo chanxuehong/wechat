@@ -23,13 +23,13 @@ type ButtonEx struct {
 	MediaId string `json:"media_id,omitempty"`
 
 	Value    string `json:"value,omitempty"`
-	NewsInfo *struct {
+	NewsInfo struct {
 		Articles []Article `json:"list,omitempty"`
-	} `json:"news_info,omitempty"`
+	} `json:"news_info"`
 
-	SubButton *struct {
+	SubButton struct {
 		Buttons []ButtonEx `json:"list,omitempty"`
-	} `json:"sub_button,omitempty"`
+	} `json:"sub_button"`
 }
 
 type MenuInfo struct {
