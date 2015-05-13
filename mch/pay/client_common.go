@@ -48,10 +48,7 @@ func DownloadBill(httpClient *http.Client, req map[string]string) (data []byte, 
 		httpClient = http.DefaultClient
 	}
 
-	bodyBuf := textBufferPool.Get().(*bytes.Buffer)
-	bodyBuf.Reset()
-	defer textBufferPool.Put(bodyBuf)
-
+	bodyBuf := bytes.NewBuffer(make([]byte, 0, 1024))
 	if err = util.FormatMapToXML(bodyBuf, req); err != nil {
 		return
 	}
