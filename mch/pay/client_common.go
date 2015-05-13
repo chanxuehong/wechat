@@ -43,7 +43,7 @@ func RefundQuery(proxy *mch.Proxy, req map[string]string) (resp map[string]strin
 }
 
 // 下载对账单.
-func DownloadBill(httpClient *http.Client, req map[string]string) (data []byte, err error) {
+func DownloadBill(req map[string]string, httpClient *http.Client) (data []byte, err error) {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}

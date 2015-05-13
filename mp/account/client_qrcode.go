@@ -7,6 +7,7 @@ package account
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -244,9 +245,12 @@ func qrcodeDownloadToWriter(ticket string, writer io.Writer, httpClient *http.Cl
 	}
 	defer httpResp.Body.Close()
 
-	if httpResp.StatusCode == http.StatusOK {
-		_, err = io.Copy(writer, httpResp.Body)
+	if httpResp.StatusCode != http.StatusOK {
+		return fmt.Errorf("http.Status: %s", httpResp.Status)
+	}
+
+	if _, err = io.Copy(writer, httpResp.Body); err != nil {
 		return
 	}
-	return errors.New("下载二维码出错, ticket: " + ticket)
+	return
 }
