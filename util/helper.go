@@ -58,3 +58,23 @@ func Uint64(v uint64) *uint64 {
 func String(v string) *string {
 	return &v
 }
+
+//Verify timestamp syntactic sugar
+func VtimestampStr(t string, s time.Duration) (err error) {
+    timestamp, err := strconv.ParseInt(t, 10, 64)
+    if err != nil {
+        err = errors.New("timestamp is invalid: " + t)
+        return
+    }
+    err = Vtimestamp(timestamp,s)
+    return
+}
+
+//Verify the timestamp
+func Vtimestamp(t int64, s time.Duration) (err error) {
+    serveTime := time.Unix(t, 0)
+    if time.Now().Add(s*time.Second).Before(serveTime) && time.Now().Add(-1*s*time.Second).After(serveTime) {
+        err = errors.New("timestamp is expired.")
+    }
+    return
+}

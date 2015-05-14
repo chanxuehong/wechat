@@ -8,6 +8,8 @@ package mp
 import (
 	"errors"
 	"net/url"
+	
+	 "github.com/chanxuehong/wechat/util"
 )
 
 func parsePostURLQuery(urlValues url.Values) (signature, timestamp, nonce,
@@ -22,6 +24,11 @@ func parsePostURLQuery(urlValues url.Values) (signature, timestamp, nonce,
 	timestamp = urlValues.Get("timestamp")
 	if timestamp == "" {
 		err = errors.New("timestamp is empty")
+		return
+	}
+	
+	// verify the timestamp
+	if err = util.VtimestampStr(timestampStr, 30); err !=nil {
 		return
 	}
 
@@ -47,6 +54,11 @@ func parseGetURLQuery(urlValues url.Values) (signature, timestamp, nonce, echost
 	timestamp = urlValues.Get("timestamp")
 	if timestamp == "" {
 		err = errors.New("timestamp is empty")
+		return
+	}
+	
+	// verify the timestamp
+	if err = util.VtimestampStr(timestampStr, 30); err !=nil {
 		return
 	}
 
