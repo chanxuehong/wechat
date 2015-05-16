@@ -74,7 +74,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 		}
 
 		haveComponentAppId := requestHttpBody.ComponentAppId
-		wantComponentAppId := componentServer.ComponentAppId()
+		wantComponentAppId := componentServer.AppId()
 		if len(haveComponentAppId) != len(wantComponentAppId) {
 			err = fmt.Errorf("the RequestHttpBody's AppId mismatch, have: %s, want: %s", haveComponentAppId, wantComponentAppId)
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
@@ -86,7 +86,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 			return
 		}
 
-		componentToken := componentServer.ComponentToken()
+		componentToken := componentServer.Token()
 
 		// 验证签名
 		msgSignature2 := util.MsgSign(componentToken, timestampStr, nonce, requestHttpBody.EncryptedMsg)
@@ -154,7 +154,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 			ComponentAppId: haveComponentAppId,
 			ComponentToken: componentToken,
 		}
-		componentServer.ComponentMessageHandler().ServeComponentMessage(w, r)
+		componentServer.MessageHandler().ServeComponentMessage(w, r)
 
 	case "GET": // 首次验证
 		signature1, timestamp, nonce, echostr, err := parseGetURLQuery(urlValues)
@@ -169,7 +169,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 			return
 		}
 
-		signature2 := util.Sign(componentServer.ComponentToken(), timestamp, nonce)
+		signature2 := util.Sign(componentServer.Token(), timestamp, nonce)
 		if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
 			err = fmt.Errorf("check signature failed, input: %s, local: %s", signature1, signature2)
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)

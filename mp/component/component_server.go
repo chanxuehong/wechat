@@ -11,57 +11,55 @@ import (
 )
 
 type ComponentServer interface {
-	ComponentAppId() string // 获取第三方平台AppId
-	ComponentToken() string // 获取第三方平台的Token
+	AppId() string // 获取第三方平台AppId
+	Token() string // 获取第三方平台的Token
 
 	CurrentAESKey() [32]byte // 获取当前有效的 AES 加密 Key
 	LastAESKey() [32]byte    // 获取最后一个有效的 AES 加密 Key
 
-	ComponentMessageHandler() ComponentMessageHandler // 获取 ComponentMessageHandler
+	MessageHandler() ComponentMessageHandler // 获取 ComponentMessageHandler
 }
 
 var _ ComponentServer = (*DefaultComponentServer)(nil)
 
 type DefaultComponentServer struct {
-	componentAppId string
-	componentToken string
+	appId string
+	token string
 
 	rwmutex           sync.RWMutex
 	currentAESKey     [32]byte // 当前的 AES Key
 	lastAESKey        [32]byte // 最后一个 AES Key
 	isLastAESKeyValid bool     // lastAESKey 是否有效, 如果 lastAESKey 是 zero 则无效
 
-	componentMessageHandler ComponentMessageHandler
+	messageHandler ComponentMessageHandler
 }
 
 // NewDefaultComponentServer 创建一个新的 DefaultComponentServer.
-func NewDefaultComponentServer(componentAppId, componentToken string, AESKey []byte,
-	componentMessageHandler ComponentMessageHandler) (srv *DefaultComponentServer) {
-
+func NewDefaultComponentServer(componentAppId, componentToken string, AESKey []byte, messageHandler ComponentMessageHandler) (srv *DefaultComponentServer) {
 	if len(AESKey) != 32 {
 		panic("the length of AESKey must equal to 32")
 	}
-	if componentMessageHandler == nil {
+	if messageHandler == nil {
 		panic("nil ComponentMessageHandler")
 	}
 
 	srv = &DefaultComponentServer{
-		componentAppId:          componentAppId,
-		componentToken:          componentToken,
-		componentMessageHandler: componentMessageHandler,
+		appId:          componentAppId,
+		token:          componentToken,
+		messageHandler: messageHandler,
 	}
 	copy(srv.currentAESKey[:], AESKey)
 	return
 }
 
-func (srv *DefaultComponentServer) ComponentAppId() string {
-	return srv.componentAppId
+func (srv *DefaultComponentServer) AppId() string {
+	return srv.appId
 }
-func (srv *DefaultComponentServer) ComponentToken() string {
-	return srv.componentToken
+func (srv *DefaultComponentServer) Token() string {
+	return srv.token
 }
-func (srv *DefaultComponentServer) ComponentMessageHandler() ComponentMessageHandler {
-	return srv.componentMessageHandler
+func (srv *DefaultComponentServer) MessageHandler() ComponentMessageHandler {
+	return srv.messageHandler
 }
 func (srv *DefaultComponentServer) CurrentAESKey() (key [32]byte) {
 	srv.rwmutex.RLock()

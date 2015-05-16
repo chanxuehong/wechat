@@ -43,10 +43,10 @@ type DefaultAuthorizerAccessTokenServer struct {
 
 // 创建一个新的 DefaultAuthorizerAccessTokenServer.
 //  如果 httpClient == nil 则默认使用 http.DefaultClient.
-func NewDefaultAuthorizerAccessTokenServer(componentAppId string, componentAccessTokenServer ComponentAccessTokenServer,
+func NewDefaultAuthorizerAccessTokenServer(componentAppId string, tokenServer ComponentAccessTokenServer,
 	authorizerAppId, authorizerRefreshToken string, httpClient *http.Client) (srv *DefaultAuthorizerAccessTokenServer) {
 
-	if componentAccessTokenServer == nil {
+	if tokenServer == nil {
 		panic("nil ComponentAccessTokenServer")
 	}
 	if httpClient == nil {
@@ -56,7 +56,7 @@ func NewDefaultAuthorizerAccessTokenServer(componentAppId string, componentAcces
 	srv = &DefaultAuthorizerAccessTokenServer{
 		componentClient: ComponentClient{
 			ComponentAppId:             componentAppId,
-			ComponentAccessTokenServer: componentAccessTokenServer,
+			ComponentAccessTokenServer: tokenServer,
 			HttpClient:                 httpClient,
 		},
 		authorizerAppId: authorizerAppId,

@@ -27,21 +27,21 @@ type ComponentClient struct {
 
 // 创建一个新的 ComponentClient.
 //  如果 HttpClient == nil 则默认用 http.DefaultClient
-func NewComponentClient(ComponentAccessTokenServer ComponentAccessTokenServer, ComponentAppId string, HttpClient *http.Client) *ComponentClient {
-	if ComponentAccessTokenServer == nil {
-		panic("ComponentAccessTokenServer == nil")
+func NewComponentClient(tokenServer ComponentAccessTokenServer, componentAppId string, httpClient *http.Client) *ComponentClient {
+	if tokenServer == nil {
+		panic("nil ComponentAccessTokenServer")
 	}
-	if ComponentAppId == "" {
+	if componentAppId == "" {
 		panic("empty ComponentAppId")
 	}
-	if HttpClient == nil {
-		HttpClient = http.DefaultClient
+	if httpClient == nil {
+		httpClient = http.DefaultClient
 	}
 
 	return &ComponentClient{
-		ComponentAccessTokenServer: ComponentAccessTokenServer,
-		ComponentAppId:             ComponentAppId,
-		HttpClient:                 HttpClient,
+		ComponentAccessTokenServer: tokenServer,
+		ComponentAppId:             componentAppId,
+		HttpClient:                 httpClient,
 	}
 }
 

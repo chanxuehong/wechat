@@ -64,16 +64,16 @@ type DefaultComponentAccessTokenServer struct {
 
 // 创建一个新的 DefaultComponentAccessTokenServer.
 //  如果 httpClient == nil 则默认使用 http.DefaultClient.
-func NewDefaultComponentAccessTokenServer(componentAppId, componentAppSecret string, componentVerifyTicketGetter ComponentVerifyTicketGetter,
+func NewDefaultComponentAccessTokenServer(appId, appSecret string, ticketGetter ComponentVerifyTicketGetter,
 	httpClient *http.Client) (srv *DefaultComponentAccessTokenServer) {
 
-	if componentAppId == "" {
+	if appId == "" {
 		panic("empty componentAppId")
 	}
-	if componentAppSecret == "" {
+	if appSecret == "" {
 		panic("empty componentAppSecret")
 	}
-	if componentVerifyTicketGetter == nil {
+	if ticketGetter == nil {
 		panic("nil componentVerifyTicketGetter")
 	}
 	if httpClient == nil {
@@ -81,9 +81,9 @@ func NewDefaultComponentAccessTokenServer(componentAppId, componentAppSecret str
 	}
 
 	srv = &DefaultComponentAccessTokenServer{
-		componentAppId:              componentAppId,
-		componentAppSecret:          componentAppSecret,
-		componentVerifyTicketGetter: componentVerifyTicketGetter,
+		componentAppId:              appId,
+		componentAppSecret:          appSecret,
+		componentVerifyTicketGetter: ticketGetter,
 		httpClient:                  httpClient,
 		resetTickerChan:             make(chan time.Duration),
 	}

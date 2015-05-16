@@ -11,7 +11,7 @@ const (
 	ComponentMsgTypeUnauthorized          = "unauthorized"            // 取消授权的通知
 )
 
-type ComponentVerifyTicket struct {
+type ComponentVerifyTicketMessage struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
 	ComponentAppId string `xml:"AppId"      json:"AppId"`
@@ -21,8 +21,8 @@ type ComponentVerifyTicket struct {
 	ComponentVerifyTicket string `xml:"ComponentVerifyTicket" json:"ComponentVerifyTicket"`
 }
 
-func GetComponentVerifyTicket(msg *MixedComponentMessage) *ComponentVerifyTicket {
-	return &ComponentVerifyTicket{
+func GetComponentVerifyTicketMessage(msg *MixedComponentMessage) *ComponentVerifyTicketMessage {
+	return &ComponentVerifyTicketMessage{
 		ComponentAppId:        msg.ComponentAppId,
 		CreateTime:            msg.CreateTime,
 		InfoType:              msg.InfoType,
@@ -30,7 +30,7 @@ func GetComponentVerifyTicket(msg *MixedComponentMessage) *ComponentVerifyTicket
 	}
 }
 
-type Unauthorized struct {
+type UnauthorizedMessage struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
 	ComponentAppId string `xml:"AppId"      json:"AppId"`
@@ -40,8 +40,8 @@ type Unauthorized struct {
 	AuthorizerAppid string `xml:"AuthorizerAppid" json:"AuthorizerAppid"`
 }
 
-func GetUnauthorized(msg *MixedComponentMessage) *Unauthorized {
-	return &Unauthorized{
+func GetUnauthorizedMessage(msg *MixedComponentMessage) *UnauthorizedMessage {
+	return &UnauthorizedMessage{
 		ComponentAppId:  msg.ComponentAppId,
 		CreateTime:      msg.CreateTime,
 		InfoType:        msg.InfoType,
