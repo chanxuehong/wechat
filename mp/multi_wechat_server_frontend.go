@@ -84,32 +84,30 @@ func (frontend *MultiWechatServerFrontend) DeleteAllWechatServer() {
 	frontend.wechatServerMap = make(map[string]WechatServer)
 }
 
+func (frontend *MultiWechatServerFrontend) getInvalidRequestHandler() (h InvalidRequestHandler) {
+	frontend.rwmutex.RLock()
+
+	h = frontend.invalidRequestHandler
+	if h == nil {
+		h = DefaultInvalidRequestHandler
+	}
+
+	frontend.rwmutex.RUnlock()
+	return
+}
+
 // 实现 http.Handler
 func (frontend *MultiWechatServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	urlValues, err := url.ParseQuery(r.URL.RawQuery)
+	queryValues, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
-		frontend.rwmutex.RLock()
-		invalidRequestHandler := frontend.invalidRequestHandler
-		frontend.rwmutex.RUnlock()
-
-		if invalidRequestHandler == nil {
-			invalidRequestHandler = DefaultInvalidRequestHandler
-		}
-		invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		frontend.getInvalidRequestHandler().ServeInvalidRequest(w, r, err)
 		return
 	}
 
-	serverKey := urlValues.Get(URLQueryWechatServerKeyName)
+	serverKey := queryValues.Get(URLQueryWechatServerKeyName)
 	if serverKey == "" {
-		frontend.rwmutex.RLock()
-		invalidRequestHandler := frontend.invalidRequestHandler
-		frontend.rwmutex.RUnlock()
-
-		if invalidRequestHandler == nil {
-			invalidRequestHandler = DefaultInvalidRequestHandler
-		}
 		err = fmt.Errorf("the url query value with name %s is empty", URLQueryWechatServerKeyName)
-		invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		frontend.getInvalidRequestHandler().ServeInvalidRequest(w, r, err)
 		return
 	}
 
@@ -127,5 +125,5 @@ func (frontend *MultiWechatServerFrontend) ServeHTTP(w http.ResponseWriter, r *h
 		return
 	}
 
-	ServeHTTP(w, r, urlValues, wechatServer, invalidRequestHandler)
+	ServeHTTP(w, r, queryValues, wechatServer, invalidRequestHandler)
 }

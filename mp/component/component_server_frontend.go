@@ -37,11 +37,11 @@ func (frontend *ComponentServerFrontend) ServeHTTP(w http.ResponseWriter, r *htt
 	componentServer := frontend.componentServer
 	invalidRequestHandler := frontend.invalidRequestHandler
 
-	urlValues, err := url.ParseQuery(r.URL.RawQuery)
+	queryValues, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
-	ServeHTTP(w, r, urlValues, componentServer, invalidRequestHandler)
+	ServeHTTP(w, r, queryValues, componentServer, invalidRequestHandler)
 }

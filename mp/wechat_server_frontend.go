@@ -18,7 +18,7 @@ type WechatServerFrontend struct {
 
 func NewWechatServerFrontend(server WechatServer, handler InvalidRequestHandler) *WechatServerFrontend {
 	if server == nil {
-		panic("mp: nil WechatServer")
+		panic("nil WechatServer")
 	}
 	if handler == nil {
 		handler = DefaultInvalidRequestHandler
@@ -35,11 +35,11 @@ func (frontend *WechatServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.R
 	wechatServer := frontend.wechatServer
 	invalidRequestHandler := frontend.invalidRequestHandler
 
-	urlValues, err := url.ParseQuery(r.URL.RawQuery)
+	queryValues, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
-	ServeHTTP(w, r, urlValues, wechatServer, invalidRequestHandler)
+	ServeHTTP(w, r, queryValues, wechatServer, invalidRequestHandler)
 }

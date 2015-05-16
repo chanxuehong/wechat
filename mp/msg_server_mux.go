@@ -31,10 +31,10 @@ func NewMessageServeMux() *MessageServeMux {
 // 注册 MessageHandler, 处理特定类型的消息.
 func (mux *MessageServeMux) MessageHandle(msgType string, handler MessageHandler) {
 	if msgType == "" {
-		panic("mp: invalid msgType")
+		panic("invalid msgType")
 	}
 	if handler == nil {
-		panic("mp: nil handler")
+		panic("nil handler")
 	}
 
 	mux.rwmutex.Lock()
@@ -54,7 +54,7 @@ func (mux *MessageServeMux) MessageHandleFunc(msgType string, handler func(http.
 // 注册 MessageHandler, 处理未知类型的消息.
 func (mux *MessageServeMux) DefaultMessageHandle(handler MessageHandler) {
 	if handler == nil {
-		panic("mp: nil handler")
+		panic("nil handler")
 	}
 
 	mux.rwmutex.Lock()
@@ -71,10 +71,10 @@ func (mux *MessageServeMux) DefaultMessageHandleFunc(handler func(http.ResponseW
 // 注册 MessageHandler, 处理特定类型的事件.
 func (mux *MessageServeMux) EventHandle(eventType string, handler MessageHandler) {
 	if eventType == "" {
-		panic("mp: invalid eventType")
+		panic("invalid eventType")
 	}
 	if handler == nil {
-		panic("mp: nil handler")
+		panic("nil handler")
 	}
 
 	mux.rwmutex.Lock()
@@ -94,7 +94,7 @@ func (mux *MessageServeMux) EventHandleFunc(eventType string, handler func(http.
 // 注册 MessageHandler, 处理未知类型的事件.
 func (mux *MessageServeMux) DefaultEventHandle(handler MessageHandler) {
 	if handler == nil {
-		panic("mp: nil handler")
+		panic("nil handler")
 	}
 
 	mux.rwmutex.Lock()

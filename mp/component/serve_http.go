@@ -32,12 +32,12 @@ type RequestHttpBody struct {
 
 // ServeHTTP 处理 http 消息请求
 //  NOTE: 调用者保证所有参数有效
-func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
+func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values,
 	componentServer ComponentServer, invalidRequestHandler mp.InvalidRequestHandler) {
 
 	switch r.Method {
 	case "POST": // 消息处理
-		timestampStr, nonce, encryptType, msgSignature1, err := parsePostURLQuery(urlValues)
+		timestampStr, nonce, encryptType, msgSignature1, err := parsePostURLQuery(queryValues)
 		if err != nil {
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
@@ -139,7 +139,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 		r := &Request{
 			HttpRequest: r,
 
-			QueryValues:  urlValues,
+			QueryValues:  queryValues,
 			MsgSignature: msgSignature1,
 			EncryptType:  encryptType,
 			TimeStamp:    timestamp,
@@ -157,7 +157,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 		componentServer.MessageHandler().ServeComponentMessage(w, r)
 
 	case "GET": // 首次验证
-		signature1, timestamp, nonce, echostr, err := parseGetURLQuery(urlValues)
+		signature1, timestamp, nonce, echostr, err := parseGetURLQuery(queryValues)
 		if err != nil {
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return

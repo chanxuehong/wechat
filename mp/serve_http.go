@@ -6,7 +6,6 @@
 package mp
 
 import (
-	"bytes"
 	"crypto/subtle"
 	"encoding/base64"
 	"encoding/xml"
@@ -21,55 +20,50 @@ import (
 	"github.com/chanxuehong/wechat/util"
 )
 
-var zeroAESKey [32]byte
-
-// 安全模式 和 兼容模式, 微信服务器推送过来的 http body
+// 安全模式, 微信服务器推送过来的 http body
 type RequestHttpBody struct {
-	XMLName      struct{} `xml:"xml" json:"-"`
-	MixedMessage          // ToUserName 始终有效
-	EncryptedMsg string   `xml:"Encrypt" json:"Encrypt"`
+	XMLName struct{} `xml:"xml" json:"-"`
+
+	ToUserName   string `xml:"ToUserName" json:"ToUserName"`
+	EncryptedMsg string `xml:"Encrypt"    json:"Encrypt"`
 }
 
 // ServeHTTP 处理 http 消息请求
 //  NOTE: 调用者保证所有参数有效
-func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
-	wechatServer WechatServer, invalidRequestHandler InvalidRequestHandler) {
-
+func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, wechatServer WechatServer, invalidRequestHandler InvalidRequestHandler) {
 	switch r.Method {
 	case "POST": // 消息处理
-		signature1, timestampStr, nonce, encryptType, msgSignature1, err := parsePostURLQuery(urlValues)
-		if err != nil {
-			invalidRequestHandler.ServeInvalidRequest(w, r, err)
-			return
-		}
+		switch encryptType := queryValues.Get("encrypt_type"); encryptType {
+		case "aes": // 安全模式, 兼容模式
+			signature := queryValues.Get("signature") // 只讀取, 不驗證了
 
-		timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
-		if err != nil {
-			err = errors.New("can not parse timestamp to int64: " + timestampStr)
-			invalidRequestHandler.ServeInvalidRequest(w, r, err)
-			return
-		}
-
-		switch encryptType {
-		case "aes": // 兼容模式, 安全模式
-			//if len(signature1) != 40 {
-			//	err = fmt.Errorf("the length of signature mismatch, have: %d, want: 40", len(signature1))
-			//	invalidRequestHandler.ServeInvalidRequest(w, r, err)
-			//	return
-			//}
-
-			//WechatToken := wechatServer.Token()
-			//signature2 := util.Sign(WechatToken, timestampStr, nonce)
-			//if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
-			//	err = fmt.Errorf("check signature failed, input: %s, local: %s", signature1, signature2)
-			//	invalidRequestHandler.ServeInvalidRequest(w, r, err)
-			//	return
-			//}
-
-			// 首先验证密文签名长度
-			if len(msgSignature1) != 40 {
-				err = fmt.Errorf("the length of msg_signature mismatch, have: %d, want: 40", len(msgSignature1))
+			msgSignature1 := queryValues.Get("msg_signature")
+			if msgSignature1 == "" {
+				invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("msg_signature is empty"))
+				return
+			}
+			if len(msgSignature1) != 40 { // sha1
+				err := fmt.Errorf("the length of msg_signature mismatch, have: %d, want: 40", len(msgSignature1))
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
+				return
+			}
+
+			timestampStr := queryValues.Get("timestamp")
+			if timestampStr == "" {
+				invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("timestamp is empty"))
+				return
+			}
+
+			timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
+			if err != nil {
+				err = errors.New("can not parse timestamp to int64: " + timestampStr)
+				invalidRequestHandler.ServeInvalidRequest(w, r, err)
+				return
+			}
+
+			nonce := queryValues.Get("nonce")
+			if nonce == "" {
+				invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("nonce is empty"))
 				return
 			}
 
@@ -81,7 +75,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 
 			// 安全考虑验证下 ToUserName
 			haveToUserName := requestHttpBody.ToUserName
-			wantToUserName := wechatServer.WechatId()
+			wantToUserName := wechatServer.OriId()
 			if len(haveToUserName) != len(wantToUserName) {
 				err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
@@ -98,31 +92,33 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 			// 验证签名
 			msgSignature2 := util.MsgSign(wechatToken, timestampStr, nonce, requestHttpBody.EncryptedMsg)
 			if subtle.ConstantTimeCompare([]byte(msgSignature1), []byte(msgSignature2)) != 1 {
-				err = fmt.Errorf("check signature failed, input: %s, local: %s", msgSignature1, msgSignature2)
+				err = fmt.Errorf("check msg_signature failed, input: %s, local: %s", msgSignature1, msgSignature2)
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
 
 			// 解密
-			EncryptedMsgBytes, err := base64.StdEncoding.DecodeString(requestHttpBody.EncryptedMsg)
+			encryptedMsgBytes, err := base64.StdEncoding.DecodeString(requestHttpBody.EncryptedMsg)
 			if err != nil {
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
 
-			WechatAppId := wechatServer.AppId()
-			AESKey := wechatServer.CurrentAESKey()
-			Random, RawMsgXML, err := util.AESDecryptMsg(EncryptedMsgBytes, WechatAppId, AESKey)
+			wechatAppId := wechatServer.AppId()
+			aesKey := wechatServer.CurrentAESKey()
+
+			random, rawMsgXML, err := util.AESDecryptMsg(encryptedMsgBytes, wechatAppId, aesKey)
 			if err != nil {
 				// 尝试用上一次的 AESKey 来解密
-				LastAESKey := wechatServer.LastAESKey()
-				if bytes.Equal(zeroAESKey[:], LastAESKey[:]) || bytes.Equal(AESKey[:], LastAESKey[:]) {
+				lastAESKey, isLastAESKeyValid := wechatServer.LastAESKey()
+				if !isLastAESKeyValid {
 					invalidRequestHandler.ServeInvalidRequest(w, r, err)
 					return
 				}
 
-				AESKey = LastAESKey // NOTE
-				Random, RawMsgXML, err = util.AESDecryptMsg(EncryptedMsgBytes, WechatAppId, AESKey)
+				aesKey = lastAESKey // NOTE
+
+				random, rawMsgXML, err = util.AESDecryptMsg(encryptedMsgBytes, wechatAppId, aesKey)
 				if err != nil {
 					invalidRequestHandler.ServeInvalidRequest(w, r, err)
 					return
@@ -130,15 +126,15 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 			}
 
 			// 解密成功, 解析 MixedMessage
-			var MixedMsg MixedMessage
-			if err = xml.Unmarshal(RawMsgXML, &MixedMsg); err != nil {
+			var mixedMsg MixedMessage
+			if err := xml.Unmarshal(rawMsgXML, &mixedMsg); err != nil {
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
 
 			// 安全考虑再次验证 ToUserName
-			if haveToUserName != MixedMsg.ToUserName {
-				err = fmt.Errorf("the RequestHttpBody's ToUserName(==%s) mismatch the MixedMessage's ToUserName(==%s)", haveToUserName, MixedMsg.ToUserName)
+			if haveToUserName != mixedMsg.ToUserName {
+				err = fmt.Errorf("the RequestHttpBody's ToUserName(==%s) mismatch the MixedMessage's ToUserName(==%s)", haveToUserName, mixedMsg.ToUserName)
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
@@ -147,35 +143,59 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 			r := &Request{
 				HttpRequest: r,
 
-				QueryValues: urlValues,
-				Signature:   signature1,
+				QueryValues: queryValues,
+				Signature:   signature,
 				TimeStamp:   timestamp,
 				Nonce:       nonce,
 
-				RawMsgXML: RawMsgXML,
-				MixedMsg:  &MixedMsg,
+				RawMsgXML: rawMsgXML,
+				MixedMsg:  &mixedMsg,
 
 				MsgSignature: msgSignature1,
 				EncryptType:  encryptType,
-				AESKey:       AESKey,
-				Random:       Random,
+				AESKey:       aesKey,
+				Random:       random,
 
-				WechatId:    haveToUserName,
+				WechatOriId: haveToUserName,
 				WechatToken: wechatToken,
-				WechatAppId: WechatAppId,
+				WechatAppId: wechatAppId,
 			}
 			wechatServer.MessageHandler().ServeMessage(w, r)
 
 		case "", "raw": // 明文模式
-			// 首先验证签名
-			if len(signature1) != 40 {
-				err = fmt.Errorf("the length of signature mismatch, have: %d, want: 40", len(signature1))
+			signature1 := queryValues.Get("signature")
+			if signature1 == "" {
+				invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("signature is empty"))
+				return
+			}
+			if len(signature1) != 40 { // sha1
+				err := fmt.Errorf("the length of signature mismatch, have: %d, want: 40", len(signature1))
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
 
-			WechatToken := wechatServer.Token()
-			signature2 := util.Sign(WechatToken, timestampStr, nonce)
+			timestampStr := queryValues.Get("timestamp")
+			if timestampStr == "" {
+				invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("timestamp is empty"))
+				return
+			}
+
+			timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
+			if err != nil {
+				err = errors.New("can not parse timestamp to int64: " + timestampStr)
+				invalidRequestHandler.ServeInvalidRequest(w, r, err)
+				return
+			}
+
+			nonce := queryValues.Get("nonce")
+			if nonce == "" {
+				invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("nonce is empty"))
+				return
+			}
+
+			wechatToken := wechatServer.Token()
+
+			signature2 := util.Sign(wechatToken, timestampStr, nonce)
 			if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
 				err = fmt.Errorf("check signature failed, input: %s, local: %s", signature1, signature2)
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
@@ -183,21 +203,21 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 			}
 
 			// 验证签名成功, 解析 MixedMessage
-			RawMsgXML, err := ioutil.ReadAll(r.Body)
+			rawMsgXML, err := ioutil.ReadAll(r.Body)
 			if err != nil {
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
 
-			var MixedMsg MixedMessage
-			if err := xml.Unmarshal(RawMsgXML, &MixedMsg); err != nil {
+			var mixedMsg MixedMessage
+			if err := xml.Unmarshal(rawMsgXML, &mixedMsg); err != nil {
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
 			}
 
 			// 安全考虑验证 ToUserName
-			haveToUserName := MixedMsg.ToUserName
-			wantToUserName := wechatServer.WechatId()
+			haveToUserName := mixedMsg.ToUserName
+			wantToUserName := wechatServer.OriId()
 			if len(haveToUserName) != len(wantToUserName) {
 				err = fmt.Errorf("the message's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
@@ -213,17 +233,19 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 			r := &Request{
 				HttpRequest: r,
 
-				QueryValues: urlValues,
+				QueryValues: queryValues,
 				Signature:   signature1,
 				TimeStamp:   timestamp,
 				Nonce:       nonce,
 
-				RawMsgXML: RawMsgXML,
-				MixedMsg:  &MixedMsg,
+				RawMsgXML: rawMsgXML,
+				MixedMsg:  &mixedMsg,
 
-				WechatId:    haveToUserName,
-				WechatToken: WechatToken,
+				EncryptType: encryptType,
+
+				WechatOriId: haveToUserName,
 				WechatAppId: wechatServer.AppId(),
+				WechatToken: wechatToken,
 			}
 			wechatServer.MessageHandler().ServeMessage(w, r)
 
@@ -234,21 +256,38 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 		}
 
 	case "GET": // 首次验证
-		signature1, timestamp, nonce, echostr, err := parseGetURLQuery(urlValues)
-		if err != nil {
+		signature1 := queryValues.Get("signature")
+		if signature1 == "" {
+			invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("signature is empty"))
+			return
+		}
+		if len(signature1) != 40 { // sha1
+			err := fmt.Errorf("the length of signature mismatch, have: %d, want: 40", len(signature1))
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
 		}
 
-		if len(signature1) != 40 {
-			err = fmt.Errorf("the length of signature mismatch, have: %d, want: 40", len(signature1))
-			invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		timestamp := queryValues.Get("timestamp")
+		if timestamp == "" {
+			invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("timestamp is empty"))
+			return
+		}
+
+		nonce := queryValues.Get("nonce")
+		if nonce == "" {
+			invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("nonce is empty"))
+			return
+		}
+
+		echostr := queryValues.Get("echostr")
+		if echostr == "" {
+			invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("echostr is empty"))
 			return
 		}
 
 		signature2 := util.Sign(wechatServer.Token(), timestamp, nonce)
 		if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
-			err = fmt.Errorf("check signature failed, input: %s, local: %s", signature1, signature2)
+			err := fmt.Errorf("check signature failed, input: %s, local: %s", signature1, signature2)
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
 		}
