@@ -18,7 +18,7 @@ type AgentServerFrontend struct {
 
 func NewAgentServerFrontend(server AgentServer, handler InvalidRequestHandler) *AgentServerFrontend {
 	if server == nil {
-		panic("corp: nil AgentServer")
+		panic("nil AgentServer")
 	}
 	if handler == nil {
 		handler = DefaultInvalidRequestHandler

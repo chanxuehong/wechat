@@ -29,19 +29,18 @@ func NewSuiteMessageServeMux() *SuiteMessageServeMux {
 // 注册 SuiteMessageHandler, 处理特定类型的消息.
 func (mux *SuiteMessageServeMux) MessageHandle(msgType string, handler SuiteMessageHandler) {
 	if msgType == "" {
-		panic("invalid msgType")
+		panic("empty msgType")
 	}
 	if handler == nil {
 		panic("nil SuiteMessageHandler")
 	}
 
 	mux.rwmutex.Lock()
-	defer mux.rwmutex.Unlock()
-
 	if mux.messageHandlers == nil {
 		mux.messageHandlers = make(map[string]SuiteMessageHandler)
 	}
 	mux.messageHandlers[msgType] = handler
+	mux.rwmutex.Unlock()
 }
 
 // 注册 SuiteMessageHandlerFunc, 处理特定类型的消息.
@@ -56,9 +55,8 @@ func (mux *SuiteMessageServeMux) DefaultMessageHandle(handler SuiteMessageHandle
 	}
 
 	mux.rwmutex.Lock()
-	defer mux.rwmutex.Unlock()
-
 	mux.defaultSuiteMessageHandler = handler
+	mux.rwmutex.Unlock()
 }
 
 // 注册 SuiteMessageHandlerFunc, 处理未知类型的消息.
@@ -68,14 +66,17 @@ func (mux *SuiteMessageServeMux) DefaultMessageHandleFunc(handler func(http.Resp
 
 // 获取 msgType 对应的 SuiteMessageHandler, 如果没有找到 nil.
 func (mux *SuiteMessageServeMux) messageHandler(msgType string) (handler SuiteMessageHandler) {
-	mux.rwmutex.RLock()
-	defer mux.rwmutex.RUnlock()
-
-	handler = mux.messageHandlers[msgType]
-	if handler != nil {
-		return
+	if msgType == "" {
+		return nil
 	}
-	return mux.defaultSuiteMessageHandler
+
+	mux.rwmutex.RLock()
+	handler = mux.messageHandlers[msgType]
+	if handler == nil {
+		handler = mux.defaultSuiteMessageHandler
+	}
+	mux.rwmutex.RUnlock()
+	return
 }
 
 // SuiteMessageServeMux 实现了 SuiteMessageHandler 接口.

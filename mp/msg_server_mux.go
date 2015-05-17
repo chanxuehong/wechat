@@ -31,19 +31,18 @@ func NewMessageServeMux() *MessageServeMux {
 // 注册 MessageHandler, 处理特定类型的消息.
 func (mux *MessageServeMux) MessageHandle(msgType string, handler MessageHandler) {
 	if msgType == "" {
-		panic("invalid msgType")
+		panic("empty msgType")
 	}
 	if handler == nil {
-		panic("nil handler")
+		panic("nil MessageHandler")
 	}
 
 	mux.rwmutex.Lock()
-	defer mux.rwmutex.Unlock()
-
 	if mux.messageHandlers == nil {
 		mux.messageHandlers = make(map[string]MessageHandler)
 	}
 	mux.messageHandlers[msgType] = handler
+	mux.rwmutex.Unlock()
 }
 
 // 注册 MessageHandlerFunc, 处理特定类型的消息.
@@ -54,13 +53,12 @@ func (mux *MessageServeMux) MessageHandleFunc(msgType string, handler func(http.
 // 注册 MessageHandler, 处理未知类型的消息.
 func (mux *MessageServeMux) DefaultMessageHandle(handler MessageHandler) {
 	if handler == nil {
-		panic("nil handler")
+		panic("nil MessageHandler")
 	}
 
 	mux.rwmutex.Lock()
-	defer mux.rwmutex.Unlock()
-
 	mux.defaultMessageHandler = handler
+	mux.rwmutex.Unlock()
 }
 
 // 注册 MessageHandlerFunc, 处理未知类型的消息.
@@ -71,19 +69,18 @@ func (mux *MessageServeMux) DefaultMessageHandleFunc(handler func(http.ResponseW
 // 注册 MessageHandler, 处理特定类型的事件.
 func (mux *MessageServeMux) EventHandle(eventType string, handler MessageHandler) {
 	if eventType == "" {
-		panic("invalid eventType")
+		panic("empty eventType")
 	}
 	if handler == nil {
-		panic("nil handler")
+		panic("nil MessageHandler")
 	}
 
 	mux.rwmutex.Lock()
-	defer mux.rwmutex.Unlock()
-
 	if mux.eventHandlers == nil {
 		mux.eventHandlers = make(map[string]MessageHandler)
 	}
 	mux.eventHandlers[eventType] = handler
+	mux.rwmutex.Unlock()
 }
 
 // 注册 MessageHandlerFunc, 处理特定类型的事件.
@@ -94,13 +91,12 @@ func (mux *MessageServeMux) EventHandleFunc(eventType string, handler func(http.
 // 注册 MessageHandler, 处理未知类型的事件.
 func (mux *MessageServeMux) DefaultEventHandle(handler MessageHandler) {
 	if handler == nil {
-		panic("nil handler")
+		panic("nil MessageHandler")
 	}
 
 	mux.rwmutex.Lock()
-	defer mux.rwmutex.Unlock()
-
 	mux.defaultEventHandler = handler
+	mux.rwmutex.Unlock()
 }
 
 // 注册 MessageHandlerFunc, 处理未知类型的事件.
@@ -115,13 +111,12 @@ func (mux *MessageServeMux) messageHandler(msgType string) (handler MessageHandl
 	}
 
 	mux.rwmutex.RLock()
-	defer mux.rwmutex.RUnlock()
-
 	handler = mux.messageHandlers[msgType]
-	if handler != nil {
-		return
+	if handler == nil {
+		handler = mux.defaultMessageHandler
 	}
-	return mux.defaultMessageHandler
+	mux.rwmutex.RUnlock()
+	return
 }
 
 // 获取 eventType 对应的 MessageHandler, 如果没有找到 nil.
@@ -131,13 +126,12 @@ func (mux *MessageServeMux) eventHandler(eventType string) (handler MessageHandl
 	}
 
 	mux.rwmutex.RLock()
-	defer mux.rwmutex.RUnlock()
-
 	handler = mux.eventHandlers[eventType]
-	if handler != nil {
-		return
+	if handler == nil {
+		handler = mux.defaultEventHandler
 	}
-	return mux.defaultEventHandler
+	mux.rwmutex.RUnlock()
+	return
 }
 
 // MessageServeMux 实现了 MessageHandler 接口.

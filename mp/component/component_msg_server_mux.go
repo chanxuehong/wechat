@@ -36,12 +36,11 @@ func (mux *ComponentMessageServeMux) MessageHandle(msgType string, handler Compo
 	}
 
 	mux.rwmutex.Lock()
-	defer mux.rwmutex.Unlock()
-
 	if mux.componentMessageHandlers == nil {
 		mux.componentMessageHandlers = make(map[string]ComponentMessageHandler)
 	}
 	mux.componentMessageHandlers[msgType] = handler
+	mux.rwmutex.Unlock()
 }
 
 // 注册 ComponentMessageHandlerFunc, 处理特定类型的消息.
@@ -56,9 +55,8 @@ func (mux *ComponentMessageServeMux) DefaultMessageHandle(handler ComponentMessa
 	}
 
 	mux.rwmutex.Lock()
-	defer mux.rwmutex.Unlock()
-
 	mux.defaultComponentMessageHandler = handler
+	mux.rwmutex.Unlock()
 }
 
 // 注册 ComponentMessageHandlerFunc, 处理未知类型的消息.
@@ -68,14 +66,17 @@ func (mux *ComponentMessageServeMux) DefaultMessageHandleFunc(handler func(http.
 
 // 获取 msgType 对应的 ComponentMessageHandler, 如果没有找到 nil.
 func (mux *ComponentMessageServeMux) componentMessageHandler(msgType string) (handler ComponentMessageHandler) {
-	mux.rwmutex.RLock()
-	defer mux.rwmutex.RUnlock()
-
-	handler = mux.componentMessageHandlers[msgType]
-	if handler != nil {
-		return
+	if msgType == "" {
+		return nil
 	}
-	return mux.defaultComponentMessageHandler
+
+	mux.rwmutex.RLock()
+	handler = mux.componentMessageHandlers[msgType]
+	if handler == nil {
+		handler = mux.defaultComponentMessageHandler
+	}
+	mux.rwmutex.RUnlock()
+	return
 }
 
 // ComponentMessageServeMux 实现了 ComponentMessageHandler 接口.

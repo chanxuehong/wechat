@@ -42,10 +42,10 @@ func NewDefaultAgentServer(corpId string, agentId int64, token string,
 	AESKey []byte, messageHandler MessageHandler) (srv *DefaultAgentServer) {
 
 	if len(AESKey) != 32 {
-		panic("corp: the length of AESKey must equal to 32")
+		panic("the length of AESKey must equal to 32")
 	}
 	if messageHandler == nil {
-		panic("corp: nil messageHandler")
+		panic("nil messageHandler")
 	}
 
 	srv = &DefaultAgentServer{
