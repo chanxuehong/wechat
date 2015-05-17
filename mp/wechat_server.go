@@ -12,7 +12,7 @@ import (
 
 // 公众号服务端接口, 处理单个公众号的消息(事件)请求.
 type WechatServer interface {
-	OriId() string // 获取公众号的 原始ID
+	OriId() string // 获取公众号的 原始ID, 如果爲空則不檢查消息的 ToUserName
 	AppId() string // 获取公众号的 AppId
 	Token() string // 获取公众号的 Token
 

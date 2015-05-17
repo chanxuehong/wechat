@@ -77,16 +77,17 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 
 			// 安全考虑验证下 ToUserName
 			haveToUserName := requestHttpBody.ToUserName
-			wantToUserName := wechatServer.OriId()
-			if len(haveToUserName) != len(wantToUserName) {
-				err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
-				invalidRequestHandler.ServeInvalidRequest(w, r, err)
-				return
-			}
-			if subtle.ConstantTimeCompare([]byte(haveToUserName), []byte(wantToUserName)) != 1 {
-				err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
-				invalidRequestHandler.ServeInvalidRequest(w, r, err)
-				return
+			if wantToUserName := wechatServer.OriId(); wantToUserName != "" {
+				if len(haveToUserName) != len(wantToUserName) {
+					err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
+					invalidRequestHandler.ServeInvalidRequest(w, r, err)
+					return
+				}
+				if subtle.ConstantTimeCompare([]byte(haveToUserName), []byte(wantToUserName)) != 1 {
+					err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
+					invalidRequestHandler.ServeInvalidRequest(w, r, err)
+					return
+				}
 			}
 
 			wechatToken := wechatServer.Token()
@@ -219,16 +220,17 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 
 			// 安全考虑验证 ToUserName
 			haveToUserName := mixedMsg.ToUserName
-			wantToUserName := wechatServer.OriId()
-			if len(haveToUserName) != len(wantToUserName) {
-				err = fmt.Errorf("the message's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
-				invalidRequestHandler.ServeInvalidRequest(w, r, err)
-				return
-			}
-			if subtle.ConstantTimeCompare([]byte(haveToUserName), []byte(wantToUserName)) != 1 {
-				err = fmt.Errorf("the message's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
-				invalidRequestHandler.ServeInvalidRequest(w, r, err)
-				return
+			if wantToUserName := wechatServer.OriId(); wantToUserName != "" {
+				if len(haveToUserName) != len(wantToUserName) {
+					err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
+					invalidRequestHandler.ServeInvalidRequest(w, r, err)
+					return
+				}
+				if subtle.ConstantTimeCompare([]byte(haveToUserName), []byte(wantToUserName)) != 1 {
+					err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
+					invalidRequestHandler.ServeInvalidRequest(w, r, err)
+					return
+				}
 			}
 
 			// 成功, 交给 MessageHandler
