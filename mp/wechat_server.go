@@ -20,6 +20,8 @@ type WechatServer interface {
 	LastAESKey() (key [32]byte, valid bool) // 获取最后一个有效的 AES 加密 Key
 
 	MessageHandler() MessageHandler // 获取 MessageHandler
+
+	MessageSizeLimit() int64 // 消息請求的 http body 大小限制, 如果 <= 0 則不做限制
 }
 
 var _ WechatServer = (*DefaultWechatServer)(nil)
@@ -35,6 +37,8 @@ type DefaultWechatServer struct {
 	isLastAESKeyValid bool     // lastAESKey 是否有效, 如果 lastAESKey 是 zero 则无效
 
 	messageHandler MessageHandler
+
+	messageSizeLimit int64
 }
 
 func NewDefaultWechatServer(oriId, token, appId string, AESKey []byte, messageHandler MessageHandler) (srv *DefaultWechatServer) {
@@ -66,6 +70,9 @@ func (srv *DefaultWechatServer) Token() string {
 }
 func (srv *DefaultWechatServer) MessageHandler() MessageHandler {
 	return srv.messageHandler
+}
+func (srv *DefaultWechatServer) MessageSizeLimit() int64 {
+	return srv.messageSizeLimit
 }
 func (srv *DefaultWechatServer) CurrentAESKey() (key [32]byte) {
 	srv.rwmutex.RLock()

@@ -39,6 +39,14 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 
 	switch r.Method {
 	case "POST": // 消息处理
+		if bodySizeLimit := wechatServer.MessageSizeLimit(); bodySizeLimit > 0 {
+			if r.ContentLength > bodySizeLimit {
+				invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("request body too large"))
+				return
+			}
+			r.Body = http.MaxBytesReader(w, r.Body, bodySizeLimit+1)
+		}
+
 		switch encryptType := queryValues.Get("encrypt_type"); encryptType {
 		case "aes": // 安全模式, 兼容模式
 			signature := queryValues.Get("signature") // 只讀取, 不驗證了
