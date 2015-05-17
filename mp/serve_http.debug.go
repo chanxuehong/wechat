@@ -44,7 +44,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 				invalidRequestHandler.ServeInvalidRequest(w, r, errors.New("request body too large"))
 				return
 			}
-			r.Body = http.MaxBytesReader(w, r.Body, bodySizeLimit+1)
+			r.Body = http.MaxBytesReader(w, r.Body, bodySizeLimit)
 		}
 
 		switch encryptType := queryValues.Get("encrypt_type"); encryptType {
