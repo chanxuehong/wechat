@@ -51,13 +51,13 @@ func WriteAESResponse(w http.ResponseWriter, r *Request, msg interface{}) (err e
 		return errors.New("nil message")
 	}
 
-	MsgRawXML, err := xml.Marshal(msg)
+	rawMsgXML, err := xml.Marshal(msg)
 	if err != nil {
 		return
 	}
 
-	EncryptedMsg := util.AESEncryptMsg(r.Random, MsgRawXML, r.WechatAppId, r.AESKey)
-	base64EncryptedMsg := base64.StdEncoding.EncodeToString(EncryptedMsg)
+	encryptedMsg := util.AESEncryptMsg(r.Random, rawMsgXML, r.WechatAppId, r.AESKey)
+	base64EncryptedMsg := base64.StdEncoding.EncodeToString(encryptedMsg)
 
 	responseHttpBody := ResponseHttpBody{
 		EncryptedMsg: base64EncryptedMsg,
@@ -66,8 +66,7 @@ func WriteAESResponse(w http.ResponseWriter, r *Request, msg interface{}) (err e
 	}
 
 	TimestampStr := strconv.FormatInt(responseHttpBody.TimeStamp, 10)
-	responseHttpBody.MsgSignature = util.MsgSign(r.WechatToken, TimestampStr,
-		responseHttpBody.Nonce, responseHttpBody.EncryptedMsg)
+	responseHttpBody.MsgSignature = util.MsgSign(r.WechatToken, TimestampStr, responseHttpBody.Nonce, responseHttpBody.EncryptedMsg)
 
 	return xml.NewEncoder(w).Encode(&responseHttpBody)
 }

@@ -60,8 +60,7 @@ type Request struct {
 	AESKey       [32]byte // 当前消息 AES 加密的 key
 	Random       []byte   // 当前消息加密时所用的 random, 16 bytes
 
-	// 下面字段是公众号的基本信息
-	WechatOriId string // 请求消息所属公众号的原始 ID, 等于 MixedMessage.ToUserName
+	// 下面字段是公众号的基本信息, 回包需要
 	WechatAppId string // 请求消息所属公众号的 AppId
 	WechatToken string // 请求消息所属公众号的 Token
 }
