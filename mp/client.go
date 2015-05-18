@@ -25,18 +25,18 @@ type WechatClient struct {
 }
 
 // 创建一个新的 WechatClient.
-//  如果 HttpClient == nil 则默认用 http.DefaultClient
-func NewWechatClient(AccessTokenServer AccessTokenServer, HttpClient *http.Client) *WechatClient {
-	if AccessTokenServer == nil {
-		panic("AccessTokenServer == nil")
+//  如果 clt == nil 则默认用 http.DefaultClient
+func NewWechatClient(srv AccessTokenServer, clt *http.Client) *WechatClient {
+	if srv == nil {
+		panic("nil AccessTokenServer")
 	}
-	if HttpClient == nil {
-		HttpClient = http.DefaultClient
+	if clt == nil {
+		clt = http.DefaultClient
 	}
 
 	return &WechatClient{
-		AccessTokenServer: AccessTokenServer,
-		HttpClient:        HttpClient,
+		AccessTokenServer: srv,
+		HttpClient:        clt,
 	}
 }
 

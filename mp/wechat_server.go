@@ -41,19 +41,19 @@ type DefaultWechatServer struct {
 	messageSizeLimit int64
 }
 
-func NewDefaultWechatServer(oriId, token, appId string, AESKey []byte, messageHandler MessageHandler) (srv *DefaultWechatServer) {
+func NewDefaultWechatServer(oriId, token, appId string, AESKey []byte, handler MessageHandler) (srv *DefaultWechatServer) {
 	if len(AESKey) != 32 {
 		panic("the length of AESKey must equal to 32")
 	}
-	if messageHandler == nil {
-		panic("nil messageHandler")
+	if handler == nil {
+		panic("nil MessageHandler")
 	}
 
 	srv = &DefaultWechatServer{
 		oriId:          oriId,
 		appId:          appId,
 		token:          token,
-		messageHandler: messageHandler,
+		messageHandler: handler,
 	}
 	copy(srv.currentAESKey[:], AESKey)
 	return

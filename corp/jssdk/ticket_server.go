@@ -72,8 +72,7 @@ func NewDefaultTicketServer(AccessTokenServer corp.AccessTokenServer, httpClient
 		resetTickerChan: make(chan time.Duration),
 	}
 
-	const oneDay time.Duration = time.Hour * 24
-	go srv.ticketDaemon(oneDay) // 启动 tokenDaemon
+	go srv.ticketDaemon(time.Hour * 24) // 启动 tokenDaemon
 	return
 }
 

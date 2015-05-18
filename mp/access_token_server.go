@@ -60,23 +60,20 @@ type DefaultAccessTokenServer struct {
 }
 
 // 创建一个新的 DefaultAccessTokenServer.
-//  如果 httpClient == nil 则默认使用 http.DefaultClient.
-func NewDefaultAccessTokenServer(appId, appSecret string,
-	httpClient *http.Client) (srv *DefaultAccessTokenServer) {
-
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+//  如果 clt == nil 则默认使用 http.DefaultClient.
+func NewDefaultAccessTokenServer(appId, appSecret string, clt *http.Client) (srv *DefaultAccessTokenServer) {
+	if clt == nil {
+		clt = http.DefaultClient
 	}
 
 	srv = &DefaultAccessTokenServer{
 		appId:           appId,
 		appSecret:       appSecret,
-		httpClient:      httpClient,
+		httpClient:      clt,
 		resetTickerChan: make(chan time.Duration),
 	}
 
-	const oneDay time.Duration = time.Hour * 24
-	go srv.tokenDaemon(oneDay) // 启动 tokenDaemon
+	go srv.tokenDaemon(time.Hour * 24) // 启动 tokenDaemon
 	return
 }
 

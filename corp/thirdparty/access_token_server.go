@@ -64,8 +64,7 @@ func NewDefaultAccessTokenServer(suiteId string, suiteAccessTokenServer SuiteAcc
 		resetTickerChan: make(chan time.Duration),
 	}
 
-	const oneDay time.Duration = time.Hour * 24
-	go srv.tokenDaemon(oneDay) // 启动 tokenDaemon
+	go srv.tokenDaemon(time.Hour * 24) // 启动 tokenDaemon
 	return
 }
 
