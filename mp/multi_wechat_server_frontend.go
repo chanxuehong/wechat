@@ -40,13 +40,12 @@ type MultiWechatServerFrontend struct {
 // 设置 InvalidRequestHandler, 如果 handler == nil 则使用默认的 DefaultInvalidRequestHandler
 func (frontend *MultiWechatServerFrontend) SetInvalidRequestHandler(handler InvalidRequestHandler) {
 	frontend.rwmutex.Lock()
-	defer frontend.rwmutex.Unlock()
-
 	if handler == nil {
 		frontend.invalidRequestHandler = DefaultInvalidRequestHandler
 	} else {
 		frontend.invalidRequestHandler = handler
 	}
+	frontend.rwmutex.Unlock()
 }
 
 // 设置 serverKey-WechatServer pair.
@@ -60,38 +59,33 @@ func (frontend *MultiWechatServerFrontend) SetWechatServer(serverKey string, ser
 	}
 
 	frontend.rwmutex.Lock()
-	defer frontend.rwmutex.Unlock()
-
 	if frontend.wechatServerMap == nil {
 		frontend.wechatServerMap = make(map[string]WechatServer)
 	}
 	frontend.wechatServerMap[serverKey] = server
+	frontend.rwmutex.Unlock()
 }
 
 // 删除 serverKey 对应的 WechatServer
 func (frontend *MultiWechatServerFrontend) DeleteWechatServer(serverKey string) {
 	frontend.rwmutex.Lock()
-	defer frontend.rwmutex.Unlock()
-
 	delete(frontend.wechatServerMap, serverKey)
+	frontend.rwmutex.Unlock()
 }
 
 // 删除所有的 WechatServer
 func (frontend *MultiWechatServerFrontend) DeleteAllWechatServer() {
 	frontend.rwmutex.Lock()
-	defer frontend.rwmutex.Unlock()
-
 	frontend.wechatServerMap = make(map[string]WechatServer)
+	frontend.rwmutex.Unlock()
 }
 
 func (frontend *MultiWechatServerFrontend) getInvalidRequestHandler() (h InvalidRequestHandler) {
 	frontend.rwmutex.RLock()
-
 	h = frontend.invalidRequestHandler
 	if h == nil {
 		h = DefaultInvalidRequestHandler
 	}
-
 	frontend.rwmutex.RUnlock()
 	return
 }

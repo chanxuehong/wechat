@@ -17,7 +17,7 @@ import (
 	"github.com/chanxuehong/util"
 )
 
-func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
+func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values,
 	messageServer MessageServer, invalidRequestHandler InvalidRequestHandler) {
 
 	switch r.Method {

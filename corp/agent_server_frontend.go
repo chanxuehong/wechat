@@ -35,11 +35,11 @@ func (frontend *AgentServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Re
 	agentServer := frontend.agentServer
 	invalidRequestHandler := frontend.invalidRequestHandler
 
-	urlValues, err := url.ParseQuery(r.URL.RawQuery)
+	queryValues, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
-	ServeHTTP(w, r, urlValues, agentServer, invalidRequestHandler)
+	ServeHTTP(w, r, queryValues, agentServer, invalidRequestHandler)
 }

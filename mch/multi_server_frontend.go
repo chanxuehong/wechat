@@ -42,13 +42,12 @@ type MultiMessageServerFrontend struct {
 // 设置 InvalidRequestHandler, 如果 handler == nil 则使用默认的 DefaultInvalidRequestHandler
 func (frontend *MultiMessageServerFrontend) SetInvalidRequestHandler(handler InvalidRequestHandler) {
 	frontend.rwmutex.Lock()
-	defer frontend.rwmutex.Unlock()
-
 	if handler == nil {
 		frontend.invalidRequestHandler = DefaultInvalidRequestHandler
 	} else {
 		frontend.invalidRequestHandler = handler
 	}
+	frontend.rwmutex.Unlock()
 }
 
 // 设置 serverKey-MessageServer pair.
@@ -62,56 +61,49 @@ func (frontend *MultiMessageServerFrontend) SetMessageServer(serverKey string, s
 	}
 
 	frontend.rwmutex.Lock()
-	defer frontend.rwmutex.Unlock()
-
 	if frontend.messageServerMap == nil {
 		frontend.messageServerMap = make(map[string]MessageServer)
 	}
 	frontend.messageServerMap[serverKey] = server
+	frontend.rwmutex.Unlock()
 }
 
 // 删除 serverKey 对应的 MessageServer
 func (frontend *MultiMessageServerFrontend) DeleteMessageServer(serverKey string) {
 	frontend.rwmutex.Lock()
-	defer frontend.rwmutex.Unlock()
-
 	delete(frontend.messageServerMap, serverKey)
+	frontend.rwmutex.Unlock()
 }
 
 // 删除所有的 MessageServer
 func (frontend *MultiMessageServerFrontend) DeleteAllMessageServer() {
 	frontend.rwmutex.Lock()
-	defer frontend.rwmutex.Unlock()
-
 	frontend.messageServerMap = make(map[string]MessageServer)
+	frontend.rwmutex.Unlock()
+}
+
+func (frontend *MultiMessageServerFrontend) getInvalidRequestHandler() (h InvalidRequestHandler) {
+	frontend.rwmutex.RLock()
+	h = frontend.invalidRequestHandler
+	if h == nil {
+		h = DefaultInvalidRequestHandler
+	}
+	frontend.rwmutex.RUnlock()
+	return
 }
 
 // 实现 http.Handler
 func (frontend *MultiMessageServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	urlValues, err := url.ParseQuery(r.URL.RawQuery)
+	queryValues, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
-		frontend.rwmutex.RLock()
-		invalidRequestHandler := frontend.invalidRequestHandler
-		frontend.rwmutex.RUnlock()
-
-		if invalidRequestHandler == nil {
-			invalidRequestHandler = DefaultInvalidRequestHandler
-		}
-		invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		frontend.getInvalidRequestHandler().ServeInvalidRequest(w, r, err)
 		return
 	}
 
-	serverKey := urlValues.Get(URLQueryMessageServerKeyName)
+	serverKey := queryValues.Get(URLQueryMessageServerKeyName)
 	if serverKey == "" {
-		frontend.rwmutex.RLock()
-		invalidRequestHandler := frontend.invalidRequestHandler
-		frontend.rwmutex.RUnlock()
-
-		if invalidRequestHandler == nil {
-			invalidRequestHandler = DefaultInvalidRequestHandler
-		}
 		err = fmt.Errorf("the url query value with name %s is empty", URLQueryMessageServerKeyName)
-		invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		frontend.getInvalidRequestHandler().ServeInvalidRequest(w, r, err)
 		return
 	}
 

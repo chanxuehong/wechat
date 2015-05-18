@@ -10,20 +10,20 @@ import (
 	"net/url"
 )
 
-func parsePostURLQuery(urlValues url.Values) (msgSignature, timestamp, nonce string, err error) {
-	msgSignature = urlValues.Get("msg_signature")
+func parsePostURLQuery(queryValues url.Values) (msgSignature, timestamp, nonce string, err error) {
+	msgSignature = queryValues.Get("msg_signature")
 	if msgSignature == "" {
 		err = errors.New("msg_signature is empty")
 		return
 	}
 
-	timestamp = urlValues.Get("timestamp")
+	timestamp = queryValues.Get("timestamp")
 	if timestamp == "" {
 		err = errors.New("timestamp is empty")
 		return
 	}
 
-	nonce = urlValues.Get("nonce")
+	nonce = queryValues.Get("nonce")
 	if nonce == "" {
 		err = errors.New("nonce is empty")
 		return
@@ -32,26 +32,26 @@ func parsePostURLQuery(urlValues url.Values) (msgSignature, timestamp, nonce str
 	return
 }
 
-func parseGetURLQuery(urlValues url.Values) (msgSignature, timestamp, nonce, echostr string, err error) {
-	msgSignature = urlValues.Get("msg_signature")
+func parseGetURLQuery(queryValues url.Values) (msgSignature, timestamp, nonce, echostr string, err error) {
+	msgSignature = queryValues.Get("msg_signature")
 	if msgSignature == "" {
 		err = errors.New("msg_signature is empty")
 		return
 	}
 
-	timestamp = urlValues.Get("timestamp")
+	timestamp = queryValues.Get("timestamp")
 	if timestamp == "" {
 		err = errors.New("timestamp is empty")
 		return
 	}
 
-	nonce = urlValues.Get("nonce")
+	nonce = queryValues.Get("nonce")
 	if nonce == "" {
 		err = errors.New("nonce is empty")
 		return
 	}
 
-	echostr = urlValues.Get("echostr")
+	echostr = queryValues.Get("echostr")
 	if echostr == "" {
 		err = errors.New("echostr is empty")
 		return

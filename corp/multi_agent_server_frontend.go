@@ -40,13 +40,12 @@ type MultiAgentServerFrontend struct {
 // 设置 InvalidRequestHandler, 如果 handler == nil 则使用默认的 DefaultInvalidRequestHandler
 func (frontend *MultiAgentServerFrontend) SetInvalidRequestHandler(handler InvalidRequestHandler) {
 	frontend.rwmutex.Lock()
-	defer frontend.rwmutex.Unlock()
-
 	if handler == nil {
 		frontend.invalidRequestHandler = DefaultInvalidRequestHandler
 	} else {
 		frontend.invalidRequestHandler = handler
 	}
+	frontend.rwmutex.Unlock()
 }
 
 // 设置 serverKey-AgentServer pair.
@@ -60,56 +59,49 @@ func (frontend *MultiAgentServerFrontend) SetAgentServer(serverKey string, serve
 	}
 
 	frontend.rwmutex.Lock()
-	defer frontend.rwmutex.Unlock()
-
 	if frontend.agentServerMap == nil {
 		frontend.agentServerMap = make(map[string]AgentServer)
 	}
 	frontend.agentServerMap[serverKey] = server
+	frontend.rwmutex.Unlock()
 }
 
 // 删除 serverKey 对应的 AgentServer
 func (frontend *MultiAgentServerFrontend) DeleteAgentServer(serverKey string) {
 	frontend.rwmutex.Lock()
-	defer frontend.rwmutex.Unlock()
-
 	delete(frontend.agentServerMap, serverKey)
+	frontend.rwmutex.Unlock()
 }
 
 // 删除所有的 AgentServer
 func (frontend *MultiAgentServerFrontend) DeleteAllAgentServer() {
 	frontend.rwmutex.Lock()
-	defer frontend.rwmutex.Unlock()
-
 	frontend.agentServerMap = make(map[string]AgentServer)
+	frontend.rwmutex.Unlock()
+}
+
+func (frontend *MultiAgentServerFrontend) getInvalidRequestHandler() (h InvalidRequestHandler) {
+	frontend.rwmutex.RLock()
+	h = frontend.invalidRequestHandler
+	if h == nil {
+		h = DefaultInvalidRequestHandler
+	}
+	frontend.rwmutex.RUnlock()
+	return
 }
 
 // 实现 http.Handler
 func (frontend *MultiAgentServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	urlValues, err := url.ParseQuery(r.URL.RawQuery)
+	queryValues, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
-		frontend.rwmutex.RLock()
-		invalidRequestHandler := frontend.invalidRequestHandler
-		frontend.rwmutex.RUnlock()
-
-		if invalidRequestHandler == nil {
-			invalidRequestHandler = DefaultInvalidRequestHandler
-		}
-		invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		frontend.getInvalidRequestHandler().ServeInvalidRequest(w, r, err)
 		return
 	}
 
-	serverKey := urlValues.Get(URLQueryAgentServerKeyName)
+	serverKey := queryValues.Get(URLQueryAgentServerKeyName)
 	if serverKey == "" {
-		frontend.rwmutex.RLock()
-		invalidRequestHandler := frontend.invalidRequestHandler
-		frontend.rwmutex.RUnlock()
-
-		if invalidRequestHandler == nil {
-			invalidRequestHandler = DefaultInvalidRequestHandler
-		}
 		err = fmt.Errorf("the url query value with name %s is empty", URLQueryAgentServerKeyName)
-		invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		frontend.getInvalidRequestHandler().ServeInvalidRequest(w, r, err)
 		return
 	}
 
@@ -127,5 +119,5 @@ func (frontend *MultiAgentServerFrontend) ServeHTTP(w http.ResponseWriter, r *ht
 		return
 	}
 
-	ServeHTTP(w, r, urlValues, agentServer, invalidRequestHandler)
+	ServeHTTP(w, r, queryValues, agentServer, invalidRequestHandler)
 }

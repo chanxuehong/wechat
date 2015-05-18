@@ -37,11 +37,11 @@ func (frontend *SuiteServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Re
 	suiteServer := frontend.suiteServer
 	invalidRequestHandler := frontend.invalidRequestHandler
 
-	urlValues, err := url.ParseQuery(r.URL.RawQuery)
+	queryValues, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
 		invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
-	ServeHTTP(w, r, urlValues, suiteServer, invalidRequestHandler)
+	ServeHTTP(w, r, queryValues, suiteServer, invalidRequestHandler)
 }

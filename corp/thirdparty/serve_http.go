@@ -31,12 +31,12 @@ type RequestHttpBody struct {
 
 // ServeHTTP 处理 http 消息请求
 //  NOTE: 调用者保证所有参数有效
-func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
+func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values,
 	suiteServer SuiteServer, invalidRequestHandler corp.InvalidRequestHandler) {
 
 	switch r.Method {
 	case "POST": // 消息处理
-		msgSignature1, timestampStr, nonce, err := parsePostURLQuery(urlValues)
+		msgSignature1, timestampStr, nonce, err := parsePostURLQuery(queryValues)
 		if err != nil {
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
@@ -129,7 +129,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 		r := &Request{
 			HttpRequest: r,
 
-			QueryValues:  urlValues,
+			QueryValues:  queryValues,
 			MsgSignature: msgSignature1,
 			TimeStamp:    timestamp,
 			Nonce:        nonce,
@@ -146,7 +146,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, urlValues url.Values,
 		suiteServer.SuiteMessageHandler().ServeMessage(w, r)
 
 	case "GET": // 首次验证
-		msgSignature1, timestamp, nonce, encryptedMsg, err := parseGetURLQuery(urlValues)
+		msgSignature1, timestamp, nonce, encryptedMsg, err := parseGetURLQuery(queryValues)
 		if err != nil {
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
