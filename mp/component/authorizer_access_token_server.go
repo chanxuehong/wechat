@@ -7,7 +7,6 @@ package component
 
 import (
 	"errors"
-	"net/http"
 	"strconv"
 	"sync"
 	"time"
@@ -23,7 +22,7 @@ var _ mp.AccessTokenServer = (*DefaultAuthorizerAccessTokenServer)(nil)
 //  2. 因为 DefaultAuthorizerAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 mp.AccessTokenServer 接口,
 //     所以整个系统只能存在一个 DefaultAuthorizerAccessTokenServer 实例!
 type DefaultAuthorizerAccessTokenServer struct {
-	componentClient ComponentClient
+	client          *Client
 	authorizerAppId string
 
 	resetTickerChan chan time.Duration // 用于重置 tokenDaemon 里的 ticker
@@ -42,23 +41,13 @@ type DefaultAuthorizerAccessTokenServer struct {
 }
 
 // 创建一个新的 DefaultAuthorizerAccessTokenServer.
-//  如果 httpClient == nil 则默认使用 http.DefaultClient.
-func NewDefaultAuthorizerAccessTokenServer(componentAppId string, tokenServer ComponentAccessTokenServer,
-	authorizerAppId, authorizerRefreshToken string, httpClient *http.Client) (srv *DefaultAuthorizerAccessTokenServer) {
-
-	if tokenServer == nil {
-		panic("nil ComponentAccessTokenServer")
-	}
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+func NewDefaultAuthorizerAccessTokenServer(clt *Client, authorizerAppId, authorizerRefreshToken string) (srv *DefaultAuthorizerAccessTokenServer) {
+	if clt == nil {
+		panic("nil Client")
 	}
 
 	srv = &DefaultAuthorizerAccessTokenServer{
-		componentClient: ComponentClient{
-			ComponentAppId:             componentAppId,
-			ComponentAccessTokenServer: tokenServer,
-			HttpClient:                 httpClient,
-		},
+		client:          clt,
 		authorizerAppId: authorizerAppId,
 		resetTickerChan: make(chan time.Duration),
 	}
@@ -147,11 +136,11 @@ func (srv *DefaultAuthorizerAccessTokenServer) getToken() (token AuthorizerAcces
 	}
 
 	request := struct {
-		ComponentAppId         string `json:"component_appid"`
+		AppId                  string `json:"component_appid"`
 		AuthorizerAppId        string `json:"authorizer_appid"`
 		AuthorizerRefreshToken string `json:"authorizer_refresh_token"`
 	}{
-		ComponentAppId:         srv.componentClient.ComponentAppId,
+		AppId:                  srv.client.AppId,
 		AuthorizerAppId:        srv.authorizerAppId,
 		AuthorizerRefreshToken: srv.tokenGet.LastTokenInfo.RefreshToken,
 	}
@@ -162,7 +151,7 @@ func (srv *DefaultAuthorizerAccessTokenServer) getToken() (token AuthorizerAcces
 	}
 
 	incompleteURL := "https:// api.weixin.qq.com /cgi-bin/component/api_authorizer_token?component_access_token="
-	if err = srv.componentClient.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = srv.client.PostJSON(incompleteURL, &request, &result); err != nil {
 		srv.tokenCache.Lock()
 		srv.tokenCache.Token = ""
 		srv.tokenCache.Unlock()

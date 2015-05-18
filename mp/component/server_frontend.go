@@ -13,28 +13,28 @@ import (
 )
 
 // 实现了 http.Handler.
-type ComponentServerFrontend struct {
-	componentServer       ComponentServer
+type ServerFrontend struct {
+	server                Server
 	invalidRequestHandler mp.InvalidRequestHandler
 }
 
-func NewComponentServerFrontend(server ComponentServer, handler mp.InvalidRequestHandler) *ComponentServerFrontend {
+func NewServerFrontend(server Server, handler mp.InvalidRequestHandler) *ServerFrontend {
 	if server == nil {
-		panic("nil ComponentServer")
+		panic("nil Server")
 	}
 	if handler == nil {
 		handler = mp.DefaultInvalidRequestHandler
 	}
 
-	return &ComponentServerFrontend{
-		componentServer:       server,
+	return &ServerFrontend{
+		server:                server,
 		invalidRequestHandler: handler,
 	}
 }
 
 // 实现 http.Handler.
-func (frontend *ComponentServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	componentServer := frontend.componentServer
+func (frontend *ServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	Server := frontend.server
 	invalidRequestHandler := frontend.invalidRequestHandler
 
 	queryValues, err := url.ParseQuery(r.URL.RawQuery)
@@ -43,5 +43,5 @@ func (frontend *ComponentServerFrontend) ServeHTTP(w http.ResponseWriter, r *htt
 		return
 	}
 
-	ServeHTTP(w, r, queryValues, componentServer, invalidRequestHandler)
+	ServeHTTP(w, r, queryValues, Server, invalidRequestHandler)
 }

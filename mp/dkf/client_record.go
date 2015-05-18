@@ -26,7 +26,7 @@ type Record struct {
 	// 2002	 客服发送消息
 	// 2003	 客服收到消息
 	OperCode  int    `json:"opercode"`
-	TimeStamp int64  `json:"time"` // 操作时间，UNIX时间戳
+	Timestamp int64  `json:"time"` // 操作时间，UNIX时间戳
 	Text      string `json:"text"` // 聊天记录
 }
 

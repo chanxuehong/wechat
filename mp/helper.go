@@ -17,7 +17,7 @@ import (
 
 // 回复消息给微信服务器(明文模式).
 //  要求 msg 是有效的消息数据结构(经过 encoding/xml marshal 后符合消息的格式);
-//  如果有必要可以修改 Request 里面的某些值, 比如 TimeStamp.
+//  如果有必要可以修改 Request 里面的某些值, 比如 Timestamp.
 func WriteRawResponse(w http.ResponseWriter, r *Request, msg interface{}) (err error) {
 	if w == nil {
 		return errors.New("nil http.ResponseWriter")
@@ -33,13 +33,13 @@ type ResponseHttpBody struct {
 	XMLName      struct{} `xml:"xml" json:"-"`
 	EncryptedMsg string   `xml:"Encrypt"`
 	MsgSignature string   `xml:"MsgSignature"`
-	TimeStamp    int64    `xml:"TimeStamp"`
+	Timestamp    int64    `xml:"TimeStamp"`
 	Nonce        string   `xml:"Nonce"`
 }
 
 // 回复消息给微信服务器(安全模式).
 //  要求 msg 是有效的消息数据结构(经过 encoding/xml marshal 后符合消息的格式);
-//  如果有必要可以修改 Request 里面的某些值, 比如 TimeStamp.
+//  如果有必要可以修改 Request 里面的某些值, 比如 Timestamp.
 func WriteAESResponse(w http.ResponseWriter, r *Request, msg interface{}) (err error) {
 	if w == nil {
 		return errors.New("nil http.ResponseWriter")
@@ -61,11 +61,11 @@ func WriteAESResponse(w http.ResponseWriter, r *Request, msg interface{}) (err e
 
 	responseHttpBody := ResponseHttpBody{
 		EncryptedMsg: base64EncryptedMsg,
-		TimeStamp:    r.TimeStamp,
+		Timestamp:    r.Timestamp,
 		Nonce:        r.Nonce,
 	}
 
-	TimestampStr := strconv.FormatInt(responseHttpBody.TimeStamp, 10)
+	TimestampStr := strconv.FormatInt(responseHttpBody.Timestamp, 10)
 	responseHttpBody.MsgSignature = util.MsgSign(r.WechatToken, TimestampStr, responseHttpBody.Nonce, responseHttpBody.EncryptedMsg)
 
 	return xml.NewEncoder(w).Encode(&responseHttpBody)

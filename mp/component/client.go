@@ -3,7 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// +build wechatdebug
+// +build !wechatdebug
 
 package component
 
@@ -11,7 +11,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -19,29 +18,29 @@ import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
-type ComponentClient struct {
-	ComponentAccessTokenServer
-	ComponentAppId string
-	HttpClient     *http.Client
+type Client struct {
+	AccessTokenServer
+	AppId      string
+	HttpClient *http.Client
 }
 
-// 创建一个新的 ComponentClient.
-//  如果 HttpClient == nil 则默认用 http.DefaultClient
-func NewComponentClient(tokenServer ComponentAccessTokenServer, componentAppId string, httpClient *http.Client) *ComponentClient {
-	if tokenServer == nil {
-		panic("nil ComponentAccessTokenServer")
+// 创建一个新的 Client.
+//  如果 clt == nil 则默认用 http.DefaultClient
+func NewClient(srv AccessTokenServer, appId string, clt *http.Client) *Client {
+	if srv == nil {
+		panic("nil AccessTokenServer")
 	}
-	if componentAppId == "" {
-		panic("empty ComponentAppId")
+	if appId == "" {
+		panic("empty AppId")
 	}
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+	if clt == nil {
+		clt = http.DefaultClient
 	}
 
-	return &ComponentClient{
-		ComponentAccessTokenServer: tokenServer,
-		ComponentAppId:             componentAppId,
-		HttpClient:                 httpClient,
+	return &Client{
+		AccessTokenServer: srv,
+		AppId:             appId,
+		HttpClient:        clt,
 	}
 }
 
@@ -56,7 +55,7 @@ func NewComponentClient(tokenServer ComponentAccessTokenServer, componentAppId s
 //          mp.Error
 //          ...
 //      }
-func (clt *ComponentClient) PostJSON(incompleteURL string, request interface{}, response interface{}) (err error) {
+func (clt *Client) PostJSON(incompleteURL string, request interface{}, response interface{}) (err error) {
 	buf := textBufferPool.Get().(*bytes.Buffer)
 	buf.Reset()
 	defer textBufferPool.Put(buf)
@@ -75,9 +74,6 @@ func (clt *ComponentClient) PostJSON(incompleteURL string, request interface{}, 
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
 
-	mp.LogInfoln("[WECHAT_DEBUG] request url:", finalURL)
-	mp.LogInfoln("[WECHAT_DEBUG] request json:", string(requestBytes))
-
 	httpResp, err := clt.HttpClient.Post(finalURL, "application/json; charset=utf-8", bytes.NewReader(requestBytes))
 	if err != nil {
 		return
@@ -88,13 +84,7 @@ RETRY:
 		return fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
 
-	respBody, err := ioutil.ReadAll(httpResp.Body)
-	if err != nil {
-		return
-	}
-	mp.LogInfoln("[WECHAT_DEBUG] response json:", string(respBody))
-
-	if err = json.Unmarshal(respBody, response); err != nil {
+	if err = json.NewDecoder(httpResp.Body).Decode(response); err != nil {
 		return
 	}
 
@@ -144,7 +134,7 @@ RETRY:
 //          mp.Error
 //          ...
 //      }
-func (clt *ComponentClient) GetJSON(incompleteURL string, response interface{}) (err error) {
+func (clt *Client) GetJSON(incompleteURL string, response interface{}) (err error) {
 	token, err := clt.Token()
 	if err != nil {
 		return
@@ -164,14 +154,7 @@ RETRY:
 		return fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
 
-	respBody, err := ioutil.ReadAll(httpResp.Body)
-	if err != nil {
-		return
-	}
-	mp.LogInfoln("[WECHAT_DEBUG] request url:", finalURL)
-	mp.LogInfoln("[WECHAT_DEBUG] response json:", string(respBody))
-
-	if err = json.Unmarshal(respBody, response); err != nil {
+	if err = json.NewDecoder(httpResp.Body).Decode(response); err != nil {
 		return
 	}
 

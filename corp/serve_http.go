@@ -160,7 +160,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values,
 
 			QueryValues:  queryValues,
 			MsgSignature: msgSignature1,
-			TimeStamp:    timestamp,
+			Timestamp:    timestamp,
 			Nonce:        nonce,
 
 			RawMsgXML: RawMsgXML,

@@ -21,7 +21,7 @@ import (
 )
 
 // component_access_token 中控服务器接口.
-type ComponentAccessTokenServer interface {
+type AccessTokenServer interface {
 	// 从中控服务器获取被缓存的 component_access_token.
 	Token() (token string, err error)
 
@@ -29,31 +29,31 @@ type ComponentAccessTokenServer interface {
 	//
 	//  高并发场景下某个时间点可能有很多请求(比如缓存的 component_access_token 刚好过期时), 但是我们
 	//  不期望也没有必要让这些请求都去微信服务器获取 component_access_token(有可能导致api超过调用限制),
-	//  实际上这些请求只需要一个新的 component_access_token 即可, 所以建议 ComponentAccessTokenServer 从微信服务器
+	//  实际上这些请求只需要一个新的 component_access_token 即可, 所以建议 AccessTokenServer 从微信服务器
 	//  获取一次 component_access_token 之后的至多5秒内(收敛时间, 视情况而定, 理论上至多5个http或tcp周期)
 	//  再次调用该函数不再去微信服务器获取, 而是直接返回之前的结果.
 	TokenRefresh() (token string, err error)
 }
 
-var _ ComponentAccessTokenServer = (*DefaultComponentAccessTokenServer)(nil)
+var _ AccessTokenServer = (*DefaultAccessTokenServer)(nil)
 
-// ComponentAccessTokenServer 的简单实现.
+// AccessTokenServer 的简单实现.
 //  NOTE:
 //  1. 用于单进程环境.
-//  2. 因为 DefaultComponentAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 ComponentAccessTokenServer 接口,
-//     所以整个系统只能存在一个 DefaultComponentAccessTokenServer 实例!
-type DefaultComponentAccessTokenServer struct {
-	componentAppId              string
-	componentAppSecret          string
-	componentVerifyTicketGetter ComponentVerifyTicketGetter
-	httpClient                  *http.Client
+//  2. 因为 DefaultAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 AccessTokenServer 接口,
+//     所以整个系统只能存在一个 DefaultAccessTokenServer 实例!
+type DefaultAccessTokenServer struct {
+	appId              string
+	appSecret          string
+	verifyTicketGetter VerifyTicketGetter
+	httpClient         *http.Client
 
 	resetTickerChan chan time.Duration // 用于重置 tokenDaemon 里的 ticker
 
 	tokenGet struct {
 		sync.Mutex
-		LastTokenInfo componentAccessTokenInfo // 最后一次成功从微信服务器获取的 component_access_token 信息
-		LastTimestamp int64                    // 最后一次成功从微信服务器获取 component_access_token 的时间戳
+		LastTokenInfo accessTokenInfo // 最后一次成功从微信服务器获取的 component_access_token 信息
+		LastTimestamp int64           // 最后一次成功从微信服务器获取 component_access_token 的时间戳
 	}
 
 	tokenCache struct {
@@ -62,37 +62,35 @@ type DefaultComponentAccessTokenServer struct {
 	}
 }
 
-// 创建一个新的 DefaultComponentAccessTokenServer.
-//  如果 httpClient == nil 则默认使用 http.DefaultClient.
-func NewDefaultComponentAccessTokenServer(appId, appSecret string, ticketGetter ComponentVerifyTicketGetter,
-	httpClient *http.Client) (srv *DefaultComponentAccessTokenServer) {
-
+// 创建一个新的 DefaultAccessTokenServer.
+//  如果 clt == nil 则默认使用 http.DefaultClient.
+func NewDefaultAccessTokenServer(appId, appSecret string, ticketGetter VerifyTicketGetter, clt *http.Client) (srv *DefaultAccessTokenServer) {
 	if appId == "" {
-		panic("empty componentAppId")
+		panic("empty appId")
 	}
 	if appSecret == "" {
-		panic("empty componentAppSecret")
+		panic("empty appSecret")
 	}
 	if ticketGetter == nil {
-		panic("nil componentVerifyTicketGetter")
+		panic("nil verifyTicketGetter")
 	}
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+	if clt == nil {
+		clt = http.DefaultClient
 	}
 
-	srv = &DefaultComponentAccessTokenServer{
-		componentAppId:              appId,
-		componentAppSecret:          appSecret,
-		componentVerifyTicketGetter: ticketGetter,
-		httpClient:                  httpClient,
-		resetTickerChan:             make(chan time.Duration),
+	srv = &DefaultAccessTokenServer{
+		appId:              appId,
+		appSecret:          appSecret,
+		verifyTicketGetter: ticketGetter,
+		httpClient:         clt,
+		resetTickerChan:    make(chan time.Duration),
 	}
 
 	go srv.tokenDaemon(time.Hour * 24) // 启动 tokenDaemon
 	return
 }
 
-func (srv *DefaultComponentAccessTokenServer) Token() (token string, err error) {
+func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
 	srv.tokenCache.RLock()
 	token = srv.tokenCache.Token
 	srv.tokenCache.RUnlock()
@@ -103,19 +101,19 @@ func (srv *DefaultComponentAccessTokenServer) Token() (token string, err error) 
 	return srv.TokenRefresh()
 }
 
-func (srv *DefaultComponentAccessTokenServer) TokenRefresh() (token string, err error) {
-	componentAccessTokenInfo, cached, err := srv.getToken()
+func (srv *DefaultAccessTokenServer) TokenRefresh() (token string, err error) {
+	accessTokenInfo, cached, err := srv.getToken()
 	if err != nil {
 		return
 	}
 	if !cached {
-		srv.resetTickerChan <- time.Duration(componentAccessTokenInfo.ExpiresIn) * time.Second
+		srv.resetTickerChan <- time.Duration(accessTokenInfo.ExpiresIn) * time.Second
 	}
-	token = componentAccessTokenInfo.Token
+	token = accessTokenInfo.Token
 	return
 }
 
-func (srv *DefaultComponentAccessTokenServer) tokenDaemon(tickDuration time.Duration) {
+func (srv *DefaultAccessTokenServer) tokenDaemon(tickDuration time.Duration) {
 NEW_TICK_DURATION:
 	ticker := time.NewTicker(tickDuration)
 
@@ -126,12 +124,12 @@ NEW_TICK_DURATION:
 			goto NEW_TICK_DURATION
 
 		case <-ticker.C:
-			componentAccessTokenInfo, cached, err := srv.getToken()
+			accessTokenInfo, cached, err := srv.getToken()
 			if err != nil {
 				break
 			}
 			if !cached {
-				newTickDuration := time.Duration(componentAccessTokenInfo.ExpiresIn) * time.Second
+				newTickDuration := time.Duration(accessTokenInfo.ExpiresIn) * time.Second
 				if tickDuration != newTickDuration {
 					tickDuration = newTickDuration
 					ticker.Stop()
@@ -142,14 +140,14 @@ NEW_TICK_DURATION:
 	}
 }
 
-type componentAccessTokenInfo struct {
+type accessTokenInfo struct {
 	Token     string `json:"component_access_token"`
 	ExpiresIn int64  `json:"expires_in"` // 有效时间, seconds
 }
 
 // 从微信服务器获取 component_access_token.
 //  同一时刻只能一个 goroutine 进入, 防止没必要的重复获取.
-func (srv *DefaultComponentAccessTokenServer) getToken() (token componentAccessTokenInfo, cached bool, err error) {
+func (srv *DefaultAccessTokenServer) getToken() (token accessTokenInfo, cached bool, err error) {
 	srv.tokenGet.Lock()
 	defer srv.tokenGet.Unlock()
 
@@ -158,7 +156,7 @@ func (srv *DefaultComponentAccessTokenServer) getToken() (token componentAccessT
 	// 在收敛周期内直接返回最近一次获取的 component_access_token, 这里的收敛时间设定为4秒.
 	if n := srv.tokenGet.LastTimestamp; n <= timeNowUnix && timeNowUnix < n+4 {
 		// 因为只有成功获取后才会更新 srv.tokenGet.LastTimestamp, 所以这些都是有效数据
-		token = componentAccessTokenInfo{
+		token = accessTokenInfo{
 			Token:     srv.tokenGet.LastTokenInfo.Token,
 			ExpiresIn: srv.tokenGet.LastTokenInfo.ExpiresIn - timeNowUnix + n,
 		}
@@ -166,7 +164,7 @@ func (srv *DefaultComponentAccessTokenServer) getToken() (token componentAccessT
 		return
 	}
 
-	componentVerifyTicket, err := srv.componentVerifyTicketGetter.GetComponentVerifyTicket(srv.componentAppId)
+	verifyTicket, err := srv.verifyTicketGetter.GetVerifyTicket(srv.appId)
 	if err != nil {
 		srv.tokenCache.Lock()
 		srv.tokenCache.Token = ""
@@ -175,13 +173,13 @@ func (srv *DefaultComponentAccessTokenServer) getToken() (token componentAccessT
 	}
 
 	request := struct {
-		ComponentAppId        string `json:"component_appid"`
-		ComponentAppSecret    string `json:"component_appsecret"`
-		ComponentVerifyTicket string `json:"component_verify_ticket"`
+		AppId        string `json:"component_appid"`
+		AppSecret    string `json:"component_appsecret"`
+		VerifyTicket string `json:"component_verify_ticket"`
 	}{
-		ComponentAppId:        srv.componentAppId,
-		ComponentAppSecret:    srv.componentAppSecret,
-		ComponentVerifyTicket: componentVerifyTicket,
+		AppId:        srv.appId,
+		AppSecret:    srv.appSecret,
+		VerifyTicket: verifyTicket,
 	}
 
 	requestBuf := textBufferPool.Get().(*bytes.Buffer)
@@ -217,7 +215,7 @@ func (srv *DefaultComponentAccessTokenServer) getToken() (token componentAccessT
 
 	var result struct {
 		mp.Error
-		componentAccessTokenInfo
+		accessTokenInfo
 	}
 
 	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
@@ -263,14 +261,14 @@ func (srv *DefaultComponentAccessTokenServer) getToken() (token componentAccessT
 	}
 
 	// 更新 tokenGet 信息
-	srv.tokenGet.LastTokenInfo = result.componentAccessTokenInfo
+	srv.tokenGet.LastTokenInfo = result.accessTokenInfo
 	srv.tokenGet.LastTimestamp = timeNowUnix
 
 	// 更新缓存
 	srv.tokenCache.Lock()
-	srv.tokenCache.Token = result.componentAccessTokenInfo.Token
+	srv.tokenCache.Token = result.accessTokenInfo.Token
 	srv.tokenCache.Unlock()
 
-	token = result.componentAccessTokenInfo
+	token = result.accessTokenInfo
 	return
 }

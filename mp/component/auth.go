@@ -10,8 +10,8 @@ import (
 )
 
 // 请求用户授权时跳转的地址.
-func AuthCodeURL(componentAppId, preAuthCode, redirectURI, state string) string {
-	return "https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid=" + url.QueryEscape(componentAppId) +
+func AuthCodeURL(appId, preAuthCode, redirectURI, state string) string {
+	return "https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid=" + url.QueryEscape(appId) +
 		"&pre_auth_code=" + url.QueryEscape(preAuthCode) +
 		"&redirect_uri=" + url.QueryEscape(redirectURI) +
 		"&state=" + url.QueryEscape(state)

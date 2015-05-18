@@ -3,7 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package thirdparty
+package component
 
 import (
 	"net/http"
@@ -11,13 +11,13 @@ import (
 )
 
 // 微信服务器推送过来的消息(事件)处理接口
-type SuiteMessageHandler interface {
+type MessageHandler interface {
 	ServeMessage(w http.ResponseWriter, r *Request)
 }
 
-type SuiteMessageHandlerFunc func(http.ResponseWriter, *Request)
+type MessageHandlerFunc func(http.ResponseWriter, *Request)
 
-func (fn SuiteMessageHandlerFunc) ServeMessage(w http.ResponseWriter, r *Request) {
+func (fn MessageHandlerFunc) ServeMessage(w http.ResponseWriter, r *Request) {
 	fn(w, r)
 }
 
@@ -28,29 +28,29 @@ type Request struct {
 	// 下面的字段必须提供
 
 	QueryValues  url.Values // 回调请求 URL 中的查询参数集合
-	MsgSignature string     // 回调请求 URL 中的消息体签名: msg_signature
+	MsgSignature string     // 请求 URL 中的消息体签名: msg_signature
+	EncryptType  string     // 请求 URL 中的加密方式: encrypt_type
 	Timestamp    int64      // 回调请求 URL 中的时间戳: timestamp
 	Nonce        string     // 回调请求 URL 中的随机数: nonce
 
-	RawMsgXML []byte             // 消息的"明文"XML 文本
-	MixedMsg  *MixedSuiteMessage // RawMsgXML 解析后的消息
+	RawMsgXML []byte        // 消息的"明文"XML 文本
+	MixedMsg  *MixedMessage // RawMsgXML 解析后的消息
 
 	AESKey [32]byte // 当前消息 AES 加密的 key
 	Random []byte   // 当前消息加密时所用的 random, 16 bytes
 
-	// 下面字段是企业号应用的基本信息
-	SuiteId    string // 请求消息所属套件的 ID
-	SuiteToken string // 请求消息所属套件的 Token
+	AppId string // 请求消息所属第三方平台的 ID
+	Token string // 请求消息所属第三方平台的 Token
 }
 
 // 微信服务器推送过来的消息(事件)的合集.
-type MixedSuiteMessage struct {
+type MixedMessage struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
-	SuiteId   string `xml:"SuiteId"   json:"SuiteId"`
-	InfoType  string `xml:"InfoType"  json:"InfoType"`
-	Timestamp int64  `xml:"TimeStamp" json:"TimeStamp"`
+	AppId      string `xml:"AppId"      json:"AppId"`
+	CreateTime int64  `xml:"CreateTime" json:"CreateTime"`
+	InfoType   string `xml:"InfoType"   json:"InfoType"`
 
-	SuiteTicket string `xml:"SuiteTicket" json:"SuiteTicket"`
-	AuthCorpId  string `xml:"AuthCorpId"  json:"AuthCorpId"`
+	VerifyTicket    string `xml:"VerifyTicket" json:"VerifyTicket"`
+	AuthorizerAppid string `xml:"AuthorizerAppid"       json:"AuthorizerAppid"`
 }

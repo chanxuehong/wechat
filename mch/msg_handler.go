@@ -6,7 +6,6 @@
 package mch
 
 import (
-	"io"
 	"net/http"
 )
 
@@ -19,24 +18,6 @@ type MessageHandlerFunc func(http.ResponseWriter, *Request)
 
 func (fn MessageHandlerFunc) ServeMessage(w http.ResponseWriter, r *Request) {
 	fn(w, r)
-}
-
-type httpResponseWriter struct {
-	io.Writer
-}
-
-func (httpResponseWriter) Header() http.Header {
-	return make(map[string][]string)
-}
-func (httpResponseWriter) WriteHeader(int) {}
-
-// 将 io.Writer 从语义上实现 http.ResponseWriter.
-//  某些 http 框架可能没有提供 http.ResponseWriter, 而只是提供了 io.Writer.
-func HttpResponseWriter(w io.Writer) http.ResponseWriter {
-	if rw, ok := w.(http.ResponseWriter); ok {
-		return rw
-	}
-	return httpResponseWriter{Writer: w}
 }
 
 // 消息(事件)请求信息

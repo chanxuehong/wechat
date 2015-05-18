@@ -10,19 +10,19 @@ import (
 	"sync"
 )
 
-type ComponentServer interface {
+type Server interface {
 	AppId() string // 获取第三方平台AppId
 	Token() string // 获取第三方平台的Token
 
 	CurrentAESKey() [32]byte // 获取当前有效的 AES 加密 Key
 	LastAESKey() [32]byte    // 获取最后一个有效的 AES 加密 Key
 
-	MessageHandler() ComponentMessageHandler // 获取 ComponentMessageHandler
+	MessageHandler() MessageHandler // 获取 MessageHandler
 }
 
-var _ ComponentServer = (*DefaultComponentServer)(nil)
+var _ Server = (*DefaultServer)(nil)
 
-type DefaultComponentServer struct {
+type DefaultServer struct {
 	appId string
 	token string
 
@@ -31,43 +31,43 @@ type DefaultComponentServer struct {
 	lastAESKey        [32]byte // 最后一个 AES Key
 	isLastAESKeyValid bool     // lastAESKey 是否有效, 如果 lastAESKey 是 zero 则无效
 
-	messageHandler ComponentMessageHandler
+	messageHandler MessageHandler
 }
 
-// NewDefaultComponentServer 创建一个新的 DefaultComponentServer.
-func NewDefaultComponentServer(componentAppId, componentToken string, AESKey []byte, messageHandler ComponentMessageHandler) (srv *DefaultComponentServer) {
+// NewDefaultServer 创建一个新的 DefaultServer.
+func NewDefaultServer(appId, token string, AESKey []byte, handler MessageHandler) (srv *DefaultServer) {
 	if len(AESKey) != 32 {
 		panic("the length of AESKey must equal to 32")
 	}
-	if messageHandler == nil {
-		panic("nil ComponentMessageHandler")
+	if handler == nil {
+		panic("nil MessageHandler")
 	}
 
-	srv = &DefaultComponentServer{
-		appId:          componentAppId,
-		token:          componentToken,
-		messageHandler: messageHandler,
+	srv = &DefaultServer{
+		appId:          appId,
+		token:          token,
+		messageHandler: handler,
 	}
 	copy(srv.currentAESKey[:], AESKey)
 	return
 }
 
-func (srv *DefaultComponentServer) AppId() string {
+func (srv *DefaultServer) AppId() string {
 	return srv.appId
 }
-func (srv *DefaultComponentServer) Token() string {
+func (srv *DefaultServer) Token() string {
 	return srv.token
 }
-func (srv *DefaultComponentServer) MessageHandler() ComponentMessageHandler {
+func (srv *DefaultServer) MessageHandler() MessageHandler {
 	return srv.messageHandler
 }
-func (srv *DefaultComponentServer) CurrentAESKey() (key [32]byte) {
+func (srv *DefaultServer) CurrentAESKey() (key [32]byte) {
 	srv.rwmutex.RLock()
 	key = srv.currentAESKey
 	srv.rwmutex.RUnlock()
 	return
 }
-func (srv *DefaultComponentServer) LastAESKey() (key [32]byte) {
+func (srv *DefaultServer) LastAESKey() (key [32]byte) {
 	srv.rwmutex.RLock()
 	if srv.isLastAESKeyValid {
 		key = srv.lastAESKey
@@ -77,7 +77,7 @@ func (srv *DefaultComponentServer) LastAESKey() (key [32]byte) {
 	srv.rwmutex.RUnlock()
 	return
 }
-func (srv *DefaultComponentServer) UpdateAESKey(AESKey []byte) (err error) {
+func (srv *DefaultServer) UpdateAESKey(AESKey []byte) (err error) {
 	if len(AESKey) != 32 {
 		return errors.New("the length of AESKey must equal to 32")
 	}

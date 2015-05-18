@@ -17,7 +17,7 @@ type SuiteTicket struct {
 
 	SuiteId   string `xml:"SuiteId"   json:"SuiteId"`
 	InfoType  string `xml:"InfoType"  json:"InfoType"`
-	TimeStamp int64  `xml:"TimeStamp" json:"TimeStamp"`
+	Timestamp int64  `xml:"TimeStamp" json:"TimeStamp"`
 
 	SuiteTicket string `xml:"SuiteTicket" json:"SuiteTicket"`
 }
@@ -26,7 +26,7 @@ func GetSuiteTicket(msg *MixedSuiteMessage) *SuiteTicket {
 	return &SuiteTicket{
 		SuiteId:     msg.SuiteId,
 		InfoType:    msg.InfoType,
-		TimeStamp:   msg.TimeStamp,
+		Timestamp:   msg.Timestamp,
 		SuiteTicket: msg.SuiteTicket,
 	}
 }
@@ -36,7 +36,7 @@ type ChangeAuth struct {
 
 	SuiteId   string `xml:"SuiteId"   json:"SuiteId"`
 	InfoType  string `xml:"InfoType"  json:"InfoType"`
-	TimeStamp int64  `xml:"TimeStamp" json:"TimeStamp"`
+	Timestamp int64  `xml:"TimeStamp" json:"TimeStamp"`
 
 	AuthCorpId string `xml:"AuthCorpId"  json:"AuthCorpId"`
 }
@@ -45,7 +45,7 @@ func GetChangeAuth(msg *MixedSuiteMessage) *ChangeAuth {
 	return &ChangeAuth{
 		SuiteId:    msg.SuiteId,
 		InfoType:   msg.InfoType,
-		TimeStamp:  msg.TimeStamp,
+		Timestamp:  msg.Timestamp,
 		AuthCorpId: msg.AuthCorpId,
 	}
 }
@@ -55,7 +55,7 @@ type CancelAuth struct {
 
 	SuiteId   string `xml:"SuiteId"   json:"SuiteId"`
 	InfoType  string `xml:"InfoType"  json:"InfoType"`
-	TimeStamp int64  `xml:"TimeStamp" json:"TimeStamp"`
+	Timestamp int64  `xml:"TimeStamp" json:"TimeStamp"`
 
 	AuthCorpId string `xml:"AuthCorpId"  json:"AuthCorpId"`
 }
@@ -64,7 +64,7 @@ func GetCancelAuth(msg *MixedSuiteMessage) *CancelAuth {
 	return &CancelAuth{
 		SuiteId:    msg.SuiteId,
 		InfoType:   msg.InfoType,
-		TimeStamp:  msg.TimeStamp,
+		Timestamp:  msg.Timestamp,
 		AuthCorpId: msg.AuthCorpId,
 	}
 }
