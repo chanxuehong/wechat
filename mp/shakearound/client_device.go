@@ -257,12 +257,15 @@ func (clt Client)SeachDeviceByDevices(deviceses *[]Devices)(devices *[]Devices, 
 //  begin:          设备列表的起始索引值
 //  count:          待查询的设备个数
 //  applyId:        批次ID，申请设备ID时所返回的批次ID
-func (clt Client)SeachDeviceByCount(begin, count int, applyId ...int)(deviceses *[]Devices, totalCount int, err error){
-
+func (clt Client)SeachDeviceByCount(begin, count int, applyIds ...int)(deviceses *[]Devices, totalCount int, err error){
+    var applyId int
+    if len(applyIds) > 0 {
+        applyId = applyIds[0]
+    }
     var request = struct {
         ApplyId int `json:"apply_id,omitempty"`
         Begin int `json:"begin"`
-        Count int `json:count`
+        Count int `json:"count"`
     }{
         ApplyId:applyId,
         Begin:begin,
@@ -271,7 +274,7 @@ func (clt Client)SeachDeviceByCount(begin, count int, applyId ...int)(deviceses 
     return clt.SeachDevice(request)
 }
 
-
+//  查询设备列表
 func (clt Client)SeachDevice(v interface{}) (deviceses *[]Devices, totalCount int, err error) {
     var result struct {
         mp.Error
@@ -296,3 +299,64 @@ func (clt Client)SeachDevice(v interface{}) (deviceses *[]Devices, totalCount in
     return
 }
 
+func (clt Client)DeviceBindPageByDeviceId(deviceId int, pageIds []int, append ...bool)(err error){
+    var deviceIdentifier = struct{
+        DeviceId int `json:"device_id"`
+    }{
+        DeviceId: deviceId,
+    }
+    var appendNum int = 0
+    if len(append) > 0{
+        if append[0] == true{
+            appendNum = 1
+        }
+    }
+    return clt.DeviceBindPage(deviceIdentifier, pageIds, 1, appendNum)
+}
+
+
+func (clt Client)DeviceBindPageByUuid(uuid string, major, minor int, pageIds []int, append ...bool)(err error){
+    var deviceIdentifier = struct{
+        Uuid string `json:"uuid"`                   //UUID
+        Major int `json:"major"`                    //major
+        Minor int `json:"minor"`                    //minor
+    }{
+        Uuid: uuid,
+        Major: major,
+        Minor: minor,
+    }
+    var appendNum int = 0
+    if len(append) > 0{
+        if append[0] == true{
+            appendNum = 1
+        }
+    }
+    return clt.DeviceBindPage(deviceIdentifier, pageIds, 1, appendNum)
+}
+
+
+func (clt Client)DeviceBindPage(v interface{}, pageIds []int, bind int, append int)(err error){
+    var request = struct{
+        DeviceIdentifier interface{}    `json:"device_identifier"`
+        PageIds []int `json:"page_ids"`
+        Bind int `json:"bind"`
+        Append int  `json:"append"`
+    }{
+        DeviceIdentifier: v,
+        PageIds: pageIds,
+        Bind: bind,
+        Append: append,
+    }
+
+    var result mp.Error
+    incompleteURL := "https://api.weixin.qq.com/shakearound/device/bindpage?access_token="
+    if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+        return
+    }
+
+    if result.ErrCode != mp.ErrCodeOK {
+        err = &result.Error
+        return
+    }
+    return
+}
