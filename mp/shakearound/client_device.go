@@ -1,3 +1,7 @@
+// @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
+// @link        https://github.com/chanxuehong/wechat for the canonical source repository
+// @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
+// @authors     chanxuehong(chanxuehong@gmail.com) Harry Rong(harrykobe@gmail.com)
 package shakearound
 
 import (
@@ -16,6 +20,11 @@ type Devices struct {
     PageIds string `json:"page_ids"`
 }
 
+//  申请设备ID
+//  quantity:       申请的设备ID的数量，单次新增设备超过500个，需走人工审核流程
+//  applyReason:    申请理由，不超过100个字
+//  comment:        备注，不超过15个汉字或30个英文字母
+//  poiId:          设备关联的门店ID
 func (clt Client) ApplyDeviceId(quantity int, applyReason, comment string, poiId int) (deviceses *[]Devices, applyId int, err error) {
     var request = struct {
         Quantity   int `json:"quantity"`
@@ -61,18 +70,25 @@ func (clt Client) ApplyDeviceId(quantity int, applyReason, comment string, poiId
     return
 }
 
-
+//  编辑设备信息
+//  deviceId:   设备编号
+//  comment:    设备的备注信息，不超过15个汉字或30个英文字母
 func (clt Client) UpdateDeviceByDeviceId(deviceId int, comment string) (err error) {
     err = clt.UpdateDevice(deviceId, "", 0, 0, comment)
     return
 }
 
-
+//  编辑设备信
+//  uuid:       UUID
+//  major:      major
+//  minor:      minor
+//  comment:    设备的备注信息，不超过15个汉字或30个英文字母
 func (clt Client) UpdateDeviceByUuid(uuid string, major, minor int, comment string) (err error) {
     err = clt.UpdateDevice(0, uuid, major, minor, comment)
     return
 }
 
+//  编辑设备信
 func (clt Client) UpdateDevice(deviceId int, uuid string, major, minor int, comment string)(err error){
     type deviceIdentifier struct {
         DeviceId int `json:""device_id,omitempty`
@@ -114,13 +130,19 @@ func (clt Client) UpdateDevice(deviceId int, uuid string, major, minor int, comm
     return
 }
 
-
+//  配置设备与门店的关联关系
+//  deviceId:   设备编号
+//  poiId:      设备关联的门店ID
 func (clt Client) DeviceBindLocationByDeviceId(deviceId, poiId int) (err error) {
     err = clt.DeviceBindLocation(deviceId, "", 0, 0, poiId)
     return
 }
 
-
+//  配置设备与门店的关联关系
+//  uuid:       UUID
+//  major:      major
+//  minor:      minor
+//  poiId:      设备关联的门店ID
 func (clt Client) DeviceBindLocationByUuid(uuid string, major, minor, poiId int) (err error) {
     err = clt.DeviceBindLocation(0, uuid, major, minor, poiId)
     return
@@ -168,48 +190,75 @@ func (clt Client) DeviceBindLocation(deviceId int, uuid string, major, minor, po
     return
 }
 
-
-func (clt Client)SeachDeviceByDeviceId(deviceId int)(deviceses *[]Devices, totalCount int, err error){
-    type deviceIdentifier struct {
-        DeviceId int `json:""device_id,omitempty`
+//  查询一个设备
+//  deviceId:   设备编号
+func (clt Client)SeachDeviceByDeviceId(deviceId int)(devices *Devices, totalCount int, err error){
+    type DeviceIdentifier struct {
+        DeviceId int `json:"device_id"`
     }
     var request = struct {
-        DeviceIdentifier struct{
-            DeviceId int `json:""device_id,omitempty`
-        } `json:"device_identifier"`
+        DeviceIdentifier []DeviceIdentifier  `json:"device_identifiers"`
     }{
-        DeviceIdentifier: deviceIdentifier{
-            DeviceId: deviceId,
+        DeviceIdentifier: []DeviceIdentifier{
+            DeviceIdentifier{
+                DeviceId: deviceId,
+            },
         },
     }
-    return clt.SeachDevice(request)
+    deviceses, totalCount, err := clt.SeachDevice(request)
+    if err != nil{
+        return
+    }
+    devices = &(*deviceses)[0]
+    return
 }
 
-
-func (clt Client)SeachDeviceByUuid(uuid string, major, minor int)(deviceses *[]Devices, totalCount int, err error){
+//  查询一个设备
+//  uuid:       UUID
+//  major:      major
+//  minor:      minor
+func (clt Client)SeachDeviceByUuid(uuid string, major, minor int)(devices *Devices, totalCount int, err error){
     type deviceIdentifier struct {
-        Uuid string `json:"uuid"`         //UUID
+        Uuid string `json:"uuid"`                   //UUID
         Major int `json:"major"`                    //major
         Minor int `json:"minor"`                    //minor
     }
     var request = struct {
-        DeviceIdentifier struct{
-            Uuid string `json:"uuid"`         //UUID
-            Major int `json:"major"`                    //major
-            Minor int `json:"minor"`                    //minor
-        } `json:"device_identifier"`
+        DeviceIdentifier []deviceIdentifier  `json:"device_identifiers"`
     }{
-        DeviceIdentifier: deviceIdentifier{
-            Uuid: uuid,
-            Major: major,
-            Minor: minor,
+        DeviceIdentifier: []deviceIdentifier{
+            deviceIdentifier{
+                Uuid: uuid,
+                Major: major,
+                Minor: minor,
+            },
         },
+    }
+    deviceses, totalCount, err := clt.SeachDevice(request)
+    if err != nil{
+        return
+    }
+    devices = &(*deviceses)[0]
+    return
+}
+
+//  查询设备列表
+//  deviceses   设备列表
+func (clt Client)SeachDeviceByDevices(deviceses *[]Devices)(devices *[]Devices, totalCount int, err error){
+    var request = struct {
+        DeviceIdentifier *[]Devices  `json:"device_identifiers"`
+    }{
+        DeviceIdentifier: deviceses,
     }
     return clt.SeachDevice(request)
 }
 
+//  查询设备列表
+//  begin:          设备列表的起始索引值
+//  count:          待查询的设备个数
+//  applyId:        批次ID，申请设备ID时所返回的批次ID
+func (clt Client)SeachDeviceByCount(begin, count int, applyId ...int)(deviceses *[]Devices, totalCount int, err error){
 
-func (clt Client)SeachDeviceByCount(begin, count, applyId int)(deviceses *[]Devices, totalCount int, err error){
     var request = struct {
         ApplyId int `json:"apply_id,omitempty"`
         Begin int `json:"begin"`
