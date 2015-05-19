@@ -42,8 +42,8 @@ type Request struct {
 	Random       []byte   // 当前消息加密时所用的 random, 16 bytes
 
 	// 下面字段是公众号的基本信息, 回包需要
-	WechatAppId string // 请求消息所属公众号的 AppId
-	WechatToken string // 请求消息所属公众号的 Token
+	AppId string // 请求消息所属公众号的 AppId
+	Token string // 请求消息所属公众号的 Token
 }
 
 // 微信服务器推送过来的消息(事件)通用的消息头

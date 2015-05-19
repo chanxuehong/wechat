@@ -98,10 +98,10 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 				}
 			}
 
-			wechatToken := ws.Token()
+			token := ws.Token()
 
 			// 验证签名
-			msgSignature2 := util.MsgSign(wechatToken, timestampStr, nonce, requestHttpBody.EncryptedMsg)
+			msgSignature2 := util.MsgSign(token, timestampStr, nonce, requestHttpBody.EncryptedMsg)
 			if subtle.ConstantTimeCompare([]byte(msgSignature1), []byte(msgSignature2)) != 1 {
 				err = fmt.Errorf("check msg_signature failed, input: %s, local: %s", msgSignature1, msgSignature2)
 				irh.ServeInvalidRequest(w, r, err)
@@ -115,10 +115,10 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 				return
 			}
 
-			wechatAppId := ws.AppId()
+			appId := ws.AppId()
 			aesKey := ws.CurrentAESKey()
 
-			random, rawMsgXML, err := util.AESDecryptMsg(encryptedMsgBytes, wechatAppId, aesKey)
+			random, rawMsgXML, err := util.AESDecryptMsg(encryptedMsgBytes, appId, aesKey)
 			if err != nil {
 				// 尝试用上一次的 AESKey 来解密
 				lastAESKey, isLastAESKeyValid := ws.LastAESKey()
@@ -129,7 +129,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 
 				aesKey = lastAESKey // NOTE
 
-				random, rawMsgXML, err = util.AESDecryptMsg(encryptedMsgBytes, wechatAppId, aesKey)
+				random, rawMsgXML, err = util.AESDecryptMsg(encryptedMsgBytes, appId, aesKey)
 				if err != nil {
 					irh.ServeInvalidRequest(w, r, err)
 					return
@@ -167,8 +167,8 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 				AESKey:       aesKey,
 				Random:       random,
 
-				WechatToken: wechatToken,
-				WechatAppId: wechatAppId,
+				Token: token,
+				AppId: appId,
 			}
 			ws.MessageHandler().ServeMessage(w, r)
 
@@ -203,9 +203,9 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 				return
 			}
 
-			wechatToken := ws.Token()
+			token := ws.Token()
 
-			signature2 := util.Sign(wechatToken, timestampStr, nonce)
+			signature2 := util.Sign(token, timestampStr, nonce)
 			if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
 				err = fmt.Errorf("check signature failed, input: %s, local: %s", signature1, signature2)
 				irh.ServeInvalidRequest(w, r, err)
@@ -254,8 +254,8 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 
 				EncryptType: encryptType,
 
-				WechatAppId: ws.AppId(),
-				WechatToken: wechatToken,
+				AppId: ws.AppId(),
+				Token: token,
 			}
 			ws.MessageHandler().ServeMessage(w, r)
 
