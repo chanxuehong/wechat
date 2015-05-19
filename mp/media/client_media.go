@@ -54,7 +54,7 @@ func (clt Client) downloadMediaToWriter(mediaId string, writer io.Writer) (err e
 	hasRetried := false
 RETRY:
 	finalURL := "https://api.weixin.qq.com/cgi-bin/media/get?media_id=" + url.QueryEscape(mediaId) +
-		"&access_token=" + url.QueryEscape(token)
+		"&access_token=" + url.QueryEscape(string(token))
 
 	httpResp, err := clt.HttpClient.Get(finalURL)
 	if err != nil {

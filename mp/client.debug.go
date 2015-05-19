@@ -69,7 +69,7 @@ func (clt *WechatClient) PostJSON(incompleteURL string, request interface{}, res
 
 	hasRetried := false
 RETRY:
-	finalURL := incompleteURL + url.QueryEscape(token)
+	finalURL := incompleteURL + url.QueryEscape(string(token))
 
 	LogInfoln("[WECHAT_DEBUG] request url:", finalURL)
 	LogInfoln("[WECHAT_DEBUG] request json:", string(requestBytes))
@@ -148,7 +148,7 @@ func (clt *WechatClient) GetJSON(incompleteURL string, response interface{}) (er
 
 	hasRetried := false
 RETRY:
-	finalURL := incompleteURL + url.QueryEscape(token)
+	finalURL := incompleteURL + url.QueryEscape(string(token))
 
 	httpResp, err := clt.HttpClient.Get(finalURL)
 	if err != nil {

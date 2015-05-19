@@ -18,10 +18,12 @@ import (
 	"time"
 )
 
+type AccessToken string
+
 // access_token 中控服务器接口, see access_token_server.png
 type AccessTokenServer interface {
 	// 从中控服务器获取被缓存的 access_token.
-	Token() (token string, err error)
+	Token() (token AccessToken, err error)
 
 	// 请求中控服务器到微信服务器刷新 access_token.
 	//
@@ -30,7 +32,7 @@ type AccessTokenServer interface {
 	//  实际上这些请求只需要一个新的 access_token 即可, 所以建议 AccessTokenServer 从微信服务器
 	//  获取一次 access_token 之后的至多5秒内(收敛时间, 视情况而定, 理论上至多5个http或tcp周期)
 	//  再次调用该函数不再去微信服务器获取, 而是直接返回之前的结果.
-	TokenRefresh() (token string, err error)
+	TokenRefresh() (token AccessToken, err error)
 }
 
 var _ AccessTokenServer = (*DefaultAccessTokenServer)(nil)
@@ -79,9 +81,9 @@ func NewDefaultAccessTokenServer(corpId, corpSecret string,
 	return
 }
 
-func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
+func (srv *DefaultAccessTokenServer) Token() (token AccessToken, err error) {
 	srv.tokenCache.RLock()
-	token = srv.tokenCache.Token
+	token = AccessToken(srv.tokenCache.Token)
 	srv.tokenCache.RUnlock()
 
 	if token != "" {
@@ -90,7 +92,7 @@ func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
 	return srv.TokenRefresh()
 }
 
-func (srv *DefaultAccessTokenServer) TokenRefresh() (token string, err error) {
+func (srv *DefaultAccessTokenServer) TokenRefresh() (token AccessToken, err error) {
 	accessTokenInfo, cached, err := srv.getToken()
 	if err != nil {
 		return
@@ -98,7 +100,7 @@ func (srv *DefaultAccessTokenServer) TokenRefresh() (token string, err error) {
 	if !cached {
 		srv.resetTickerChan <- time.Duration(accessTokenInfo.ExpiresIn) * time.Second
 	}
-	token = accessTokenInfo.Token
+	token = AccessToken(accessTokenInfo.Token)
 	return
 }
 
