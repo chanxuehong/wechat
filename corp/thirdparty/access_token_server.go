@@ -68,9 +68,11 @@ func NewDefaultAccessTokenServer(suiteId string, suiteAccessTokenServer SuiteAcc
 	return
 }
 
-func (srv *DefaultAccessTokenServer) Token() (token corp.AccessToken, err error) {
+func (srv *DefaultAccessTokenServer) Tag6D89F2E2FE9811E49EAAA4DB30FED8E1() {}
+
+func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
 	srv.tokenCache.RLock()
-	token = corp.AccessToken(srv.tokenCache.Token)
+	token = srv.tokenCache.Token
 	srv.tokenCache.RUnlock()
 
 	if token != "" {
@@ -79,7 +81,7 @@ func (srv *DefaultAccessTokenServer) Token() (token corp.AccessToken, err error)
 	return srv.TokenRefresh()
 }
 
-func (srv *DefaultAccessTokenServer) TokenRefresh() (token corp.AccessToken, err error) {
+func (srv *DefaultAccessTokenServer) TokenRefresh() (token string, err error) {
 	tokenInfo, cached, err := srv.getToken()
 	if err != nil {
 		return
@@ -87,7 +89,7 @@ func (srv *DefaultAccessTokenServer) TokenRefresh() (token corp.AccessToken, err
 	if !cached {
 		srv.resetTickerChan <- time.Duration(tokenInfo.ExpiresIn) * time.Second
 	}
-	token = corp.AccessToken(tokenInfo.Token)
+	token = tokenInfo.Token
 	return
 }
 

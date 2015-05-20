@@ -15,21 +15,22 @@ import (
 	"github.com/chanxuehong/wechat/corp"
 )
 
-type Ticket string
-
 // jsapi_ticket 中控服务器接口.
 type TicketServer interface {
 	// 从中控服务器获取被缓存的 jsapi_ticket.
-	Ticket() (ticket Ticket, err error)
+	Ticket() (string, error)
 
 	// 请求中控服务器到微信服务器刷新 jsapi_ticket.
 	//
-	//  高并发场景下某个时间点可能有很多请求(比如缓存的jsapi_ticket刚好过期时), 但是我们
+	//  高并发场景下某个时间点可能有很多请求(比如缓存的 jsapi_ticket 刚好过期时), 但是我们
 	//  不期望也没有必要让这些请求都去微信服务器获取 jsapi_ticket(有可能导致api超过调用限制),
 	//  实际上这些请求只需要一个新的 jsapi_ticket 即可, 所以建议 TicketServer 从微信服务器
 	//  获取一次 jsapi_ticket 之后的至多5秒内(收敛时间, 视情况而定, 理论上至多5个http或tcp周期)
 	//  再次调用该函数不再去微信服务器获取, 而是直接返回之前的结果.
-	TicketRefresh() (ticket Ticket, err error)
+	TicketRefresh() (string, error)
+
+	// 沒有實際意義, 接口標識而已
+	Tag9FC40B88FE9811E4A1A9A4DB30FED8E1()
 }
 
 var _ TicketServer = (*DefaultTicketServer)(nil)
@@ -78,9 +79,11 @@ func NewDefaultTicketServer(AccessTokenServer corp.AccessTokenServer, httpClient
 	return
 }
 
-func (srv *DefaultTicketServer) Ticket() (ticket Ticket, err error) {
+func (srv *DefaultTicketServer) Tag9FC40B88FE9811E4A1A9A4DB30FED8E1() {}
+
+func (srv *DefaultTicketServer) Ticket() (ticket string, err error) {
 	srv.ticketCache.RLock()
-	ticket = Ticket(srv.ticketCache.Ticket)
+	ticket = srv.ticketCache.Ticket
 	srv.ticketCache.RUnlock()
 
 	if ticket != "" {
@@ -89,7 +92,7 @@ func (srv *DefaultTicketServer) Ticket() (ticket Ticket, err error) {
 	return srv.TicketRefresh()
 }
 
-func (srv *DefaultTicketServer) TicketRefresh() (ticket Ticket, err error) {
+func (srv *DefaultTicketServer) TicketRefresh() (ticket string, err error) {
 	ticketInfo, cached, err := srv.getTicket()
 	if err != nil {
 		return
@@ -97,7 +100,7 @@ func (srv *DefaultTicketServer) TicketRefresh() (ticket Ticket, err error) {
 	if !cached {
 		srv.resetTickerChan <- time.Duration(ticketInfo.ExpiresIn) * time.Second
 	}
-	ticket = Ticket(ticketInfo.Ticket)
+	ticket = ticketInfo.Ticket
 	return
 }
 

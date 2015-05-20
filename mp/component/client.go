@@ -72,7 +72,7 @@ func (clt *Client) PostJSON(incompleteURL string, request interface{}, response 
 
 	hasRetried := false
 RETRY:
-	finalURL := incompleteURL + url.QueryEscape(string(token))
+	finalURL := incompleteURL + url.QueryEscape(token)
 
 	httpResp, err := clt.HttpClient.Post(finalURL, "application/json; charset=utf-8", bytes.NewReader(requestBytes))
 	if err != nil {
@@ -142,7 +142,7 @@ func (clt *Client) GetJSON(incompleteURL string, response interface{}) (err erro
 
 	hasRetried := false
 RETRY:
-	finalURL := incompleteURL + url.QueryEscape(string(token))
+	finalURL := incompleteURL + url.QueryEscape(token)
 
 	httpResp, err := clt.HttpClient.Get(finalURL)
 	if err != nil {

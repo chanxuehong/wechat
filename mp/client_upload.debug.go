@@ -89,7 +89,7 @@ func (clt *WechatClient) PostMultipartForm(incompleteURL string, fields []Multip
 
 	hasRetried := false
 RETRY:
-	finalURL := incompleteURL + url.QueryEscape(string(token))
+	finalURL := incompleteURL + url.QueryEscape(token)
 
 	httpResp, err := clt.HttpClient.Post(finalURL, multipartWriter.FormDataContentType(), bytes.NewReader(bodyBytes))
 	if err != nil {
