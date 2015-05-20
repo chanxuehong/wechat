@@ -192,7 +192,7 @@ func (clt Client) DeviceBindLocation(deviceId int, uuid string, major, minor, po
 
 //  查询一个设备
 //  deviceId:   设备编号
-func (clt Client)SeachDeviceByDeviceId(deviceId int)(devices *Devices, totalCount int, err error){
+func (clt Client)SearchDeviceByDeviceId(deviceId int)(devices *Devices, totalCount int, err error){
     type DeviceIdentifier struct {
         DeviceId int `json:"device_id"`
     }
@@ -205,7 +205,7 @@ func (clt Client)SeachDeviceByDeviceId(deviceId int)(devices *Devices, totalCoun
             },
         },
     }
-    deviceses, totalCount, err := clt.SeachDevice(request)
+    deviceses, totalCount, err := clt.SearchDevice(request)
     if err != nil{
         return
     }
@@ -217,7 +217,7 @@ func (clt Client)SeachDeviceByDeviceId(deviceId int)(devices *Devices, totalCoun
 //  uuid:       UUID
 //  major:      major
 //  minor:      minor
-func (clt Client)SeachDeviceByUuid(uuid string, major, minor int)(devices *Devices, totalCount int, err error){
+func (clt Client)SearchDeviceByUuid(uuid string, major, minor int)(devices *Devices, totalCount int, err error){
     type deviceIdentifier struct {
         Uuid string `json:"uuid"`                   //UUID
         Major int `json:"major"`                    //major
@@ -234,7 +234,7 @@ func (clt Client)SeachDeviceByUuid(uuid string, major, minor int)(devices *Devic
             },
         },
     }
-    deviceses, totalCount, err := clt.SeachDevice(request)
+    deviceses, totalCount, err := clt.SearchDevice(request)
     if err != nil{
         return
     }
@@ -244,20 +244,20 @@ func (clt Client)SeachDeviceByUuid(uuid string, major, minor int)(devices *Devic
 
 //  查询设备列表
 //  deviceses   设备列表
-func (clt Client)SeachDeviceByDevices(deviceses *[]Devices)(devices *[]Devices, totalCount int, err error){
+func (clt Client)SearchDeviceByDevices(deviceses *[]Devices)(devices *[]Devices, totalCount int, err error){
     var request = struct {
         DeviceIdentifier *[]Devices  `json:"device_identifiers"`
     }{
         DeviceIdentifier: deviceses,
     }
-    return clt.SeachDevice(request)
+    return clt.SearchDevice(request)
 }
 
 //  查询设备列表
 //  begin:          设备列表的起始索引值
 //  count:          待查询的设备个数
 //  applyId:        批次ID，申请设备ID时所返回的批次ID
-func (clt Client)SeachDeviceByCount(begin, count int, applyIds ...int)(deviceses *[]Devices, totalCount int, err error){
+func (clt Client)SearchDeviceByCount(begin, count int, applyIds ...int)(deviceses *[]Devices, totalCount int, err error){
     var applyId int
     if len(applyIds) > 0 {
         applyId = applyIds[0]
@@ -271,11 +271,11 @@ func (clt Client)SeachDeviceByCount(begin, count int, applyIds ...int)(deviceses
         Begin:begin,
         Count:count,
     }
-    return clt.SeachDevice(request)
+    return clt.SearchDevice(request)
 }
 
 //  查询设备列表
-func (clt Client)SeachDevice(v interface{}) (deviceses *[]Devices, totalCount int, err error) {
+func (clt Client)SearchDevice(v interface{}) (deviceses *[]Devices, totalCount int, err error) {
     var result struct {
         mp.Error
         Data struct{
