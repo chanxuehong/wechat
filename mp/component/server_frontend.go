@@ -34,7 +34,7 @@ func NewServerFrontend(server Server, handler mp.InvalidRequestHandler) *ServerF
 
 // 实现 http.Handler.
 func (frontend *ServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	Server := frontend.server
+	server := frontend.server
 	invalidRequestHandler := frontend.invalidRequestHandler
 
 	queryValues, err := url.ParseQuery(r.URL.RawQuery)
@@ -43,5 +43,5 @@ func (frontend *ServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	ServeHTTP(w, r, queryValues, Server, invalidRequestHandler)
+	ServeHTTP(w, r, queryValues, server, invalidRequestHandler)
 }

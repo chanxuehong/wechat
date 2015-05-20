@@ -7,8 +7,8 @@ package component
 
 const (
 	// 微信服务器推送过来的消息类型
-	ComponentMsgTypeVerifyTicket = "component_verify_ticket" // 推送 component_verify_ticket 协议
-	ComponentMsgTypeUnauthorized = "unauthorized"            // 取消授权的通知
+	MsgTypeVerifyTicket = "component_verify_ticket" // 推送 component_verify_ticket 协议
+	MsgTypeUnauthorized = "unauthorized"            // 取消授权的通知
 )
 
 type VerifyTicketMessage struct {
@@ -18,7 +18,7 @@ type VerifyTicketMessage struct {
 	CreateTime int64  `xml:"CreateTime" json:"CreateTime"`
 	InfoType   string `xml:"InfoType"   json:"InfoType"`
 
-	VerifyTicket string `xml:"VerifyTicket" json:"VerifyTicket"`
+	VerifyTicket string `xml:"ComponentVerifyTicket" json:"ComponentVerifyTicket"`
 }
 
 func GetVerifyTicketMessage(msg *MixedMessage) *VerifyTicketMessage {
@@ -37,7 +37,7 @@ type UnauthorizedMessage struct {
 	CreateTime int64  `xml:"CreateTime" json:"CreateTime"`
 	InfoType   string `xml:"InfoType"   json:"InfoType"`
 
-	AuthorizerAppid string `xml:"AuthorizerAppid" json:"AuthorizerAppid"`
+	AuthorizerAppId string `xml:"AuthorizerAppid" json:"AuthorizerAppid"`
 }
 
 func GetUnauthorizedMessage(msg *MixedMessage) *UnauthorizedMessage {
@@ -45,6 +45,6 @@ func GetUnauthorizedMessage(msg *MixedMessage) *UnauthorizedMessage {
 		AppId:           msg.AppId,
 		CreateTime:      msg.CreateTime,
 		InfoType:        msg.InfoType,
-		AuthorizerAppid: msg.AuthorizerAppid,
+		AuthorizerAppId: msg.AuthorizerAppId,
 	}
 }

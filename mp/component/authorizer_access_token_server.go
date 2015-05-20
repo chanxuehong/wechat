@@ -14,14 +14,14 @@ import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
-var _ mp.AccessTokenServer = (*DefaultAuthorizerAccessTokenServer)(nil)
+var _ mp.AccessTokenServer = (*AuthorizerAccessTokenServer)(nil)
 
-// mp.AccessTokenServer 的简单实现.
+// authorizer_access_token 中控服务器, mp.AccessTokenServer 的简单实现.
 //  NOTE:
 //  1. 用于单进程环境.
-//  2. 因为 DefaultAuthorizerAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 mp.AccessTokenServer 接口,
-//     所以整个系统只能存在一个 DefaultAuthorizerAccessTokenServer 实例!
-type DefaultAuthorizerAccessTokenServer struct {
+//  2. 因为 AuthorizerAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 mp.AccessTokenServer 接口,
+//     所以整个系统只能存在一个 AuthorizerAccessTokenServer 实例!
+type AuthorizerAccessTokenServer struct {
 	client          *Client
 	authorizerAppId string
 
@@ -40,13 +40,13 @@ type DefaultAuthorizerAccessTokenServer struct {
 	}
 }
 
-// 创建一个新的 DefaultAuthorizerAccessTokenServer.
-func NewDefaultAuthorizerAccessTokenServer(clt *Client, authorizerAppId, authorizerRefreshToken string) (srv *DefaultAuthorizerAccessTokenServer) {
+// 创建一个新的 AuthorizerAccessTokenServer.
+func NewAuthorizerAccessTokenServer(clt *Client, authorizerAppId, authorizerRefreshToken string) (srv *AuthorizerAccessTokenServer) {
 	if clt == nil {
 		panic("nil Client")
 	}
 
-	srv = &DefaultAuthorizerAccessTokenServer{
+	srv = &AuthorizerAccessTokenServer{
 		client:          clt,
 		authorizerAppId: authorizerAppId,
 		resetTickerChan: make(chan time.Duration),
@@ -57,10 +57,10 @@ func NewDefaultAuthorizerAccessTokenServer(clt *Client, authorizerAppId, authori
 	return
 }
 
-func (srv *DefaultAuthorizerAccessTokenServer) TagCE90001AFE9C11E48611A4DB30FED8E1() {}
+func (srv *AuthorizerAccessTokenServer) TagCE90001AFE9C11E48611A4DB30FED8E1() {}
 
 // 獲取 authorizer_access_token
-func (srv *DefaultAuthorizerAccessTokenServer) Token() (token string, err error) {
+func (srv *AuthorizerAccessTokenServer) Token() (token string, err error) {
 	srv.tokenCache.RLock()
 	token = srv.tokenCache.Token
 	srv.tokenCache.RUnlock()
@@ -72,19 +72,19 @@ func (srv *DefaultAuthorizerAccessTokenServer) Token() (token string, err error)
 }
 
 // 刷新 authorizer_access_token
-func (srv *DefaultAuthorizerAccessTokenServer) TokenRefresh() (token string, err error) {
-	AccessTokenInfo, cached, err := srv.getToken()
+func (srv *AuthorizerAccessTokenServer) TokenRefresh() (token string, err error) {
+	tokenInfo, cached, err := srv.getToken()
 	if err != nil {
 		return
 	}
 	if !cached {
-		srv.resetTickerChan <- time.Duration(AccessTokenInfo.ExpiresIn) * time.Second
+		srv.resetTickerChan <- time.Duration(tokenInfo.ExpiresIn) * time.Second
 	}
-	token = AccessTokenInfo.Token
+	token = tokenInfo.Token
 	return
 }
 
-func (srv *DefaultAuthorizerAccessTokenServer) tokenDaemon(tickDuration time.Duration) {
+func (srv *AuthorizerAccessTokenServer) tokenDaemon(tickDuration time.Duration) {
 NEW_TICK_DURATION:
 	ticker := time.NewTicker(tickDuration)
 
@@ -95,12 +95,12 @@ NEW_TICK_DURATION:
 			goto NEW_TICK_DURATION
 
 		case <-ticker.C:
-			AccessTokenInfo, cached, err := srv.getToken()
+			tokenInfo, cached, err := srv.getToken()
 			if err != nil {
 				break
 			}
 			if !cached {
-				newTickDuration := time.Duration(AccessTokenInfo.ExpiresIn) * time.Second
+				newTickDuration := time.Duration(tokenInfo.ExpiresIn) * time.Second
 				if tickDuration != newTickDuration {
 					tickDuration = newTickDuration
 					ticker.Stop()
@@ -119,7 +119,7 @@ type AuthorizerAccessTokenInfo struct {
 
 // 从微信服务器获取 authorizer_access_token.
 //  同一时刻只能一个 goroutine 进入, 防止没必要的重复获取.
-func (srv *DefaultAuthorizerAccessTokenServer) getToken() (token AuthorizerAccessTokenInfo, cached bool, err error) {
+func (srv *AuthorizerAccessTokenServer) getToken() (token AuthorizerAccessTokenInfo, cached bool, err error) {
 	srv.tokenGet.Lock()
 	defer srv.tokenGet.Unlock()
 
@@ -137,14 +137,18 @@ func (srv *DefaultAuthorizerAccessTokenServer) getToken() (token AuthorizerAcces
 		return
 	}
 
+	srv.tokenCache.RLock()
+	authorizerRefreshToken := srv.tokenCache.RefreshToken
+	srv.tokenCache.RUnlock()
+
 	request := struct {
-		AppId                  string `json:"component_appid"`
+		ComponentAppId         string `json:"component_appid"`
 		AuthorizerAppId        string `json:"authorizer_appid"`
 		AuthorizerRefreshToken string `json:"authorizer_refresh_token"`
 	}{
-		AppId:                  srv.client.AppId,
+		ComponentAppId:         srv.client.AppId,
 		AuthorizerAppId:        srv.authorizerAppId,
-		AuthorizerRefreshToken: srv.tokenGet.LastTokenInfo.RefreshToken,
+		AuthorizerRefreshToken: authorizerRefreshToken,
 	}
 
 	var result struct {
@@ -195,13 +199,6 @@ func (srv *DefaultAuthorizerAccessTokenServer) getToken() (token AuthorizerAcces
 		return
 	}
 
-	// NOTE
-	if result.AuthorizerAccessTokenInfo.RefreshToken == "" {
-		srv.tokenCache.RLock()
-		result.AuthorizerAccessTokenInfo.RefreshToken = srv.tokenCache.RefreshToken
-		srv.tokenCache.RUnlock()
-	}
-
 	// 更新 tokenGet 信息
 	srv.tokenGet.LastTokenInfo = result.AuthorizerAccessTokenInfo
 	srv.tokenGet.LastTimestamp = timeNowUnix
@@ -209,7 +206,9 @@ func (srv *DefaultAuthorizerAccessTokenServer) getToken() (token AuthorizerAcces
 	// 更新缓存
 	srv.tokenCache.Lock()
 	srv.tokenCache.Token = result.AuthorizerAccessTokenInfo.Token
-	srv.tokenCache.RefreshToken = result.AuthorizerAccessTokenInfo.RefreshToken
+	if authorizerRefreshToken := result.AuthorizerAccessTokenInfo.RefreshToken; authorizerRefreshToken != "" {
+		srv.tokenCache.RefreshToken = authorizerRefreshToken
+	}
 	srv.tokenCache.Unlock()
 
 	token = result.AuthorizerAccessTokenInfo

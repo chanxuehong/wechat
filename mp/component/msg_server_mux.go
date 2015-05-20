@@ -16,7 +16,7 @@ var _ MessageHandler = (*MessageServeMux)(nil)
 // MessageServeMux 实现了一个简单的消息路由器, 同时也是一个 MessageHandler.
 type MessageServeMux struct {
 	rwmutex               sync.RWMutex
-	messageHandlers       map[string]MessageHandler
+	messageHandlers       map[string]MessageHandler // map[MsgType]MessageHandler
 	defaultMessageHandler MessageHandler
 }
 
@@ -65,7 +65,7 @@ func (mux *MessageServeMux) DefaultMessageHandleFunc(handler func(http.ResponseW
 }
 
 // 获取 msgType 对应的 MessageHandler, 如果没有找到 nil.
-func (mux *MessageServeMux) messageHandler(msgType string) (handler MessageHandler) {
+func (mux *MessageServeMux) getMessageHandler(msgType string) (handler MessageHandler) {
 	if msgType == "" {
 		return nil
 	}
@@ -81,7 +81,7 @@ func (mux *MessageServeMux) messageHandler(msgType string) (handler MessageHandl
 
 // MessageServeMux 实现了 MessageHandler 接口.
 func (mux *MessageServeMux) ServeMessage(w http.ResponseWriter, r *Request) {
-	handler := mux.messageHandler(r.MixedMsg.InfoType)
+	handler := mux.getMessageHandler(r.MixedMsg.InfoType)
 	if handler == nil {
 		io.WriteString(w, "success")
 		return

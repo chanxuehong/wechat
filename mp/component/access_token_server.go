@@ -68,14 +68,8 @@ type DefaultAccessTokenServer struct {
 // 创建一个新的 DefaultAccessTokenServer.
 //  如果 clt == nil 则默认使用 http.DefaultClient.
 func NewDefaultAccessTokenServer(appId, appSecret string, ticketGetter VerifyTicketGetter, clt *http.Client) (srv *DefaultAccessTokenServer) {
-	if appId == "" {
-		panic("empty appId")
-	}
-	if appSecret == "" {
-		panic("empty appSecret")
-	}
 	if ticketGetter == nil {
-		panic("nil verifyTicketGetter")
+		panic("nil VerifyTicketGetter")
 	}
 	if clt == nil {
 		clt = http.DefaultClient
@@ -169,7 +163,7 @@ func (srv *DefaultAccessTokenServer) getToken() (token accessTokenInfo, cached b
 		return
 	}
 
-	verifyTicket, err := srv.verifyTicketGetter.GetVerifyTicket(srv.appId)
+	verifyTicket, err := srv.verifyTicketGetter.GetComponentVerifyTicket(srv.appId)
 	if err != nil {
 		srv.tokenCache.Lock()
 		srv.tokenCache.Token = ""
