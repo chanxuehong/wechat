@@ -299,6 +299,8 @@ func (clt Client)SeachDevice(v interface{}) (deviceses *[]Devices, totalCount in
     return
 }
 
+//  配置设备与页面的关联关系
+//  绑定页面使用device_id
 func (clt Client)DeviceBindPageByDeviceId(deviceId int, pageIds []int, append ...bool)(err error){
     var deviceIdentifier = struct{
         DeviceId int `json:"device_id"`
@@ -314,7 +316,8 @@ func (clt Client)DeviceBindPageByDeviceId(deviceId int, pageIds []int, append ..
     return clt.DeviceBindPage(deviceIdentifier, pageIds, 1, appendNum)
 }
 
-
+//  配置设备与页面的关联关系
+//  绑定页面使用uuid
 func (clt Client)DeviceBindPageByUuid(uuid string, major, minor int, pageIds []int, append ...bool)(err error){
     var deviceIdentifier = struct{
         Uuid string `json:"uuid"`                   //UUID
@@ -334,6 +337,67 @@ func (clt Client)DeviceBindPageByUuid(uuid string, major, minor int, pageIds []i
     return clt.DeviceBindPage(deviceIdentifier, pageIds, 1, appendNum)
 }
 
+//  配置设备与页面的关联关系
+//  绑定页面使用Devices
+func (clt Client)DeviceBindPageByDevices(deviceses *Devices, pageIds []int, append ...bool)(err error){
+    var appendNum int = 0
+    if len(append) > 0{
+        if append[0] == true{
+            appendNum = 1
+        }
+    }
+    return clt.DeviceBindPage(*deviceses, pageIds, 1, appendNum)
+}
+
+//  配置设备与页面的关联关系
+//  解绑页面使用device_id
+func (clt Client)DeviceUnbindPageByDeviceId(deviceId int, pageIds []int, append ...bool)(err error){
+    var deviceIdentifier = struct{
+        DeviceId int `json:"device_id"`
+    }{
+        DeviceId: deviceId,
+    }
+    var appendNum int = 0
+    if len(append) > 0{
+        if append[0] == true{
+            appendNum = 1
+        }
+    }
+    return clt.DeviceBindPage(deviceIdentifier, pageIds, 0, appendNum)
+}
+
+//  配置设备与页面的关联关系
+//  解绑页面使用uuid
+func (clt Client)DeviceUnbindPageByUuid(uuid string, major, minor int, pageIds []int, append ...bool)(err error){
+    var deviceIdentifier = struct{
+        Uuid string `json:"uuid"`                   //UUID
+        Major int `json:"major"`                    //major
+        Minor int `json:"minor"`                    //minor
+    }{
+        Uuid: uuid,
+        Major: major,
+        Minor: minor,
+    }
+    var appendNum int = 0
+    if len(append) > 0{
+        if append[0] == true{
+            appendNum = 1
+        }
+    }
+    return clt.DeviceBindPage(deviceIdentifier, pageIds, 0, appendNum)
+}
+
+//  配置设备与页面的关联关系
+//  解绑页面使用Devices
+func (clt Client)DeviceUnbindPageByDevices(deviceses *Devices, pageIds []int, append ...bool)(err error){
+    var appendNum int = 0
+    if len(append) > 0{
+        if append[0] == true{
+            appendNum = 1
+        }
+    }
+    return clt.DeviceBindPage(*deviceses, pageIds, 0, appendNum)
+}
 
 func (clt Client)DeviceBindPage(v interface{}, pageIds []int, bind int, append int)(err error){
     var request = struct{
@@ -355,7 +419,7 @@ func (clt Client)DeviceBindPage(v interface{}, pageIds []int, bind int, append i
     }
 
     if result.ErrCode != mp.ErrCodeOK {
-        err = &result.Error
+        err = &result
         return
     }
     return
