@@ -77,7 +77,10 @@ func (clt Client) ApplyDeviceId(quantity int, applyReason, comment string, poiId
 //  deviceId:   设备编号
 //  comment:    设备的备注信息，不超过15个汉字或30个英文字母
 func (clt Client) UpdateDeviceByDeviceId(deviceId int, comment string) (err error) {
-    err = clt.UpdateDevice(deviceId, "", 0, 0, comment)
+    var deviceBase = DeviceBase{
+        DeviceId: deviceId,
+    }
+    err = clt.UpdateDevice(&deviceBase, comment)
     return
 }
 
@@ -87,33 +90,22 @@ func (clt Client) UpdateDeviceByDeviceId(deviceId int, comment string) (err erro
 //  minor:      minor
 //  comment:    设备的备注信息，不超过15个汉字或30个英文字母
 func (clt Client) UpdateDeviceByUuid(uuid string, major, minor int, comment string) (err error) {
-    err = clt.UpdateDevice(0, uuid, major, minor, comment)
+    var deviceBase = DeviceBase{
+        Uuid: uuid,
+        Major: major,
+        Minor: minor,
+    }
+    err = clt.UpdateDevice(deviceBase, comment)
     return
 }
 
 //  编辑设备信
-func (clt Client) UpdateDevice(deviceId int, uuid string, major, minor int, comment string)(err error){
-    type deviceIdentifier struct {
-        DeviceId int `json:""device_id,omitempty`
-        Uuid string `json:"uuid,omitempty"`         //UUID
-        Major int `json:"major"`                    //major
-        Minor int `json:"minor"`                    //minor
-    }
+func (clt Client) UpdateDevice(deviceBase *DeviceBase, comment string)(err error){
     var request = struct {
-        DeviceIdentifier struct{
-            DeviceId int `json:""device_id,omitempty`
-            Uuid string `json:"uuid,omitempty"`         //UUID
-            Major int `json:"major"`                    //major
-            Minor int `json:"minor"`                    //minor
-        } `json:"device_identifier"`
+        DeviceIdentifier *DeviceBase `json:"device_identifier"`
         Comment string `json:"comment"`
     }{
-        DeviceIdentifier: deviceIdentifier{
-            DeviceId: deviceId,
-            Uuid: uuid,
-            Major: major,
-            Minor: minor,
-        },
+        DeviceIdentifier: deviceBase,
         Comment: comment,
     }
 
