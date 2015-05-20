@@ -16,7 +16,7 @@ type PicInfo struct {
 	PicUrl string `json:"pic_url"`
 }
 
-func (clt Client) AddMaterial(mediaType, _filepath string) (info *PicInfo, err error) {
+func (clt Client) AddMaterial(_filepath string) (info *PicInfo, err error) {
 	file, err := os.Open(_filepath)
 	if err != nil {
 		return
