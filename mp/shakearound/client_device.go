@@ -8,12 +8,15 @@ import (
     "github.com/chanxuehong/wechat/mp"
 )
 
-
-type Devices struct {
+type DeviceBase struct {
     DeviceId int `json:"device_id"`
     Uuid string `json:"uuid"`
     Major int `json:"major"`
     Minor int `json:"minor"`
+}
+
+type Devices struct {
+    DeviceBase
     Status int `json:"status"`
     PoiId int `json:"poi_id"`
     Comment string `json:"comment"`
