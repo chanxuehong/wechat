@@ -57,10 +57,12 @@ func NewDefaultAuthorizerAccessTokenServer(clt *Client, authorizerAppId, authori
 	return
 }
 
+func (srv *DefaultAuthorizerAccessTokenServer) TagCE90001AFE9C11E48611A4DB30FED8E1() {}
+
 // 獲取 authorizer_access_token
-func (srv *DefaultAuthorizerAccessTokenServer) Token() (token mp.AccessToken, err error) {
+func (srv *DefaultAuthorizerAccessTokenServer) Token() (token string, err error) {
 	srv.tokenCache.RLock()
-	token = mp.AccessToken(srv.tokenCache.Token)
+	token = srv.tokenCache.Token
 	srv.tokenCache.RUnlock()
 
 	if token != "" {
@@ -70,7 +72,7 @@ func (srv *DefaultAuthorizerAccessTokenServer) Token() (token mp.AccessToken, er
 }
 
 // 刷新 authorizer_access_token
-func (srv *DefaultAuthorizerAccessTokenServer) TokenRefresh() (token mp.AccessToken, err error) {
+func (srv *DefaultAuthorizerAccessTokenServer) TokenRefresh() (token string, err error) {
 	AccessTokenInfo, cached, err := srv.getToken()
 	if err != nil {
 		return
@@ -78,7 +80,7 @@ func (srv *DefaultAuthorizerAccessTokenServer) TokenRefresh() (token mp.AccessTo
 	if !cached {
 		srv.resetTickerChan <- time.Duration(AccessTokenInfo.ExpiresIn) * time.Second
 	}
-	token = mp.AccessToken(AccessTokenInfo.Token)
+	token = AccessTokenInfo.Token
 	return
 }
 

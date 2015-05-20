@@ -20,12 +20,10 @@ import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
-type ComponentAccessToken string
-
 // component_access_token 中控服务器接口.
 type AccessTokenServer interface {
 	// 从中控服务器获取被缓存的 component_access_token.
-	Token() (token ComponentAccessToken, err error)
+	Token() (string, error)
 
 	// 请求中控服务器到微信服务器刷新 component_access_token.
 	//
@@ -34,7 +32,10 @@ type AccessTokenServer interface {
 	//  实际上这些请求只需要一个新的 component_access_token 即可, 所以建议 AccessTokenServer 从微信服务器
 	//  获取一次 component_access_token 之后的至多5秒内(收敛时间, 视情况而定, 理论上至多5个http或tcp周期)
 	//  再次调用该函数不再去微信服务器获取, 而是直接返回之前的结果.
-	TokenRefresh() (token ComponentAccessToken, err error)
+	TokenRefresh() (string, error)
+
+	// 沒有實際意義, 接口標識而已
+	Tag7B36CB9FFE9911E48469A4DB30FED8E1()
 }
 
 var _ AccessTokenServer = (*DefaultAccessTokenServer)(nil)
@@ -92,9 +93,11 @@ func NewDefaultAccessTokenServer(appId, appSecret string, ticketGetter VerifyTic
 	return
 }
 
-func (srv *DefaultAccessTokenServer) Token() (token ComponentAccessToken, err error) {
+func (srv *DefaultAccessTokenServer) Tag7B36CB9FFE9911E48469A4DB30FED8E1() {}
+
+func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
 	srv.tokenCache.RLock()
-	token = ComponentAccessToken(srv.tokenCache.Token)
+	token = srv.tokenCache.Token
 	srv.tokenCache.RUnlock()
 
 	if token != "" {
@@ -103,7 +106,7 @@ func (srv *DefaultAccessTokenServer) Token() (token ComponentAccessToken, err er
 	return srv.TokenRefresh()
 }
 
-func (srv *DefaultAccessTokenServer) TokenRefresh() (token ComponentAccessToken, err error) {
+func (srv *DefaultAccessTokenServer) TokenRefresh() (token string, err error) {
 	accessTokenInfo, cached, err := srv.getToken()
 	if err != nil {
 		return
@@ -111,7 +114,7 @@ func (srv *DefaultAccessTokenServer) TokenRefresh() (token ComponentAccessToken,
 	if !cached {
 		srv.resetTickerChan <- time.Duration(accessTokenInfo.ExpiresIn) * time.Second
 	}
-	token = ComponentAccessToken(accessTokenInfo.Token)
+	token = accessTokenInfo.Token
 	return
 }
 
@@ -181,7 +184,7 @@ func (srv *DefaultAccessTokenServer) getToken() (token accessTokenInfo, cached b
 	}{
 		AppId:        srv.appId,
 		AppSecret:    srv.appSecret,
-		VerifyTicket: string(verifyTicket),
+		VerifyTicket: verifyTicket,
 	}
 
 	requestBuf := textBufferPool.Get().(*bytes.Buffer)

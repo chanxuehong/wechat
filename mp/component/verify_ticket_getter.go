@@ -12,22 +12,25 @@ import (
 
 var ErrNotFound = errors.New("item not found")
 
-type ComponentVerifyTicket string
-
 // component_verify_ticket 獲取接口
 type VerifyTicketGetter interface {
 	// 根据 component_appid 获取第三方平台当前的 component_verify_ticket, 如果没有找到返回 ErrNotFound
-	GetVerifyTicket(appId string) (ticket ComponentVerifyTicket, err error)
+	GetVerifyTicket(componentAppId string) (ticket string, err error)
+
+	// 沒有實際意義, 接口標識而已
+	Tag9AEACC95FE9911E4B5A4A4DB30FED8E1()
 }
 
 var _ VerifyTicketGetter = (*VerifyTicketCache)(nil)
 
 type VerifyTicketCache struct {
 	rwmutex sync.RWMutex
-	ticket  ComponentVerifyTicket
+	ticket  string
 }
 
-func (cache *VerifyTicketCache) SetVerifyTicket(appId string, ticket ComponentVerifyTicket) (err error) {
+func (cache *VerifyTicketCache) Tag9AEACC95FE9911E4B5A4A4DB30FED8E1() {}
+
+func (cache *VerifyTicketCache) SetVerifyTicket(appId string, ticket string) (err error) {
 	//if appId == "" {
 	//	return errors.New("empty ComponentAppId")
 	//}
@@ -41,7 +44,7 @@ func (cache *VerifyTicketCache) SetVerifyTicket(appId string, ticket ComponentVe
 	return
 }
 
-func (cache *VerifyTicketCache) GetVerifyTicket(appId string) (ticket ComponentVerifyTicket, err error) {
+func (cache *VerifyTicketCache) GetVerifyTicket(appId string) (ticket string, err error) {
 	cache.rwmutex.RLock()
 	ticket = cache.ticket
 	if ticket == "" {
@@ -55,16 +58,18 @@ var _ VerifyTicketGetter = (*VerifyTicketCache2)(nil)
 
 type VerifyTicketCache2 struct {
 	rwmutex sync.RWMutex
-	m       map[string]ComponentVerifyTicket
+	m       map[string]string
 }
 
 func NewVerifyTicketCache2() *VerifyTicketCache2 {
 	return &VerifyTicketCache2{
-		m: make(map[string]ComponentVerifyTicket),
+		m: make(map[string]string),
 	}
 }
 
-func (cache *VerifyTicketCache2) SetVerifyTicket(appId string, ticket ComponentVerifyTicket) (err error) {
+func (cache *VerifyTicketCache2) Tag9AEACC95FE9911E4B5A4A4DB30FED8E1() {}
+
+func (cache *VerifyTicketCache2) SetVerifyTicket(appId string, ticket string) (err error) {
 	if appId == "" {
 		return errors.New("empty ComponentAppId")
 	}
@@ -78,7 +83,7 @@ func (cache *VerifyTicketCache2) SetVerifyTicket(appId string, ticket ComponentV
 	return
 }
 
-func (cache *VerifyTicketCache2) GetVerifyTicket(appId string) (ticket ComponentVerifyTicket, err error) {
+func (cache *VerifyTicketCache2) GetVerifyTicket(appId string) (ticket string, err error) {
 	cache.rwmutex.RLock()
 	ticket = cache.m[appId]
 	if ticket == "" {

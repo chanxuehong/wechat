@@ -12,7 +12,7 @@ import (
 
 // 微信服务器推送过来的消息(事件)处理接口
 type SuiteMessageHandler interface {
-	ServeMessage(w http.ResponseWriter, r *Request)
+	ServeMessage(http.ResponseWriter, *Request)
 }
 
 type SuiteMessageHandlerFunc func(http.ResponseWriter, *Request)

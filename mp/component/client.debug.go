@@ -73,7 +73,7 @@ func (clt *Client) PostJSON(incompleteURL string, request interface{}, response 
 
 	hasRetried := false
 RETRY:
-	finalURL := incompleteURL + url.QueryEscape(string(token))
+	finalURL := incompleteURL + url.QueryEscape(token)
 
 	mp.LogInfoln("[WECHAT_DEBUG] request url:", finalURL)
 	mp.LogInfoln("[WECHAT_DEBUG] request json:", string(requestBytes))
@@ -152,7 +152,7 @@ func (clt *Client) GetJSON(incompleteURL string, response interface{}) (err erro
 
 	hasRetried := false
 RETRY:
-	finalURL := incompleteURL + url.QueryEscape(string(token))
+	finalURL := incompleteURL + url.QueryEscape(token)
 
 	httpResp, err := clt.HttpClient.Get(finalURL)
 	if err != nil {

@@ -18,21 +18,22 @@ import (
 	"time"
 )
 
-type AccessToken string
-
 // access_token 中控服务器接口, see access_token_server.png
 type AccessTokenServer interface {
 	// 从中控服务器获取被缓存的 access_token.
-	Token() (token AccessToken, err error)
+	Token() (string, error)
 
 	// 请求中控服务器到微信服务器刷新 access_token.
 	//
-	//  高并发场景下某个时间点可能有很多请求(比如缓存的access_token刚好过期时), 但是我们
+	//  高并发场景下某个时间点可能有很多请求(比如缓存的 access_token 刚好过期时), 但是我们
 	//  不期望也没有必要让这些请求都去微信服务器获取 access_token(有可能导致api超过调用限制),
 	//  实际上这些请求只需要一个新的 access_token 即可, 所以建议 AccessTokenServer 从微信服务器
 	//  获取一次 access_token 之后的至多5秒内(收敛时间, 视情况而定, 理论上至多5个http或tcp周期)
 	//  再次调用该函数不再去微信服务器获取, 而是直接返回之前的结果.
-	TokenRefresh() (token AccessToken, err error)
+	TokenRefresh() (string, error)
+
+	// 沒有實際意義, 接口標識而已
+	Tag6D89F2E2FE9811E49EAAA4DB30FED8E1()
 }
 
 var _ AccessTokenServer = (*DefaultAccessTokenServer)(nil)
@@ -81,9 +82,11 @@ func NewDefaultAccessTokenServer(corpId, corpSecret string,
 	return
 }
 
-func (srv *DefaultAccessTokenServer) Token() (token AccessToken, err error) {
+func (srv *DefaultAccessTokenServer) Tag6D89F2E2FE9811E49EAAA4DB30FED8E1() {}
+
+func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
 	srv.tokenCache.RLock()
-	token = AccessToken(srv.tokenCache.Token)
+	token = srv.tokenCache.Token
 	srv.tokenCache.RUnlock()
 
 	if token != "" {
@@ -92,7 +95,7 @@ func (srv *DefaultAccessTokenServer) Token() (token AccessToken, err error) {
 	return srv.TokenRefresh()
 }
 
-func (srv *DefaultAccessTokenServer) TokenRefresh() (token AccessToken, err error) {
+func (srv *DefaultAccessTokenServer) TokenRefresh() (token string, err error) {
 	accessTokenInfo, cached, err := srv.getToken()
 	if err != nil {
 		return
@@ -100,7 +103,7 @@ func (srv *DefaultAccessTokenServer) TokenRefresh() (token AccessToken, err erro
 	if !cached {
 		srv.resetTickerChan <- time.Duration(accessTokenInfo.ExpiresIn) * time.Second
 	}
-	token = AccessToken(accessTokenInfo.Token)
+	token = accessTokenInfo.Token
 	return
 }
 

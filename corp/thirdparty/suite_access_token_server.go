@@ -20,21 +20,22 @@ import (
 	"github.com/chanxuehong/wechat/corp"
 )
 
-type SuiteAccessToken string
-
 // suite_access_token 中控服务器接口.
 type SuiteAccessTokenServer interface {
 	// 从中控服务器获取被缓存的 suite_access_token.
-	Token() (token SuiteAccessToken, err error)
+	Token() (string, error)
 
 	// 请求中控服务器到微信服务器刷新 suite_access_token.
 	//
-	//  高并发场景下某个时间点可能有很多请求(比如缓存的suite_access_token刚好过期时), 但是我们
+	//  高并发场景下某个时间点可能有很多请求(比如缓存的 suite_access_token 刚好过期时), 但是我们
 	//  不期望也没有必要让这些请求都去微信服务器获取 suite_access_token(有可能导致api超过调用限制),
 	//  实际上这些请求只需要一个新的 suite_access_token 即可, 所以建议 SuiteAccessTokenServer 从微信服务器
 	//  获取一次 suite_access_token 之后的至多5秒内(收敛时间, 视情况而定, 理论上至多5个http或tcp周期)
 	//  再次调用该函数不再去微信服务器获取, 而是直接返回之前的结果.
-	TokenRefresh() (token SuiteAccessToken, err error)
+	TokenRefresh() (string, error)
+
+	// 沒有實際意義, 接口標識而已
+	TagBD6F157DFE9811E48A29A4DB30FED8E1()
 }
 
 var _ SuiteAccessTokenServer = (*DefaultSuiteAccessTokenServer)(nil)
@@ -94,9 +95,11 @@ func NewDefaultSuiteAccessTokenServer(suiteId, suiteSecret string, suiteTicketGe
 	return
 }
 
-func (srv *DefaultSuiteAccessTokenServer) Token() (token SuiteAccessToken, err error) {
+func (srv *DefaultSuiteAccessTokenServer) TagBD6F157DFE9811E48A29A4DB30FED8E1() {}
+
+func (srv *DefaultSuiteAccessTokenServer) Token() (token string, err error) {
 	srv.tokenCache.RLock()
-	token = SuiteAccessToken(srv.tokenCache.Token)
+	token = srv.tokenCache.Token
 	srv.tokenCache.RUnlock()
 
 	if token != "" {
@@ -105,7 +108,7 @@ func (srv *DefaultSuiteAccessTokenServer) Token() (token SuiteAccessToken, err e
 	return srv.TokenRefresh()
 }
 
-func (srv *DefaultSuiteAccessTokenServer) TokenRefresh() (token SuiteAccessToken, err error) {
+func (srv *DefaultSuiteAccessTokenServer) TokenRefresh() (token string, err error) {
 	suiteAccessTokenInfo, cached, err := srv.getToken()
 	if err != nil {
 		return
@@ -113,7 +116,7 @@ func (srv *DefaultSuiteAccessTokenServer) TokenRefresh() (token SuiteAccessToken
 	if !cached {
 		srv.resetTickerChan <- time.Duration(suiteAccessTokenInfo.ExpiresIn) * time.Second
 	}
-	token = SuiteAccessToken(suiteAccessTokenInfo.Token)
+	token = suiteAccessTokenInfo.Token
 	return
 }
 
@@ -183,7 +186,7 @@ func (srv *DefaultSuiteAccessTokenServer) getToken() (token suiteAccessTokenInfo
 	}{
 		SuiteId:     srv.suiteId,
 		SuiteSecret: srv.suiteSecret,
-		SuiteTicket: string(suiteTicket),
+		SuiteTicket: suiteTicket,
 	}
 
 	requestBuf := textBufferPool.Get().(*bytes.Buffer)

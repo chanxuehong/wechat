@@ -73,7 +73,7 @@ func (clt *SuiteClient) PostJSON(incompleteURL string, request interface{}, resp
 
 	hasRetried := false
 RETRY:
-	finalURL := incompleteURL + url.QueryEscape(string(token))
+	finalURL := incompleteURL + url.QueryEscape(token)
 
 	corp.LogInfoln("[WECHAT_DEBUG] request url:", finalURL)
 	corp.LogInfoln("[WECHAT_DEBUG] request json:", string(requestBytes))
@@ -152,7 +152,7 @@ func (clt *SuiteClient) GetJSON(incompleteURL string, response interface{}) (err
 
 	hasRetried := false
 RETRY:
-	finalURL := incompleteURL + url.QueryEscape(string(token))
+	finalURL := incompleteURL + url.QueryEscape(token)
 
 	httpResp, err := clt.HttpClient.Get(finalURL)
 	if err != nil {
