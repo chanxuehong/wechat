@@ -5,7 +5,7 @@
 
 // +build wechatdebug
 
-package thirdparty
+package suite
 
 import (
 	"bytes"

@@ -63,18 +63,16 @@ type DefaultAccessTokenServer struct {
 }
 
 // 创建一个新的 DefaultAccessTokenServer.
-//  如果 httpClient == nil 则默认使用 http.DefaultClient.
-func NewDefaultAccessTokenServer(corpId, corpSecret string,
-	httpClient *http.Client) (srv *DefaultAccessTokenServer) {
-
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+//  如果 clt == nil 则默认使用 http.DefaultClient.
+func NewDefaultAccessTokenServer(corpId, corpSecret string, clt *http.Client) (srv *DefaultAccessTokenServer) {
+	if clt == nil {
+		clt = http.DefaultClient
 	}
 
 	srv = &DefaultAccessTokenServer{
 		corpId:          corpId,
 		corpSecret:      corpSecret,
-		httpClient:      httpClient,
+		httpClient:      clt,
 		resetTickerChan: make(chan time.Duration),
 	}
 
@@ -200,7 +198,24 @@ func (srv *DefaultAccessTokenServer) getToken() (token accessTokenInfo, cached b
 		return
 	}
 
-	if result.ExpiresIn <= 60 {
+	// 由于网络的延时, access_token 过期时间留了一个缓冲区
+	switch {
+	case result.ExpiresIn > 31556952: // 60*60*24*365.2425
+		srv.tokenCache.Lock()
+		srv.tokenCache.Token = ""
+		srv.tokenCache.Unlock()
+
+		err = errors.New("expires_in too large: " + strconv.FormatInt(result.ExpiresIn, 10))
+		return
+	case result.ExpiresIn > 60*60:
+		result.ExpiresIn -= 60 * 10
+	case result.ExpiresIn > 60*30:
+		result.ExpiresIn -= 60 * 5
+	case result.ExpiresIn > 60*5:
+		result.ExpiresIn -= 60
+	case result.ExpiresIn > 60:
+		result.ExpiresIn -= 10
+	default:
 		srv.tokenCache.Lock()
 		srv.tokenCache.Token = ""
 		srv.tokenCache.Unlock()
@@ -208,10 +223,6 @@ func (srv *DefaultAccessTokenServer) getToken() (token accessTokenInfo, cached b
 		err = errors.New("expires_in too small: " + strconv.FormatInt(result.ExpiresIn, 10))
 		return
 	}
-
-	// 由于企业号的 access_token 会自动续期, 并且不做改变, 这样对于安全不利,
-	// 所以这里故意增加1秒, 让其过期, 获取一个不同的 access_token.
-	result.ExpiresIn++
 
 	// 更新 tokenGet 信息
 	srv.tokenGet.LastTokenInfo = result.accessTokenInfo

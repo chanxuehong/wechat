@@ -3,5 +3,15 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 第三方应用授权接口
-package thirdparty
+package suite
+
+import (
+	"bytes"
+	"sync"
+)
+
+var textBufferPool = sync.Pool{
+	New: func() interface{} {
+		return bytes.NewBuffer(make([]byte, 0, 16<<10)) // 16KB
+	},
+}

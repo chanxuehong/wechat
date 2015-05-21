@@ -3,7 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package thirdparty
+package suite
 
 const (
 	// 微信服务器推送过来的消息类型

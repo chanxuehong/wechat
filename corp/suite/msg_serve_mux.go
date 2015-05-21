@@ -3,7 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package thirdparty
+package suite
 
 import (
 	"io"
@@ -65,7 +65,7 @@ func (mux *SuiteMessageServeMux) DefaultMessageHandleFunc(handler func(http.Resp
 }
 
 // 获取 msgType 对应的 SuiteMessageHandler, 如果没有找到 nil.
-func (mux *SuiteMessageServeMux) messageHandler(msgType string) (handler SuiteMessageHandler) {
+func (mux *SuiteMessageServeMux) getMessageHandler(msgType string) (handler SuiteMessageHandler) {
 	if msgType == "" {
 		return nil
 	}
@@ -81,7 +81,7 @@ func (mux *SuiteMessageServeMux) messageHandler(msgType string) (handler SuiteMe
 
 // SuiteMessageServeMux 实现了 SuiteMessageHandler 接口.
 func (mux *SuiteMessageServeMux) ServeMessage(w http.ResponseWriter, r *Request) {
-	handler := mux.messageHandler(r.MixedMsg.InfoType)
+	handler := mux.getMessageHandler(r.MixedMsg.InfoType)
 	if handler == nil {
 		io.WriteString(w, "success")
 		return
