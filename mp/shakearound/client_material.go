@@ -19,6 +19,7 @@ func (clt Client) UploadMaterial(filepath string) (picUrl string, err error) {
 
 // 上传多媒体
 func (clt Client) uploadMedia(_filepath string) (picUrl string, err error) {
+
 	file, err := os.Open(_filepath)
 	if err != nil {
 		return
@@ -31,6 +32,7 @@ func (clt Client) uploadMedia(_filepath string) (picUrl string, err error) {
 // 上传多媒体图片
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
 func (clt Client) UploadMaterialFromReader(filename string, reader io.Reader) (picUrl string, err error) {
+
 	if filename == "" {
 		err = errors.New("empty filename")
 		return
@@ -43,6 +45,7 @@ func (clt Client) UploadMaterialFromReader(filename string, reader io.Reader) (p
 }
 
 func (clt Client) uploadMediaFromReader(filename string, reader io.Reader) (picUrl string, err error) {
+
 	var result struct {
 		mp.Error
 		Data struct {
@@ -59,6 +62,7 @@ func (clt Client) uploadMediaFromReader(filename string, reader io.Reader) (picU
 	}}
 
 	if err = clt.PostMultipartForm(incompleteURL, fields, &result); err != nil {
+
 		return
 	}
 

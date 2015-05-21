@@ -31,6 +31,7 @@ type ShakearoundDeviceString struct {
 }
 
 func (clt Client) DeviceApplyId(quantity int64, applyReason, comment string, poiId int64) (applyId int64,
+
 	deviceIdentifiers []ShakeDeviceIdentifier,
 	auditStatus int,
 	auditComment string, err error) {
@@ -73,6 +74,7 @@ func (clt Client) DeviceApplyId(quantity int64, applyReason, comment string, poi
 }
 
 func (clt Client) DeviceUpdate(device ShakeDeviceIdentifier, comment string) (err error) {
+
 	var request = struct {
 		DeviceIdentifier ShakeDeviceIdentifier `json:"device_identifier"`
 		Comment          string                `json:"comment"`
@@ -99,6 +101,7 @@ func (clt Client) DeviceUpdate(device ShakeDeviceIdentifier, comment string) (er
 }
 
 func (clt Client) DeviceBindLocation(device ShakeDeviceIdentifier, poiId int64) (err error) {
+
 	var request = struct {
 		DeviceIdentifier ShakeDeviceIdentifier `json:"device_identifier"`
 		PoiId            int64                 `json:"poi_id"`
@@ -185,6 +188,7 @@ func (clt Client) DeviceSearch(deviceIndentifiers []ShakeDeviceIdentifier, apply
 }
 
 func (clt Client) DeviceBindPage(device ShakeDeviceIdentifier, pageIds []int64, bind, append_ int64) (err error) {
+
 	var request = struct {
 		DeviceIdentifier ShakeDeviceIdentifier `json:"device_identifier"`
 		PageIds          []int64               `json:"page_ids"`

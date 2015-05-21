@@ -10,6 +10,7 @@ import (
 )
 
 func (clt Client) UserGetShakeInfo(ticket string, needPoi int) (pageId int64, beaconInfo ShakeBeaconInfo, err error) {
+
 	var request = struct {
 		Ticket  string `json:"ticket"`
 		NeedPoi int    `json:"need_poi,omtiempty"`

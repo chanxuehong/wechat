@@ -41,6 +41,7 @@ func (clt Client) PageAdd(page ShakearoundPage) (pageId int64, err error) {
 }
 
 func (clt Client) PageUpdate(page ShakearoundPage) (pageId int64, err error) {
+
 	var result struct {
 		mp.Error
 		Data struct {
@@ -71,6 +72,7 @@ func (clt Client) PageUpdate(page ShakearoundPage) (pageId int64, err error) {
 //     "count": 3
 // }
 func (clt Client) PageSearch(pageIds []int64, begin, count int64) (totalCount int64, pages []ShakearoundPage, err error) {
+
 	var request = struct {
 		PageIds []int64 `json:"page_ids,omtiempty"`
 		Begin   int64   `json:"begin,omitempty"` // 页面列表的起始索引值
@@ -103,6 +105,7 @@ func (clt Client) PageSearch(pageIds []int64, begin, count int64) (totalCount in
 }
 
 func (clt Client) PageDelete(pageIds []int64) (err error) {
+
 	var request = struct {
 		PageIds []int64 `json:"page_ids,omitempty"`
 	}{

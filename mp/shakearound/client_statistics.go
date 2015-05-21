@@ -54,6 +54,7 @@ func (clt Client) StatisticsDevice(device ShakeDeviceIdentifier, beginDate, endD
 }
 
 func (clt Client) StatisticsPage(pageId, beginDate, endDate int64) (data []ShakeBeaconStatistics, err error) {
+
 	var request = struct {
 		PageId    int64 `json:"page_id"`
 		BeginDate int64 `json:"begin_date"`
