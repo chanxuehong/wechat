@@ -6,6 +6,7 @@ package shakearound
 
 import (
 	"github.com/chanxuehong/wechat/mp"
+	"errors"
 )
 
 type Page struct {
@@ -61,6 +62,9 @@ func (clt Client) UpdatePage(page *Page) (err error) {
 
 func (clt Client) SearchPageById(pageId int) (page *Page, totalCount int, err error) {
 	pages, totalCount, err := clt.SearchPageByIds(&([]int{pageId}))
+	if err != nil {
+		return
+	}
 	page = &(*pages)[0]
 	return
 }
@@ -71,7 +75,12 @@ func (clt Client) SearchPageByIds(pageIds *[]int) (pages *[]Page, totalCount int
 	}{
 		PageIds:   pageIds,
 	}
-	return clt.SearchPage(request)
+	pages, totalCount, err = clt.SearchPage(request)
+	if len(*pages) == 0{
+		err = errors.New("指定ID的页面不存在")
+		return
+	}
+	return
 }
 
 func (clt Client) SearchPageByCount(begin, count int) (pages *[]Page, totalCount int, err error) {
@@ -94,7 +103,7 @@ func (clt Client) SearchPage(v interface{}) (pages *[]Page, totalCount int, err 
 		} `json:"data"`
 	}
 
-	incompleteURL := "https://api.weixin.qq.com/shakearound/device/search?access_token="
+	incompleteURL := "https://api.weixin.qq.com/shakearound/page/search?access_token="
 	if err = clt.PostJSON(incompleteURL, v, &result); err != nil {
 		return
 	}
