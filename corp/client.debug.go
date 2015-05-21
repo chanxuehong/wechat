@@ -26,18 +26,18 @@ type Client struct {
 }
 
 // 创建一个新的 Client.
-//  如果 HttpClient == nil 则默认用 http.DefaultClient
-func NewClient(AccessTokenServer AccessTokenServer, HttpClient *http.Client) *Client {
-	if AccessTokenServer == nil {
-		panic("AccessTokenServer == nil")
+//  如果 clt == nil 则默认用 http.DefaultClient
+func NewClient(srv AccessTokenServer, clt *http.Client) *Client {
+	if srv == nil {
+		panic("nil AccessTokenServer")
 	}
-	if HttpClient == nil {
-		HttpClient = http.DefaultClient
+	if clt == nil {
+		clt = http.DefaultClient
 	}
 
 	return &Client{
-		AccessTokenServer: AccessTokenServer,
-		HttpClient:        HttpClient,
+		AccessTokenServer: srv,
+		HttpClient:        clt,
 	}
 }
 

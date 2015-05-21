@@ -105,7 +105,7 @@ func (mux *MessageServeMux) DefaultEventHandleFunc(handler func(http.ResponseWri
 }
 
 // 获取 msgType 对应的 MessageHandler, 如果没有找到 nil.
-func (mux *MessageServeMux) messageHandler(msgType string) (handler MessageHandler) {
+func (mux *MessageServeMux) getMessageHandler(msgType string) (handler MessageHandler) {
 	if msgType == "" {
 		return nil
 	}
@@ -120,7 +120,7 @@ func (mux *MessageServeMux) messageHandler(msgType string) (handler MessageHandl
 }
 
 // 获取 eventType 对应的 MessageHandler, 如果没有找到 nil.
-func (mux *MessageServeMux) eventHandler(eventType string) (handler MessageHandler) {
+func (mux *MessageServeMux) getEventHandler(eventType string) (handler MessageHandler) {
 	if eventType == "" {
 		return nil
 	}
@@ -137,13 +137,13 @@ func (mux *MessageServeMux) eventHandler(eventType string) (handler MessageHandl
 // MessageServeMux 实现了 MessageHandler 接口.
 func (mux *MessageServeMux) ServeMessage(w http.ResponseWriter, r *Request) {
 	if MsgType := r.MixedMsg.MsgType; MsgType == "event" {
-		handler := mux.eventHandler(r.MixedMsg.Event)
+		handler := mux.getEventHandler(r.MixedMsg.Event)
 		if handler == nil {
 			return // 返回空串, 符合微信协议
 		}
 		handler.ServeMessage(w, r)
 	} else {
-		handler := mux.messageHandler(MsgType)
+		handler := mux.getMessageHandler(MsgType)
 		if handler == nil {
 			return // 返回空串, 符合微信协议
 		}
