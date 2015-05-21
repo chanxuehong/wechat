@@ -16,11 +16,11 @@ type Server interface {
 	Token() string // 获取第三方平台的Token
 
 	CurrentAESKey() [32]byte                // 获取当前有效的 AES 加密 Key
-	LastAESKey() (key [32]byte, valid bool) // 获取最后一个有效的 AES 加密 Key
+	LastAESKey() (key [32]byte, valid bool) // 获取上一个有效的 AES 加密 Key
 
 	MessageHandler() MessageHandler // 获取 MessageHandler
 
-	MessageSizeLimit() int64 // 消息請求的 http body 大小限制, 如果 <= 0 則不做限制
+	RequestSizeLimit() int64 // 消息請求的 http body 大小限制, 如果 <= 0 則不做限制
 }
 
 var _ Server = (*DefaultServer)(nil)
@@ -36,10 +36,10 @@ type DefaultServer struct {
 
 	messageHandler MessageHandler
 
-	messageSizeLimit int64
+	requestSizeLimit int64
 }
 
-func NewDefaultServer(appId, token string, AESKey []byte, handler MessageHandler, messageSizeLimit int64) (srv *DefaultServer) {
+func NewDefaultServer(appId, token string, AESKey []byte, handler MessageHandler, requestSizeLimit int64) (srv *DefaultServer) {
 	if len(AESKey) != 32 {
 		panic("the length of AESKey must equal to 32")
 	}
@@ -51,7 +51,7 @@ func NewDefaultServer(appId, token string, AESKey []byte, handler MessageHandler
 		appId:            appId,
 		token:            token,
 		messageHandler:   handler,
-		messageSizeLimit: messageSizeLimit,
+		requestSizeLimit: requestSizeLimit,
 	}
 	copy(srv.currentAESKey[:], AESKey)
 	return
@@ -66,8 +66,8 @@ func (srv *DefaultServer) Token() string {
 func (srv *DefaultServer) MessageHandler() MessageHandler {
 	return srv.messageHandler
 }
-func (srv *DefaultServer) MessageSizeLimit() int64 {
-	return srv.messageSizeLimit
+func (srv *DefaultServer) RequestSizeLimit() int64 {
+	return srv.requestSizeLimit
 }
 func (srv *DefaultServer) CurrentAESKey() (key [32]byte) {
 	srv.rwmutex.RLock()

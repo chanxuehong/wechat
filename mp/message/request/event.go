@@ -23,37 +23,37 @@ const (
 // 关注事件(普通关注)
 type SubscribeEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Event string `xml:"Event" json:"Event"` // 事件类型，subscribe(订阅)
 }
 
 func GetSubscribeEvent(msg *mp.MixedMessage) *SubscribeEvent {
 	return &SubscribeEvent{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		Event:               msg.Event,
+		MessageHeader: msg.MessageHeader,
+		Event:         msg.Event,
 	}
 }
 
 // 取消关注
 type UnsubscribeEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Event string `xml:"Event" json:"Event"` // 事件类型，unsubscribe(取消订阅)
 }
 
 func GetUnsubscribeEvent(msg *mp.MixedMessage) *UnsubscribeEvent {
 	return &UnsubscribeEvent{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		Event:               msg.Event,
+		MessageHeader: msg.MessageHeader,
+		Event:         msg.Event,
 	}
 }
 
 // 用户未关注时，扫描带参数二维码进行关注后的事件推送
 type SubscribeByScanEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Event    string `xml:"Event"    json:"Event"`    // 事件类型，subscribe
 	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值，qrscene_为前缀，后面为二维码的参数值
@@ -73,17 +73,17 @@ func (event *SubscribeByScanEvent) Scene() (scene string, err error) {
 
 func GetSubscribeByScanEvent(msg *mp.MixedMessage) *SubscribeByScanEvent {
 	return &SubscribeByScanEvent{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		Event:               msg.Event,
-		EventKey:            msg.EventKey,
-		Ticket:              msg.Ticket,
+		MessageHeader: msg.MessageHeader,
+		Event:         msg.Event,
+		EventKey:      msg.EventKey,
+		Ticket:        msg.Ticket,
 	}
 }
 
 // 用户已关注时，扫描带参数二维码的事件推送
 type ScanEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Event    string `xml:"Event"    json:"Event"`    // 事件类型，SCAN
 	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值，是一个32位无符号整数，即创建二维码时的二维码scene_id
@@ -92,17 +92,17 @@ type ScanEvent struct {
 
 func GetScanEvent(msg *mp.MixedMessage) *ScanEvent {
 	return &ScanEvent{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		Event:               msg.Event,
-		EventKey:            msg.EventKey,
-		Ticket:              msg.Ticket,
+		MessageHeader: msg.MessageHeader,
+		Event:         msg.Event,
+		EventKey:      msg.EventKey,
+		Ticket:        msg.Ticket,
 	}
 }
 
 // 上报地理位置事件
 type LocationEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Event     string  `xml:"Event"     json:"Event"`     // 事件类型，LOCATION
 	Latitude  float64 `xml:"Latitude"  json:"Latitude"`  // 地理位置纬度
@@ -112,10 +112,10 @@ type LocationEvent struct {
 
 func GetLocationEvent(msg *mp.MixedMessage) *LocationEvent {
 	return &LocationEvent{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		Event:               msg.Event,
-		Latitude:            msg.Latitude,
-		Longitude:           msg.Longitude,
-		Precision:           msg.Precision,
+		MessageHeader: msg.MessageHeader,
+		Event:         msg.Event,
+		Latitude:      msg.Latitude,
+		Longitude:     msg.Longitude,
+		Precision:     msg.Precision,
 	}
 }

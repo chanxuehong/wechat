@@ -19,14 +19,14 @@ import (
 )
 
 // 微信公众号"主动"请求功能的基本封装.
-type WechatClient struct {
+type Client struct {
 	AccessTokenServer
 	HttpClient *http.Client
 }
 
-// 创建一个新的 WechatClient.
+// 创建一个新的 Client.
 //  如果 clt == nil 则默认用 http.DefaultClient
-func NewWechatClient(srv AccessTokenServer, clt *http.Client) *WechatClient {
+func NewClient(srv AccessTokenServer, clt *http.Client) *Client {
 	if srv == nil {
 		panic("nil AccessTokenServer")
 	}
@@ -34,7 +34,7 @@ func NewWechatClient(srv AccessTokenServer, clt *http.Client) *WechatClient {
 		clt = http.DefaultClient
 	}
 
-	return &WechatClient{
+	return &Client{
 		AccessTokenServer: srv,
 		HttpClient:        clt,
 	}
@@ -51,7 +51,7 @@ func NewWechatClient(srv AccessTokenServer, clt *http.Client) *WechatClient {
 //          Error
 //          ...
 //      }
-func (clt *WechatClient) PostJSON(incompleteURL string, request interface{}, response interface{}) (err error) {
+func (clt *Client) PostJSON(incompleteURL string, request interface{}, response interface{}) (err error) {
 	buf := textBufferPool.Get().(*bytes.Buffer)
 	buf.Reset()
 	defer textBufferPool.Put(buf)
@@ -130,7 +130,7 @@ RETRY:
 //          Error
 //          ...
 //      }
-func (clt *WechatClient) GetJSON(incompleteURL string, response interface{}) (err error) {
+func (clt *Client) GetJSON(incompleteURL string, response interface{}) (err error) {
 	token, err := clt.Token()
 	if err != nil {
 		return

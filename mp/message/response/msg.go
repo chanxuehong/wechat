@@ -26,7 +26,7 @@ const (
 // 文本消息
 type Text struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Content string `xml:"Content" json:"Content"` // 回复的消息内容, 支持换行符
 }
@@ -35,7 +35,7 @@ type Text struct {
 //  NOTE: content 支持换行符
 func NewText(to, from string, timestamp int64, content string) (text *Text) {
 	return &Text{
-		CommonMessageHeader: mp.CommonMessageHeader{
+		MessageHeader: mp.MessageHeader{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   timestamp,
@@ -48,7 +48,7 @@ func NewText(to, from string, timestamp int64, content string) (text *Text) {
 // 图片消息
 type Image struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Image struct {
 		MediaId string `xml:"MediaId" json:"MediaId"` // MediaId 通过上传多媒体文件得到
@@ -59,7 +59,7 @@ type Image struct {
 //  MediaId 通过上传多媒体文件得到
 func NewImage(to, from string, timestamp int64, mediaId string) (image *Image) {
 	image = &Image{
-		CommonMessageHeader: mp.CommonMessageHeader{
+		MessageHeader: mp.MessageHeader{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   timestamp,
@@ -73,7 +73,7 @@ func NewImage(to, from string, timestamp int64, mediaId string) (image *Image) {
 // 语音消息
 type Voice struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Voice struct {
 		MediaId string `xml:"MediaId" json:"MediaId"` // MediaId 通过上传多媒体文件得到
@@ -84,7 +84,7 @@ type Voice struct {
 //  MediaId 通过上传多媒体文件得到
 func NewVoice(to, from string, timestamp int64, mediaId string) (voice *Voice) {
 	voice = &Voice{
-		CommonMessageHeader: mp.CommonMessageHeader{
+		MessageHeader: mp.MessageHeader{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   timestamp,
@@ -98,7 +98,7 @@ func NewVoice(to, from string, timestamp int64, mediaId string) (voice *Voice) {
 // 视频消息
 type Video struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Video struct {
 		MediaId     string `xml:"MediaId"               json:"MediaId"`               // MediaId 通过上传多媒体文件得到
@@ -112,7 +112,7 @@ type Video struct {
 //  title, description 可以为 ""
 func NewVideo(to, from string, timestamp int64, mediaId, title, description string) (video *Video) {
 	video = &Video{
-		CommonMessageHeader: mp.CommonMessageHeader{
+		MessageHeader: mp.MessageHeader{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   timestamp,
@@ -128,7 +128,7 @@ func NewVideo(to, from string, timestamp int64, mediaId, title, description stri
 // 音乐消息
 type Music struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Music struct {
 		Title        string `xml:"Title,omitempty"        json:"Title,omitempty"`        // 音乐标题
@@ -146,7 +146,7 @@ func NewMusic(to, from string, timestamp int64, thumbMediaId, musicURL,
 	HQMusicURL, title, description string) (music *Music) {
 
 	music = &Music{
-		CommonMessageHeader: mp.CommonMessageHeader{
+		MessageHeader: mp.MessageHeader{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   timestamp,
@@ -176,7 +176,7 @@ const (
 // 图文消息
 type News struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	ArticleCount int       `xml:"ArticleCount"            json:"ArticleCount"`       // 图文消息个数, 限制为10条以内
 	Articles     []Article `xml:"Articles>item,omitempty" json:"Articles,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
@@ -185,7 +185,7 @@ type News struct {
 // NOTE: articles 的长度不能超过 NewsArticleCountLimit
 func NewNews(to, from string, timestamp int64, articles []Article) (news *News) {
 	news = &News{
-		CommonMessageHeader: mp.CommonMessageHeader{
+		MessageHeader: mp.MessageHeader{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   timestamp,
@@ -222,7 +222,7 @@ type TransInfo struct {
 // 将消息转发到多客服
 type TransferToCustomerService struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	*TransInfo `xml:"TransInfo,omitempty" json:"TransInfo,omitempty"`
 }
@@ -230,7 +230,7 @@ type TransferToCustomerService struct {
 // 如果不指定客服则 kfAccount 留空.
 func NewTransferToCustomerService(to, from string, timestamp int64, kfAccount string) (msg *TransferToCustomerService) {
 	msg = &TransferToCustomerService{
-		CommonMessageHeader: mp.CommonMessageHeader{
+		MessageHeader: mp.MessageHeader{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   timestamp,

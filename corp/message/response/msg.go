@@ -19,7 +19,7 @@ const (
 	MsgTypeNews  = "news"  // 图文消息
 )
 
-type CommonMessageHeader struct {
+type MessageHeader struct {
 	ToUserName   string `xml:"ToUserName"   json:"ToUserName"`
 	FromUserName string `xml:"FromUserName" json:"FromUserName"`
 	CreateTime   int64  `xml:"CreateTime"   json:"CreateTime"`
@@ -28,14 +28,14 @@ type CommonMessageHeader struct {
 
 type Text struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	CommonMessageHeader
+	MessageHeader
 
 	Content string `xml:"Content" json:"Content"` // 文本消息内容
 }
 
 func NewText(to, from string, timestamp int64, content string) (text *Text) {
 	return &Text{
-		CommonMessageHeader: CommonMessageHeader{
+		MessageHeader: MessageHeader{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   timestamp,
@@ -47,7 +47,7 @@ func NewText(to, from string, timestamp int64, content string) (text *Text) {
 
 type Image struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	CommonMessageHeader
+	MessageHeader
 
 	Image struct {
 		MediaId string `xml:"MediaId" json:"MediaId"` // 图片文件id，可以调用上传媒体文件接口获取
@@ -56,7 +56,7 @@ type Image struct {
 
 func NewImage(to, from string, timestamp int64, mediaId string) (image *Image) {
 	image = &Image{
-		CommonMessageHeader: CommonMessageHeader{
+		MessageHeader: MessageHeader{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   timestamp,
@@ -69,7 +69,7 @@ func NewImage(to, from string, timestamp int64, mediaId string) (image *Image) {
 
 type Voice struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	CommonMessageHeader
+	MessageHeader
 
 	Voice struct {
 		MediaId string `xml:"MediaId" json:"MediaId"` // 语音文件id，可以调用上传媒体文件接口获取
@@ -78,7 +78,7 @@ type Voice struct {
 
 func NewVoice(to, from string, timestamp int64, mediaId string) (voice *Voice) {
 	voice = &Voice{
-		CommonMessageHeader: CommonMessageHeader{
+		MessageHeader: MessageHeader{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   timestamp,
@@ -91,7 +91,7 @@ func NewVoice(to, from string, timestamp int64, mediaId string) (voice *Voice) {
 
 type Video struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	CommonMessageHeader
+	MessageHeader
 
 	Video struct {
 		MediaId     string `xml:"MediaId"               json:"MediaId"`               // 视频文件id，可以调用上传媒体文件接口获取
@@ -102,7 +102,7 @@ type Video struct {
 
 func NewVideo(to, from string, timestamp int64, mediaId, title, description string) (video *Video) {
 	video = &Video{
-		CommonMessageHeader: CommonMessageHeader{
+		MessageHeader: MessageHeader{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   timestamp,
@@ -128,7 +128,7 @@ const (
 
 type News struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	CommonMessageHeader
+	MessageHeader
 
 	ArticleCount int       `xml:"ArticleCount"            json:"ArticleCount"` // 图文条数，默认第一条为大图。图文数不能超过10，否则将会无响应
 	Articles     []Article `xml:"Articles>item,omitempty" json:"Articles,omitempty"`
@@ -136,7 +136,7 @@ type News struct {
 
 func NewNews(to, from string, timestamp int64, articles []Article) (news *News) {
 	news = &News{
-		CommonMessageHeader: CommonMessageHeader{
+		MessageHeader: MessageHeader{
 			ToUserName:   to,
 			FromUserName: from,
 			CreateTime:   timestamp,

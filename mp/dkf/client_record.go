@@ -92,7 +92,7 @@ type RecordIterator struct {
 	lastGetRecordRequest *GetRecordRequest // 上一次查询的 request
 	lastGetRecordResult  []Record          // 上一次查询的 result
 
-	wechatClient   Client // 关联的微信 Client
+	clt            Client // 关联的微信 Client
 	nextPageCalled bool   // NextPage() 是否调用过
 }
 
@@ -114,7 +114,7 @@ func (iter *RecordIterator) NextPage() (records []Record, err error) {
 
 	// 不是第一次调用的都要从服务器拉取数据
 	iter.lastGetRecordRequest.PageIndex++
-	records, err = iter.wechatClient.GetRecord(iter.lastGetRecordRequest)
+	records, err = iter.clt.GetRecord(iter.lastGetRecordRequest)
 	if err != nil {
 		iter.lastGetRecordRequest.PageIndex-- //
 		return
@@ -134,7 +134,7 @@ func (clt Client) RecordIterator(request *GetRecordRequest) (iter *RecordIterato
 	iter = &RecordIterator{
 		lastGetRecordRequest: request,
 		lastGetRecordResult:  records,
-		wechatClient:         clt,
+		clt:                  clt,
 		nextPageCalled:       false,
 	}
 	return

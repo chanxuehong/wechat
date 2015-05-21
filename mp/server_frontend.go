@@ -11,28 +11,28 @@ import (
 )
 
 // 实现了 http.Handler, 处理一个公众号的消息(事件)请求.
-type WechatServerFrontend struct {
-	wechatServer          WechatServer
+type ServerFrontend struct {
+	server                Server
 	invalidRequestHandler InvalidRequestHandler
 }
 
-func NewWechatServerFrontend(server WechatServer, handler InvalidRequestHandler) *WechatServerFrontend {
+func NewServerFrontend(server Server, handler InvalidRequestHandler) *ServerFrontend {
 	if server == nil {
-		panic("nil WechatServer")
+		panic("nil Server")
 	}
 	if handler == nil {
 		handler = DefaultInvalidRequestHandler
 	}
 
-	return &WechatServerFrontend{
-		wechatServer:          server,
+	return &ServerFrontend{
+		server:                server,
 		invalidRequestHandler: handler,
 	}
 }
 
 // 实现 http.Handler.
-func (frontend *WechatServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	wechatServer := frontend.wechatServer
+func (frontend *ServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	server := frontend.server
 	invalidRequestHandler := frontend.invalidRequestHandler
 
 	queryValues, err := url.ParseQuery(r.URL.RawQuery)
@@ -41,5 +41,5 @@ func (frontend *WechatServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	ServeHTTP(w, r, queryValues, wechatServer, invalidRequestHandler)
+	ServeHTTP(w, r, queryValues, server, invalidRequestHandler)
 }

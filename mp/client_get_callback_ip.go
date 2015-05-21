@@ -8,7 +8,7 @@ package mp
 // 获取微信服务器IP地址.
 //  如果公众号基于安全等考虑，需要获知微信服务器的IP地址列表，以便进行相关限制，
 //  可以通过该接口获得微信服务器IP地址列表。
-func (clt *WechatClient) GetCallbackIP() (ipList []string, err error) {
+func (clt *Client) GetCallbackIP() (ipList []string, err error) {
 	var result struct {
 		Error
 		IPList []string `json:"ip_list"`
