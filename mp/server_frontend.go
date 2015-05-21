@@ -14,9 +14,11 @@ import (
 type ServerFrontend struct {
 	server                Server
 	invalidRequestHandler InvalidRequestHandler
+	interceptor           Interceptor
 }
 
-func NewServerFrontend(server Server, handler InvalidRequestHandler) *ServerFrontend {
+// handler, interceptor 均可以为 nil
+func NewServerFrontend(server Server, handler InvalidRequestHandler, interceptor Interceptor) *ServerFrontend {
 	if server == nil {
 		panic("nil Server")
 	}
@@ -27,19 +29,21 @@ func NewServerFrontend(server Server, handler InvalidRequestHandler) *ServerFron
 	return &ServerFrontend{
 		server:                server,
 		invalidRequestHandler: handler,
+		interceptor:           interceptor,
 	}
 }
 
 // 实现 http.Handler.
 func (frontend *ServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	server := frontend.server
-	invalidRequestHandler := frontend.invalidRequestHandler
-
 	queryValues, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
-		invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		frontend.invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
-	ServeHTTP(w, r, queryValues, server, invalidRequestHandler)
+	if interceptor := frontend.interceptor; interceptor != nil && !interceptor.Intercept(w, r, queryValues) {
+		return
+	}
+
+	ServeHTTP(w, r, queryValues, frontend.server, frontend.invalidRequestHandler)
 }

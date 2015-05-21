@@ -3,28 +3,28 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package component
+package suite
 
 import (
 	"net/http"
 	"net/url"
 
-	"github.com/chanxuehong/wechat/mp"
+	"github.com/chanxuehong/wechat/corp"
 )
 
 type ServerFrontend struct {
 	server                Server
-	invalidRequestHandler mp.InvalidRequestHandler
-	interceptor           mp.Interceptor
+	invalidRequestHandler corp.InvalidRequestHandler
+	interceptor           corp.Interceptor
 }
 
 // handler, interceptor 均可以为 nil
-func NewServerFrontend(server Server, handler mp.InvalidRequestHandler, interceptor mp.Interceptor) *ServerFrontend {
+func NewServerFrontend(server Server, handler corp.InvalidRequestHandler, interceptor corp.Interceptor) *ServerFrontend {
 	if server == nil {
 		panic("nil Server")
 	}
 	if handler == nil {
-		handler = mp.DefaultInvalidRequestHandler
+		handler = corp.DefaultInvalidRequestHandler
 	}
 
 	return &ServerFrontend{

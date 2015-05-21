@@ -22,7 +22,7 @@ type SuiteTicketMessage struct {
 	SuiteTicket string `xml:"SuiteTicket" json:"SuiteTicket"`
 }
 
-func GetSuiteTicketMessage(msg *MixedSuiteMessage) *SuiteTicketMessage {
+func GetSuiteTicketMessage(msg *MixedMessage) *SuiteTicketMessage {
 	return &SuiteTicketMessage{
 		SuiteId:     msg.SuiteId,
 		InfoType:    msg.InfoType,
@@ -41,7 +41,7 @@ type ChangeAuthMessage struct {
 	AuthCorpId string `xml:"AuthCorpId"  json:"AuthCorpId"`
 }
 
-func GetChangeAuthMessage(msg *MixedSuiteMessage) *ChangeAuthMessage {
+func GetChangeAuthMessage(msg *MixedMessage) *ChangeAuthMessage {
 	return &ChangeAuthMessage{
 		SuiteId:    msg.SuiteId,
 		InfoType:   msg.InfoType,
@@ -60,7 +60,7 @@ type CancelAuthMessage struct {
 	AuthCorpId string `xml:"AuthCorpId"  json:"AuthCorpId"`
 }
 
-func GetCancelAuthMessage(msg *MixedSuiteMessage) *CancelAuthMessage {
+func GetCancelAuthMessage(msg *MixedMessage) *CancelAuthMessage {
 	return &CancelAuthMessage{
 		SuiteId:    msg.SuiteId,
 		InfoType:   msg.InfoType,

@@ -6,6 +6,7 @@
 package mp
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -32,38 +33,39 @@ const URLQueryServerKeyName = "wechat_server"
 //
 //  MultiServerFrontend 并发安全，可以在运行中动态增加和删除 Server。
 type MultiServerFrontend struct {
-	rwmutex               sync.RWMutex
-	serverMap             map[string]Server
 	invalidRequestHandler InvalidRequestHandler
+	interceptor           Interceptor
+
+	rwmutex   sync.RWMutex
+	serverMap map[string]Server
 }
 
-// 设置 InvalidRequestHandler, 如果 handler == nil 则使用默认的 DefaultInvalidRequestHandler
-func (frontend *MultiServerFrontend) SetInvalidRequestHandler(handler InvalidRequestHandler) {
-	frontend.rwmutex.Lock()
+// handler, interceptor 均可以为 nil
+func NewMultiServerFrontend(handler InvalidRequestHandler, interceptor Interceptor) *MultiServerFrontend {
 	if handler == nil {
-		frontend.invalidRequestHandler = DefaultInvalidRequestHandler
-	} else {
-		frontend.invalidRequestHandler = handler
+		handler = DefaultInvalidRequestHandler
 	}
-	frontend.rwmutex.Unlock()
+
+	return &MultiServerFrontend{
+		invalidRequestHandler: handler,
+		interceptor:           interceptor,
+		serverMap:             make(map[string]Server),
+	}
 }
 
 // 设置 serverKey-Server pair.
-// 如果 serverKey == "" 或者 server == nil 则不做任何操作
-func (frontend *MultiServerFrontend) SetServer(serverKey string, server Server) {
+func (frontend *MultiServerFrontend) SetServer(serverKey string, server Server) (err error) {
 	if serverKey == "" {
-		return
+		return errors.New("empty serverKey")
 	}
 	if server == nil {
-		return
+		return errors.New("nil Server")
 	}
 
 	frontend.rwmutex.Lock()
-	if frontend.serverMap == nil {
-		frontend.serverMap = make(map[string]Server)
-	}
 	frontend.serverMap[serverKey] = server
 	frontend.rwmutex.Unlock()
+	return
 }
 
 // 删除 serverKey 对应的 Server
@@ -80,44 +82,34 @@ func (frontend *MultiServerFrontend) DeleteAllServer() {
 	frontend.rwmutex.Unlock()
 }
 
-func (frontend *MultiServerFrontend) getInvalidRequestHandler() (h InvalidRequestHandler) {
-	frontend.rwmutex.RLock()
-	h = frontend.invalidRequestHandler
-	if h == nil {
-		h = DefaultInvalidRequestHandler
-	}
-	frontend.rwmutex.RUnlock()
-	return
-}
-
 // 实现 http.Handler
 func (frontend *MultiServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	queryValues, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
-		frontend.getInvalidRequestHandler().ServeInvalidRequest(w, r, err)
+		frontend.invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		return
+	}
+
+	if interceptor := frontend.interceptor; interceptor != nil && !interceptor.Intercept(w, r, queryValues) {
 		return
 	}
 
 	serverKey := queryValues.Get(URLQueryServerKeyName)
 	if serverKey == "" {
 		err = fmt.Errorf("the url query value with name %s is empty", URLQueryServerKeyName)
-		frontend.getInvalidRequestHandler().ServeInvalidRequest(w, r, err)
+		frontend.invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
 	frontend.rwmutex.RLock()
-	invalidRequestHandler := frontend.invalidRequestHandler
 	server := frontend.serverMap[serverKey]
 	frontend.rwmutex.RUnlock()
 
-	if invalidRequestHandler == nil {
-		invalidRequestHandler = DefaultInvalidRequestHandler
-	}
 	if server == nil {
 		err = fmt.Errorf("Not found Server for %s == %s", URLQueryServerKeyName, serverKey)
-		invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		frontend.invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
-	ServeHTTP(w, r, queryValues, server, invalidRequestHandler)
+	ServeHTTP(w, r, queryValues, server, frontend.invalidRequestHandler)
 }

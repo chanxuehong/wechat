@@ -10,31 +10,31 @@ import (
 	"sync"
 )
 
-var ErrNotFound = errors.New("github.com/chanxuehong/wechat/corp/thirdparty: item not found")
+var ErrNotFound = errors.New("item not found")
 
-type SuiteTicketGetter interface {
-	// 根据 SuiteId 获取套件当前的 SuiteTicket, 如果没有找到返回 ErrNotFound
-	GetSuiteTicket(SuiteId string) (ticket string, err error)
+type TicketGetter interface {
+	// 根据 suiteId 获取套件当前的 SuiteTicket, 如果没有找到返回 ErrNotFound
+	GetSuiteTicket(suiteId string) (ticket string, err error)
 
 	// 沒有實際意義, 接口標識而已
 	TagEF8503CCFE9811E4959AA4DB30FED8E1()
 }
 
-var _ SuiteTicketGetter = (*SuiteTicketCache)(nil)
+var _ TicketGetter = (*TicketCache)(nil)
 
-type SuiteTicketCache struct {
+type TicketCache struct {
 	rwmutex sync.RWMutex
 	ticket  string
 }
 
-func (cache *SuiteTicketCache) TagEF8503CCFE9811E4959AA4DB30FED8E1() {}
+func (cache *TicketCache) TagEF8503CCFE9811E4959AA4DB30FED8E1() {}
 
-func (cache *SuiteTicketCache) SetSuiteTicket(suiteId string, ticket string) (err error) {
+func (cache *TicketCache) SetSuiteTicket(suiteId string, ticket string) (err error) {
 	//if suiteId == "" {
 	//	return errors.New("empty suiteId")
 	//}
 	if ticket == "" {
-		return errors.New("empty SuiteTicket")
+		return errors.New("empty ticket")
 	}
 
 	cache.rwmutex.Lock()
@@ -43,7 +43,7 @@ func (cache *SuiteTicketCache) SetSuiteTicket(suiteId string, ticket string) (er
 	return
 }
 
-func (cache *SuiteTicketCache) GetSuiteTicket(suiteId string) (ticket string, err error) {
+func (cache *TicketCache) GetSuiteTicket(suiteId string) (ticket string, err error) {
 	cache.rwmutex.RLock()
 	ticket = cache.ticket
 	if ticket == "" {
@@ -53,27 +53,27 @@ func (cache *SuiteTicketCache) GetSuiteTicket(suiteId string) (ticket string, er
 	return
 }
 
-var _ SuiteTicketGetter = (*SuiteTicketCache2)(nil)
+var _ TicketGetter = (*TicketCache2)(nil)
 
-type SuiteTicketCache2 struct {
+type TicketCache2 struct {
 	rwmutex sync.RWMutex
 	m       map[string]string
 }
 
-func NewSuiteTicketCache2() *SuiteTicketCache2 {
-	return &SuiteTicketCache2{
+func NewTicketCache2() *TicketCache2 {
+	return &TicketCache2{
 		m: make(map[string]string),
 	}
 }
 
-func (cache *SuiteTicketCache2) TagEF8503CCFE9811E4959AA4DB30FED8E1() {}
+func (cache *TicketCache2) TagEF8503CCFE9811E4959AA4DB30FED8E1() {}
 
-func (cache *SuiteTicketCache2) SetSuiteTicket(suiteId string, ticket string) (err error) {
+func (cache *TicketCache2) SetSuiteTicket(suiteId string, ticket string) (err error) {
 	if suiteId == "" {
 		return errors.New("empty suiteId")
 	}
 	if ticket == "" {
-		return errors.New("empty SuiteTicket")
+		return errors.New("empty ticket")
 	}
 
 	cache.rwmutex.Lock()
@@ -82,7 +82,7 @@ func (cache *SuiteTicketCache2) SetSuiteTicket(suiteId string, ticket string) (e
 	return
 }
 
-func (cache *SuiteTicketCache2) GetSuiteTicket(suiteId string) (ticket string, err error) {
+func (cache *TicketCache2) GetSuiteTicket(suiteId string) (ticket string, err error) {
 	cache.rwmutex.RLock()
 	ticket = cache.m[suiteId]
 	if ticket == "" {

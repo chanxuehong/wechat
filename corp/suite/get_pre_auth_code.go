@@ -16,7 +16,7 @@ type PreAuthCode struct {
 
 // 获取预授权码.
 //  AppIdList: 应用id，本参数选填，表示用户能对本套件内的哪些应用授权，不填时默认用户有全部授权权限
-func (clt *SuiteClient) GetPreAuthCode(AppIdList []int64) (code *PreAuthCode, err error) {
+func (clt *Client) GetPreAuthCode(AppIdList []int64) (code *PreAuthCode, err error) {
 	request := struct {
 		SuiteId   string  `json:"suite_id"`
 		AppIdList []int64 `json:"appid,omitempty"`

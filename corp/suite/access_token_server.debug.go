@@ -22,7 +22,7 @@ import (
 )
 
 // suite_access_token 中控服务器接口.
-type SuiteAccessTokenServer interface {
+type AccessTokenServer interface {
 	// 从中控服务器获取被缓存的 suite_access_token.
 	Token() (string, error)
 
@@ -30,7 +30,7 @@ type SuiteAccessTokenServer interface {
 	//
 	//  高并发场景下某个时间点可能有很多请求(比如缓存的 suite_access_token 刚好过期时), 但是我们
 	//  不期望也没有必要让这些请求都去微信服务器获取 suite_access_token(有可能导致api超过调用限制),
-	//  实际上这些请求只需要一个新的 suite_access_token 即可, 所以建议 SuiteAccessTokenServer 从微信服务器
+	//  实际上这些请求只需要一个新的 suite_access_token 即可, 所以建议 AccessTokenServer 从微信服务器
 	//  获取一次 suite_access_token 之后的至多5秒内(收敛时间, 视情况而定, 理论上至多5个http或tcp周期)
 	//  再次调用该函数不再去微信服务器获取, 而是直接返回之前的结果.
 	TokenRefresh() (string, error)
@@ -39,18 +39,18 @@ type SuiteAccessTokenServer interface {
 	TagBD6F157DFE9811E48A29A4DB30FED8E1()
 }
 
-var _ SuiteAccessTokenServer = (*DefaultSuiteAccessTokenServer)(nil)
+var _ AccessTokenServer = (*DefaultAccessTokenServer)(nil)
 
-// SuiteAccessTokenServer 的简单实现.
+// AccessTokenServer 的简单实现.
 //  NOTE:
 //  1. 用于单进程环境.
-//  2. 因为 DefaultSuiteAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 SuiteAccessTokenServer 接口,
-//     所以整个系统只能存在一个 DefaultSuiteAccessTokenServer 实例!
-type DefaultSuiteAccessTokenServer struct {
-	suiteId           string
-	suiteSecret       string
-	suiteTicketGetter SuiteTicketGetter
-	httpClient        *http.Client
+//  2. 因为 DefaultAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 AccessTokenServer 接口,
+//     所以整个系统只能存在一个 DefaultAccessTokenServer 实例!
+type DefaultAccessTokenServer struct {
+	suiteId      string
+	suiteSecret  string
+	ticketGetter TicketGetter
+	httpClient   *http.Client
 
 	resetTickerChan chan time.Duration // 用于重置 tokenDaemon 里的 ticker
 
@@ -66,10 +66,10 @@ type DefaultSuiteAccessTokenServer struct {
 	}
 }
 
-// 创建一个新的 DefaultSuiteAccessTokenServer.
+// 创建一个新的 DefaultAccessTokenServer.
 //  如果 httpClient == nil 则默认使用 http.DefaultClient.
-func NewDefaultSuiteAccessTokenServer(suiteId, suiteSecret string, suiteTicketGetter SuiteTicketGetter,
-	httpClient *http.Client) (srv *DefaultSuiteAccessTokenServer) {
+func NewDefaultAccessTokenServer(suiteId, suiteSecret string, ticketGetter TicketGetter,
+	httpClient *http.Client) (srv *DefaultAccessTokenServer) {
 
 	if suiteId == "" {
 		panic("empty suiteId")
@@ -77,28 +77,28 @@ func NewDefaultSuiteAccessTokenServer(suiteId, suiteSecret string, suiteTicketGe
 	if suiteSecret == "" {
 		panic("empty suiteSecret")
 	}
-	if suiteTicketGetter == nil {
-		panic("nil suiteTicketGetter")
+	if ticketGetter == nil {
+		panic("nil ticketGetter")
 	}
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 
-	srv = &DefaultSuiteAccessTokenServer{
-		suiteId:           suiteId,
-		suiteSecret:       suiteSecret,
-		suiteTicketGetter: suiteTicketGetter,
-		httpClient:        httpClient,
-		resetTickerChan:   make(chan time.Duration),
+	srv = &DefaultAccessTokenServer{
+		suiteId:         suiteId,
+		suiteSecret:     suiteSecret,
+		ticketGetter:    ticketGetter,
+		httpClient:      httpClient,
+		resetTickerChan: make(chan time.Duration),
 	}
 
 	go srv.tokenDaemon(time.Hour * 24) // 启动 tokenDaemon
 	return
 }
 
-func (srv *DefaultSuiteAccessTokenServer) TagBD6F157DFE9811E48A29A4DB30FED8E1() {}
+func (srv *DefaultAccessTokenServer) TagBD6F157DFE9811E48A29A4DB30FED8E1() {}
 
-func (srv *DefaultSuiteAccessTokenServer) Token() (token string, err error) {
+func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
 	srv.tokenCache.RLock()
 	token = srv.tokenCache.Token
 	srv.tokenCache.RUnlock()
@@ -109,7 +109,7 @@ func (srv *DefaultSuiteAccessTokenServer) Token() (token string, err error) {
 	return srv.TokenRefresh()
 }
 
-func (srv *DefaultSuiteAccessTokenServer) TokenRefresh() (token string, err error) {
+func (srv *DefaultAccessTokenServer) TokenRefresh() (token string, err error) {
 	suiteAccessTokenInfo, cached, err := srv.getToken()
 	if err != nil {
 		return
@@ -121,7 +121,7 @@ func (srv *DefaultSuiteAccessTokenServer) TokenRefresh() (token string, err erro
 	return
 }
 
-func (srv *DefaultSuiteAccessTokenServer) tokenDaemon(tickDuration time.Duration) {
+func (srv *DefaultAccessTokenServer) tokenDaemon(tickDuration time.Duration) {
 NEW_TICK_DURATION:
 	ticker := time.NewTicker(tickDuration)
 
@@ -155,7 +155,7 @@ type suiteAccessTokenInfo struct {
 
 // 从微信服务器获取 suite_access_token.
 //  同一时刻只能一个 goroutine 进入, 防止没必要的重复获取.
-func (srv *DefaultSuiteAccessTokenServer) getToken() (token suiteAccessTokenInfo, cached bool, err error) {
+func (srv *DefaultAccessTokenServer) getToken() (token suiteAccessTokenInfo, cached bool, err error) {
 	srv.tokenGet.Lock()
 	defer srv.tokenGet.Unlock()
 
@@ -172,7 +172,7 @@ func (srv *DefaultSuiteAccessTokenServer) getToken() (token suiteAccessTokenInfo
 		return
 	}
 
-	suiteTicket, err := srv.suiteTicketGetter.GetSuiteTicket(srv.suiteId)
+	suiteTicket, err := srv.ticketGetter.GetSuiteTicket(srv.suiteId)
 	if err != nil {
 		srv.tokenCache.Lock()
 		srv.tokenCache.Token = ""

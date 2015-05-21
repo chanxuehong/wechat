@@ -39,14 +39,6 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 
 	switch r.Method {
 	case "POST": // 消息处理
-		if bodySizeLimit := srv.RequestSizeLimit(); bodySizeLimit > 0 {
-			if r.ContentLength > bodySizeLimit {
-				irh.ServeInvalidRequest(w, r, errors.New("request body too large"))
-				return
-			}
-			r.Body = http.MaxBytesReader(w, r.Body, bodySizeLimit)
-		}
-
 		msgSignature1 := queryValues.Get("msg_signature")
 		if msgSignature1 == "" {
 			irh.ServeInvalidRequest(w, r, errors.New("msg_signature is empty"))
