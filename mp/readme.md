@@ -18,7 +18,7 @@ import (
 )
 
 var AccessTokenServer = mp.NewDefaultAccessTokenServer("appId", "appSecret", nil) // 一個應用只能有一個實例
-var WechatClient = mp.NewWechatClient(AccessTokenServer, nil)
+var mpClient = mp.NewClient(AccessTokenServer, nil)
 
 func main() {
 	var mn menu.Menu
@@ -32,7 +32,7 @@ func main() {
 
 	mn.Buttons[2].SetAsSubMenuButton("子菜单", subButtons)
 
-	clt := menu.Client{WechatClient: WechatClient}
+	clt := menu.Client{Client: mpClient}
 	if err := clt.CreateMenu(mn); err != nil {
 		fmt.Println(err)
 		return
@@ -78,15 +78,15 @@ func main() {
 	messageServeMux := mp.NewMessageServeMux()
 	messageServeMux.MessageHandleFunc(request.MsgTypeText, TextMessageHandler) // 注册文本处理 Handler
 
-	// 下面函数的几个参数设置成你自己的参数: wechatId, token, appId
-	wechatServer := mp.NewDefaultWechatServer("wechatId", "token", "appId", aesKey, messageServeMux)
+	// 下面函数的几个参数设置成你自己的参数: oriId, token, appId
+	mpServer := mp.NewDefaultServer("oriId", "token", "appId", aesKey, messageServeMux)
 
-	wechatServerFrontend := mp.NewWechatServerFrontend(wechatServer, mp.InvalidRequestHandlerFunc(InvalidRequestHandler))
+	mpServerFrontend := mp.NewServerFrontend(mpServer, mp.InvalidRequestHandlerFunc(InvalidRequestHandler))
 
 	// 如果你在微信后台设置的回调地址是
 	//   http://xxx.yyy.zzz/wechat
 	// 那么可以这么注册 http.Handler
-	http.Handle("/wechat", wechatServerFrontend)
+	http.Handle("/wechat", mpServerFrontend)
 	http.ListenAndServe(":80", nil)
 }
 ```
@@ -120,7 +120,7 @@ func TextMessageHandler(w http.ResponseWriter, r *mp.Request) {
 }
 
 func main() {
-	// wechatServer1
+	// mpServer1
 	aesKey1, err := util.AESKeyDecode("encodedAESKey1") // 这里 encodedAESKey1 改成你自己的参数
 	if err != nil {
 		panic(err)
@@ -130,9 +130,9 @@ func main() {
 	messageServeMux1.MessageHandleFunc(request.MsgTypeText, TextMessageHandler) // 注册文本处理 Handler
 
 	// 下面函数的几个参数设置成你自己的参数: wechatId1, token1, appId1
-	wechatServer1 := mp.NewDefaultWechatServer("wechatId1", "token1", "appId1", aesKey1, messageServeMux1)
+	mpServer1 := mp.NewDefaultServer("wechatId1", "token1", "appId1", aesKey1, messageServeMux1)
 
-	// wechatServer2
+	// mpServer2
 	aesKey2, err := util.AESKeyDecode("encodedAESKey2") // 这里 encodedAESKey2 改成你自己的参数
 	if err != nil {
 		panic(err)
@@ -142,18 +142,18 @@ func main() {
 	messageServeMux2.MessageHandleFunc(request.MsgTypeText, TextMessageHandler) // 注册文本处理 Handler
 
 	// 下面函数的几个参数设置成你自己的参数: wechatId2, token2, appId2
-	wechatServer2 := mp.NewDefaultWechatServer("wechatId2", "token2", "appId2", aesKey2, messageServeMux2)
+	mpServer2 := mp.NewDefaultServer("wechatId2", "token2", "appId2", aesKey2, messageServeMux2)
 
-	// multiWechatServerFrontend
-	var multiWechatServerFrontend mp.MultiWechatServerFrontend
-	multiWechatServerFrontend.SetInvalidRequestHandler(mp.InvalidRequestHandlerFunc(InvalidRequestHandler))
-	multiWechatServerFrontend.SetWechatServer("wechat1", wechatServer1) // 回調url上面要加上 wechat_server=wechat1
-	multiWechatServerFrontend.SetWechatServer("wechat2", wechatServer2) // 回調url上面要加上 wechat_server=wechat2
+	// multiServerFrontend
+	var multiServerFrontend mp.MultiServerFrontend
+	multiServerFrontend.SetInvalidRequestHandler(mp.InvalidRequestHandlerFunc(InvalidRequestHandler))
+	multiServerFrontend.SetServer("wechat1", mpServer1) // 回調url上面要加上 wechat_server=wechat1
+	multiServerFrontend.SetServer("wechat2", mpServer2) // 回調url上面要加上 wechat_server=wechat2
 
 	// 如果你在微信后台设置的回调地址是
 	//   http://xxx.yyy.zzz/wechat
 	// 那么可以这么注册 http.Handler
-	http.Handle("/wechat", &multiWechatServerFrontend)
+	http.Handle("/wechat", &multiServerFrontend)
 	http.ListenAndServe(":80", nil)
 }
 ```

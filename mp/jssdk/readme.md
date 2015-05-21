@@ -10,7 +10,8 @@ import (
 )
 
 var AccessTokenServer = mp.NewDefaultAccessTokenServer("appid", "appsecret", nil)
-var TicketServer = jssdk.NewDefaultTicketServer(AccessTokenServer, nil)
+var mpClient = mp.NewClient(AccessTokenServer, nil)
+var TicketServer = jssdk.NewDefaultTicketServer(mpClient)
 
 func main() {
 	fmt.Println(TicketServer.Ticket())

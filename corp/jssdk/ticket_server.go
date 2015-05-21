@@ -7,7 +7,6 @@ package jssdk
 
 import (
 	"errors"
-	"net/http"
 	"strconv"
 	"sync"
 	"time"
@@ -41,7 +40,7 @@ var _ TicketServer = (*DefaultTicketServer)(nil)
 //  2. 因为 DefaultTicketServer 同时也是一个简单的中控服务器, 而不是仅仅实现 TicketServer 接口,
 //     所以整个系统只能存在一个 DefaultTicketServer 实例!
 type DefaultTicketServer struct {
-	corpClient corp.CorpClient
+	corpClient *corp.Client
 
 	resetTickerChan chan time.Duration // 用于重置 ticketDaemon 里的 ticker
 
@@ -58,20 +57,13 @@ type DefaultTicketServer struct {
 }
 
 // 创建一个新的 DefaultTicketServer.
-//  如果 httpClient == nil 则默认使用 http.DefaultClient.
-func NewDefaultTicketServer(AccessTokenServer corp.AccessTokenServer, httpClient *http.Client) (srv *DefaultTicketServer) {
-	if AccessTokenServer == nil {
-		panic("nil AccessTokenServer")
-	}
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+func NewDefaultTicketServer(clt *corp.Client) (srv *DefaultTicketServer) {
+	if clt == nil {
+		panic("nil corp.Client")
 	}
 
 	srv = &DefaultTicketServer{
-		corpClient: corp.CorpClient{
-			AccessTokenServer: AccessTokenServer,
-			HttpClient:        httpClient,
-		},
+		corpClient:      clt,
 		resetTickerChan: make(chan time.Duration),
 	}
 
