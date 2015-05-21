@@ -9,13 +9,17 @@ import (
 )
 
 type statistic struct {
-	Ftime int64 `json:"ftime"`
-	ClickPv int `json:"click_pv"`
-	ClickUv int `json:"click_uv"`
-	ShakePv int `json:"shake_pv"`
-	ShakeUv int `json:"shake_uv"`
+	Ftime int64 `json:"ftime"`		//当天0点对应的时间戳
+	ClickPv int `json:"click_pv"`	//打开摇周边页面的次数
+	ClickUv int `json:"click_uv"`	//打开摇周边页面的人数
+	ShakePv int `json:"shake_pv"`	//摇出摇周边页面的次数
+	ShakeUv int `json:"shake_uv"`	//摇出摇周边页面的人数
 }
 
+//	以设备为维度的数据统计接口
+//	deviceBase:		设备信息，包括device_id或UUID、major、minor
+//	beginDate:		起始日期时间戳，最长时间跨度为30天
+//	endDate:		结束日期时间戳，最长时间跨度为30天
 func (clt Client) GetDeviceStatistics(deviceBase *DeviceBase, beginDate, endDate int64) (statistics *[]statistic, err error) {
 	var request = struct {
 		DeviceIdentifier *DeviceBase `json:"device_identifier"`
@@ -45,6 +49,10 @@ func (clt Client) GetDeviceStatistics(deviceBase *DeviceBase, beginDate, endDate
 	return
 }
 
+//	以页面为维度的数据统计接口
+//	pageId:		指定页面的ID
+//	beginDate:		起始日期时间戳，最长时间跨度为30天
+//	endDate:		结束日期时间戳，最长时间跨度为30天
 func (clt Client) GetPageStatistics(pageId int, beginDate, endDate int64) (statistics *[]statistic, err error) {
 	var request = struct {
 		PageId int `json:"page_id"`

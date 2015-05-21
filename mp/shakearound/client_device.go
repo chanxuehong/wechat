@@ -9,18 +9,18 @@ import (
 )
 
 type DeviceBase struct {
-    DeviceId int `json:"device_id"`
-    Uuid string `json:"uuid"`
+    DeviceId int `json:"device_id"`     //设备编号
+    Uuid string `json:"uuid"`           //UUID、major、minor
     Major int `json:"major"`
     Minor int `json:"minor"`
 }
 
 type Device struct {
-    DeviceBase
-    Status int `json:"status"`
-    PoiId int `json:"poi_id"`
-    Comment string `json:"comment"`
-    PageIds string `json:"page_ids"`
+    DeviceBase                          //设备基础信息
+    Status int `json:"status"`          //激活状态
+    PoiId int `json:"poi_id"`           //设备关联的门店ID
+    Comment string `json:"comment"`     //设备的备注信息
+    PageIds string `json:"page_ids"`    //与此设备关联的页面ID列表，用逗号隔开
 }
 
 //  申请设备ID
@@ -193,7 +193,7 @@ func (clt Client)SearchDeviceByDeviceId(deviceId int)(device *Device, totalCount
             },
         },
     }
-    devices, totalCount, err := clt.SearchDevice(request)
+    devices, totalCount, err := clt.searchDevice(request)
     if err != nil{
         return
     }
@@ -217,7 +217,7 @@ func (clt Client)SearchDeviceByUuid(uuid string, major, minor int)(device *Devic
             },
         },
     }
-    devices, totalCount, err := clt.SearchDevice(request)
+    devices, totalCount, err := clt.searchDevice(request)
     if err != nil{
         return
     }
@@ -233,7 +233,7 @@ func (clt Client)SearchDeviceByDevices(devicesIn *[]DeviceBase)(devices *[]Devic
     }{
         DeviceIdentifier: devicesIn,
     }
-    return clt.SearchDevice(request)
+    return clt.searchDevice(request)
 }
 
 //  查询设备列表
@@ -254,11 +254,11 @@ func (clt Client)SearchDeviceByCount(begin, count int, applyIds ...int)(devices 
         Begin:begin,
         Count:count,
     }
-    return clt.SearchDevice(request)
+    return clt.searchDevice(request)
 }
 
 //  查询设备列表
-func (clt Client)SearchDevice(v interface{}) (devices *[]Device, totalCount int, err error) {
+func (clt Client)searchDevice(v interface{}) (devices *[]Device, totalCount int, err error) {
     var result struct {
         mp.Error
         Data struct{
@@ -286,7 +286,7 @@ func (clt Client)SearchDevice(v interface{}) (devices *[]Device, totalCount int,
 
 
 //  配置设备与页面的关联关系
-//  绑定页面使用device_id
+//  绑定页面，使用device_id
 func (clt Client)DeviceBindPageByDeviceId(deviceId int, pageIds []int, append ...bool)(err error){
     var deviceIdentifier = DeviceBase{
         DeviceId: deviceId,
@@ -297,11 +297,11 @@ func (clt Client)DeviceBindPageByDeviceId(deviceId int, pageIds []int, append ..
             appendNum = 1
         }
     }
-    return clt.DeviceBindPage(deviceIdentifier, pageIds, 1, appendNum)
+    return clt.deviceBindPage(deviceIdentifier, pageIds, 1, appendNum)
 }
 
 //  配置设备与页面的关联关系
-//  绑定页面使用uuid
+//  绑定页面，使用uuid
 func (clt Client)DeviceBindPageByUuid(uuid string, major, minor int, pageIds []int, append ...bool)(err error){
     var deviceIdentifier = DeviceBase{
         Uuid: uuid,
@@ -314,11 +314,11 @@ func (clt Client)DeviceBindPageByUuid(uuid string, major, minor int, pageIds []i
             appendNum = 1
         }
     }
-    return clt.DeviceBindPage(deviceIdentifier, pageIds, 1, appendNum)
+    return clt.deviceBindPage(deviceIdentifier, pageIds, 1, appendNum)
 }
 
 //  配置设备与页面的关联关系
-//  绑定页面使用Devices
+//  绑定页面，使用Devices
 func (clt Client)DeviceBindPageByDevices(device *DeviceBase, pageIds []int, append ...bool)(err error){
     var appendNum int = 0
     if len(append) > 0{
@@ -326,55 +326,37 @@ func (clt Client)DeviceBindPageByDevices(device *DeviceBase, pageIds []int, appe
             appendNum = 1
         }
     }
-    return clt.DeviceBindPage(*device, pageIds, 1, appendNum)
+    return clt.deviceBindPage(*device, pageIds, 1, appendNum)
 }
 
 //  配置设备与页面的关联关系
-//  解绑页面使用device_id
-func (clt Client)DeviceUnbindPageByDeviceId(deviceId int, pageIds []int, append ...bool)(err error){
+//  解绑页面，使用device_id
+func (clt Client)DeviceUnbindPageByDeviceId(deviceId int, pageIds []int)(err error){
     var deviceIdentifier = DeviceBase{
         DeviceId: deviceId,
     }
-    var appendNum int = 0
-    if len(append) > 0{
-        if append[0] == true{
-            appendNum = 1
-        }
-    }
-    return clt.DeviceBindPage(deviceIdentifier, pageIds, 0, appendNum)
+    return clt.deviceBindPage(deviceIdentifier, pageIds, 0, 0)
 }
 
 //  配置设备与页面的关联关系
-//  解绑页面使用uuid
-func (clt Client)DeviceUnbindPageByUuid(uuid string, major, minor int, pageIds []int, append ...bool)(err error){
+//  解绑页面，使用uuid
+func (clt Client)DeviceUnbindPageByUuid(uuid string, major, minor int, pageIds []int)(err error){
     var deviceIdentifier = DeviceBase{
         Uuid: uuid,
         Major: major,
         Minor: minor,
     }
-    var appendNum int = 0
-    if len(append) > 0{
-        if append[0] == true{
-            appendNum = 1
-        }
-    }
-    return clt.DeviceBindPage(deviceIdentifier, pageIds, 0, appendNum)
+    return clt.deviceBindPage(deviceIdentifier, pageIds, 0, 0)
 }
 
 //  配置设备与页面的关联关系
-//  解绑页面使用Devices
-func (clt Client)DeviceUnbindPageByDevices(device *DeviceBase, pageIds []int, append ...bool)(err error){
-    var appendNum int = 0
-    if len(append) > 0{
-        if append[0] == true{
-            appendNum = 1
-        }
-    }
-    return clt.DeviceBindPage(*device, pageIds, 0, appendNum)
+//  解绑页面，使用Devices
+func (clt Client)DeviceUnbindPageByDevices(device *DeviceBase, pageIds []int)(err error){
+    return clt.deviceBindPage(*device, pageIds, 0, 0)
 }
 
 //  配置设备与页面的关联关系
-func (clt Client)DeviceBindPage(v interface{}, pageIds []int, bind int, append int)(err error){
+func (clt Client)deviceBindPage(v interface{}, pageIds []int, bind int, append int)(err error){
     var request = struct{
         DeviceIdentifier interface{}    `json:"device_identifier"`
         PageIds []int `json:"page_ids"`

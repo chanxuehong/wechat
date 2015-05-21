@@ -13,9 +13,11 @@ import (
 )
 
 type PicInfo struct {
-	PicUrl string `json:"pic_url"`
+	PicUrl string `json:"pic_url"`		//图片url地址
 }
 
+//	使用文件路径上传图片素材
+//	_filepath:		图片路径
 func (clt Client) AddMaterial(_filepath string) (info *PicInfo, err error) {
 	file, err := os.Open(_filepath)
 	if err != nil {
@@ -26,6 +28,8 @@ func (clt Client) AddMaterial(_filepath string) (info *PicInfo, err error) {
 	return clt.AddMaterialFromReader(filepath.Base(_filepath), file)
 }
 
+//	使用reader上传图片素材
+//	reader:		图片的reader
 func (clt Client) AddMaterialFromReader(filename string, reader io.Reader) (info *PicInfo, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")

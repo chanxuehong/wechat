@@ -11,12 +11,12 @@ import (
 )
 
 type Client struct {
-    *mp.WechatClient
+    *mp.Client
 }
 
 
 func NewClient(AccessTokenServer mp.AccessTokenServer, httpClient *http.Client) Client {
     return Client{
-        WechatClient: mp.NewWechatClient(AccessTokenServer, httpClient),
+        Client: mp.NewClient(AccessTokenServer, httpClient),
     }
 }
