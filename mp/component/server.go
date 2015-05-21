@@ -10,14 +10,17 @@ import (
 	"sync"
 )
 
+// 公众号第三方平台服务器接口
 type Server interface {
 	AppId() string // 获取第三方平台AppId
 	Token() string // 获取第三方平台的Token
 
-	CurrentAESKey() [32]byte // 获取当前有效的 AES 加密 Key
-	LastAESKey() [32]byte    // 获取最后一个有效的 AES 加密 Key
+	CurrentAESKey() [32]byte                // 获取当前有效的 AES 加密 Key
+	LastAESKey() (key [32]byte, valid bool) // 获取上一个有效的 AES 加密 Key
 
 	MessageHandler() MessageHandler // 获取 MessageHandler
+
+	RequestSizeLimit() int64 // 消息請求的 http body 大小限制, 如果 <= 0 則不做限制
 }
 
 var _ Server = (*DefaultServer)(nil)
@@ -32,10 +35,11 @@ type DefaultServer struct {
 	isLastAESKeyValid bool     // lastAESKey 是否有效, 如果 lastAESKey 是 zero 则无效
 
 	messageHandler MessageHandler
+
+	requestSizeLimit int64
 }
 
-// NewDefaultServer 创建一个新的 DefaultServer.
-func NewDefaultServer(appId, token string, AESKey []byte, handler MessageHandler) (srv *DefaultServer) {
+func NewDefaultServer(appId, token string, AESKey []byte, handler MessageHandler, requestSizeLimit int64) (srv *DefaultServer) {
 	if len(AESKey) != 32 {
 		panic("the length of AESKey must equal to 32")
 	}
@@ -44,9 +48,10 @@ func NewDefaultServer(appId, token string, AESKey []byte, handler MessageHandler
 	}
 
 	srv = &DefaultServer{
-		appId:          appId,
-		token:          token,
-		messageHandler: handler,
+		appId:            appId,
+		token:            token,
+		messageHandler:   handler,
+		requestSizeLimit: requestSizeLimit,
 	}
 	copy(srv.currentAESKey[:], AESKey)
 	return
@@ -61,31 +66,33 @@ func (srv *DefaultServer) Token() string {
 func (srv *DefaultServer) MessageHandler() MessageHandler {
 	return srv.messageHandler
 }
+func (srv *DefaultServer) RequestSizeLimit() int64 {
+	return srv.requestSizeLimit
+}
 func (srv *DefaultServer) CurrentAESKey() (key [32]byte) {
 	srv.rwmutex.RLock()
 	key = srv.currentAESKey
 	srv.rwmutex.RUnlock()
 	return
 }
-func (srv *DefaultServer) LastAESKey() (key [32]byte) {
+func (srv *DefaultServer) LastAESKey() (key [32]byte, valid bool) {
 	srv.rwmutex.RLock()
-	if srv.isLastAESKeyValid {
-		key = srv.lastAESKey
-	} else {
-		key = srv.currentAESKey
-	}
+	key = srv.lastAESKey
+	valid = srv.isLastAESKeyValid
 	srv.rwmutex.RUnlock()
 	return
 }
-func (srv *DefaultServer) UpdateAESKey(AESKey []byte) (err error) {
-	if len(AESKey) != 32 {
-		return errors.New("the length of AESKey must equal to 32")
+
+// 更新當前的 aesKey
+func (srv *DefaultServer) UpdateAESKey(aesKey []byte) (err error) {
+	if len(aesKey) != 32 {
+		return errors.New("the length of aesKey must equal to 32")
 	}
 
 	srv.rwmutex.Lock()
 	srv.isLastAESKeyValid = true
 	srv.lastAESKey = srv.currentAESKey
-	copy(srv.currentAESKey[:], AESKey)
+	copy(srv.currentAESKey[:], aesKey)
 	srv.rwmutex.Unlock()
 	return
 }

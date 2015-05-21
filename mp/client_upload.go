@@ -47,7 +47,7 @@ type MultipartFormField struct {
 //          Error
 //          ...
 //      }
-func (clt *WechatClient) PostMultipartForm(incompleteURL string, fields []MultipartFormField, response interface{}) (err error) {
+func (clt *Client) PostMultipartForm(incompleteURL string, fields []MultipartFormField, response interface{}) (err error) {
 	bodyBuf := mediaBufferPool.Get().(*bytes.Buffer)
 	bodyBuf.Reset()
 	defer mediaBufferPool.Put(bodyBuf)

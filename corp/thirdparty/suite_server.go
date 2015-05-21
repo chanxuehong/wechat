@@ -15,7 +15,7 @@ type SuiteServer interface {
 	SuiteToken() string // 获取套件的Token
 
 	CurrentAESKey() [32]byte // 获取当前有效的 AES 加密 Key
-	LastAESKey() [32]byte    // 获取最后一个有效的 AES 加密 Key
+	LastAESKey() [32]byte    // 获取上一个有效的 AES 加密 Key
 
 	SuiteMessageHandler() SuiteMessageHandler // 获取 SuiteMessageHandler
 }

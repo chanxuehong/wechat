@@ -10,7 +10,8 @@ import (
 )
 
 var AccessTokenServer = corp.NewDefaultAccessTokenServer("corpId", "corpSecret", nil)
-var TicketServer = jssdk.NewDefaultTicketServer(AccessTokenServer, nil)
+var CorpClient = corp.NewClient(AccessTokenServer, nil)
+var TicketServer = jssdk.NewDefaultTicketServer(CorpClient)
 
 func main() {
 	fmt.Println(TicketServer.Ticket())

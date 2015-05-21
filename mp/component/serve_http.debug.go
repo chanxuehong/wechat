@@ -5,7 +5,7 @@
 
 // +build wechatdebug
 
-package mp
+package component
 
 import (
 	"crypto/subtle"
@@ -19,23 +19,24 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/chanxuehong/wechat/mp"
 	"github.com/chanxuehong/wechat/util"
 )
 
-// 安全模式, 微信服务器推送过来的 http body
+// 微信服务器请求 http body
 type RequestHttpBody struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
-	ToUserName   string `xml:"ToUserName" json:"ToUserName"`
-	EncryptedMsg string `xml:"Encrypt"    json:"Encrypt"`
+	AppId        string `xml:"AppId"`
+	EncryptedMsg string `xml:"Encrypt"`
 }
 
 // ServeHTTP 处理 http 消息请求
 //  NOTE: 调用者保证所有参数有效
-func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, srv Server, irh InvalidRequestHandler) {
-	LogInfoln("[WECHAT_DEBUG] request uri:", r.RequestURI)
-	LogInfoln("[WECHAT_DEBUG] request remote-addr:", r.RemoteAddr)
-	LogInfoln("[WECHAT_DEBUG] request user-agent:", r.UserAgent())
+func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, srv Server, irh mp.InvalidRequestHandler) {
+	mp.LogInfoln("[WECHAT_DEBUG] request uri:", r.RequestURI)
+	mp.LogInfoln("[WECHAT_DEBUG] request remote-addr:", r.RemoteAddr)
+	mp.LogInfoln("[WECHAT_DEBUG] request user-agent:", r.UserAgent())
 
 	switch r.Method {
 	case "POST": // 消息处理
@@ -48,9 +49,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 		}
 
 		switch encryptType := queryValues.Get("encrypt_type"); encryptType {
-		case "aes": // 安全模式, 兼容模式
-			signature := queryValues.Get("signature") // 只讀取, 不驗證了
-
+		case "aes":
 			msgSignature1 := queryValues.Get("msg_signature")
 			if msgSignature1 == "" {
 				irh.ServeInvalidRequest(w, r, errors.New("msg_signature is empty"))
@@ -86,7 +85,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 				irh.ServeInvalidRequest(w, r, err)
 				return
 			}
-			LogInfoln("[WECHAT_DEBUG] request msg http body:\r\n", string(reqBody))
+			mp.LogInfoln("[WECHAT_DEBUG] request msg http body:\r\n", string(reqBody))
 
 			var requestHttpBody RequestHttpBody
 			if err := xml.Unmarshal(reqBody, &requestHttpBody); err != nil {
@@ -94,19 +93,19 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 				return
 			}
 
-			// 安全考虑验证下 ToUserName
-			haveToUserName := requestHttpBody.ToUserName
-			if wantToUserName := srv.OriId(); wantToUserName != "" {
-				if len(haveToUserName) != len(wantToUserName) {
-					err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
-					irh.ServeInvalidRequest(w, r, err)
-					return
-				}
-				if subtle.ConstantTimeCompare([]byte(haveToUserName), []byte(wantToUserName)) != 1 {
-					err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
-					irh.ServeInvalidRequest(w, r, err)
-					return
-				}
+			appId := srv.AppId()
+
+			// 安全考虑验证下 AppId
+			haveAppId := requestHttpBody.AppId
+			if len(haveAppId) != len(appId) {
+				err = fmt.Errorf("the RequestHttpBody's AppId mismatch, have: %s, want: %s", haveAppId, appId)
+				irh.ServeInvalidRequest(w, r, err)
+				return
+			}
+			if subtle.ConstantTimeCompare([]byte(haveAppId), []byte(appId)) != 1 {
+				err = fmt.Errorf("the RequestHttpBody's AppId mismatch, have: %s, want: %s", haveAppId, appId)
+				irh.ServeInvalidRequest(w, r, err)
+				return
 			}
 
 			token := srv.Token()
@@ -126,7 +125,6 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 				return
 			}
 
-			appId := srv.AppId()
 			aesKey := srv.CurrentAESKey()
 
 			random, rawMsgXML, err := util.AESDecryptMsg(encryptedMsgBytes, appId, aesKey)
@@ -147,7 +145,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 				}
 			}
 
-			LogInfoln("[WECHAT_DEBUG] request msg raw xml:\r\n", string(rawMsgXML))
+			mp.LogInfoln("[WECHAT_DEBUG] request msg raw xml:\r\n", string(rawMsgXML))
 
 			// 解密成功, 解析 MixedMessage
 			var mixedMsg MixedMessage
@@ -156,9 +154,9 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 				return
 			}
 
-			// 安全考虑再次验证 ToUserName
-			if haveToUserName != mixedMsg.ToUserName {
-				err = fmt.Errorf("the RequestHttpBody's ToUserName(==%s) mismatch the MixedMessage's ToUserName(==%s)", haveToUserName, mixedMsg.ToUserName)
+			// 安全考虑再次验证 AppId
+			if haveAppId != mixedMsg.AppId {
+				err = fmt.Errorf("the RequestHttpBody's AppId(==%s) mismatch the MixedMessage's AppId(==%s)", haveAppId, mixedMsg.AppId)
 				irh.ServeInvalidRequest(w, r, err)
 				return
 			}
@@ -167,109 +165,19 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 			r := &Request{
 				HttpRequest: r,
 
-				QueryValues: queryValues,
-				Signature:   signature,
-				Timestamp:   timestamp,
-				Nonce:       nonce,
-
-				RawMsgXML: rawMsgXML,
-				MixedMsg:  &mixedMsg,
-
+				QueryValues:  queryValues,
 				MsgSignature: msgSignature1,
 				EncryptType:  encryptType,
-				AESKey:       aesKey,
-				Random:       random,
-
-				Token: token,
-				AppId: appId,
-			}
-			srv.MessageHandler().ServeMessage(w, r)
-
-		case "", "raw": // 明文模式
-			signature1 := queryValues.Get("signature")
-			if signature1 == "" {
-				irh.ServeInvalidRequest(w, r, errors.New("signature is empty"))
-				return
-			}
-			if len(signature1) != 40 { // sha1
-				err := fmt.Errorf("the length of signature mismatch, have: %d, want: 40", len(signature1))
-				irh.ServeInvalidRequest(w, r, err)
-				return
-			}
-
-			timestampStr := queryValues.Get("timestamp")
-			if timestampStr == "" {
-				irh.ServeInvalidRequest(w, r, errors.New("timestamp is empty"))
-				return
-			}
-
-			timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
-			if err != nil {
-				err = errors.New("can not parse timestamp to int64: " + timestampStr)
-				irh.ServeInvalidRequest(w, r, err)
-				return
-			}
-
-			nonce := queryValues.Get("nonce")
-			if nonce == "" {
-				irh.ServeInvalidRequest(w, r, errors.New("nonce is empty"))
-				return
-			}
-
-			token := srv.Token()
-
-			signature2 := util.Sign(token, timestampStr, nonce)
-			if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
-				err = fmt.Errorf("check signature failed, input: %s, local: %s", signature1, signature2)
-				irh.ServeInvalidRequest(w, r, err)
-				return
-			}
-
-			// 验证签名成功, 解析 MixedMessage
-			rawMsgXML, err := ioutil.ReadAll(r.Body)
-			if err != nil {
-				irh.ServeInvalidRequest(w, r, err)
-				return
-			}
-
-			LogInfoln("[WECHAT_DEBUG] request msg raw xml:\r\n", string(rawMsgXML))
-
-			var mixedMsg MixedMessage
-			if err := xml.Unmarshal(rawMsgXML, &mixedMsg); err != nil {
-				irh.ServeInvalidRequest(w, r, err)
-				return
-			}
-
-			// 安全考虑验证 ToUserName
-			haveToUserName := mixedMsg.ToUserName
-			if wantToUserName := srv.OriId(); wantToUserName != "" {
-				if len(haveToUserName) != len(wantToUserName) {
-					err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
-					irh.ServeInvalidRequest(w, r, err)
-					return
-				}
-				if subtle.ConstantTimeCompare([]byte(haveToUserName), []byte(wantToUserName)) != 1 {
-					err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
-					irh.ServeInvalidRequest(w, r, err)
-					return
-				}
-			}
-
-			// 成功, 交给 MessageHandler
-			r := &Request{
-				HttpRequest: r,
-
-				QueryValues: queryValues,
-				Signature:   signature1,
-				Timestamp:   timestamp,
-				Nonce:       nonce,
+				Timestamp:    timestamp,
+				Nonce:        nonce,
 
 				RawMsgXML: rawMsgXML,
 				MixedMsg:  &mixedMsg,
 
-				EncryptType: encryptType,
+				AESKey: aesKey,
+				Random: random,
 
-				AppId: srv.AppId(),
+				AppId: appId,
 				Token: token,
 			}
 			srv.MessageHandler().ServeMessage(w, r)

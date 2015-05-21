@@ -17,7 +17,7 @@ type AgentServer interface {
 	Token() string  // 获取应用的Token
 
 	CurrentAESKey() [32]byte // 获取当前有效的 AES 加密 Key
-	LastAESKey() [32]byte    // 获取最后一个有效的 AES 加密 Key
+	LastAESKey() [32]byte    // 获取上一个有效的 AES 加密 Key
 
 	MessageHandler() MessageHandler // 获取 MessageHandler
 }

@@ -18,7 +18,7 @@ import (
 )
 
 var AccessTokenServer = corp.NewDefaultAccessTokenServer("corpId", "corpSecret", nil) // 一個應用只能有一個實例
-var CorpClient = corp.NewCorpClient(AccessTokenServer, nil)
+var CorpClient = corp.NewClient(AccessTokenServer, nil)
 
 func main() {
 	var mn menu.Menu
@@ -32,7 +32,7 @@ func main() {
 
 	mn.Buttons[2].SetAsSubMenuButton("子菜单", subButtons)
 
-	clt := menu.Client{CorpClient: CorpClient}
+	clt := menu.Client{Client: CorpClient}
 	if err := clt.CreateMenu(0 /* agentId */, mn); err != nil {
 		fmt.Println(err)
 		return

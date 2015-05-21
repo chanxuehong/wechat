@@ -26,7 +26,7 @@ const (
 type UserIterator struct {
 	lastUserListData *UserListResult // 最近一次获取的用户数据
 
-	wechatClient   Client // 关联的微信 Client
+	clt            Client // 关联的微信 Client
 	nextPageCalled bool   // NextPage() 是否调用过
 }
 
@@ -72,7 +72,7 @@ func (iter *UserIterator) NextPage() (openids []string, err error) {
 	}
 
 	// 不是第一次调用的都要从服务器拉取数据
-	data, err := iter.wechatClient.UserList(iter.lastUserListData.NextOpenId)
+	data, err := iter.clt.UserList(iter.lastUserListData.NextOpenId)
 	if err != nil {
 		return
 	}
@@ -91,7 +91,7 @@ func (clt Client) UserIterator(beginOpenId string) (iter *UserIterator, err erro
 
 	iter = &UserIterator{
 		lastUserListData: data,
-		wechatClient:     clt,
+		clt:              clt,
 		nextPageCalled:   false,
 	}
 	return

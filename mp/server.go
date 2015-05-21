@@ -11,22 +11,22 @@ import (
 )
 
 // 公众号服务端接口, 处理单个公众号的消息(事件)请求.
-type WechatServer interface {
+type Server interface {
 	OriId() string // 获取公众号的 原始ID, 如果爲空則不檢查消息的 ToUserName
 	AppId() string // 获取公众号的 AppId
 	Token() string // 获取公众号的 Token
 
 	CurrentAESKey() [32]byte                // 获取当前有效的 AES 加密 Key
-	LastAESKey() (key [32]byte, valid bool) // 获取最后一个有效的 AES 加密 Key
+	LastAESKey() (key [32]byte, valid bool) // 获取上一个有效的 AES 加密 Key
 
 	MessageHandler() MessageHandler // 获取 MessageHandler
 
-	MessageSizeLimit() int64 // 消息請求的 http body 大小限制, 如果 <= 0 則不做限制
+	RequestSizeLimit() int64 // 消息請求的 http body 大小限制, 如果 <= 0 則不做限制
 }
 
-var _ WechatServer = (*DefaultWechatServer)(nil)
+var _ Server = (*DefaultServer)(nil)
 
-type DefaultWechatServer struct {
+type DefaultServer struct {
 	oriId string
 	appId string
 	token string
@@ -38,10 +38,10 @@ type DefaultWechatServer struct {
 
 	messageHandler MessageHandler
 
-	messageSizeLimit int64
+	requestSizeLimit int64
 }
 
-func NewDefaultWechatServer(oriId, token, appId string, AESKey []byte, handler MessageHandler) (srv *DefaultWechatServer) {
+func NewDefaultServer(oriId, token, appId string, AESKey []byte, handler MessageHandler) (srv *DefaultServer) {
 	if len(AESKey) != 32 {
 		panic("the length of AESKey must equal to 32")
 	}
@@ -49,7 +49,7 @@ func NewDefaultWechatServer(oriId, token, appId string, AESKey []byte, handler M
 		panic("nil MessageHandler")
 	}
 
-	srv = &DefaultWechatServer{
+	srv = &DefaultServer{
 		oriId:          oriId,
 		appId:          appId,
 		token:          token,
@@ -59,28 +59,28 @@ func NewDefaultWechatServer(oriId, token, appId string, AESKey []byte, handler M
 	return
 }
 
-func (srv *DefaultWechatServer) OriId() string {
+func (srv *DefaultServer) OriId() string {
 	return srv.oriId
 }
-func (srv *DefaultWechatServer) AppId() string {
+func (srv *DefaultServer) AppId() string {
 	return srv.appId
 }
-func (srv *DefaultWechatServer) Token() string {
+func (srv *DefaultServer) Token() string {
 	return srv.token
 }
-func (srv *DefaultWechatServer) MessageHandler() MessageHandler {
+func (srv *DefaultServer) MessageHandler() MessageHandler {
 	return srv.messageHandler
 }
-func (srv *DefaultWechatServer) MessageSizeLimit() int64 {
-	return srv.messageSizeLimit
+func (srv *DefaultServer) RequestSizeLimit() int64 {
+	return srv.requestSizeLimit
 }
-func (srv *DefaultWechatServer) CurrentAESKey() (key [32]byte) {
+func (srv *DefaultServer) CurrentAESKey() (key [32]byte) {
 	srv.rwmutex.RLock()
 	key = srv.currentAESKey
 	srv.rwmutex.RUnlock()
 	return
 }
-func (srv *DefaultWechatServer) LastAESKey() (key [32]byte, valid bool) {
+func (srv *DefaultServer) LastAESKey() (key [32]byte, valid bool) {
 	srv.rwmutex.RLock()
 	key = srv.lastAESKey
 	valid = srv.isLastAESKeyValid
@@ -89,7 +89,7 @@ func (srv *DefaultWechatServer) LastAESKey() (key [32]byte, valid bool) {
 }
 
 // 更新當前的 aesKey
-func (srv *DefaultWechatServer) UpdateAESKey(aesKey []byte) (err error) {
+func (srv *DefaultServer) UpdateAESKey(aesKey []byte) (err error) {
 	if len(aesKey) != 32 {
 		return errors.New("the length of aesKey must equal to 32")
 	}

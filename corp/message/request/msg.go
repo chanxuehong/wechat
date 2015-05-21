@@ -20,7 +20,7 @@ const (
 
 type Text struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	corp.CommonMessageHeader
+	corp.MessageHeader
 
 	MsgId   int64  `xml:"MsgId"   json:"MsgId"`   // 消息id，64位整型
 	Content string `xml:"Content" json:"Content"` // 文本消息内容
@@ -28,15 +28,15 @@ type Text struct {
 
 func GetText(msg *corp.MixedMessage) *Text {
 	return &Text{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		MsgId:               msg.MsgId,
-		Content:             msg.Content,
+		MessageHeader: msg.MessageHeader,
+		MsgId:         msg.MsgId,
+		Content:       msg.Content,
 	}
 }
 
 type Image struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	corp.CommonMessageHeader
+	corp.MessageHeader
 
 	MsgId   int64  `xml:"MsgId"   json:"MsgId"`   // 消息id，64位整型
 	MediaId string `xml:"MediaId" json:"MediaId"` // 图片媒体文件id，可以调用获取媒体文件接口拉取数据
@@ -45,16 +45,16 @@ type Image struct {
 
 func GetImage(msg *corp.MixedMessage) *Image {
 	return &Image{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		MsgId:               msg.MsgId,
-		MediaId:             msg.MediaId,
-		PicURL:              msg.PicURL,
+		MessageHeader: msg.MessageHeader,
+		MsgId:         msg.MsgId,
+		MediaId:       msg.MediaId,
+		PicURL:        msg.PicURL,
 	}
 }
 
 type Voice struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	corp.CommonMessageHeader
+	corp.MessageHeader
 
 	MsgId   int64  `xml:"MsgId"   json:"MsgId"`   // 消息id，64位整型
 	MediaId string `xml:"MediaId" json:"MediaId"` // 语音媒体文件id，可以调用获取媒体文件接口拉取数据
@@ -63,16 +63,16 @@ type Voice struct {
 
 func GetVoice(msg *corp.MixedMessage) *Voice {
 	return &Voice{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		MsgId:               msg.MsgId,
-		MediaId:             msg.MediaId,
-		Format:              msg.Format,
+		MessageHeader: msg.MessageHeader,
+		MsgId:         msg.MsgId,
+		MediaId:       msg.MediaId,
+		Format:        msg.Format,
 	}
 }
 
 type Video struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	corp.CommonMessageHeader
+	corp.MessageHeader
 
 	MsgId        int64  `xml:"MsgId"        json:"MsgId"`        // 消息id，64位整型
 	MediaId      string `xml:"MediaId"      json:"MediaId"`      // 视频媒体文件id，可以调用获取媒体文件接口拉取数据
@@ -81,16 +81,16 @@ type Video struct {
 
 func GetVideo(msg *corp.MixedMessage) *Video {
 	return &Video{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		MsgId:               msg.MsgId,
-		MediaId:             msg.MediaId,
-		ThumbMediaId:        msg.ThumbMediaId,
+		MessageHeader: msg.MessageHeader,
+		MsgId:         msg.MsgId,
+		MediaId:       msg.MediaId,
+		ThumbMediaId:  msg.ThumbMediaId,
 	}
 }
 
 type Location struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	corp.CommonMessageHeader
+	corp.MessageHeader
 
 	MsgId     int64   `xml:"MsgId"      json:"MsgId"`      // 消息id，64位整型
 	LocationX float64 `xml:"Location_X" json:"Location_X"` // 地理位置纬度
@@ -101,11 +101,11 @@ type Location struct {
 
 func GetLocation(msg *corp.MixedMessage) *Location {
 	return &Location{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		MsgId:               msg.MsgId,
-		LocationX:           msg.LocationX,
-		LocationY:           msg.LocationY,
-		Scale:               msg.Scale,
-		Label:               msg.Label,
+		MessageHeader: msg.MessageHeader,
+		MsgId:         msg.MsgId,
+		LocationX:     msg.LocationX,
+		LocationY:     msg.LocationY,
+		Scale:         msg.Scale,
+		Label:         msg.Label,
 	}
 }

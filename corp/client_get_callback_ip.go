@@ -6,7 +6,7 @@
 package corp
 
 // 获取微信服务器的ip段
-func (clt *CorpClient) GetCallbackIP() (ipList []string, err error) {
+func (clt *Client) GetCallbackIP() (ipList []string, err error) {
 	var result struct {
 		Error
 		IPList []string `json:"ip_list"`

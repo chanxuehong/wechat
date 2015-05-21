@@ -26,7 +26,7 @@ const (
 // 点击菜单拉取消息时的事件推送
 type ClickEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Event    string `xml:"Event"    json:"Event"`    // 事件类型, CLICK
 	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值, 与自定义菜单接口中KEY值对应
@@ -34,16 +34,16 @@ type ClickEvent struct {
 
 func GetClickEvent(msg *mp.MixedMessage) *ClickEvent {
 	return &ClickEvent{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		Event:               msg.Event,
-		EventKey:            msg.EventKey,
+		MessageHeader: msg.MessageHeader,
+		Event:         msg.Event,
+		EventKey:      msg.EventKey,
 	}
 }
 
 // 点击菜单跳转链接时的事件推送
 type ViewEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Event    string `xml:"Event"    json:"Event"`    // 事件类型, VIEW
 	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值, 设置的跳转URL
@@ -51,16 +51,16 @@ type ViewEvent struct {
 
 func GetViewEvent(msg *mp.MixedMessage) *ViewEvent {
 	return &ViewEvent{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		Event:               msg.Event,
-		EventKey:            msg.EventKey,
+		MessageHeader: msg.MessageHeader,
+		Event:         msg.Event,
+		EventKey:      msg.EventKey,
 	}
 }
 
 // scancode_push：扫码推事件的事件推送
 type ScanCodePushEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Event    string `xml:"Event"    json:"Event"`    // 事件类型, scancode_push
 	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
@@ -73,17 +73,17 @@ type ScanCodePushEvent struct {
 
 func GetScanCodePushEvent(msg *mp.MixedMessage) *ScanCodePushEvent {
 	return &ScanCodePushEvent{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		Event:               msg.Event,
-		EventKey:            msg.EventKey,
-		ScanCodeInfo:        msg.ScanCodeInfo,
+		MessageHeader: msg.MessageHeader,
+		Event:         msg.Event,
+		EventKey:      msg.EventKey,
+		ScanCodeInfo:  msg.ScanCodeInfo,
 	}
 }
 
 // scancode_waitmsg：扫码推事件且弹出“消息接收中”提示框的事件推送
 type ScanCodeWaitMsgEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Event    string `xml:"Event"    json:"Event"`    // 事件类型, scancode_waitmsg
 	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
@@ -96,17 +96,17 @@ type ScanCodeWaitMsgEvent struct {
 
 func GetScanCodeWaitMsgEvent(msg *mp.MixedMessage) *ScanCodeWaitMsgEvent {
 	return &ScanCodeWaitMsgEvent{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		Event:               msg.Event,
-		EventKey:            msg.EventKey,
-		ScanCodeInfo:        msg.ScanCodeInfo,
+		MessageHeader: msg.MessageHeader,
+		Event:         msg.Event,
+		EventKey:      msg.EventKey,
+		ScanCodeInfo:  msg.ScanCodeInfo,
 	}
 }
 
 // pic_sysphoto：弹出系统拍照发图的事件推送
 type PicSysPhotoEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Event    string `xml:"Event"    json:"Event"`    // 事件类型, pic_sysphoto
 	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
@@ -121,17 +121,17 @@ type PicSysPhotoEvent struct {
 
 func GetPicSysPhotoEvent(msg *mp.MixedMessage) *PicSysPhotoEvent {
 	return &PicSysPhotoEvent{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		Event:               msg.Event,
-		EventKey:            msg.EventKey,
-		SendPicsInfo:        msg.SendPicsInfo,
+		MessageHeader: msg.MessageHeader,
+		Event:         msg.Event,
+		EventKey:      msg.EventKey,
+		SendPicsInfo:  msg.SendPicsInfo,
 	}
 }
 
 // pic_photo_or_album：弹出拍照或者相册发图的事件推送
 type PicPhotoOrAlbumEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Event    string `xml:"Event"    json:"Event"`    // 事件类型, pic_photo_or_album
 	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
@@ -146,17 +146,17 @@ type PicPhotoOrAlbumEvent struct {
 
 func GetPicPhotoOrAlbumEvent(msg *mp.MixedMessage) *PicPhotoOrAlbumEvent {
 	return &PicPhotoOrAlbumEvent{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		Event:               msg.Event,
-		EventKey:            msg.EventKey,
-		SendPicsInfo:        msg.SendPicsInfo,
+		MessageHeader: msg.MessageHeader,
+		Event:         msg.Event,
+		EventKey:      msg.EventKey,
+		SendPicsInfo:  msg.SendPicsInfo,
 	}
 }
 
 // pic_weixin：弹出微信相册发图器的事件推送
 type PicWeixinEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Event    string `xml:"Event"    json:"Event"`    // 事件类型, pic_weixin
 	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
@@ -171,17 +171,17 @@ type PicWeixinEvent struct {
 
 func GetPicWeixinEvent(msg *mp.MixedMessage) *PicWeixinEvent {
 	return &PicWeixinEvent{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		Event:               msg.Event,
-		EventKey:            msg.EventKey,
-		SendPicsInfo:        msg.SendPicsInfo,
+		MessageHeader: msg.MessageHeader,
+		Event:         msg.Event,
+		EventKey:      msg.EventKey,
+		SendPicsInfo:  msg.SendPicsInfo,
 	}
 }
 
 // location_select：弹出地理位置选择器的事件推送
 type LocationSelectEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Event    string `xml:"Event"    json:"Event"`    // 事件类型, location_select
 	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
@@ -197,9 +197,9 @@ type LocationSelectEvent struct {
 
 func GetLocationSelectEvent(msg *mp.MixedMessage) *LocationSelectEvent {
 	return &LocationSelectEvent{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		Event:               msg.Event,
-		EventKey:            msg.EventKey,
-		SendLocationInfo:    msg.SendLocationInfo,
+		MessageHeader:    msg.MessageHeader,
+		Event:            msg.Event,
+		EventKey:         msg.EventKey,
+		SendLocationInfo: msg.SendLocationInfo,
 	}
 }

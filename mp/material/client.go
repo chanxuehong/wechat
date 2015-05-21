@@ -12,12 +12,12 @@ import (
 )
 
 type Client struct {
-	*mp.WechatClient
+	*mp.Client
 }
 
-// 兼容保留, 建議實際項目全局維護一個 *mp.WechatClient
+// 兼容保留, 建議實際項目全局維護一個 *mp.Client
 func NewClient(AccessTokenServer mp.AccessTokenServer, httpClient *http.Client) Client {
 	return Client{
-		WechatClient: mp.NewWechatClient(AccessTokenServer, httpClient),
+		Client: mp.NewClient(AccessTokenServer, httpClient),
 	}
 }

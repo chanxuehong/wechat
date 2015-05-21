@@ -7,7 +7,6 @@ package card
 
 import (
 	"errors"
-	"net/http"
 	"strconv"
 	"sync"
 	"time"
@@ -41,7 +40,7 @@ var _ TicketServer = (*DefaultTicketServer)(nil)
 //  2. 因为 DefaultTicketServer 同时也是一个简单的中控服务器, 而不是仅仅实现 TicketServer 接口,
 //     所以整个系统只能存在一个 DefaultTicketServer 实例!
 type DefaultTicketServer struct {
-	wechatClient mp.WechatClient
+	mpClient *mp.Client
 
 	resetTickerChan chan time.Duration // 用于重置 ticketDaemon 里的 ticker
 
@@ -58,20 +57,13 @@ type DefaultTicketServer struct {
 }
 
 // 创建一个新的 DefaultTicketServer.
-//  如果 httpClient == nil 则默认使用 http.DefaultClient.
-func NewDefaultTicketServer(AccessTokenServer mp.AccessTokenServer, httpClient *http.Client) (srv *DefaultTicketServer) {
-	if AccessTokenServer == nil {
-		panic("nil AccessTokenServer")
-	}
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+func NewDefaultTicketServer(clt *mp.Client) (srv *DefaultTicketServer) {
+	if clt == nil {
+		panic("nil mp.Client")
 	}
 
 	srv = &DefaultTicketServer{
-		wechatClient: mp.WechatClient{
-			AccessTokenServer: AccessTokenServer,
-			HttpClient:        httpClient,
-		},
+		mpClient:        clt,
 		resetTickerChan: make(chan time.Duration),
 	}
 
@@ -161,7 +153,7 @@ func (srv *DefaultTicketServer) getTicket() (ticket ticketInfo, cached bool, err
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=wx_card&access_token="
-	if err = srv.wechatClient.GetJSON(incompleteURL, &result); err != nil {
+	if err = srv.mpClient.GetJSON(incompleteURL, &result); err != nil {
 		srv.ticketCache.Lock()
 		srv.ticketCache.Ticket = ""
 		srv.ticketCache.Unlock()

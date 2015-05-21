@@ -17,9 +17,9 @@ type PreAuthCode struct {
 // 获取预授权码.
 func (clt *Client) CreatePreAuthCode() (code *PreAuthCode, err error) {
 	request := struct {
-		AppId string `json:"component_appid"`
+		ComponentAppId string `json:"component_appid"`
 	}{
-		AppId: clt.AppId,
+		ComponentAppId: clt.AppId,
 	}
 
 	var result struct {

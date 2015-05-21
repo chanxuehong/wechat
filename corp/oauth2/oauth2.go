@@ -29,13 +29,13 @@ func AuthCodeURL(corpId, redirectURL, scope, state string) string {
 }
 
 type Client struct {
-	*corp.CorpClient
+	*corp.Client
 }
 
-// 兼容保留, 建議實際項目全局維護一個 *corp.CorpClient
+// 兼容保留, 建議實際項目全局維護一個 *corp.Client
 func NewClient(AccessTokenServer corp.AccessTokenServer, httpClient *http.Client) Client {
 	return Client{
-		CorpClient: corp.NewCorpClient(AccessTokenServer, httpClient),
+		Client: corp.NewClient(AccessTokenServer, httpClient),
 	}
 }
 
