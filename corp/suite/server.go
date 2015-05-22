@@ -10,19 +10,19 @@ import (
 	"sync"
 )
 
-type SuiteServer interface {
+type Server interface {
 	SuiteId() string    // 获取套件Id
 	SuiteToken() string // 获取套件的Token
 
 	CurrentAESKey() [32]byte // 获取当前有效的 AES 加密 Key
 	LastAESKey() [32]byte    // 获取上一个有效的 AES 加密 Key
 
-	SuiteMessageHandler() SuiteMessageHandler // 获取 SuiteMessageHandler
+	MessageHandler() MessageHandler // 获取 MessageHandler
 }
 
-var _ SuiteServer = (*DefaultSuiteServer)(nil)
+var _ Server = (*DefaultServer)(nil)
 
-type DefaultSuiteServer struct {
+type DefaultServer struct {
 	suiteId    string
 	suiteToken string
 
@@ -31,21 +31,21 @@ type DefaultSuiteServer struct {
 	lastAESKey        [32]byte // 最后一个 AES Key
 	isLastAESKeyValid bool     // lastAESKey 是否有效, 如果 lastAESKey 是 zero 则无效
 
-	messageHandler SuiteMessageHandler
+	messageHandler MessageHandler
 }
 
-// NewDefaultSuiteServer 创建一个新的 DefaultSuiteServer.
-func NewDefaultSuiteServer(suiteId, suiteToken string, AESKey []byte,
-	messageHandler SuiteMessageHandler) (srv *DefaultSuiteServer) {
+// NewDefaultServer 创建一个新的 DefaultServer.
+func NewDefaultServer(suiteId, suiteToken string, AESKey []byte,
+	messageHandler MessageHandler) (srv *DefaultServer) {
 
 	if len(AESKey) != 32 {
 		panic("the length of AESKey must equal to 32")
 	}
 	if messageHandler == nil {
-		panic("nil SuiteMessageHandler")
+		panic("nil MessageHandler")
 	}
 
-	srv = &DefaultSuiteServer{
+	srv = &DefaultServer{
 		suiteId:        suiteId,
 		suiteToken:     suiteToken,
 		messageHandler: messageHandler,
@@ -54,22 +54,22 @@ func NewDefaultSuiteServer(suiteId, suiteToken string, AESKey []byte,
 	return
 }
 
-func (srv *DefaultSuiteServer) SuiteId() string {
+func (srv *DefaultServer) SuiteId() string {
 	return srv.suiteId
 }
-func (srv *DefaultSuiteServer) SuiteToken() string {
+func (srv *DefaultServer) SuiteToken() string {
 	return srv.suiteToken
 }
-func (srv *DefaultSuiteServer) SuiteMessageHandler() SuiteMessageHandler {
+func (srv *DefaultServer) MessageHandler() MessageHandler {
 	return srv.messageHandler
 }
-func (srv *DefaultSuiteServer) CurrentAESKey() (key [32]byte) {
+func (srv *DefaultServer) CurrentAESKey() (key [32]byte) {
 	srv.rwmutex.RLock()
 	key = srv.currentAESKey
 	srv.rwmutex.RUnlock()
 	return
 }
-func (srv *DefaultSuiteServer) LastAESKey() (key [32]byte) {
+func (srv *DefaultServer) LastAESKey() (key [32]byte) {
 	srv.rwmutex.RLock()
 	if srv.isLastAESKeyValid {
 		key = srv.lastAESKey
@@ -79,7 +79,7 @@ func (srv *DefaultSuiteServer) LastAESKey() (key [32]byte) {
 	srv.rwmutex.RUnlock()
 	return
 }
-func (srv *DefaultSuiteServer) UpdateAESKey(AESKey []byte) (err error) {
+func (srv *DefaultServer) UpdateAESKey(AESKey []byte) (err error) {
 	if len(AESKey) != 32 {
 		return errors.New("the length of AESKey must equal to 32")
 	}

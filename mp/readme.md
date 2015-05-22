@@ -81,7 +81,7 @@ func main() {
 	// 下面函数的几个参数设置成你自己的参数: oriId, token, appId
 	mpServer := mp.NewDefaultServer("oriId", "token", "appId", aesKey, messageServeMux)
 
-	mpServerFrontend := mp.NewServerFrontend(mpServer, mp.InvalidRequestHandlerFunc(InvalidRequestHandler))
+	mpServerFrontend := mp.NewServerFrontend(mpServer, mp.InvalidRequestHandlerFunc(InvalidRequestHandler), nil)
 
 	// 如果你在微信后台设置的回调地址是
 	//   http://xxx.yyy.zzz/wechat
@@ -145,15 +145,14 @@ func main() {
 	mpServer2 := mp.NewDefaultServer("wechatId2", "token2", "appId2", aesKey2, messageServeMux2)
 
 	// multiServerFrontend
-	var multiServerFrontend mp.MultiServerFrontend
-	multiServerFrontend.SetInvalidRequestHandler(mp.InvalidRequestHandlerFunc(InvalidRequestHandler))
+	multiServerFrontend := mp.NewMultiServerFrontend(mp.InvalidRequestHandlerFunc(InvalidRequestHandler), nil)
 	multiServerFrontend.SetServer("wechat1", mpServer1) // 回調url上面要加上 wechat_server=wechat1
 	multiServerFrontend.SetServer("wechat2", mpServer2) // 回調url上面要加上 wechat_server=wechat2
 
 	// 如果你在微信后台设置的回调地址是
 	//   http://xxx.yyy.zzz/wechat
 	// 那么可以这么注册 http.Handler
-	http.Handle("/wechat", &multiServerFrontend)
+	http.Handle("/wechat", multiServerFrontend)
 	http.ListenAndServe(":80", nil)
 }
 ```

@@ -11,13 +11,13 @@ import (
 )
 
 // 微信服务器推送过来的消息(事件)处理接口
-type SuiteMessageHandler interface {
+type MessageHandler interface {
 	ServeMessage(http.ResponseWriter, *Request)
 }
 
-type SuiteMessageHandlerFunc func(http.ResponseWriter, *Request)
+type MessageHandlerFunc func(http.ResponseWriter, *Request)
 
-func (fn SuiteMessageHandlerFunc) ServeMessage(w http.ResponseWriter, r *Request) {
+func (fn MessageHandlerFunc) ServeMessage(w http.ResponseWriter, r *Request) {
 	fn(w, r)
 }
 
@@ -32,8 +32,8 @@ type Request struct {
 	Timestamp    int64      // 回调请求 URL 中的时间戳: timestamp
 	Nonce        string     // 回调请求 URL 中的随机数: nonce
 
-	RawMsgXML []byte             // 消息的"明文"XML 文本
-	MixedMsg  *MixedSuiteMessage // RawMsgXML 解析后的消息
+	RawMsgXML []byte        // 消息的"明文"XML 文本
+	MixedMsg  *MixedMessage // RawMsgXML 解析后的消息
 
 	AESKey [32]byte // 当前消息 AES 加密的 key
 	Random []byte   // 当前消息加密时所用的 random, 16 bytes
@@ -44,7 +44,7 @@ type Request struct {
 }
 
 // 微信服务器推送过来的消息(事件)的合集.
-type MixedSuiteMessage struct {
+type MixedMessage struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
 	SuiteId   string `xml:"SuiteId"   json:"SuiteId"`

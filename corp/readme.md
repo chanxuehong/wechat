@@ -80,7 +80,7 @@ func main() {
 	// 下面函数的几个参数设置成你自己的参数: corpId, agentId, token
 	agentServer := corp.NewDefaultAgentServer("corpId", 0 /* agentId */, "token", aesKey, messageServeMux)
 
-	agentServerFrontend := corp.NewAgentServerFrontend(agentServer, corp.InvalidRequestHandlerFunc(InvalidRequestHandler))
+	agentServerFrontend := corp.NewAgentServerFrontend(agentServer, corp.InvalidRequestHandlerFunc(InvalidRequestHandler), nil)
 
 	// 如果你在微信后台设置的回调地址是
 	//   http://xxx.yyy.zzz/agent
@@ -143,15 +143,14 @@ func main() {
 	agentServer2 := corp.NewDefaultAgentServer("corpId2", 2 /* agentId2 */, "token2", aesKey2, messageServeMux2)
 
 	// multiAgentServerFrontend
-	var multiAgentServerFrontend corp.MultiAgentServerFrontend
-	multiAgentServerFrontend.SetInvalidRequestHandler(corp.InvalidRequestHandlerFunc(InvalidRequestHandler))
+	multiAgentServerFrontend := corp.NewMultiAgentServerFrontend(corp.InvalidRequestHandlerFunc(InvalidRequestHandler), nil)
 	multiAgentServerFrontend.SetAgentServer("agent1", agentServer1) // 回調url上面要加上 agent_server=agent1
 	multiAgentServerFrontend.SetAgentServer("agent2", agentServer2) // 回調url上面要加上 agent_server=agent2
 
 	// 如果你在微信后台设置的回调地址是
 	//   http://xxx.yyy.zzz/agent
 	// 那么可以这么注册 http.Handler
-	http.Handle("/agent", &multiAgentServerFrontend)
+	http.Handle("/agent", multiAgentServerFrontend)
 	http.ListenAndServe(":80", nil)
 }
 ```

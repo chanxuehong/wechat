@@ -32,7 +32,7 @@ type RequestHttpBody struct {
 // ServeHTTP 处理 http 消息请求
 //  NOTE: 调用者保证所有参数有效
 func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values,
-	suiteServer SuiteServer, invalidRequestHandler corp.InvalidRequestHandler) {
+	server Server, invalidRequestHandler corp.InvalidRequestHandler) {
 
 	switch r.Method {
 	case "POST": // 消息处理
@@ -64,7 +64,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values,
 		}
 
 		haveSuiteId := requestHttpBody.SuiteId
-		wantSuiteId := suiteServer.SuiteId()
+		wantSuiteId := server.SuiteId()
 		if len(haveSuiteId) != len(wantSuiteId) {
 			err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveSuiteId, wantSuiteId)
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
@@ -76,7 +76,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values,
 			return
 		}
 
-		suiteToken := suiteServer.SuiteToken()
+		suiteToken := server.SuiteToken()
 
 		// 验证签名
 		msgSignature2 := util.MsgSign(suiteToken, timestampStr, nonce, requestHttpBody.EncryptedMsg)
@@ -93,11 +93,11 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values,
 			return
 		}
 
-		AESKey := suiteServer.CurrentAESKey()
+		AESKey := server.CurrentAESKey()
 		Random, RawMsgXML, err := util.AESDecryptMsg(EncryptedMsgBytes, wantSuiteId, AESKey)
 		if err != nil {
 			// 尝试用上一次的 AESKey 来解密
-			LastAESKey := suiteServer.LastAESKey()
+			LastAESKey := server.LastAESKey()
 			if bytes.Equal(AESKey[:], LastAESKey[:]) || bytes.Equal(zeroAESKey[:], LastAESKey[:]) {
 				invalidRequestHandler.ServeInvalidRequest(w, r, err)
 				return
@@ -112,7 +112,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values,
 		}
 
 		// 解密成功, 解析 MixedMessage
-		var MixedMsg MixedSuiteMessage
+		var MixedMsg MixedMessage
 		if err = xml.Unmarshal(RawMsgXML, &MixedMsg); err != nil {
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
 			return
@@ -125,7 +125,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values,
 			return
 		}
 
-		// 成功, 交给 SuiteMessageHandler
+		// 成功, 交给 MessageHandler
 		r := &Request{
 			HttpRequest: r,
 
@@ -143,7 +143,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values,
 			SuiteId:    haveSuiteId,
 			SuiteToken: suiteToken,
 		}
-		suiteServer.SuiteMessageHandler().ServeMessage(w, r)
+		server.MessageHandler().ServeMessage(w, r)
 
 	case "GET": // 首次验证
 		msgSignature1, timestamp, nonce, encryptedMsg, err := parseGetURLQuery(queryValues)
@@ -159,7 +159,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values,
 			return
 		}
 
-		msgSignature2 := util.MsgSign(suiteServer.SuiteToken(), timestamp, nonce, encryptedMsg)
+		msgSignature2 := util.MsgSign(server.SuiteToken(), timestamp, nonce, encryptedMsg)
 		if subtle.ConstantTimeCompare([]byte(msgSignature1), []byte(msgSignature2)) != 1 {
 			err = fmt.Errorf("check signature failed, input: %s, local: %s", msgSignature1, msgSignature2)
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)
@@ -173,8 +173,8 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values,
 			return
 		}
 
-		SuiteId := suiteServer.SuiteId()
-		AESKey := suiteServer.CurrentAESKey()
+		SuiteId := server.SuiteId()
+		AESKey := server.CurrentAESKey()
 		_, echostr, err := util.AESDecryptMsg(EncryptedMsgBytes, SuiteId, AESKey)
 		if err != nil {
 			invalidRequestHandler.ServeInvalidRequest(w, r, err)

@@ -18,29 +18,29 @@ import (
 	"github.com/chanxuehong/wechat/corp"
 )
 
-type SuiteClient struct {
+type Client struct {
 	SuiteId string
-	SuiteAccessTokenServer
+	AccessTokenServer
 	HttpClient *http.Client
 }
 
-// 创建一个新的 SuiteClient.
+// 创建一个新的 Client.
 //  如果 HttpClient == nil 则默认用 http.DefaultClient
-func NewSuiteClient(SuiteId string, SuiteAccessTokenServer SuiteAccessTokenServer, HttpClient *http.Client) *SuiteClient {
+func NewClient(SuiteId string, AccessTokenServer AccessTokenServer, HttpClient *http.Client) *Client {
 	if SuiteId == "" {
 		panic("empty SuiteId")
 	}
-	if SuiteAccessTokenServer == nil {
-		panic("SuiteAccessTokenServer == nil")
+	if AccessTokenServer == nil {
+		panic("AccessTokenServer == nil")
 	}
 	if HttpClient == nil {
 		HttpClient = http.DefaultClient
 	}
 
-	return &SuiteClient{
-		SuiteId:                SuiteId,
-		SuiteAccessTokenServer: SuiteAccessTokenServer,
-		HttpClient:             HttpClient,
+	return &Client{
+		SuiteId:           SuiteId,
+		AccessTokenServer: AccessTokenServer,
+		HttpClient:        HttpClient,
 	}
 }
 
@@ -55,7 +55,7 @@ func NewSuiteClient(SuiteId string, SuiteAccessTokenServer SuiteAccessTokenServe
 //          corp.Error
 //          ...
 //      }
-func (clt *SuiteClient) PostJSON(incompleteURL string, request interface{}, response interface{}) (err error) {
+func (clt *Client) PostJSON(incompleteURL string, request interface{}, response interface{}) (err error) {
 	buf := textBufferPool.Get().(*bytes.Buffer)
 	buf.Reset()
 	defer textBufferPool.Put(buf)
@@ -134,7 +134,7 @@ RETRY:
 //          corp.Error
 //          ...
 //      }
-func (clt *SuiteClient) GetJSON(incompleteURL string, response interface{}) (err error) {
+func (clt *Client) GetJSON(incompleteURL string, response interface{}) (err error) {
 	token, err := clt.Token()
 	if err != nil {
 		return

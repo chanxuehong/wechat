@@ -14,10 +14,12 @@ import (
 type AgentServerFrontend struct {
 	agentServer           AgentServer
 	invalidRequestHandler InvalidRequestHandler
+	interceptor           Interceptor
 }
 
-func NewAgentServerFrontend(server AgentServer, handler InvalidRequestHandler) *AgentServerFrontend {
-	if server == nil {
+// handler, interceptor 均可以为 nil
+func NewAgentServerFrontend(srv AgentServer, handler InvalidRequestHandler, interceptor Interceptor) *AgentServerFrontend {
+	if srv == nil {
 		panic("nil AgentServer")
 	}
 	if handler == nil {
@@ -25,21 +27,23 @@ func NewAgentServerFrontend(server AgentServer, handler InvalidRequestHandler) *
 	}
 
 	return &AgentServerFrontend{
-		agentServer:           server,
+		agentServer:           srv,
 		invalidRequestHandler: handler,
+		interceptor:           interceptor,
 	}
 }
 
 // 实现 http.Handler.
 func (frontend *AgentServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	agentServer := frontend.agentServer
-	invalidRequestHandler := frontend.invalidRequestHandler
-
 	queryValues, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
-		invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		frontend.invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
-	ServeHTTP(w, r, queryValues, agentServer, invalidRequestHandler)
+	if interceptor := frontend.interceptor; interceptor != nil && !interceptor.Intercept(w, r, queryValues) {
+		return
+	}
+
+	ServeHTTP(w, r, queryValues, frontend.agentServer, frontend.invalidRequestHandler)
 }

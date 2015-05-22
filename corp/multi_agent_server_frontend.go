@@ -6,6 +6,7 @@
 package corp
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -32,38 +33,39 @@ const URLQueryAgentServerKeyName = "agent_server"
 //
 //  MultiAgentServerFrontend 并发安全，可以在运行中动态增加和删除 AgentServer。
 type MultiAgentServerFrontend struct {
-	rwmutex               sync.RWMutex
-	agentServerMap        map[string]AgentServer
 	invalidRequestHandler InvalidRequestHandler
+	interceptor           Interceptor
+
+	rwmutex        sync.RWMutex
+	agentServerMap map[string]AgentServer
 }
 
-// 设置 InvalidRequestHandler, 如果 handler == nil 则使用默认的 DefaultInvalidRequestHandler
-func (frontend *MultiAgentServerFrontend) SetInvalidRequestHandler(handler InvalidRequestHandler) {
-	frontend.rwmutex.Lock()
+// handler, interceptor 均可以为 nil
+func NewMultiAgentServerFrontend(handler InvalidRequestHandler, interceptor Interceptor) *MultiAgentServerFrontend {
 	if handler == nil {
-		frontend.invalidRequestHandler = DefaultInvalidRequestHandler
-	} else {
-		frontend.invalidRequestHandler = handler
+		handler = DefaultInvalidRequestHandler
 	}
-	frontend.rwmutex.Unlock()
+
+	return &MultiAgentServerFrontend{
+		invalidRequestHandler: handler,
+		interceptor:           interceptor,
+		agentServerMap:        make(map[string]AgentServer),
+	}
 }
 
 // 设置 serverKey-AgentServer pair.
-// 如果 serverKey == "" 或者 server == nil 则不做任何操作
-func (frontend *MultiAgentServerFrontend) SetAgentServer(serverKey string, server AgentServer) {
+func (frontend *MultiAgentServerFrontend) SetAgentServer(serverKey string, server AgentServer) (err error) {
 	if serverKey == "" {
-		return
+		return errors.New("empty serverKey")
 	}
 	if server == nil {
-		return
+		return errors.New("nil AgentServer")
 	}
 
 	frontend.rwmutex.Lock()
-	if frontend.agentServerMap == nil {
-		frontend.agentServerMap = make(map[string]AgentServer)
-	}
 	frontend.agentServerMap[serverKey] = server
 	frontend.rwmutex.Unlock()
+	return
 }
 
 // 删除 serverKey 对应的 AgentServer
@@ -80,44 +82,34 @@ func (frontend *MultiAgentServerFrontend) DeleteAllAgentServer() {
 	frontend.rwmutex.Unlock()
 }
 
-func (frontend *MultiAgentServerFrontend) getInvalidRequestHandler() (h InvalidRequestHandler) {
-	frontend.rwmutex.RLock()
-	h = frontend.invalidRequestHandler
-	if h == nil {
-		h = DefaultInvalidRequestHandler
-	}
-	frontend.rwmutex.RUnlock()
-	return
-}
-
 // 实现 http.Handler
 func (frontend *MultiAgentServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	queryValues, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
-		frontend.getInvalidRequestHandler().ServeInvalidRequest(w, r, err)
+		frontend.invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		return
+	}
+
+	if interceptor := frontend.interceptor; interceptor != nil && !interceptor.Intercept(w, r, queryValues) {
 		return
 	}
 
 	serverKey := queryValues.Get(URLQueryAgentServerKeyName)
 	if serverKey == "" {
 		err = fmt.Errorf("the url query value with name %s is empty", URLQueryAgentServerKeyName)
-		frontend.getInvalidRequestHandler().ServeInvalidRequest(w, r, err)
+		frontend.invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
 	frontend.rwmutex.RLock()
-	invalidRequestHandler := frontend.invalidRequestHandler
 	agentServer := frontend.agentServerMap[serverKey]
 	frontend.rwmutex.RUnlock()
 
-	if invalidRequestHandler == nil {
-		invalidRequestHandler = DefaultInvalidRequestHandler
-	}
 	if agentServer == nil {
 		err = fmt.Errorf("Not found AgentServer for %s == %s", URLQueryAgentServerKeyName, serverKey)
-		invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		frontend.invalidRequestHandler.ServeInvalidRequest(w, r, err)
 		return
 	}
 
-	ServeHTTP(w, r, queryValues, agentServer, invalidRequestHandler)
+	ServeHTTP(w, r, queryValues, agentServer, frontend.invalidRequestHandler)
 }

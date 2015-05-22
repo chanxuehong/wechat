@@ -5,7 +5,7 @@
 
 package mch
 
-type MessageServer interface {
+type Server interface {
 	AppId() string
 	MchId() string
 	APIKey() string // API密钥
@@ -13,9 +13,9 @@ type MessageServer interface {
 	MessageHandler() MessageHandler // 获取 MessageHandler
 }
 
-var _ MessageServer = (*DefaultMessageServer)(nil)
+var _ Server = (*DefaultServer)(nil)
 
-type DefaultMessageServer struct {
+type DefaultServer struct {
 	appId  string
 	mchId  string
 	apiKey string
@@ -23,12 +23,12 @@ type DefaultMessageServer struct {
 	messageHandler MessageHandler
 }
 
-func NewDefaultMessageServer(appId, mchId, apiKey string, handler MessageHandler) *DefaultMessageServer {
+func NewDefaultServer(appId, mchId, apiKey string, handler MessageHandler) *DefaultServer {
 	if handler == nil {
-		panic("pay: nil MessageHandler")
+		panic("nil MessageHandler")
 	}
 
-	return &DefaultMessageServer{
+	return &DefaultServer{
 		appId:          appId,
 		mchId:          mchId,
 		apiKey:         apiKey,
@@ -36,15 +36,15 @@ func NewDefaultMessageServer(appId, mchId, apiKey string, handler MessageHandler
 	}
 }
 
-func (srv *DefaultMessageServer) AppId() string {
+func (srv *DefaultServer) AppId() string {
 	return srv.appId
 }
-func (srv *DefaultMessageServer) MchId() string {
+func (srv *DefaultServer) MchId() string {
 	return srv.mchId
 }
-func (srv *DefaultMessageServer) APIKey() string {
+func (srv *DefaultServer) APIKey() string {
 	return srv.apiKey
 }
-func (srv *DefaultMessageServer) MessageHandler() MessageHandler {
+func (srv *DefaultServer) MessageHandler() MessageHandler {
 	return srv.messageHandler
 }

@@ -24,7 +24,7 @@ type AuthUserInfo struct {
 
 // 获取企业号的永久授权码
 //  AuthCode: 临时授权码会在授权成功时附加在redirect_uri中跳转回应用提供商网站。
-func (clt *SuiteClient) GetPermanentCode(AuthCode string) (info *PermanentCodeInfo, err error) {
+func (clt *Client) GetPermanentCode(AuthCode string) (info *PermanentCodeInfo, err error) {
 	request := struct {
 		SuiteId  string `json:"suite_id"`
 		AuthCode string `json:"auth_code"`
