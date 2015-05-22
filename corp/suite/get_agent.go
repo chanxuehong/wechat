@@ -37,7 +37,7 @@ type AgentInfoUser struct {
 }
 
 // 获取企业号应用
-func (clt *Client) GetAgent(AuthCorpId, PermanentCode string, AgentId int64) (info *AgentInfo, err error) {
+func (clt *Client) GetAgent(authCorpId, permanentCode string, agentId int64) (info *AgentInfo, err error) {
 	request := struct {
 		SuiteId       string `json:"suite_id"`
 		AuthCorpId    string `json:"auth_corpid"`
@@ -45,9 +45,9 @@ func (clt *Client) GetAgent(AuthCorpId, PermanentCode string, AgentId int64) (in
 		AgentId       int64  `json:"agentid"`
 	}{
 		SuiteId:       clt.SuiteId,
-		AuthCorpId:    AuthCorpId,
-		PermanentCode: PermanentCode,
-		AgentId:       AgentId,
+		AuthCorpId:    authCorpId,
+		PermanentCode: permanentCode,
+		AgentId:       agentId,
 	}
 
 	var result struct {

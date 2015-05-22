@@ -9,7 +9,8 @@ import (
 	"net/url"
 )
 
-// 请求用户授权时跳转的地址.
+// 微信企业号应用授权入口地址.
+//  授权成功后跳转到 redirect_uri?auth_code=xxx&expires_in=1200&state=xx
 func AuthCodeURL(suiteId, preAuthCode, redirectURI, state string) string {
 	return "https://qy.weixin.qq.com/cgi-bin/loginpage?suite_id=" + url.QueryEscape(suiteId) +
 		"&pre_auth_code=" + url.QueryEscape(preAuthCode) +

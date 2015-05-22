@@ -30,11 +30,12 @@ func WriteRawResponse(w http.ResponseWriter, r *Request, msg interface{}) (err e
 
 // 安全模式回复消息的 http body
 type ResponseHttpBody struct {
-	XMLName      struct{} `xml:"xml" json:"-"`
-	EncryptedMsg string   `xml:"Encrypt"`
-	MsgSignature string   `xml:"MsgSignature"`
-	Timestamp    int64    `xml:"TimeStamp"`
-	Nonce        string   `xml:"Nonce"`
+	XMLName struct{} `xml:"xml" json:"-"`
+
+	EncryptedMsg string `xml:"Encrypt"      json:"Encrypt"`
+	MsgSignature string `xml:"MsgSignature" json:"MsgSignature"`
+	Timestamp    int64  `xml:"TimeStamp"    json:"TimeStamp"`
+	Nonce        string `xml:"Nonce"        json:"Nonce"`
 }
 
 // 回复消息给微信服务器(安全模式).

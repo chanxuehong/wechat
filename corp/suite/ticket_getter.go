@@ -13,10 +13,10 @@ import (
 var ErrNotFound = errors.New("item not found")
 
 type TicketGetter interface {
-	// 根据 suiteId 获取套件当前的 SuiteTicket, 如果没有找到返回 ErrNotFound
+	// 根据 suiteId 获取套件当前的 suiteTicket, 如果没有找到返回 ErrNotFound
 	GetSuiteTicket(suiteId string) (ticket string, err error)
 
-	// 沒有實際意義, 接口標識而已
+	// 没有实际意义, 接口标识
 	TagEF8503CCFE9811E4959AA4DB30FED8E1()
 }
 

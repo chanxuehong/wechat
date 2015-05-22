@@ -193,23 +193,23 @@ func (clt Client) QRCodeDownload(ticket, filepath string) (err error) {
 }
 
 // 通过ticket换取二维码, 写入到 writer.
-//  如果 httpClient == nil 则默认用 http.DefaultClient.
-func QRCodeDownloadToWriter(ticket string, writer io.Writer, httpClient *http.Client) (err error) {
+//  如果 clt == nil 则默认用 http.DefaultClient.
+func QRCodeDownloadToWriter(ticket string, writer io.Writer, clt *http.Client) (err error) {
 	if ticket == "" {
 		return errors.New("empty ticket")
 	}
 	if writer == nil {
 		return errors.New("nil writer")
 	}
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+	if clt == nil {
+		clt = http.DefaultClient
 	}
-	return qrcodeDownloadToWriter(ticket, writer, httpClient)
+	return qrcodeDownloadToWriter(ticket, writer, clt)
 }
 
 // 通过ticket换取二维码, 写入到 filepath 路径的文件.
-//  如果 httpClient == nil 则默认用 http.DefaultClient
-func QRCodeDownload(ticket, filepath string, httpClient *http.Client) (err error) {
+//  如果 clt == nil 则默认用 http.DefaultClient
+func QRCodeDownload(ticket, filepath string, clt *http.Client) (err error) {
 	if ticket == "" {
 		return errors.New("empty ticket")
 	}
@@ -225,10 +225,10 @@ func QRCodeDownload(ticket, filepath string, httpClient *http.Client) (err error
 		}
 	}()
 
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+	if clt == nil {
+		clt = http.DefaultClient
 	}
-	return qrcodeDownloadToWriter(ticket, file, httpClient)
+	return qrcodeDownloadToWriter(ticket, file, clt)
 }
 
 // 二维码图片的URL, 可以GET此URL下载二维码或者在线显示此二维码.
@@ -238,8 +238,8 @@ func QRCodePicURL(ticket string) string {
 
 // 通过ticket换取二维码, 写入到 writer.
 //  NOTE: 调用者保证所有参数有效.
-func qrcodeDownloadToWriter(ticket string, writer io.Writer, httpClient *http.Client) (err error) {
-	httpResp, err := httpClient.Get(QRCodePicURL(ticket))
+func qrcodeDownloadToWriter(ticket string, writer io.Writer, clt *http.Client) (err error) {
+	httpResp, err := clt.Get(QRCodePicURL(ticket))
 	if err != nil {
 		return
 	}

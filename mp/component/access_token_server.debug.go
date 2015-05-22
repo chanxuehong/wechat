@@ -35,7 +35,7 @@ type AccessTokenServer interface {
 	//  再次调用该函数不再去微信服务器获取, 而是直接返回之前的结果.
 	TokenRefresh() (string, error)
 
-	// 沒有實際意義, 接口標識而已
+	// 没有实际意义, 接口标识
 	Tag7B36CB9FFE9911E48469A4DB30FED8E1()
 }
 

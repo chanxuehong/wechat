@@ -3,7 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// +build !wechatdebug
+// +build wechatdebug
 
 package suite
 
@@ -13,6 +13,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -32,6 +33,10 @@ type RequestHttpBody struct {
 // ServeHTTP 处理 http 消息请求
 //  NOTE: 调用者保证所有参数有效
 func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, srv Server, irh corp.InvalidRequestHandler) {
+	corp.LogInfoln("[WECHAT_DEBUG] request uri:", r.RequestURI)
+	corp.LogInfoln("[WECHAT_DEBUG] request remote-addr:", r.RemoteAddr)
+	corp.LogInfoln("[WECHAT_DEBUG] request user-agent:", r.UserAgent())
+
 	switch r.Method {
 	case "POST": // 消息处理
 		msgSignature1 := queryValues.Get("msg_signature")
@@ -64,9 +69,16 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 			return
 		}
 
+		reqBody, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			irh.ServeInvalidRequest(w, r, err)
+			return
+		}
+		corp.LogInfoln("[WECHAT_DEBUG] request msg http body:\r\n", string(reqBody))
+
 		// 解析 RequestHttpBody
 		var requestHttpBody RequestHttpBody
-		if err := xml.NewDecoder(r.Body).Decode(&requestHttpBody); err != nil {
+		if err := xml.Unmarshal(reqBody, &requestHttpBody); err != nil {
 			irh.ServeInvalidRequest(w, r, err)
 			return
 		}
@@ -120,6 +132,8 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 				return
 			}
 		}
+
+		corp.LogInfoln("[WECHAT_DEBUG] request msg raw xml:\r\n", string(rawMsgXML))
 
 		// 解密成功, 解析 MixedMessage
 		var mixedMsg MixedMessage

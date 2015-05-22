@@ -83,9 +83,9 @@ type UserDelCardEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	mp.MessageHeader
 
-	Event        string `xml:"Event"          json:"Event"`        // 事件类型, user_del_card
-	CardId       string `xml:"CardId"         json:"CardId"`       // 卡券ID
-	UserCardCode string `xml:"UserCardCode"   json:"UserCardCode"` // 商户自定义code 值。非自定code 推送为空串
+	Event        string `xml:"Event"        json:"Event"`        // 事件类型, user_del_card
+	CardId       string `xml:"CardId"       json:"CardId"`       // 卡券ID
+	UserCardCode string `xml:"UserCardCode" json:"UserCardCode"` // 商户自定义code 值。非自定code 推送为空串
 }
 
 func GetUserDelCardEvent(msg *mp.MixedMessage) *UserDelCardEvent {
@@ -102,9 +102,9 @@ type UserViewCardEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	mp.MessageHeader
 
-	Event        string `xml:"Event"          json:"Event"`        // 事件类型, user_view_card
-	CardId       string `xml:"CardId"         json:"CardId"`       // 卡券ID
-	UserCardCode string `xml:"UserCardCode"   json:"UserCardCode"` // 商户自定义code 值。非自定code 推送为空串
+	Event        string `xml:"Event"        json:"Event"`        // 事件类型, user_view_card
+	CardId       string `xml:"CardId"       json:"CardId"`       // 卡券ID
+	UserCardCode string `xml:"UserCardCode" json:"UserCardCode"` // 商户自定义code 值。非自定code 推送为空串
 }
 
 func GetUserViewCardEvent(msg *mp.MixedMessage) *UserViewCardEvent {
@@ -121,9 +121,9 @@ type UserConsumeCardEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	mp.MessageHeader
 
-	Event        string `xml:"Event"          json:"Event"`        // 事件类型, user_consume_card
-	CardId       string `xml:"CardId"         json:"CardId"`       // 卡券ID
-	UserCardCode string `xml:"UserCardCode"   json:"UserCardCode"` // 商户自定义code 值。非自定code 推送为空串
+	Event        string `xml:"Event"        json:"Event"`        // 事件类型, user_consume_card
+	CardId       string `xml:"CardId"       json:"CardId"`       // 卡券ID
+	UserCardCode string `xml:"UserCardCode" json:"UserCardCode"` // 商户自定义code 值。非自定code 推送为空串
 }
 
 func GetUserConsumeCardEvent(msg *mp.MixedMessage) *UserConsumeCardEvent {

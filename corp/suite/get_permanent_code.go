@@ -10,7 +10,7 @@ import (
 )
 
 type PermanentCodeInfo struct {
-	AccessTokenInfo
+	CorpAccessTokenInfo
 	PermanentCode string       `json:"permanent_code"`
 	AuthCorpInfo  AuthCorpInfo `json:"auth_corp_info"`
 	AuthInfo      AuthInfo     `json:"auth_info"`
@@ -23,14 +23,14 @@ type AuthUserInfo struct {
 }
 
 // 获取企业号的永久授权码
-//  AuthCode: 临时授权码会在授权成功时附加在redirect_uri中跳转回应用提供商网站。
-func (clt *Client) GetPermanentCode(AuthCode string) (info *PermanentCodeInfo, err error) {
+//  authCode: 临时授权码会在授权成功时附加在redirect_uri中跳转回应用提供商网站。
+func (clt *Client) GetPermanentCode(authCode string) (info *PermanentCodeInfo, err error) {
 	request := struct {
 		SuiteId  string `json:"suite_id"`
 		AuthCode string `json:"auth_code"`
 	}{
 		SuiteId:  clt.SuiteId,
-		AuthCode: AuthCode,
+		AuthCode: authCode,
 	}
 
 	var result struct {

@@ -19,28 +19,25 @@ import (
 )
 
 type Client struct {
-	SuiteId string
 	AccessTokenServer
+	SuiteId    string
 	HttpClient *http.Client
 }
 
 // 创建一个新的 Client.
-//  如果 HttpClient == nil 则默认用 http.DefaultClient
-func NewClient(SuiteId string, AccessTokenServer AccessTokenServer, HttpClient *http.Client) *Client {
-	if SuiteId == "" {
-		panic("empty SuiteId")
+//  如果 clt == nil 则默认用 http.DefaultClient
+func NewClient(suiteId string, srv AccessTokenServer, clt *http.Client) *Client {
+	if srv == nil {
+		panic("nil AccessTokenServer")
 	}
-	if AccessTokenServer == nil {
-		panic("AccessTokenServer == nil")
-	}
-	if HttpClient == nil {
-		HttpClient = http.DefaultClient
+	if clt == nil {
+		clt = http.DefaultClient
 	}
 
 	return &Client{
-		SuiteId:           SuiteId,
-		AccessTokenServer: AccessTokenServer,
-		HttpClient:        HttpClient,
+		AccessTokenServer: srv,
+		SuiteId:           suiteId,
+		HttpClient:        clt,
 	}
 }
 

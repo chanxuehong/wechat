@@ -28,7 +28,7 @@ type TicketServer interface {
 	//  再次调用该函数不再去微信服务器获取, 而是直接返回之前的结果.
 	TicketRefresh() (string, error)
 
-	// 沒有實際意義, 接口標識而已
+	// 没有实际意义, 接口标识
 	TagB38894EBFE9911E4BE17A4DB30FED8E1()
 }
 

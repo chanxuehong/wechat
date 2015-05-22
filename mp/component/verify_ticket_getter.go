@@ -17,7 +17,7 @@ type VerifyTicketGetter interface {
 	// 根据 component_appid 获取第三方平台当前的 component_verify_ticket, 如果没有找到返回 ErrNotFound
 	GetComponentVerifyTicket(appId string) (ticket string, err error)
 
-	// 沒有實際意義, 接口標識而已
+	// 没有实际意义, 接口标识
 	Tag9AEACC95FE9911E4B5A4A4DB30FED8E1()
 }
 

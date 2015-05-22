@@ -10,16 +10,19 @@ import (
 	"net/http"
 
 	"github.com/chanxuehong/wechat/mp"
+	"github.com/chanxuehong/wechat/mp/message/mass/internal"
 )
 
 type Client struct {
-	*mp.Client
+	internal.Client
 }
 
 // 兼容保留, 建議實際項目全局維護一個 *mp.Client
 func NewClient(srv mp.AccessTokenServer, clt *http.Client) Client {
 	return Client{
-		Client: mp.NewClient(srv, clt),
+		Client: internal.Client{
+			Client: mp.NewClient(srv, clt),
+		},
 	}
 }
 

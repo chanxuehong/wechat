@@ -22,7 +22,7 @@ type SetAgentParameters struct {
 	IsReportEnter      *int   `json:"isreportenter,omitempty"`
 }
 
-func (clt *Client) SetAgent(AuthCorpId, PermanentCode string, para *SetAgentParameters) (err error) {
+func (clt *Client) SetAgent(authCorpId, permanentCode string, para *SetAgentParameters) (err error) {
 	if para == nil {
 		return errors.New("nil AgentParameters")
 	}
@@ -34,8 +34,8 @@ func (clt *Client) SetAgent(AuthCorpId, PermanentCode string, para *SetAgentPara
 		Agent         *SetAgentParameters `json:"agent,omitempty"`
 	}{
 		SuiteId:       clt.SuiteId,
-		AuthCorpId:    AuthCorpId,
-		PermanentCode: PermanentCode,
+		AuthCorpId:    authCorpId,
+		PermanentCode: permanentCode,
 		Agent:         para,
 	}
 

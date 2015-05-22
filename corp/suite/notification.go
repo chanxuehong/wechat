@@ -7,12 +7,12 @@ package suite
 
 const (
 	// 微信服务器推送过来的消息类型
-	SuiteMsgTypeSuiteTicket = "suite_ticket" // 推送suite_ticket协议
-	SuiteMsgTypeChangeAuth  = "change_auth"  // 变更授权的通知
-	SuiteMsgTypeCancelAuth  = "cancel_auth"  // 取消授权的通知
+	MsgTypeSuiteTicket = "suite_ticket" // 推送suite_ticket协议
+	MsgTypeChangeAuth  = "change_auth"  // 变更授权的通知
+	MsgTypeCancelAuth  = "cancel_auth"  // 取消授权的通知
 )
 
-type SuiteTicketMessage struct {
+type TicketMessage struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
 	SuiteId   string `xml:"SuiteId"   json:"SuiteId"`
@@ -22,8 +22,8 @@ type SuiteTicketMessage struct {
 	SuiteTicket string `xml:"SuiteTicket" json:"SuiteTicket"`
 }
 
-func GetSuiteTicketMessage(msg *MixedMessage) *SuiteTicketMessage {
-	return &SuiteTicketMessage{
+func GetTicketMessage(msg *MixedMessage) *TicketMessage {
+	return &TicketMessage{
 		SuiteId:     msg.SuiteId,
 		InfoType:    msg.InfoType,
 		Timestamp:   msg.Timestamp,

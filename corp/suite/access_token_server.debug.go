@@ -35,7 +35,7 @@ type AccessTokenServer interface {
 	//  再次调用该函数不再去微信服务器获取, 而是直接返回之前的结果.
 	TokenRefresh() (string, error)
 
-	// 沒有實際意義, 接口標識而已
+	// 没有实际意义, 接口标识
 	TagBD6F157DFE9811E48A29A4DB30FED8E1()
 }
 
@@ -56,8 +56,8 @@ type DefaultAccessTokenServer struct {
 
 	tokenGet struct {
 		sync.Mutex
-		LastTokenInfo suiteAccessTokenInfo // 最后一次成功从微信服务器获取的 suite_access_token 信息
-		LastTimestamp int64                // 最后一次成功从微信服务器获取 suite_access_token 的时间戳
+		LastTokenInfo accessTokenInfo // 最后一次成功从微信服务器获取的 suite_access_token 信息
+		LastTimestamp int64           // 最后一次成功从微信服务器获取 suite_access_token 的时间戳
 	}
 
 	tokenCache struct {
@@ -67,28 +67,20 @@ type DefaultAccessTokenServer struct {
 }
 
 // 创建一个新的 DefaultAccessTokenServer.
-//  如果 httpClient == nil 则默认使用 http.DefaultClient.
-func NewDefaultAccessTokenServer(suiteId, suiteSecret string, ticketGetter TicketGetter,
-	httpClient *http.Client) (srv *DefaultAccessTokenServer) {
-
-	if suiteId == "" {
-		panic("empty suiteId")
-	}
-	if suiteSecret == "" {
-		panic("empty suiteSecret")
-	}
+//  如果 clt == nil 则默认使用 http.DefaultClient.
+func NewDefaultAccessTokenServer(suiteId, suiteSecret string, ticketGetter TicketGetter, clt *http.Client) (srv *DefaultAccessTokenServer) {
 	if ticketGetter == nil {
 		panic("nil ticketGetter")
 	}
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+	if clt == nil {
+		clt = http.DefaultClient
 	}
 
 	srv = &DefaultAccessTokenServer{
 		suiteId:         suiteId,
 		suiteSecret:     suiteSecret,
 		ticketGetter:    ticketGetter,
-		httpClient:      httpClient,
+		httpClient:      clt,
 		resetTickerChan: make(chan time.Duration),
 	}
 
@@ -110,14 +102,14 @@ func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
 }
 
 func (srv *DefaultAccessTokenServer) TokenRefresh() (token string, err error) {
-	suiteAccessTokenInfo, cached, err := srv.getToken()
+	tokenInfo, cached, err := srv.getToken()
 	if err != nil {
 		return
 	}
 	if !cached {
-		srv.resetTickerChan <- time.Duration(suiteAccessTokenInfo.ExpiresIn) * time.Second
+		srv.resetTickerChan <- time.Duration(tokenInfo.ExpiresIn) * time.Second
 	}
-	token = suiteAccessTokenInfo.Token
+	token = tokenInfo.Token
 	return
 }
 
@@ -132,12 +124,12 @@ NEW_TICK_DURATION:
 			goto NEW_TICK_DURATION
 
 		case <-ticker.C:
-			suiteAccessTokenInfo, cached, err := srv.getToken()
+			tokenInfo, cached, err := srv.getToken()
 			if err != nil {
 				break
 			}
 			if !cached {
-				newTickDuration := time.Duration(suiteAccessTokenInfo.ExpiresIn) * time.Second
+				newTickDuration := time.Duration(tokenInfo.ExpiresIn) * time.Second
 				if tickDuration != newTickDuration {
 					tickDuration = newTickDuration
 					ticker.Stop()
@@ -148,14 +140,14 @@ NEW_TICK_DURATION:
 	}
 }
 
-type suiteAccessTokenInfo struct {
+type accessTokenInfo struct {
 	Token     string `json:"suite_access_token"`
 	ExpiresIn int64  `json:"expires_in"` // 有效时间, seconds
 }
 
 // 从微信服务器获取 suite_access_token.
 //  同一时刻只能一个 goroutine 进入, 防止没必要的重复获取.
-func (srv *DefaultAccessTokenServer) getToken() (token suiteAccessTokenInfo, cached bool, err error) {
+func (srv *DefaultAccessTokenServer) getToken() (token accessTokenInfo, cached bool, err error) {
 	srv.tokenGet.Lock()
 	defer srv.tokenGet.Unlock()
 
@@ -164,7 +156,7 @@ func (srv *DefaultAccessTokenServer) getToken() (token suiteAccessTokenInfo, cac
 	// 在收敛周期内直接返回最近一次获取的 suite_access_token, 这里的收敛时间设定为4秒.
 	if n := srv.tokenGet.LastTimestamp; n <= timeNowUnix && timeNowUnix < n+4 {
 		// 因为只有成功获取后才会更新 srv.tokenGet.LastTimestamp, 所以这些都是有效数据
-		token = suiteAccessTokenInfo{
+		token = accessTokenInfo{
 			Token:     srv.tokenGet.LastTokenInfo.Token,
 			ExpiresIn: srv.tokenGet.LastTokenInfo.ExpiresIn - timeNowUnix + n,
 		}
@@ -227,7 +219,7 @@ func (srv *DefaultAccessTokenServer) getToken() (token suiteAccessTokenInfo, cac
 
 	var result struct {
 		corp.Error
-		suiteAccessTokenInfo
+		accessTokenInfo
 	}
 
 	respBody, err := ioutil.ReadAll(httpResp.Body)
@@ -283,14 +275,14 @@ func (srv *DefaultAccessTokenServer) getToken() (token suiteAccessTokenInfo, cac
 	}
 
 	// 更新 tokenGet 信息
-	srv.tokenGet.LastTokenInfo = result.suiteAccessTokenInfo
+	srv.tokenGet.LastTokenInfo = result.accessTokenInfo
 	srv.tokenGet.LastTimestamp = timeNowUnix
 
 	// 更新缓存
 	srv.tokenCache.Lock()
-	srv.tokenCache.Token = result.suiteAccessTokenInfo.Token
+	srv.tokenCache.Token = result.accessTokenInfo.Token
 	srv.tokenCache.Unlock()
 
-	token = result.suiteAccessTokenInfo
+	token = result.accessTokenInfo
 	return
 }
