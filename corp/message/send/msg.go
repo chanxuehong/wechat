@@ -20,7 +20,7 @@ const (
 	MsgTypeMPNews = "mpnews"
 )
 
-type CommonMessageHeader struct {
+type MessageHeader struct {
 	ToUser  string `json:"touser,omitempty"`  // 非必须; 员工ID列表（消息接收者，多个接收者用‘|’分隔，最多支持1000个）。特殊情况：指定为@all，则向关注该企业应用的全部成员发送
 	ToParty string `json:"toparty,omitempty"` // 非必须; 部门ID列表，多个接收者用‘|’分隔，最多支持100个。当touser为@all时忽略本参数
 	ToTag   string `json:"totag,omitempty"`   // 非必须; 标签ID列表，多个接收者用‘|’分隔。当touser为@all时忽略本参数
@@ -31,7 +31,7 @@ type CommonMessageHeader struct {
 }
 
 type Text struct {
-	CommonMessageHeader
+	MessageHeader
 
 	Text struct {
 		Content string `json:"content"`
@@ -39,7 +39,7 @@ type Text struct {
 }
 
 type Image struct {
-	CommonMessageHeader
+	MessageHeader
 
 	Image struct {
 		MediaId string `json:"media_id"` // 图片媒体文件id，可以调用上传媒体文件接口获取
@@ -47,7 +47,7 @@ type Image struct {
 }
 
 type Voice struct {
-	CommonMessageHeader
+	MessageHeader
 
 	Voice struct {
 		MediaId string `json:"media_id"` // 语音文件id，可以调用上传媒体文件接口获取
@@ -55,7 +55,7 @@ type Voice struct {
 }
 
 type Video struct {
-	CommonMessageHeader
+	MessageHeader
 
 	Video struct {
 		MediaId     string `json:"media_id"`              // 视频媒体文件id，可以调用上传媒体文件接口获取
@@ -65,7 +65,7 @@ type Video struct {
 }
 
 type File struct {
-	CommonMessageHeader
+	MessageHeader
 
 	File struct {
 		MediaId string `json:"media_id"` // 媒体文件id，可以调用上传媒体文件接口获取
@@ -83,7 +83,7 @@ const NewsArticleCountLimit = 10
 
 // News 消息, 注意沒有 Safe 字段.
 type News struct {
-	CommonMessageHeader
+	MessageHeader
 
 	News struct {
 		Articles []NewsArticle `json:"articles,omitempty"` // 图文消息，一个图文消息支持1到10条图文
@@ -124,7 +124,7 @@ func (article *MPNewsArticle) SetShowCoverPic(b bool) {
 
 // MPNews 消息与 News 消息类似，不同的是图文消息内容存储在微信后台，并且支持保密选项。
 type MPNews struct {
-	CommonMessageHeader
+	MessageHeader
 
 	MPNews struct {
 		Articles []MPNewsArticle `json:"articles,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应

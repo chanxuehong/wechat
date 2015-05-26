@@ -7,7 +7,6 @@ package card
 
 import (
 	"errors"
-	"net/http"
 	"strconv"
 	"sync"
 	"time"
@@ -18,16 +17,19 @@ import (
 // jsapi_ticket 中控服务器接口.
 type TicketServer interface {
 	// 从中控服务器获取被缓存的 jsapi_ticket.
-	Ticket() (ticket string, err error)
+	Ticket() (string, error)
 
 	// 请求中控服务器到微信服务器刷新 jsapi_ticket.
 	//
-	//  高并发场景下某个时间点可能有很多请求(比如缓存的jsapi_ticket刚好过期时), 但是我们
+	//  高并发场景下某个时间点可能有很多请求(比如缓存的 jsapi_ticket 刚好过期时), 但是我们
 	//  不期望也没有必要让这些请求都去微信服务器获取 jsapi_ticket(有可能导致api超过调用限制),
 	//  实际上这些请求只需要一个新的 jsapi_ticket 即可, 所以建议 TicketServer 从微信服务器
 	//  获取一次 jsapi_ticket 之后的至多5秒内(收敛时间, 视情况而定, 理论上至多5个http或tcp周期)
 	//  再次调用该函数不再去微信服务器获取, 而是直接返回之前的结果.
-	TicketRefresh() (ticket string, err error)
+	TicketRefresh() (string, error)
+
+	// 没有实际意义, 接口标识
+	Tag60DA35BEFE9911E4B462A4DB30FED8E1()
 }
 
 var _ TicketServer = (*DefaultTicketServer)(nil)
@@ -38,7 +40,7 @@ var _ TicketServer = (*DefaultTicketServer)(nil)
 //  2. 因为 DefaultTicketServer 同时也是一个简单的中控服务器, 而不是仅仅实现 TicketServer 接口,
 //     所以整个系统只能存在一个 DefaultTicketServer 实例!
 type DefaultTicketServer struct {
-	wechatClient mp.WechatClient
+	mpClient *mp.Client
 
 	resetTickerChan chan time.Duration // 用于重置 ticketDaemon 里的 ticker
 
@@ -55,26 +57,21 @@ type DefaultTicketServer struct {
 }
 
 // 创建一个新的 DefaultTicketServer.
-//  如果 httpClient == nil 则默认使用 http.DefaultClient.
-func NewDefaultTicketServer(AccessTokenServer mp.AccessTokenServer, httpClient *http.Client) (srv *DefaultTicketServer) {
-	if AccessTokenServer == nil {
-		panic("nil AccessTokenServer")
-	}
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+func NewDefaultTicketServer(clt *mp.Client) (srv *DefaultTicketServer) {
+	if clt == nil {
+		panic("nil mp.Client")
 	}
 
 	srv = &DefaultTicketServer{
-		wechatClient: mp.WechatClient{
-			AccessTokenServer: AccessTokenServer,
-			HttpClient:        httpClient,
-		},
+		mpClient:        clt,
 		resetTickerChan: make(chan time.Duration),
 	}
 
 	go srv.ticketDaemon(time.Hour * 24) // 启动 tokenDaemon
 	return
 }
+
+func (srv *DefaultTicketServer) Tag60DA35BEFE9911E4B462A4DB30FED8E1() {}
 
 func (srv *DefaultTicketServer) Ticket() (ticket string, err error) {
 	srv.ticketCache.RLock()
@@ -156,7 +153,7 @@ func (srv *DefaultTicketServer) getTicket() (ticket ticketInfo, cached bool, err
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=wx_card&access_token="
-	if err = srv.wechatClient.GetJSON(incompleteURL, &result); err != nil {
+	if err = srv.mpClient.GetJSON(incompleteURL, &result); err != nil {
 		srv.ticketCache.Lock()
 		srv.ticketCache.Ticket = ""
 		srv.ticketCache.Unlock()

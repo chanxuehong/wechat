@@ -16,7 +16,7 @@ const (
 // Poi 审核结果事件推送
 type PoiCheckNotifyEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Event  string `xml:"Event"  json:"Event"`  // 事件类型, poi_check_notify
 	UniqId string `xml:"UniqId" json:"UniqId"` // 商户自己内部ID，即字段中的sid
@@ -27,11 +27,11 @@ type PoiCheckNotifyEvent struct {
 
 func GetPoiCheckNotifyEvent(msg *mp.MixedMessage) *PoiCheckNotifyEvent {
 	return &PoiCheckNotifyEvent{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		Event:               msg.Event,
-		UniqId:              msg.UniqId,
-		PoiId:               msg.PoiId,
-		Result:              msg.Result,
-		Msg:                 msg.Msg,
+		MessageHeader: msg.MessageHeader,
+		Event:         msg.Event,
+		UniqId:        msg.UniqId,
+		PoiId:         msg.PoiId,
+		Result:        msg.Result,
+		Msg:           msg.Msg,
 	}
 }

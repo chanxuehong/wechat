@@ -16,7 +16,7 @@ const (
 // 高级群发消息, 事件推送群发结果
 type MassSendJobFinishEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	mp.CommonMessageHeader
+	mp.MessageHeader
 
 	Event string `xml:"Event" json:"Event"` // 事件信息，此处为 MASSSENDJOBFINISH
 
@@ -47,13 +47,13 @@ type MassSendJobFinishEvent struct {
 
 func GetMassSendJobFinishEvent(msg *mp.MixedMessage) *MassSendJobFinishEvent {
 	return &MassSendJobFinishEvent{
-		CommonMessageHeader: msg.CommonMessageHeader,
-		Event:               msg.Event,
-		MsgId:               msg.MsgID, // NOTE
-		Status:              msg.Status,
-		TotalCount:          msg.TotalCount,
-		FilterCount:         msg.FilterCount,
-		SentCount:           msg.SentCount,
-		ErrorCount:          msg.ErrorCount,
+		MessageHeader: msg.MessageHeader,
+		Event:         msg.Event,
+		MsgId:         msg.MsgID, // NOTE
+		Status:        msg.Status,
+		TotalCount:    msg.TotalCount,
+		FilterCount:   msg.FilterCount,
+		SentCount:     msg.SentCount,
+		ErrorCount:    msg.ErrorCount,
 	}
 }

@@ -21,16 +21,19 @@ import (
 // access_token 中控服务器接口, see access_token_server.png
 type AccessTokenServer interface {
 	// 从中控服务器获取被缓存的 access_token.
-	Token() (token string, err error)
+	Token() (string, error)
 
 	// 请求中控服务器到微信服务器刷新 access_token.
 	//
-	//  高并发场景下某个时间点可能有很多请求(比如缓存的access_token刚好过期时), 但是我们
+	//  高并发场景下某个时间点可能有很多请求(比如缓存的 access_token 刚好过期时), 但是我们
 	//  不期望也没有必要让这些请求都去微信服务器获取 access_token(有可能导致api超过调用限制),
 	//  实际上这些请求只需要一个新的 access_token 即可, 所以建议 AccessTokenServer 从微信服务器
 	//  获取一次 access_token 之后的至多5秒内(收敛时间, 视情况而定, 理论上至多5个http或tcp周期)
 	//  再次调用该函数不再去微信服务器获取, 而是直接返回之前的结果.
-	TokenRefresh() (token string, err error)
+	TokenRefresh() (string, error)
+
+	// 没有实际意义, 接口标识
+	Tag6D89F2E2FE9811E49EAAA4DB30FED8E1()
 }
 
 var _ AccessTokenServer = (*DefaultAccessTokenServer)(nil)
@@ -60,24 +63,24 @@ type DefaultAccessTokenServer struct {
 }
 
 // 创建一个新的 DefaultAccessTokenServer.
-//  如果 httpClient == nil 则默认使用 http.DefaultClient.
-func NewDefaultAccessTokenServer(corpId, corpSecret string,
-	httpClient *http.Client) (srv *DefaultAccessTokenServer) {
-
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+//  如果 clt == nil 则默认使用 http.DefaultClient.
+func NewDefaultAccessTokenServer(corpId, corpSecret string, clt *http.Client) (srv *DefaultAccessTokenServer) {
+	if clt == nil {
+		clt = http.DefaultClient
 	}
 
 	srv = &DefaultAccessTokenServer{
 		corpId:          corpId,
 		corpSecret:      corpSecret,
-		httpClient:      httpClient,
+		httpClient:      clt,
 		resetTickerChan: make(chan time.Duration),
 	}
 
 	go srv.tokenDaemon(time.Hour * 24) // 启动 tokenDaemon
 	return
 }
+
+func (srv *DefaultAccessTokenServer) Tag6D89F2E2FE9811E49EAAA4DB30FED8E1() {}
 
 func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
 	srv.tokenCache.RLock()
@@ -195,7 +198,24 @@ func (srv *DefaultAccessTokenServer) getToken() (token accessTokenInfo, cached b
 		return
 	}
 
-	if result.ExpiresIn <= 60 {
+	// 由于网络的延时, access_token 过期时间留了一个缓冲区
+	switch {
+	case result.ExpiresIn > 31556952: // 60*60*24*365.2425
+		srv.tokenCache.Lock()
+		srv.tokenCache.Token = ""
+		srv.tokenCache.Unlock()
+
+		err = errors.New("expires_in too large: " + strconv.FormatInt(result.ExpiresIn, 10))
+		return
+	case result.ExpiresIn > 60*60:
+		result.ExpiresIn -= 60 * 10
+	case result.ExpiresIn > 60*30:
+		result.ExpiresIn -= 60 * 5
+	case result.ExpiresIn > 60*5:
+		result.ExpiresIn -= 60
+	case result.ExpiresIn > 60:
+		result.ExpiresIn -= 10
+	default:
 		srv.tokenCache.Lock()
 		srv.tokenCache.Token = ""
 		srv.tokenCache.Unlock()
@@ -203,10 +223,6 @@ func (srv *DefaultAccessTokenServer) getToken() (token accessTokenInfo, cached b
 		err = errors.New("expires_in too small: " + strconv.FormatInt(result.ExpiresIn, 10))
 		return
 	}
-
-	// 由于企业号的 access_token 会自动续期, 并且不做改变, 这样对于安全不利,
-	// 所以这里故意增加1秒, 让其过期, 获取一个不同的 access_token.
-	result.ExpiresIn++
 
 	// 更新 tokenGet 信息
 	srv.tokenGet.LastTokenInfo = result.accessTokenInfo

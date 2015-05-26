@@ -20,12 +20,12 @@ const (
 
 const ToUserCountLimit = 10000
 
-type CommonMessageHeader struct {
+type MessageHeader struct {
 	ToUser  []string `json:"touser,omitempty"` // 长度不能超过 ToUserCountLimit
 	MsgType string   `json:"msgtype"`
 }
 
-func (header *CommonMessageHeader) CheckValid() (err error) {
+func (header *MessageHeader) CheckValid() (err error) {
 	n := len(header.ToUser)
 	if n <= 0 {
 		return errors.New("用户列表是空的")
@@ -37,7 +37,7 @@ func (header *CommonMessageHeader) CheckValid() (err error) {
 }
 
 type Text struct {
-	CommonMessageHeader
+	MessageHeader
 	Text struct {
 		Content string `json:"content"`
 	} `json:"text"`
@@ -52,7 +52,7 @@ func NewText(toUser []string, content string) *Text {
 }
 
 type Image struct {
-	CommonMessageHeader
+	MessageHeader
 	Image struct {
 		MediaId string `json:"media_id"`
 	} `json:"image"`
@@ -67,7 +67,7 @@ func NewImage(toUser []string, mediaId string) *Image {
 }
 
 type Voice struct {
-	CommonMessageHeader
+	MessageHeader
 	Voice struct {
 		MediaId string `json:"media_id"` // mediaId 通过上传多媒体文件得到
 	} `json:"voice"`
@@ -82,7 +82,7 @@ func NewVoice(toUser []string, mediaId string) *Voice {
 }
 
 type Video struct {
-	CommonMessageHeader
+	MessageHeader
 	Video struct {
 		MediaId     string `json:"media_id"`
 		Title       string `json:"title,omitempty"`
@@ -106,7 +106,7 @@ func NewVideo(toUser []string, mediaId, title, description string) *Video {
 
 // 图文消息
 type News struct {
-	CommonMessageHeader
+	MessageHeader
 	News struct {
 		MediaId string `json:"media_id"`
 	} `json:"mpnews"`

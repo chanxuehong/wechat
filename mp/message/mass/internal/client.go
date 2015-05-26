@@ -3,22 +3,23 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package mass
+package internal
 
 import (
 	"net/http"
 
 	"github.com/chanxuehong/wechat/mp"
+	"github.com/chanxuehong/wechat/mp/message/mass"
 )
 
 type Client struct {
-	*mp.WechatClient
+	*mp.Client
 }
 
-// 兼容保留, 建議實際項目全局維護一個 *mp.WechatClient
-func NewClient(AccessTokenServer mp.AccessTokenServer, httpClient *http.Client) Client {
+// 兼容保留, 建議實際項目全局維護一個 *mp.Client
+func NewClient(srv mp.AccessTokenServer, clt *http.Client) Client {
 	return Client{
-		WechatClient: mp.NewWechatClient(AccessTokenServer, httpClient),
+		Client: mp.NewClient(srv, clt),
 	}
 }
 
@@ -48,13 +49,8 @@ func (clt Client) DeleteMass(msgid int64) (err error) {
 	return
 }
 
-type MassStatus struct {
-	MsgId  int64  `json:"msg_id"`
-	Status string `json:"msg_status"` // 消息发送后的状态，SEND_SUCCESS表示发送成功
-}
-
 // 查询群发消息发送状态
-func (clt Client) GetMassStatus(msgid int64) (status *MassStatus, err error) {
+func (clt Client) GetMassStatus(msgid int64) (status *mass.MassStatus, err error) {
 	var request = struct {
 		MsgId int64 `json:"msg_id"`
 	}{
@@ -63,7 +59,7 @@ func (clt Client) GetMassStatus(msgid int64) (status *MassStatus, err error) {
 
 	var result struct {
 		mp.Error
-		MassStatus
+		mass.MassStatus
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/message/mass/get?access_token="

@@ -17,11 +17,12 @@ import (
 
 // 回复消息的 http body
 type ResponseHttpBody struct {
-	XMLName      struct{} `xml:"xml" json:"-"`
-	EncryptedMsg string   `xml:"Encrypt"`
-	MsgSignature string   `xml:"MsgSignature"`
-	Timestamp    int64    `xml:"TimeStamp"`
-	Nonce        string   `xml:"Nonce"`
+	XMLName struct{} `xml:"xml" json:"-"`
+
+	EncryptedMsg string `xml:"Encrypt"`
+	MsgSignature string `xml:"MsgSignature"`
+	Timestamp    int64  `xml:"TimeStamp"`
+	Nonce        string `xml:"Nonce"`
 }
 
 // 回复消息给微信服务器.
@@ -38,13 +39,13 @@ func WriteResponse(w http.ResponseWriter, r *Request, msg interface{}) (err erro
 		return errors.New("nil message")
 	}
 
-	MsgRawXML, err := xml.Marshal(msg)
+	rawMsgXML, err := xml.Marshal(msg)
 	if err != nil {
 		return
 	}
 
-	EncryptedMsg := util.AESEncryptMsg(r.Random, MsgRawXML, r.CorpId, r.AESKey)
-	base64EncryptedMsg := base64.StdEncoding.EncodeToString(EncryptedMsg)
+	encryptedMsg := util.AESEncryptMsg(r.Random, rawMsgXML, r.CorpId, r.AESKey)
+	base64EncryptedMsg := base64.StdEncoding.EncodeToString(encryptedMsg)
 
 	responseHttpBody := ResponseHttpBody{
 		EncryptedMsg: base64EncryptedMsg,

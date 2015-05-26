@@ -12,7 +12,7 @@ import (
 
 // 微信服务器推送过来的消息(事件)处理接口
 type MessageHandler interface {
-	ServeMessage(w http.ResponseWriter, r *Request)
+	ServeMessage(http.ResponseWriter, *Request)
 }
 
 type MessageHandlerFunc func(http.ResponseWriter, *Request)
@@ -45,7 +45,7 @@ type Request struct {
 }
 
 // 微信服务器推送过来的消息(事件)通用的消息头
-type CommonMessageHeader struct {
+type MessageHeader struct {
 	ToUserName   string `xml:"ToUserName"   json:"ToUserName"`
 	FromUserName string `xml:"FromUserName" json:"FromUserName"`
 	CreateTime   int64  `xml:"CreateTime"   json:"CreateTime"`
@@ -56,7 +56,7 @@ type CommonMessageHeader struct {
 // 微信服务器推送过来的消息(事件)的合集.
 type MixedMessage struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	CommonMessageHeader
+	MessageHeader
 
 	MsgId int64 `xml:"MsgId" json:"MsgId"`
 

@@ -13,13 +13,13 @@ const (
 	MsgTypeNews  = "mpnews"
 )
 
-type CommonMessageHeader struct {
+type MessageHeader struct {
 	ToUser  string `json:"touser"`
 	MsgType string `json:"msgtype"`
 }
 
 type Text struct {
-	CommonMessageHeader
+	MessageHeader
 	Text struct {
 		Content string `json:"content"`
 	} `json:"text"`
@@ -34,7 +34,7 @@ func NewText(touser, content string) *Text {
 }
 
 type Image struct {
-	CommonMessageHeader
+	MessageHeader
 	Image struct {
 		MediaId string `json:"media_id"`
 	} `json:"image"`
@@ -49,7 +49,7 @@ func NewImage(touser, mediaId string) *Image {
 }
 
 type Voice struct {
-	CommonMessageHeader
+	MessageHeader
 	Voice struct {
 		MediaId string `json:"media_id"`
 	} `json:"voice"`
@@ -64,7 +64,7 @@ func NewVoice(touser, mediaId string) *Voice {
 }
 
 type Video struct {
-	CommonMessageHeader
+	MessageHeader
 	Video struct {
 		MediaId string `json:"media_id"`
 	} `json:"mpvideo"`
@@ -82,7 +82,7 @@ func NewVideo(touser, mediaId string) *Video {
 
 // 图文消息
 type News struct {
-	CommonMessageHeader
+	MessageHeader
 	News struct {
 		MediaId string `json:"media_id"`
 	} `json:"mpnews"`

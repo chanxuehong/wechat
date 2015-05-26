@@ -7,32 +7,42 @@ package mch
 
 import (
 	"net/http"
+	"net/url"
 )
 
-// 处理单个APP的消息.
-type MessageServerFrontend struct {
-	messageServer         MessageServer
+type ServerFrontend struct {
+	server                Server
 	invalidRequestHandler InvalidRequestHandler
+	interceptor           Interceptor
 }
 
-func NewMessageServerFrontend(server MessageServer, handler InvalidRequestHandler) *MessageServerFrontend {
+// handler, interceptor 均可以为 nil
+func NewServerFrontend(server Server, handler InvalidRequestHandler, interceptor Interceptor) *ServerFrontend {
 	if server == nil {
-		panic("pay: nil MessageServer")
+		panic("nil Server")
 	}
 	if handler == nil {
 		handler = DefaultInvalidRequestHandler
 	}
 
-	return &MessageServerFrontend{
-		messageServer:         server,
+	return &ServerFrontend{
+		server:                server,
 		invalidRequestHandler: handler,
+		interceptor:           interceptor,
 	}
 }
 
 // 实现 http.Handler.
-func (frontend *MessageServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	messageServer := frontend.messageServer
-	invalidRequestHandler := frontend.invalidRequestHandler
+func (frontend *ServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	queryValues, err := url.ParseQuery(r.URL.RawQuery)
+	if err != nil {
+		frontend.invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		return
+	}
 
-	ServeHTTP(w, r, nil, messageServer, invalidRequestHandler)
+	if interceptor := frontend.interceptor; interceptor != nil && !interceptor.Intercept(w, r, queryValues) {
+		return
+	}
+
+	ServeHTTP(w, r, queryValues, frontend.server, frontend.invalidRequestHandler)
 }

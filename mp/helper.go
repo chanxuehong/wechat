@@ -30,11 +30,12 @@ func WriteRawResponse(w http.ResponseWriter, r *Request, msg interface{}) (err e
 
 // 安全模式回复消息的 http body
 type ResponseHttpBody struct {
-	XMLName      struct{} `xml:"xml" json:"-"`
-	EncryptedMsg string   `xml:"Encrypt"`
-	MsgSignature string   `xml:"MsgSignature"`
-	Timestamp    int64    `xml:"TimeStamp"`
-	Nonce        string   `xml:"Nonce"`
+	XMLName struct{} `xml:"xml" json:"-"`
+
+	EncryptedMsg string `xml:"Encrypt"      json:"Encrypt"`
+	MsgSignature string `xml:"MsgSignature" json:"MsgSignature"`
+	Timestamp    int64  `xml:"TimeStamp"    json:"TimeStamp"`
+	Nonce        string `xml:"Nonce"        json:"Nonce"`
 }
 
 // 回复消息给微信服务器(安全模式).
@@ -56,7 +57,7 @@ func WriteAESResponse(w http.ResponseWriter, r *Request, msg interface{}) (err e
 		return
 	}
 
-	encryptedMsg := util.AESEncryptMsg(r.Random, rawMsgXML, r.WechatAppId, r.AESKey)
+	encryptedMsg := util.AESEncryptMsg(r.Random, rawMsgXML, r.AppId, r.AESKey)
 	base64EncryptedMsg := base64.StdEncoding.EncodeToString(encryptedMsg)
 
 	responseHttpBody := ResponseHttpBody{
@@ -66,7 +67,7 @@ func WriteAESResponse(w http.ResponseWriter, r *Request, msg interface{}) (err e
 	}
 
 	TimestampStr := strconv.FormatInt(responseHttpBody.Timestamp, 10)
-	responseHttpBody.MsgSignature = util.MsgSign(r.WechatToken, TimestampStr, responseHttpBody.Nonce, responseHttpBody.EncryptedMsg)
+	responseHttpBody.MsgSignature = util.MsgSign(r.Token, TimestampStr, responseHttpBody.Nonce, responseHttpBody.EncryptedMsg)
 
 	return xml.NewEncoder(w).Encode(&responseHttpBody)
 }

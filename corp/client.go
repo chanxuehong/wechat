@@ -19,24 +19,24 @@ import (
 )
 
 // 企业号"主动"请求功能的基本封装.
-type CorpClient struct {
+type Client struct {
 	AccessTokenServer
 	HttpClient *http.Client
 }
 
-// 创建一个新的 CorpClient.
-//  如果 HttpClient == nil 则默认用 http.DefaultClient
-func NewCorpClient(AccessTokenServer AccessTokenServer, HttpClient *http.Client) *CorpClient {
-	if AccessTokenServer == nil {
-		panic("AccessTokenServer == nil")
+// 创建一个新的 Client.
+//  如果 clt == nil 则默认用 http.DefaultClient
+func NewClient(srv AccessTokenServer, clt *http.Client) *Client {
+	if srv == nil {
+		panic("nil AccessTokenServer")
 	}
-	if HttpClient == nil {
-		HttpClient = http.DefaultClient
+	if clt == nil {
+		clt = http.DefaultClient
 	}
 
-	return &CorpClient{
-		AccessTokenServer: AccessTokenServer,
-		HttpClient:        HttpClient,
+	return &Client{
+		AccessTokenServer: srv,
+		HttpClient:        clt,
 	}
 }
 
@@ -51,7 +51,7 @@ func NewCorpClient(AccessTokenServer AccessTokenServer, HttpClient *http.Client)
 //          Error
 //          ...
 //      }
-func (clt *CorpClient) PostJSON(incompleteURL string, request interface{}, response interface{}) (err error) {
+func (clt *Client) PostJSON(incompleteURL string, request interface{}, response interface{}) (err error) {
 	buf := textBufferPool.Get().(*bytes.Buffer)
 	buf.Reset()
 	defer textBufferPool.Put(buf)
@@ -130,7 +130,7 @@ RETRY:
 //          Error
 //          ...
 //      }
-func (clt *CorpClient) GetJSON(incompleteURL string, response interface{}) (err error) {
+func (clt *Client) GetJSON(incompleteURL string, response interface{}) (err error) {
 	token, err := clt.Token()
 	if err != nil {
 		return

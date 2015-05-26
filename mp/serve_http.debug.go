@@ -32,21 +32,13 @@ type RequestHttpBody struct {
 
 // ServeHTTP 处理 http 消息请求
 //  NOTE: 调用者保证所有参数有效
-func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, ws WechatServer, irh InvalidRequestHandler) {
+func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, srv Server, irh InvalidRequestHandler) {
 	LogInfoln("[WECHAT_DEBUG] request uri:", r.RequestURI)
 	LogInfoln("[WECHAT_DEBUG] request remote-addr:", r.RemoteAddr)
 	LogInfoln("[WECHAT_DEBUG] request user-agent:", r.UserAgent())
 
 	switch r.Method {
 	case "POST": // 消息处理
-		if bodySizeLimit := ws.MessageSizeLimit(); bodySizeLimit > 0 {
-			if r.ContentLength > bodySizeLimit {
-				irh.ServeInvalidRequest(w, r, errors.New("request body too large"))
-				return
-			}
-			r.Body = http.MaxBytesReader(w, r.Body, bodySizeLimit)
-		}
-
 		switch encryptType := queryValues.Get("encrypt_type"); encryptType {
 		case "aes": // 安全模式, 兼容模式
 			signature := queryValues.Get("signature") // 只讀取, 不驗證了
@@ -96,7 +88,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 
 			// 安全考虑验证下 ToUserName
 			haveToUserName := requestHttpBody.ToUserName
-			if wantToUserName := ws.OriId(); wantToUserName != "" {
+			if wantToUserName := srv.OriId(); wantToUserName != "" {
 				if len(haveToUserName) != len(wantToUserName) {
 					err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
 					irh.ServeInvalidRequest(w, r, err)
@@ -109,10 +101,10 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 				}
 			}
 
-			wechatToken := ws.Token()
+			token := srv.Token()
 
 			// 验证签名
-			msgSignature2 := util.MsgSign(wechatToken, timestampStr, nonce, requestHttpBody.EncryptedMsg)
+			msgSignature2 := util.MsgSign(token, timestampStr, nonce, requestHttpBody.EncryptedMsg)
 			if subtle.ConstantTimeCompare([]byte(msgSignature1), []byte(msgSignature2)) != 1 {
 				err = fmt.Errorf("check msg_signature failed, input: %s, local: %s", msgSignature1, msgSignature2)
 				irh.ServeInvalidRequest(w, r, err)
@@ -126,13 +118,13 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 				return
 			}
 
-			wechatAppId := ws.AppId()
-			aesKey := ws.CurrentAESKey()
+			appId := srv.AppId()
+			aesKey := srv.CurrentAESKey()
 
-			random, rawMsgXML, err := util.AESDecryptMsg(encryptedMsgBytes, wechatAppId, aesKey)
+			random, rawMsgXML, err := util.AESDecryptMsg(encryptedMsgBytes, appId, aesKey)
 			if err != nil {
 				// 尝试用上一次的 AESKey 来解密
-				lastAESKey, isLastAESKeyValid := ws.LastAESKey()
+				lastAESKey, isLastAESKeyValid := srv.LastAESKey()
 				if !isLastAESKeyValid {
 					irh.ServeInvalidRequest(w, r, err)
 					return
@@ -140,7 +132,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 
 				aesKey = lastAESKey // NOTE
 
-				random, rawMsgXML, err = util.AESDecryptMsg(encryptedMsgBytes, wechatAppId, aesKey)
+				random, rawMsgXML, err = util.AESDecryptMsg(encryptedMsgBytes, appId, aesKey)
 				if err != nil {
 					irh.ServeInvalidRequest(w, r, err)
 					return
@@ -180,10 +172,10 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 				AESKey:       aesKey,
 				Random:       random,
 
-				WechatToken: wechatToken,
-				WechatAppId: wechatAppId,
+				Token: token,
+				AppId: appId,
 			}
-			ws.MessageHandler().ServeMessage(w, r)
+			srv.MessageHandler().ServeMessage(w, r)
 
 		case "", "raw": // 明文模式
 			signature1 := queryValues.Get("signature")
@@ -216,9 +208,9 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 				return
 			}
 
-			wechatToken := ws.Token()
+			token := srv.Token()
 
-			signature2 := util.Sign(wechatToken, timestampStr, nonce)
+			signature2 := util.Sign(token, timestampStr, nonce)
 			if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
 				err = fmt.Errorf("check signature failed, input: %s, local: %s", signature1, signature2)
 				irh.ServeInvalidRequest(w, r, err)
@@ -242,7 +234,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 
 			// 安全考虑验证 ToUserName
 			haveToUserName := mixedMsg.ToUserName
-			if wantToUserName := ws.OriId(); wantToUserName != "" {
+			if wantToUserName := srv.OriId(); wantToUserName != "" {
 				if len(haveToUserName) != len(wantToUserName) {
 					err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
 					irh.ServeInvalidRequest(w, r, err)
@@ -269,10 +261,10 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 
 				EncryptType: encryptType,
 
-				WechatAppId: ws.AppId(),
-				WechatToken: wechatToken,
+				AppId: srv.AppId(),
+				Token: token,
 			}
-			ws.MessageHandler().ServeMessage(w, r)
+			srv.MessageHandler().ServeMessage(w, r)
 
 		default: // 未知的加密类型
 			err := errors.New("unknown encrypt_type: " + encryptType)
@@ -310,7 +302,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, w
 			return
 		}
 
-		signature2 := util.Sign(ws.Token(), timestamp, nonce)
+		signature2 := util.Sign(srv.Token(), timestamp, nonce)
 		if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
 			err := fmt.Errorf("check signature failed, input: %s, local: %s", signature1, signature2)
 			irh.ServeInvalidRequest(w, r, err)

@@ -12,12 +12,12 @@ import (
 )
 
 type Client struct {
-	*corp.CorpClient
+	*corp.Client
 }
 
-// 兼容保留, 建議實際項目全局維護一個 *corp.CorpClient
-func NewClient(AccessTokenServer corp.AccessTokenServer, httpClient *http.Client) Client {
+// 兼容保留, 建議實際項目全局維護一個 *corp.Client
+func NewClient(srv corp.AccessTokenServer, clt *http.Client) Client {
 	return Client{
-		CorpClient: corp.NewCorpClient(AccessTokenServer, httpClient),
+		Client: corp.NewClient(srv, clt),
 	}
 }

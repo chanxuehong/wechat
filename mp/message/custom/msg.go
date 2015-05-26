@@ -19,7 +19,7 @@ const (
 	MsgTypeNews  = "news"  // 图文消息
 )
 
-type CommonMessageHeader struct {
+type MessageHeader struct {
 	ToUser  string `json:"touser"` // 接收方 OpenID
 	MsgType string `json:"msgtype"`
 }
@@ -32,7 +32,7 @@ type CustomService struct {
 
 // 文本消息
 type Text struct {
-	CommonMessageHeader
+	MessageHeader
 
 	Text struct {
 		Content string `json:"content"` // 支持换行符
@@ -46,7 +46,7 @@ type Text struct {
 //  如果不指定客服则 kfAccount 留空.
 func NewText(toUser, content, kfAccount string) (text *Text) {
 	text = &Text{
-		CommonMessageHeader: CommonMessageHeader{
+		MessageHeader: MessageHeader{
 			ToUser:  toUser,
 			MsgType: MsgTypeText,
 		},
@@ -63,7 +63,7 @@ func NewText(toUser, content, kfAccount string) (text *Text) {
 
 // 图片消息
 type Image struct {
-	CommonMessageHeader
+	MessageHeader
 
 	Image struct {
 		MediaId string `json:"media_id"` // 通过上传多媒体文件得到的 MediaId
@@ -77,7 +77,7 @@ type Image struct {
 //  如果不指定客服则 kfAccount 留空.
 func NewImage(toUser, mediaId, kfAccount string) (image *Image) {
 	image = &Image{
-		CommonMessageHeader: CommonMessageHeader{
+		MessageHeader: MessageHeader{
 			ToUser:  toUser,
 			MsgType: MsgTypeImage,
 		},
@@ -94,7 +94,7 @@ func NewImage(toUser, mediaId, kfAccount string) (image *Image) {
 
 // 语音消息
 type Voice struct {
-	CommonMessageHeader
+	MessageHeader
 
 	Voice struct {
 		MediaId string `json:"media_id"` // 通过上传多媒体文件得到的 MediaId
@@ -108,7 +108,7 @@ type Voice struct {
 //  如果不指定客服则 kfAccount 留空.
 func NewVoice(toUser, mediaId, kfAccount string) (voice *Voice) {
 	voice = &Voice{
-		CommonMessageHeader: CommonMessageHeader{
+		MessageHeader: MessageHeader{
 			ToUser:  toUser,
 			MsgType: MsgTypeVoice,
 		},
@@ -125,7 +125,7 @@ func NewVoice(toUser, mediaId, kfAccount string) (voice *Voice) {
 
 // 视频消息
 type Video struct {
-	CommonMessageHeader
+	MessageHeader
 
 	Video struct {
 		MediaId      string `json:"media_id"`              // 通过上传多媒体文件得到的 MediaId
@@ -145,7 +145,7 @@ func NewVideo(toUser, mediaId, thumbMediaId, title, description,
 	kfAccount string) (video *Video) {
 
 	video = &Video{
-		CommonMessageHeader: CommonMessageHeader{
+		MessageHeader: MessageHeader{
 			ToUser:  toUser,
 			MsgType: MsgTypeVideo,
 		},
@@ -165,7 +165,7 @@ func NewVideo(toUser, mediaId, thumbMediaId, title, description,
 
 // 音乐消息
 type Music struct {
-	CommonMessageHeader
+	MessageHeader
 
 	Music struct {
 		Title        string `json:"title,omitempty"`          // 音乐标题
@@ -186,7 +186,7 @@ func NewMusic(toUser, thumbMediaId, musicURL, HQMusicURL, title, description,
 	kfAccount string) (music *Music) {
 
 	music = &Music{
-		CommonMessageHeader: CommonMessageHeader{
+		MessageHeader: MessageHeader{
 			ToUser:  toUser,
 			MsgType: MsgTypeMusic,
 		},
@@ -219,7 +219,7 @@ const (
 
 // 图文消息
 type News struct {
-	CommonMessageHeader
+	MessageHeader
 
 	News struct {
 		Articles []Article `json:"articles,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
@@ -233,7 +233,7 @@ type News struct {
 //  如果不指定客服则 kfAccount 留空.
 func NewNews(toUser string, articles []Article, kfAccount string) (news *News) {
 	news = &News{
-		CommonMessageHeader: CommonMessageHeader{
+		MessageHeader: MessageHeader{
 			ToUser:  toUser,
 			MsgType: MsgTypeNews,
 		},

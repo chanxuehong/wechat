@@ -12,7 +12,7 @@ import (
 
 // 微信服务器推送过来的消息(事件)处理接口
 type MessageHandler interface {
-	ServeMessage(w http.ResponseWriter, r *Request)
+	ServeMessage(http.ResponseWriter, *Request)
 }
 
 type MessageHandlerFunc func(http.ResponseWriter, *Request)
@@ -42,12 +42,12 @@ type Request struct {
 	Random       []byte   // 当前消息加密时所用的 random, 16 bytes
 
 	// 下面字段是公众号的基本信息, 回包需要
-	WechatAppId string // 请求消息所属公众号的 AppId
-	WechatToken string // 请求消息所属公众号的 Token
+	AppId string // 请求消息所属公众号的 AppId
+	Token string // 请求消息所属公众号的 Token
 }
 
 // 微信服务器推送过来的消息(事件)通用的消息头
-type CommonMessageHeader struct {
+type MessageHeader struct {
 	ToUserName   string `xml:"ToUserName"   json:"ToUserName"`
 	FromUserName string `xml:"FromUserName" json:"FromUserName"`
 	CreateTime   int64  `xml:"CreateTime"   json:"CreateTime"`
@@ -57,7 +57,7 @@ type CommonMessageHeader struct {
 // 微信服务器推送过来的消息(事件)的合集.
 type MixedMessage struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	CommonMessageHeader
+	MessageHeader
 
 	// fuck, MsgId != MsgID
 	MsgId int64 `xml:"MsgId" json:"MsgId"`

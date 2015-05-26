@@ -13,7 +13,7 @@ const (
 	MsgTypeNews  = "mpnews"
 )
 
-type CommonMessageHeader struct {
+type MessageHeader struct {
 	Filter struct {
 		GroupId int64 `json:"group_id"`
 	} `json:"filter"`
@@ -21,7 +21,7 @@ type CommonMessageHeader struct {
 }
 
 type Text struct {
-	CommonMessageHeader
+	MessageHeader
 	Text struct {
 		Content string `json:"content"`
 	} `json:"text"`
@@ -36,7 +36,7 @@ func NewText(groupId int64, content string) *Text {
 }
 
 type Image struct {
-	CommonMessageHeader
+	MessageHeader
 	Image struct {
 		MediaId string `json:"media_id"`
 	} `json:"image"`
@@ -51,7 +51,7 @@ func NewImage(groupId int64, mediaId string) *Image {
 }
 
 type Voice struct {
-	CommonMessageHeader
+	MessageHeader
 	Voice struct {
 		MediaId string `json:"media_id"`
 	} `json:"voice"`
@@ -66,7 +66,7 @@ func NewVoice(groupId int64, mediaId string) *Voice {
 }
 
 type Video struct {
-	CommonMessageHeader
+	MessageHeader
 	Video struct {
 		MediaId string `json:"media_id"`
 	} `json:"mpvideo"`
@@ -84,7 +84,7 @@ func NewVideo(groupId int64, mediaId string) *Video {
 
 // 图文消息
 type News struct {
-	CommonMessageHeader
+	MessageHeader
 	News struct {
 		MediaId string `json:"media_id"`
 	} `json:"mpnews"`
