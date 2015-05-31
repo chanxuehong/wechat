@@ -27,7 +27,7 @@ type Poi struct {
 		OffsetType   int      `json:"offset_type"`             // 坐标类型，1 为火星坐标（目前只能选1）
 		Longitude    float64  `json:"longitude"`               // 门店所在地理位置的经度
 		Latitude     float64  `json:"latitude"`                // 门店所在地理位置的纬度（经纬度均为火星坐标，最好选用腾讯地图标记的坐标）
-		PhotoList    []string `json:"photo_list,omitempty"`    // 图片列表，url 形式，可以有多张图片，尺寸为640*340px。必须为上一接口生成的url
+		PhotoList    []Photo  `json:"photo_list,omitempty"`    // 图片列表，url 形式，可以有多张图片，尺寸为640*340px。必须为上一接口生成的url
 		Recommend    string   `json:"recommend,omitempty"`     // 推荐品，餐厅可为推荐菜；酒店为推荐套房；景点为推荐游玩景点等，针对自己行业的推荐内容
 		Special      string   `json:"special,omitempty"`       // 特色服务，如免费wifi，免费停车，送货上门等商户能提供的特色功能或服务
 		Introduction string   `json:"introduction,omitempty"`  // 商户简介，主要介绍商户信息等
