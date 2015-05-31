@@ -37,8 +37,9 @@ type DefaultServer struct {
 	messageHandler MessageHandler
 }
 
+// 注意: 如果是明文模式, 则 AESKey 可以为 nil(比如测试账号只能用明文模式)
 func NewDefaultServer(oriId, token, appId string, AESKey []byte, handler MessageHandler) (srv *DefaultServer) {
-	if len(AESKey) != 32 {
+	if AESKey != nil && len(AESKey) != 32 {
 		panic("the length of AESKey must equal to 32")
 	}
 	if handler == nil {
