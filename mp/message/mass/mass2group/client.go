@@ -66,7 +66,15 @@ func (clt Client) SendNews(msg *News) (msgid int64, err error) {
 	return clt.send(msg)
 }
 
-func (clt Client) send(msg interface{}) (msgid int64, err error) {
+func (clt *Client) SendWxCard(msg *WxCard) (msgid int64, err error) {
+	if msg == nil {
+		err = errors.New("msg == nil")
+		return
+	}
+	return clt.send(msg)
+}
+
+func (clt *Client) send(msg interface{}) (msgid int64, err error) {
 	var result struct {
 		mp.Error
 		MsgId int64 `json:"msg_id"`
