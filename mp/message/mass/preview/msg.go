@@ -6,11 +6,12 @@
 package preview
 
 const (
-	MsgTypeText  = "text"
-	MsgTypeImage = "image"
-	MsgTypeVoice = "voice"
-	MsgTypeVideo = "mpvideo"
-	MsgTypeNews  = "mpnews"
+	MsgTypeText   = "text"
+	MsgTypeImage  = "image"
+	MsgTypeVoice  = "voice"
+	MsgTypeVideo  = "mpvideo"
+	MsgTypeNews   = "mpnews"
+	MsgTypeWxCard = "wxcard"
 )
 
 type CommonMessageHeader struct {
@@ -96,4 +97,24 @@ func NewNews(touser, mediaId string) *News {
 	msg.ToUser = touser
 	msg.News.MediaId = mediaId
 	return &msg
+}
+
+// 卡券消息
+type WxCard struct {
+	CommonMessageHeader
+	WxCard struct {
+		CardId  string `json:"card_id"`
+		CardExt string `json:"card_ext"`
+	} `json:"wxcard"`
+}
+
+// 新建卡券，特别注意：目前该接口仅支持填入非自定义code的卡券和预存模式的自定义code卡券。
+func NewWxCard(toUser, cardId, cardExt string) *WxCard {
+	var msg WxCard
+	msg.MsgType = MsgTypeWxCard
+	msg.ToUser = toUser
+	msg.WxCard.CardId = cardId
+	msg.WxCard.CardExt = cardExt
+	return &msg
+
 }
