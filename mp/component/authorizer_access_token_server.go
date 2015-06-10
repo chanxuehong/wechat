@@ -156,7 +156,7 @@ func (srv *AuthorizerAccessTokenServer) getToken() (token AuthorizerAccessTokenI
 		AuthorizerAccessTokenInfo
 	}
 
-	incompleteURL := "https:// api.weixin.qq.com /cgi-bin/component/api_authorizer_token?component_access_token="
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token?component_access_token="
 	if err = srv.client.PostJSON(incompleteURL, &request, &result); err != nil {
 		srv.tokenCache.Lock()
 		srv.tokenCache.Token = ""
