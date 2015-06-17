@@ -110,7 +110,7 @@ type WxCard struct {
 }
 
 // 新建卡券，特别注意：目前该接口仅支持填入非自定义code的卡券和预存模式的自定义code卡券。
-func NewWxCard(groupId string, cardId string) *WxCard {
+func NewWxCard(cardId string) *WxCard {
 	var msg WxCard
 	msg.MsgType = MsgTypeWxCard
 	msg.Filter.IsToAll = true
