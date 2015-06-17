@@ -113,7 +113,7 @@ type WxCard struct {
 func NewWxCard(groupId string, cardId string) *WxCard {
 	var msg WxCard
 	msg.MsgType = MsgTypeWxCard
-	msg.Filter.GroupId = groupId
+	msg.Filter.IsToAll = true
 	msg.WxCard.CardId = cardId
 	return &msg
 
