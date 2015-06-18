@@ -92,17 +92,6 @@ func (clt *Client) SendWxCard(msg *WxCard) (msgid int64, err error) {
 	return clt.send(msg)
 }
 
-func (clt *Client) SendWxCard(msg *WxCard) (msgid int64, err error) {
-	if msg == nil {
-		err = errors.New("msg == nil")
-		return
-	}
-	if err = msg.CheckValid(); err != nil {
-		return
-	}
-	return clt.send(msg)
-}
-
 func (clt *Client) send(msg interface{}) (msgid int64, err error) {
 	var result struct {
 		mp.Error

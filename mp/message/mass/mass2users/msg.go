@@ -125,7 +125,7 @@ func NewNews(toUser []string, mediaId string) *News {
 
 // 卡券消息
 type WxCard struct {
-	CommonMessageHeader
+	MessageHeader
 	WxCard struct {
 		CardId string `json:"card_id"`
 	} `json:"wxcard"`
