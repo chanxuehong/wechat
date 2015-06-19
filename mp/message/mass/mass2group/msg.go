@@ -116,5 +116,4 @@ func NewWxCard(groupId int64, cardId string) *WxCard {
 	msg.Filter.GroupId = groupId
 	msg.WxCard.CardId = cardId
 	return &msg
-
 }

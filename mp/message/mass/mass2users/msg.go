@@ -138,5 +138,4 @@ func NewWxCard(toUser []string, cardId string) *WxCard {
 	msg.ToUser = toUser
 	msg.WxCard.CardId = cardId
 	return &msg
-
 }

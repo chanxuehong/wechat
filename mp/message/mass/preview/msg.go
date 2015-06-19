@@ -116,5 +116,4 @@ func NewWxCard(toUser, cardId, cardExt string) *WxCard {
 	msg.WxCard.CardId = cardId
 	msg.WxCard.CardExt = cardExt
 	return &msg
-
 }
