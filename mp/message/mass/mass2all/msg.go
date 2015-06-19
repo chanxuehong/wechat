@@ -116,5 +116,4 @@ func NewWxCard(cardId string) *WxCard {
 	msg.Filter.IsToAll = true
 	msg.WxCard.CardId = cardId
 	return &msg
-
 }
