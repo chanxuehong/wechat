@@ -6,8 +6,8 @@ https://github.com/chanxuehong/wechat/tree/legacy
 ## 联系方式
 
 邮箱:        chanxuehong@gmail.com  
-QQ群:        297489459 
-微信群聊:    ![捐助wechat](https://github.com/chanxuehong/wechat/blob/master/weixin_group.png)   
+QQ群:        297489459  
+微信群聊:    ![群聊二维码](https://github.com/chanxuehong/wechat/blob/master/weixin_group.png)  
 邮件列表:	 https://groups.google.com/d/forum/golang-wechat  
 
 ## 简介
@@ -39,8 +39,8 @@ mch  微信商户平台（微信支付） SDK
 如果这个项目对您有用，我们欢迎各方任何形式的捐助，也包括参与到项目代码更新或意见反馈中来。谢谢！
 
 资金捐助:  
-![捐助wechat](https://github.com/chanxuehong/wechat/blob/master/weixin_pay.png)  
-![捐助wechat](https://github.com/chanxuehong/wechat/blob/master/alipay.png)  
+![捐助wechat](https://github.com/chanxuehong/wechat/blob/master/weixin_pay.png)
+![捐助wechat](https://github.com/chanxuehong/wechat/blob/master/alipay.png)
 
 支付宝账户: 15967396@qq.com
 
