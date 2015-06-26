@@ -9,12 +9,12 @@ import "fmt"
 
 const (
 	ErrCodeOK                 = 0
-	ErrCodeInvalidCredential  = 40001 // access_token 过期（无效）返回这个错误
-	ErrCodeAccessTokenExpired = 42001 // access_token 过期（无效）返回这个错误（maybe!!!）
+	ErrCodeInvalidCredential  = 40001 // access_token 过期(无效)返回这个错误
+	ErrCodeAccessTokenExpired = 42001 // access_token 过期(无效)返回这个错误(maybe!!!)
 )
 
 type Error struct {
-	// StructField 固定这个顺序, RETRY 依赖这个顺序
+	// NOTE: StructField 固定这个顺序, RETRY 依赖这个顺序
 	ErrCode int    `json:"errcode"`
 	ErrMsg  string `json:"errmsg"`
 }

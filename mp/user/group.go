@@ -11,7 +11,7 @@ import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
-const GroupCountLimit = 100 // 一个公众账号，最多支持创建100个分组。
+const GroupCountLimit = 100 // 一个公众账号, 最多支持创建100个分组.
 
 // 用户分组
 type Group struct {
@@ -21,7 +21,7 @@ type Group struct {
 }
 
 // 创建分组.
-//  name: 分组名字（30个字符以内）
+//  name: 分组名字(30个字符以内)
 func (clt Client) GroupCreate(name string) (group *Group, err error) {
 	if name == "" {
 		err = errors.New("empty name")
@@ -77,7 +77,7 @@ func (clt Client) GroupList() (groups []Group, err error) {
 }
 
 // 修改分组名.
-//  name: 分组名字（30个字符以内）.
+//  name: 分组名字(30个字符以内).
 func (clt Client) GroupUpdate(groupId int64, newName string) (err error) {
 	if newName == "" {
 		err = errors.New("empty newName")

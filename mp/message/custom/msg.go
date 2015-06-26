@@ -24,7 +24,7 @@ type MessageHeader struct {
 	MsgType string `json:"msgtype"`
 }
 
-// 如果需要以某个客服帐号来发消息（在微信6.0.2及以上版本中显示自定义头像），
+// 如果需要以某个客服帐号来发消息(在微信6.0.2及以上版本中显示自定义头像),
 // 则需在JSON数据包的后半部分加入 customservice 参数
 type CustomService struct {
 	KfAccount string `json:"kf_account"`
@@ -210,7 +210,7 @@ type Article struct {
 	Title       string `json:"title,omitempty"`       // 图文消息标题
 	Description string `json:"description,omitempty"` // 图文消息描述
 	URL         string `json:"url,omitempty"`         // 点击图文消息跳转链接
-	PicURL      string `json:"picurl,omitempty"`      // 图文消息的图片链接，支持JPG、PNG格式，较好的效果为大图640*320，小图80*80
+	PicURL      string `json:"picurl,omitempty"`      // 图文消息的图片链接, 支持JPG、PNG格式, 较好的效果为大图640*320, 小图80*80
 }
 
 const (
@@ -248,7 +248,7 @@ func NewNews(toUser string, articles []Article, kfAccount string) (news *News) {
 	return
 }
 
-// 检查 News 是否有效，有效返回 nil，否则返回错误信息.
+// 检查 News 是否有效, 有效返回 nil, 否则返回错误信息.
 func (this *News) CheckValid() (err error) {
 	n := len(this.News.Articles)
 	if n <= 0 {

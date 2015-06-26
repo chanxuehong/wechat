@@ -197,7 +197,7 @@ func NewNews(to, from string, timestamp int64, articles []Article) (news *News) 
 	return
 }
 
-// 检查 News 是否有效，有效返回 nil，否则返回错误信息
+// 检查 News 是否有效, 有效返回 nil, 否则返回错误信息
 func (news *News) CheckValid() (err error) {
 	n := len(news.Articles)
 	if n != news.ArticleCount {

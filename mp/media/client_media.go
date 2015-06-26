@@ -19,7 +19,7 @@ import (
 )
 
 // 下载多媒体到文件.
-//  请注意，视频文件不支持下载
+//  请注意, 视频文件不支持下载
 func (clt Client) DownloadMedia(mediaId, filepath string) (err error) {
 	file, err := os.Create(filepath)
 	if err != nil {
@@ -36,7 +36,7 @@ func (clt Client) DownloadMedia(mediaId, filepath string) (err error) {
 }
 
 // 下载多媒体到 io.Writer.
-//  请注意，视频文件不支持下载
+//  请注意, 视频文件不支持下载
 func (clt Client) DownloadMediaToWriter(mediaId string, writer io.Writer) error {
 	if writer == nil {
 		return errors.New("nil writer")

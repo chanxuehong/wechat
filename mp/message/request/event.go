@@ -25,7 +25,7 @@ type SubscribeEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	mp.MessageHeader
 
-	Event string `xml:"Event" json:"Event"` // 事件类型，subscribe(订阅)
+	Event string `xml:"Event" json:"Event"` // 事件类型, subscribe(订阅)
 }
 
 func GetSubscribeEvent(msg *mp.MixedMessage) *SubscribeEvent {
@@ -40,7 +40,7 @@ type UnsubscribeEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	mp.MessageHeader
 
-	Event string `xml:"Event" json:"Event"` // 事件类型，unsubscribe(取消订阅)
+	Event string `xml:"Event" json:"Event"` // 事件类型, unsubscribe(取消订阅)
 }
 
 func GetUnsubscribeEvent(msg *mp.MixedMessage) *UnsubscribeEvent {
@@ -50,14 +50,14 @@ func GetUnsubscribeEvent(msg *mp.MixedMessage) *UnsubscribeEvent {
 	}
 }
 
-// 用户未关注时，扫描带参数二维码进行关注后的事件推送
+// 用户未关注时, 扫描带参数二维码进行关注后的事件推送
 type SubscribeByScanEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	mp.MessageHeader
 
-	Event    string `xml:"Event"    json:"Event"`    // 事件类型，subscribe
-	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值，qrscene_为前缀，后面为二维码的参数值
-	Ticket   string `xml:"Ticket"   json:"Ticket"`   // 二维码的ticket，可用来换取二维码图片
+	Event    string `xml:"Event"    json:"Event"`    // 事件类型, subscribe
+	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值, qrscene_为前缀, 后面为二维码的参数值
+	Ticket   string `xml:"Ticket"   json:"Ticket"`   // 二维码的ticket, 可用来换取二维码图片
 }
 
 // 获取二维码参数
@@ -80,14 +80,14 @@ func GetSubscribeByScanEvent(msg *mp.MixedMessage) *SubscribeByScanEvent {
 	}
 }
 
-// 用户已关注时，扫描带参数二维码的事件推送
+// 用户已关注时, 扫描带参数二维码的事件推送
 type ScanEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	mp.MessageHeader
 
-	Event    string `xml:"Event"    json:"Event"`    // 事件类型，SCAN
-	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值，是一个32位无符号整数，即创建二维码时的二维码scene_id
-	Ticket   string `xml:"Ticket"   json:"Ticket"`   // 二维码的ticket，可用来换取二维码图片
+	Event    string `xml:"Event"    json:"Event"`    // 事件类型, SCAN
+	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值, 是一个32位无符号整数, 即创建二维码时的二维码scene_id
+	Ticket   string `xml:"Ticket"   json:"Ticket"`   // 二维码的ticket, 可用来换取二维码图片
 }
 
 func GetScanEvent(msg *mp.MixedMessage) *ScanEvent {
@@ -104,7 +104,7 @@ type LocationEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	mp.MessageHeader
 
-	Event     string  `xml:"Event"     json:"Event"`     // 事件类型，LOCATION
+	Event     string  `xml:"Event"     json:"Event"`     // 事件类型, LOCATION
 	Latitude  float64 `xml:"Latitude"  json:"Latitude"`  // 地理位置纬度
 	Longitude float64 `xml:"Longitude" json:"Longitude"` // 地理位置经度
 	Precision float64 `xml:"Precision" json:"Precision"` // 地理位置精度

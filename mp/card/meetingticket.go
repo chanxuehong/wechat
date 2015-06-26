@@ -13,7 +13,7 @@ import (
 
 type MeetingTicketUpdateUserParameters struct {
 	Code   string `json:"code"`              // 必须; 用户的门票唯一序列号
-	CardId string `json:"card_id,omitempty"` // 可选; 要更新门票序列号所述的card_id ， 生成券时use_custom_code 填写true 时必填。
+	CardId string `json:"card_id,omitempty"` // 可选; 要更新门票序列号所述的card_id ,  生成券时use_custom_code 填写true 时必填.
 
 	Zone       string `json:"zone,omitempty"`        // 可选; 区域
 	Entrance   string `json:"entrance,omitempty"`    // 可选; 入口
@@ -23,7 +23,7 @@ type MeetingTicketUpdateUserParameters struct {
 }
 
 // 更新电影票.
-//  领取电影票后通过调用“更新电影票”接口update 电影信息及用户选座信息
+//  领取电影票后通过调用"更新电影票"接口update 电影信息及用户选座信息
 func (clt Client) MeetingTicketUpdateUser(para *MeetingTicketUpdateUserParameters) (err error) {
 	if para == nil {
 		return errors.New("nil MeetingTicketUpdateUserParameters")

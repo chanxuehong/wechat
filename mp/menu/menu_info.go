@@ -9,10 +9,10 @@ type Article struct {
 	Title      string `json:"title"`                 // 图文消息的标题
 	Author     string `json:"author,omitempty"`      // 作者
 	Digest     string `json:"digest,omitempty"`      // 摘要
-	ShowCover  int    `json:"show_cover"`            // 是否显示封面，0为不显示，1为显示
+	ShowCover  int    `json:"show_cover"`            // 是否显示封面, 0为不显示, 1为显示
 	CoverURL   string `json:"cover_url,omitempty"`   // 封面图片的URL
 	ContentURL string `json:"content_url,omitempty"` // 正文的URL
-	SourceURL  string `json:"source_url,omitempty"`  // 原文的URL，若置空则无查看原文入口
+	SourceURL  string `json:"source_url,omitempty"`  // 原文的URL, 若置空则无查看原文入口
 }
 
 type ButtonEx struct {

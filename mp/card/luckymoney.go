@@ -13,13 +13,13 @@ package card
 
 //type LuckyMoneyUpdateUserBalanceParameters struct {
 //	Code   string `json:"code"`              // 必须; 红包的序列号
-//	CardId string `json:"card_id,omitempty"` // 可选; 自定义code 的卡券必填。非自定义code可不填。
+//	CardId string `json:"card_id,omitempty"` // 可选; 自定义code 的卡券必填. 非自定义code可不填.
 //
 //	Balance *int `json:"balance"` // 必须; 红包余额
 //}
 
 //// 更新红包金额.
-////  支持领取红包后通过调用“更新红包”接口update 红包余额。
+////  支持领取红包后通过调用"更新红包"接口update 红包余额.
 //func (clt Client) LuckyMoneyUpdateUserBalance(para *LuckyMoneyUpdateUserBalanceParameters) (err error) {
 //	if para == nil {
 //		return errors.New("nil LuckyMoneyUpdateUserBalanceParameters")

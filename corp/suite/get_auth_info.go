@@ -11,7 +11,7 @@ import (
 
 // 获取企业号的授权信息
 //  authCorpId:    授权方corpid
-//  permanentCode: 永久授权码，通过get_permanent_code获取
+//  permanentCode: 永久授权码, 通过get_permanent_code获取
 func (clt *Client) GetAuthInfo(authCorpId, permanentCode string) (info *AuthInfoEx, err error) {
 	request := struct {
 		SuiteId       string `json:"suite_id"`

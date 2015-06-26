@@ -15,9 +15,9 @@ import (
 	"github.com/chanxuehong/wechat/util"
 )
 
-// 回复消息给微信服务器(明文模式).
-//  要求 msg 是有效的消息数据结构(经过 encoding/xml marshal 后符合消息的格式);
-//  如果有必要可以修改 Request 里面的某些值, 比如 Timestamp.
+// 明文模式下回复消息给微信服务器.
+//  要求 msg 是有效的消息数据结构(经过 encoding/xml marshal 后符合微信消息格式);
+//  如果有必要可以修改 Request 里面的某些值, 比如 Timestamp, Nonce, Random.
 func WriteRawResponse(w http.ResponseWriter, r *Request, msg interface{}) (err error) {
 	if w == nil {
 		return errors.New("nil http.ResponseWriter")
@@ -28,7 +28,7 @@ func WriteRawResponse(w http.ResponseWriter, r *Request, msg interface{}) (err e
 	return xml.NewEncoder(w).Encode(msg)
 }
 
-// 安全模式回复消息的 http body
+// 安全模式下回复消息的 http body
 type ResponseHttpBody struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
@@ -38,9 +38,9 @@ type ResponseHttpBody struct {
 	Nonce        string `xml:"Nonce"        json:"Nonce"`
 }
 
-// 回复消息给微信服务器(安全模式).
-//  要求 msg 是有效的消息数据结构(经过 encoding/xml marshal 后符合消息的格式);
-//  如果有必要可以修改 Request 里面的某些值, 比如 Timestamp.
+// 安全模式下回复消息给微信服务器.
+//  要求 msg 是有效的消息数据结构(经过 encoding/xml marshal 后符合微信消息格式);
+//  如果有必要可以修改 Request 里面的某些值, 比如 Timestamp, Nonce, Random.
 func WriteAESResponse(w http.ResponseWriter, r *Request, msg interface{}) (err error) {
 	if w == nil {
 		return errors.New("nil http.ResponseWriter")

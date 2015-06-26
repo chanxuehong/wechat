@@ -17,8 +17,8 @@ type TestWhiteListSetParameters struct {
 }
 
 // 设置测试用户白名单.
-//  由于卡券有审核要求，为方便公众号调试，可以设置一些测试帐号，这些帐号可领取未通过审核的卡券，体验整个流程。
-//  注：同时支持“openid”、“username”两种字段设置白名单，总数上限为10 个。
+//  由于卡券有审核要求, 为方便公众号调试, 可以设置一些测试帐号, 这些帐号可领取未通过审核的卡券, 体验整个流程.
+//  注: 同时支持"openid"、"username"两种字段设置白名单, 总数上限为10 个.
 func (clt Client) TestWhiteListSet(para *TestWhiteListSetParameters) (err error) {
 	if para == nil {
 		return errors.New("nil TestWhiteListSetParameters")

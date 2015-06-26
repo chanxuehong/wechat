@@ -23,13 +23,13 @@ import (
 // 构造请求用户授权获取code的地址.
 //  appId:       公众号的唯一标识
 //  redirectURL: 授权后重定向的回调链接地址
-//               如果用户同意授权，页面将跳转至 redirect_uri/?code=CODE&state=STATE。
-//               若用户禁止授权，则重定向后不会带上code参数，仅会带上state参数redirect_uri?state=STATE
-//  scope:       应用授权作用域，
-//               snsapi_base （不弹出授权页面，直接跳转，只能获取用户openid），
-//               snsapi_userinfo （弹出授权页面，可通过openid拿到昵称、性别、所在地。
-//               并且，即使在未关注的情况下，只要用户授权，也能获取其信息）
-//  state:       重定向后会带上state参数，开发者可以填写a-zA-Z0-9的参数值，最多128字节
+//               如果用户同意授权, 页面将跳转至 redirect_uri/?code=CODE&state=STATE.
+//               若用户禁止授权, 则重定向后不会带上code参数, 仅会带上state参数redirect_uri?state=STATE
+//  scope:       应用授权作用域,
+//               snsapi_base (不弹出授权页面, 直接跳转, 只能获取用户openid),
+//               snsapi_userinfo (弹出授权页面, 可通过openid拿到昵称、性别、所在地.
+//               并且, 即使在未关注的情况下, 只要用户授权, 也能获取其信息)
+//  state:       重定向后会带上state参数, 开发者可以填写a-zA-Z0-9的参数值, 最多128字节
 func AuthCodeURL(appId, redirectURL, scope, state string) string {
 	return "https://open.weixin.qq.com/connect/oauth2/authorize" +
 		"?appid=" + url.QueryEscape(appId) +
@@ -99,7 +99,7 @@ func (clt *Client) Exchange(code string) (token *OAuth2Token, err error) {
 	return
 }
 
-// 刷新access_token（如果需要）.
+// 刷新access_token(如果需要).
 //  NOTE: Client 需要指定 OAuth2Config, OAuth2Token
 func (clt *Client) TokenRefresh() (token *OAuth2Token, err error) {
 	if clt.OAuth2Config == nil {
@@ -126,7 +126,7 @@ func (clt *Client) TokenRefresh() (token *OAuth2Token, err error) {
 	return
 }
 
-// 检验授权凭证（access_token）是否有效.
+// 检验授权凭证(access_token)是否有效.
 //  NOTE:
 //  1. Client 需要指定 OAuth2Token
 //  2. 先判断 err 然后再判断 valid
@@ -193,12 +193,12 @@ func (clt *Client) updateToken(tk *OAuth2Token, url string) (err error) {
 
 	var result struct {
 		mp.Error
-		AccessToken  string `json:"access_token"`  // 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同
+		AccessToken  string `json:"access_token"`  // 网页授权接口调用凭证,注意: 此access_token与基础支持的access_token不同
 		RefreshToken string `json:"refresh_token"` // 用户刷新access_token
-		ExpiresIn    int64  `json:"expires_in"`    // access_token接口调用凭证超时时间，单位（秒）
-		OpenId       string `json:"openid"`        // 用户唯一标识，请注意，在未关注公众号时，用户访问公众号的网页，也会产生一个用户和公众号唯一的OpenID
+		ExpiresIn    int64  `json:"expires_in"`    // access_token接口调用凭证超时时间, 单位(秒)
+		OpenId       string `json:"openid"`        // 用户唯一标识, 请注意, 在未关注公众号时, 用户访问公众号的网页, 也会产生一个用户和公众号唯一的OpenID
 		UnionId      string `json:"unionid"`       // UnionID机制
-		Scope        string `json:"scope"`         // 用户授权的作用域，使用逗号（,）分隔
+		Scope        string `json:"scope"`         // 用户授权的作用域, 使用逗号(,)分隔
 	}
 
 	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {

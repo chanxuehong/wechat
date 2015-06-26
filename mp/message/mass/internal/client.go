@@ -25,9 +25,9 @@ func NewClient(srv mp.AccessTokenServer, clt *http.Client) Client {
 
 // 删除群发.
 //  请注意:
-//  只有已经发送成功的消息才能删除删除消息只是将消息的图文详情页失效，已经收到的用户，
-//  还是能在其本地看到消息卡片。 另外，删除群发消息只能删除图文消息和视频消息，
-//  其他类型的消息一经发送，无法删除。
+//  只有已经发送成功的消息才能删除删除消息只是将消息的图文详情页失效, 已经收到的用户,
+//  还是能在其本地看到消息卡片.  另外, 删除群发消息只能删除图文消息和视频消息,
+//  其他类型的消息一经发送, 无法删除.
 func (clt Client) DeleteMass(msgid int64) (err error) {
 	var request = struct {
 		MsgId int64 `json:"msg_id"`

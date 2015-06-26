@@ -19,14 +19,14 @@ const (
 type News []Article
 
 type Article struct {
-	ThumbMediaId     string `json:"thumb_media_id"`               // 必须; 图文消息的封面图片素材id（必须是永久mediaID）
+	ThumbMediaId     string `json:"thumb_media_id"`               // 必须; 图文消息的封面图片素材id(必须是永久mediaID)
 	Title            string `json:"title"`                        // 必须; 标题
 	Author           string `json:"author,omitempty"`             // 必须; 作者
-	Digest           string `json:"digest,omitempty"`             // 必须; 图文消息的摘要，仅有单图文消息才有摘要，多图文此处为空
-	Content          string `json:"content"`                      // 必须; 图文消息的具体内容，支持HTML标签，必须少于2万字符，小于1M，且此处会去除JS
-	ContentSourceURL string `json:"content_source_url,omitempty"` // 必须; 图文消息的原文地址，即点击“阅读原文”后的URL
-	ShowCoverPic     int    `json:"show_cover_pic"`               // 必须; 是否显示封面，0为false，即不显示，1为true，即显示
-	URL              string `json:"url,omitempty"`                // 可选; 图文页的URL，文章创建成功以后，会由微信自动生成
+	Digest           string `json:"digest,omitempty"`             // 必须; 图文消息的摘要, 仅有单图文消息才有摘要, 多图文此处为空
+	Content          string `json:"content"`                      // 必须; 图文消息的具体内容, 支持HTML标签, 必须少于2万字符, 小于1M, 且此处会去除JS
+	ContentSourceURL string `json:"content_source_url,omitempty"` // 必须; 图文消息的原文地址, 即点击"阅读原文"后的URL
+	ShowCoverPic     int    `json:"show_cover_pic"`               // 必须; 是否显示封面, 0为false, 即不显示, 1为true, 即显示
+	URL              string `json:"url,omitempty"`                // 可选; 图文页的URL, 文章创建成功以后, 会由微信自动生成
 }
 
 func (article *Article) SetShowCoverPic(b bool) {
@@ -135,8 +135,8 @@ type NewsInfo struct {
 
 // 获取图文素材列表.
 //
-//  offset:       从全部素材的该偏移位置开始返回，0表示从第一个素材 返回
-//  count:        返回素材的数量，取值在1到20之间
+//  offset:       从全部素材的该偏移位置开始返回, 0表示从第一个素材 返回
+//  count:        返回素材的数量, 取值在1到20之间
 //
 //  TotalCount:   该类型的素材的总数
 //  ItemCount:    本次调用获取的素材的数量
