@@ -76,7 +76,7 @@ type NewsArticle struct {
 	Title       string `json:"title,omitempty"`       // 图文消息标题
 	Description string `json:"description,omitempty"` // 图文消息描述
 	URL         string `json:"url,omitempty"`         // 点击后跳转的链接.
-	PicURL      string `json:"picurl,omitempty"`      // 图文消息的图片链接, 支持JPG、PNG格式, 较好的效果为大图640*320, 小图80*80. 如不填, 在客户端不显示图片
+	PicURL      string `json:"picurl,omitempty"`      // 图文消息的图片链接, 支持JPG, PNG格式, 较好的效果为大图640*320, 小图80*80. 如不填, 在客户端不显示图片
 }
 
 const NewsArticleCountLimit = 10

@@ -18,13 +18,13 @@ type Photo struct {
 type PoiAddParameters struct {
 	BaseInfo struct {
 		Sid          string   `json:"sid,omitempty"`           // 可选, 商户自己的id, 用于后续审核通过收到poi_id 的通知时, 做对应关系. 请商户自己保证唯一识别性
-		BusinessName string   `json:"business_name,omitempty"` // 必须, 门店名称(仅为商户名, 如: 国美、麦当劳, 不应包含地区、店号等信息, 错误示例: 北京国美)
-		BranchName   string   `json:"branch_name,omitempty"`   // 可选, 分店名称(不应包含地区信息、不应与门店名重复, 错误示例: 北京王府井店)
+		BusinessName string   `json:"business_name,omitempty"` // 必须, 门店名称(仅为商户名, 如: 国美, 麦当劳, 不应包含地区, 店号等信息, 错误示例: 北京国美)
+		BranchName   string   `json:"branch_name,omitempty"`   // 可选, 分店名称(不应包含地区信息, 不应与门店名重复, 错误示例: 北京王府井店)
 		Province     string   `json:"province,omitempty"`      // 必须, 门店所在的省份(直辖市填城市名,如: 北京市)
 		City         string   `json:"city,omitempty"`          // 必须, 门店所在的城市
 		District     string   `json:"district,omitempty"`      // 可选, 门店所在地区
 		Address      string   `json:"address,omitempty"`       // 必须, 门店所在的详细街道地址(不要填写省市信息)
-		Telephone    string   `json:"telephone,omitempty"`     // 必须, 门店的电话(纯数字, 区号、分机号均由"-"隔开)
+		Telephone    string   `json:"telephone,omitempty"`     // 必须, 门店的电话(纯数字, 区号, 分机号均由"-"隔开)
 		Categories   []string `json:"categories,omitempty"`    // 必须, 门店的类型(详细分类参见分类附表, 不同级分类用","隔开, 如: 美食, 川菜, 火锅)
 		OffsetType   int      `json:"offset_type"`             // 必须, 坐标类型, 1 为火星坐标(目前只能选1)
 		Longitude    float64  `json:"longitude"`               // 必须, 门店所在地理位置的经度

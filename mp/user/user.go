@@ -36,7 +36,7 @@ type UserInfo struct {
 	Province string `json:"province"` // 用户所在省份
 	Country  string `json:"country"`  // 用户所在国家
 
-	// 用户头像, 最后一个数值代表正方形头像大小(有0、46、64、96、132数值可选, 0代表640*640正方形头像),
+	// 用户头像, 最后一个数值代表正方形头像大小(有0, 46, 64, 96, 132数值可选, 0代表640*640正方形头像),
 	// 用户没有头像时该项为空
 	HeadImageURL string `json:"headimgurl,omitempty"`
 

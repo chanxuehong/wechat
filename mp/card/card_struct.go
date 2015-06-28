@@ -153,7 +153,7 @@ type CardBaseInfo struct {
 	LogoURL     string `json:"logo_url,omitempty"`    // 卡券的商户logo, 尺寸为300*300.
 	CodeType    string `json:"code_type,omitempty"`   // code 码展示类型
 	BrandName   string `json:"brand_name,omitempty"`  // 商户名字,字数上限为12 个汉字. (填写直接提供服务的商户名,  第三方商户名填写在source 字段)
-	Title       string `json:"title,omitempty"`       // 券名, 字数上限为9 个汉字. (建议涵盖卡券属性、服务及金额)
+	Title       string `json:"title,omitempty"`       // 券名, 字数上限为9 个汉字. (建议涵盖卡券属性, 服务及金额)
 	SubTitle    string `json:"sub_title,omitempty"`   // 券名的副标题, 字数上限为18个汉字.
 	Color       string `json:"color,omitempty"`       // 券颜色. 按色彩规范标注填写Color010-Color100
 	Notice      string `json:"notice,omitempty"`      // 使用提醒, 字数上限为9 个汉字. (一句话描述, 展示在首页, 示例: 请出示二维码核销卡券)

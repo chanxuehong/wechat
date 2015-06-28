@@ -18,7 +18,7 @@ const (
 )
 
 type MediaInfo struct {
-	MediaType string `json:"type"`       // 图片(image)、语音(voice)、视频(video)、缩略图(thumb)和 图文消息(news)
+	MediaType string `json:"type"`       // 图片(image), 语音(voice), 视频(video), 缩略图(thumb)和 图文消息(news)
 	MediaId   string `json:"media_id"`   // 媒体的唯一标识
 	CreatedAt int64  `json:"created_at"` // 媒体创建的时间戳
 }

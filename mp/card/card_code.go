@@ -147,7 +147,7 @@ func (clt Client) CardCodeUpdate(code, cardId, newCode string) (err error) {
 }
 
 // 设置卡券失效接口.
-//  为满足改票、退款等异常情况, 可调用卡券失效接口将用户的卡券设置为失效状态.
+//  为满足改票, 退款等异常情况, 可调用卡券失效接口将用户的卡券设置为失效状态.
 //  注: 设置卡券失效的操作不可逆, 即无法将设置为失效的卡券调回有效状态, 商家须慎重调用该接口.
 func (clt Client) CardCodeUnavailable(code, cardId string) (err error) {
 	var request = struct {
