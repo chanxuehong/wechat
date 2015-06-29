@@ -156,12 +156,14 @@ func (clt Client) CreatePermanentQRCodeWithSceneString(SceneString string) (qrco
 }
 
 // 通过ticket换取二维码, 写入到 writer.
-func (clt Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (err error) {
+func (clt Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (written int64, err error) {
 	if ticket == "" {
-		return errors.New("empty ticket")
+		err = errors.New("empty ticket")
+		return
 	}
 	if writer == nil {
-		return errors.New("nil writer")
+		err = errors.New("nil writer")
+		return
 	}
 	if clt.HttpClient == nil {
 		clt.HttpClient = http.DefaultClient
@@ -170,9 +172,10 @@ func (clt Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (err e
 }
 
 // 通过ticket换取二维码, 写入到 filepath 路径的文件.
-func (clt Client) QRCodeDownload(ticket, filepath string) (err error) {
+func (clt Client) QRCodeDownload(ticket, filepath string) (written int64, err error) {
 	if ticket == "" {
-		return errors.New("empty ticket")
+		err = errors.New("empty ticket")
+		return
 	}
 
 	file, err := os.Create(filepath)
@@ -194,12 +197,14 @@ func (clt Client) QRCodeDownload(ticket, filepath string) (err error) {
 
 // 通过ticket换取二维码, 写入到 writer.
 //  如果 clt == nil 则默认用 http.DefaultClient.
-func QRCodeDownloadToWriter(ticket string, writer io.Writer, clt *http.Client) (err error) {
+func QRCodeDownloadToWriter(ticket string, writer io.Writer, clt *http.Client) (written int64, err error) {
 	if ticket == "" {
-		return errors.New("empty ticket")
+		err = errors.New("empty ticket")
+		return
 	}
 	if writer == nil {
-		return errors.New("nil writer")
+		err = errors.New("nil writer")
+		return
 	}
 	if clt == nil {
 		clt = http.DefaultClient
@@ -209,9 +214,10 @@ func QRCodeDownloadToWriter(ticket string, writer io.Writer, clt *http.Client) (
 
 // 通过ticket换取二维码, 写入到 filepath 路径的文件.
 //  如果 clt == nil 则默认用 http.DefaultClient
-func QRCodeDownload(ticket, filepath string, clt *http.Client) (err error) {
+func QRCodeDownload(ticket, filepath string, clt *http.Client) (written int64, err error) {
 	if ticket == "" {
-		return errors.New("empty ticket")
+		err = errors.New("empty ticket")
+		return
 	}
 
 	file, err := os.Create(filepath)
@@ -238,7 +244,7 @@ func QRCodePicURL(ticket string) string {
 
 // 通过ticket换取二维码, 写入到 writer.
 //  NOTE: 调用者保证所有参数有效.
-func qrcodeDownloadToWriter(ticket string, writer io.Writer, clt *http.Client) (err error) {
+func qrcodeDownloadToWriter(ticket string, writer io.Writer, clt *http.Client) (written int64, err error) {
 	httpResp, err := clt.Get(QRCodePicURL(ticket))
 	if err != nil {
 		return
@@ -246,11 +252,9 @@ func qrcodeDownloadToWriter(ticket string, writer io.Writer, clt *http.Client) (
 	defer httpResp.Body.Close()
 
 	if httpResp.StatusCode != http.StatusOK {
-		return fmt.Errorf("http.Status: %s", httpResp.Status)
-	}
-
-	if _, err = io.Copy(writer, httpResp.Body); err != nil {
+		err = fmt.Errorf("http.Status: %s", httpResp.Status)
 		return
 	}
-	return
+
+	return io.Copy(writer, httpResp.Body)
 }

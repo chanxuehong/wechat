@@ -26,8 +26,8 @@ type SubscribeEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	mp.MessageHeader
 
-	Event    string `xml:"Event"    json:"Event"`    // subscribe(订阅)
-	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值, 为空值
+	Event    string `xml:"Event"              json:"Event"`              // subscribe(订阅)
+	EventKey string `xml:"EventKey,omitempty" json:"EventKey,omitempty"` // 事件KEY值, 为空值
 }
 
 func GetSubscribeEvent(msg *mp.MixedMessage) *SubscribeEvent {
@@ -42,8 +42,8 @@ type UnsubscribeEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	mp.MessageHeader
 
-	Event    string `xml:"Event"    json:"Event"`    // unsubscribe(取消订阅)
-	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值, 为空值
+	Event    string `xml:"Event"              json:"Event"`              // unsubscribe(取消订阅)
+	EventKey string `xml:"EventKey,omitempty" json:"EventKey,omitempty"` // 事件KEY值, 为空值
 }
 
 func GetUnsubscribeEvent(msg *mp.MixedMessage) *UnsubscribeEvent {
@@ -110,7 +110,7 @@ type LocationEvent struct {
 	Event     string  `xml:"Event"     json:"Event"`     // LOCATION
 	Latitude  float64 `xml:"Latitude"  json:"Latitude"`  // 地理位置纬度
 	Longitude float64 `xml:"Longitude" json:"Longitude"` // 地理位置经度
-	Precision float64 `xml:"Precision" json:"Precision"` // 地理位置精度
+	Precision float64 `xml:"Precision" json:"Precision"` // 地理位置精度(实际上应该是整数, 但是微信推送过来是浮点数形式)
 }
 
 func GetLocationEvent(msg *mp.MixedMessage) *LocationEvent {
