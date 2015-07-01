@@ -28,13 +28,14 @@ const (
 )
 
 type UserInfo struct {
-	OpenId   string `json:"openid"`   // 用户的标识, 对当前公众号唯一
-	Nickname string `json:"nickname"` // 用户的昵称
-	Sex      int    `json:"sex"`      // 用户的性别, 值为1时是男性, 值为2时是女性, 值为0时是未知
-	Language string `json:"language"` // 用户的语言, zh_CN, zh_TW, en
-	City     string `json:"city"`     // 用户所在城市
-	Province string `json:"province"` // 用户所在省份
-	Country  string `json:"country"`  // 用户所在国家
+	IsSubscriber int    `json:"subscribe"` // 用户是否订阅该公众号标识, 值为0时, 代表此用户没有关注该公众号, 拉取不到其余信息
+	OpenId       string `json:"openid"`    // 用户的标识, 对当前公众号唯一
+	Nickname     string `json:"nickname"`  // 用户的昵称
+	Sex          int    `json:"sex"`       // 用户的性别, 值为1时是男性, 值为2时是女性, 值为0时是未知
+	Language     string `json:"language"`  // 用户的语言, zh_CN, zh_TW, en
+	City         string `json:"city"`      // 用户所在城市
+	Province     string `json:"province"`  // 用户所在省份
+	Country      string `json:"country"`   // 用户所在国家
 
 	// 用户头像, 最后一个数值代表正方形头像大小(有0, 46, 64, 96, 132数值可选, 0代表640*640正方形头像),
 	// 用户没有头像时该项为空
@@ -46,8 +47,8 @@ type UserInfo struct {
 	// 只有在用户将公众号绑定到微信开放平台帐号后, 才会出现该字段.
 	UnionId string `json:"unionid,omitempty"`
 
-	// 备注名
-	Remark string `json:"remark,omitempty"`
+	Remark  string `json:"remark,omitempty"`  // 公众号运营者对粉丝的备注, 公众号运营者可在微信公众平台用户管理界面对粉丝添加备注
+	GroupId int64  `json:"groupid,omitempty"` // 用户所在的分组ID
 }
 
 var ErrNoHeadImage = errors.New("没有头像")
@@ -101,13 +102,11 @@ func (clt Client) UserInfo(openId string, lang string) (userinfo *UserInfo, err 
 		lang = Language_zh_CN
 	case Language_zh_CN, Language_zh_TW, Language_en:
 	default:
-		err = errors.New("invalid lang: " + lang)
-		return
+		lang = Language_zh_CN
 	}
 
 	var result struct {
 		mp.Error
-		Subscribed int `json:"subscribe"` // 用户是否订阅该公众号标识, 值为0时, 代表此用户没有关注该公众号, 拉取不到其余信息.
 		UserInfo
 	}
 
@@ -121,11 +120,65 @@ func (clt Client) UserInfo(openId string, lang string) (userinfo *UserInfo, err 
 		err = &result.Error
 		return
 	}
-	if result.Subscribed == 0 {
+	if result.IsSubscriber == 0 {
 		err = ErrUserNotSubscriber
 		return
 	}
 	userinfo = &result.UserInfo
+	return
+}
+
+type UserInfoBatchGetRequestItem struct {
+	OpenId   string `json:"openid"`
+	Language string `json:"lang,omitempty"`
+}
+
+// 创建 []UserInfoBatchGetRequestItem
+//  lang 的取值可以为 "", Language_zh_CN, Language_zh_TW, Language_en
+func NewUserInfoBatchGetRequest(openIdList []string, lang string) (ret []UserInfoBatchGetRequestItem) {
+	switch lang {
+	case "", Language_zh_CN, Language_zh_TW, Language_en:
+	default:
+		lang = ""
+	}
+
+	ret = make([]UserInfoBatchGetRequestItem, len(openIdList))
+	for i := 0; i < len(openIdList); i++ {
+		ret[i].OpenId = openIdList[i]
+		ret[i].Language = lang
+	}
+	return
+}
+
+// 批量获取用户基本信息
+//  注意: 需要对返回的 userInfoList 的每个 UserInfo.IsSubscriber 做判断
+func (clt Client) UserInfoBatchGet(req []UserInfoBatchGetRequestItem) (userInfoList []UserInfo, err error) {
+	if len(req) <= 0 {
+		err = errors.New("empty request")
+		return
+	}
+
+	var request = struct {
+		UserList []UserInfoBatchGetRequestItem `json:"user_list"`
+	}{
+		UserList: req,
+	}
+
+	var result struct {
+		mp.Error
+		UserInfoList []UserInfo `json:"user_info_list"`
+	}
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/user/info/batchget?access_token="
+	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	userInfoList = result.UserInfoList
 	return
 }
 

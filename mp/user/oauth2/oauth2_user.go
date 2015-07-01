@@ -96,8 +96,7 @@ func (clt *Client) UserInfo(lang string) (info *UserInfo, err error) {
 		lang = Language_zh_CN
 	case Language_zh_CN, Language_zh_TW, Language_en:
 	default:
-		err = errors.New("错误的 lang 参数")
-		return
+		lang = Language_zh_CN
 	}
 
 	if clt.OAuth2Config == nil { // clt.TokenRefresh() 需要
