@@ -107,7 +107,7 @@ RETRY:
 
 // 创建图文消息素材.
 func (clt Client) CreateNews(articles []Article) (info *MediaInfo, err error) {
-	if len(articles) == 0 {
+	if len(articles) <= 0 {
 		err = errors.New("图文素材是空的")
 		return
 	}

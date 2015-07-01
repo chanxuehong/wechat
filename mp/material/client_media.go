@@ -63,6 +63,7 @@ type MaterialInfo struct {
 	MediaId    string `json:"media_id"`    // 素材id
 	Name       string `json:"name"`        // 文件名称
 	UpdateTime int64  `json:"update_time"` // 最后更新时间
+	URL        string `json:"url"`         // 当获取的列表是图片素材列表时, 该字段是图片的URL
 }
 
 // 获取素材列表.

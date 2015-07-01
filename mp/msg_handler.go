@@ -57,9 +57,8 @@ type MixedMessage struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	MessageHeader
 
-	// fuck, MsgId != MsgID
 	MsgId int64 `xml:"MsgId" json:"MsgId"`
-	MsgID int64 `xml:"MsgID" json:"MsgID"`
+	MsgID int64 `xml:"MsgID" json:"MsgID"` // 群发消息和模板消息的消息ID, 而不是此事件消息的ID
 
 	Content      string  `xml:"Content"      json:"Content"`
 	MediaId      string  `xml:"MediaId"      json:"MediaId"`

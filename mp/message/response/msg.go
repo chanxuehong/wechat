@@ -28,11 +28,9 @@ type Text struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	mp.MessageHeader
 
-	Content string `xml:"Content" json:"Content"` // 回复的消息内容, 支持换行符
+	Content string `xml:"Content" json:"Content"` // 回复的消息内容(换行: 在content中能够换行, 微信客户端支持换行显示)
 }
 
-// 新建文本消息
-//  NOTE: content 支持换行符
 func NewText(to, from string, timestamp int64, content string) (text *Text) {
 	return &Text{
 		MessageHeader: mp.MessageHeader{
@@ -51,12 +49,10 @@ type Image struct {
 	mp.MessageHeader
 
 	Image struct {
-		MediaId string `xml:"MediaId" json:"MediaId"` // MediaId 通过上传多媒体文件得到
+		MediaId string `xml:"MediaId" json:"MediaId"` // 通过素材管理接口上传多媒体文件得到 MediaId
 	} `xml:"Image" json:"Image"`
 }
 
-// 新建图片消息
-//  MediaId 通过上传多媒体文件得到
 func NewImage(to, from string, timestamp int64, mediaId string) (image *Image) {
 	image = &Image{
 		MessageHeader: mp.MessageHeader{
@@ -76,12 +72,10 @@ type Voice struct {
 	mp.MessageHeader
 
 	Voice struct {
-		MediaId string `xml:"MediaId" json:"MediaId"` // MediaId 通过上传多媒体文件得到
+		MediaId string `xml:"MediaId" json:"MediaId"` // 通过素材管理接口上传多媒体文件得到 MediaId
 	} `xml:"Voice" json:"Voice"`
 }
 
-// 新建语音消息
-//  MediaId 通过上传多媒体文件得到
 func NewVoice(to, from string, timestamp int64, mediaId string) (voice *Voice) {
 	voice = &Voice{
 		MessageHeader: mp.MessageHeader{
@@ -101,15 +95,12 @@ type Video struct {
 	mp.MessageHeader
 
 	Video struct {
-		MediaId     string `xml:"MediaId"               json:"MediaId"`               // MediaId 通过上传多媒体文件得到
-		Title       string `xml:"Title,omitempty"       json:"Title,omitempty"`       // 视频消息的标题
-		Description string `xml:"Description,omitempty" json:"Description,omitempty"` // 视频消息的描述
+		MediaId     string `xml:"MediaId"               json:"MediaId"`               // 通过素材管理接口上传多媒体文件得到 MediaId
+		Title       string `xml:"Title,omitempty"       json:"Title,omitempty"`       // 视频消息的标题, 可以为空
+		Description string `xml:"Description,omitempty" json:"Description,omitempty"` // 视频消息的描述, 可以为空
 	} `xml:"Video" json:"Video"`
 }
 
-// 新建视频消息
-//  MediaId 通过上传多媒体文件得到
-//  title, description 可以为 ""
 func NewVideo(to, from string, timestamp int64, mediaId, title, description string) (video *Video) {
 	video = &Video{
 		MessageHeader: mp.MessageHeader{
@@ -131,17 +122,14 @@ type Music struct {
 	mp.MessageHeader
 
 	Music struct {
-		Title        string `xml:"Title,omitempty"        json:"Title,omitempty"`        // 音乐标题
-		Description  string `xml:"Description,omitempty"  json:"Description,omitempty"`  // 音乐描述
-		MusicURL     string `xml:"MusicUrl,omitempty"     json:"MusicUrl,omitempty"`     // 音乐链接
-		HQMusicURL   string `xml:"HQMusicUrl,omitempty"   json:"HQMusicUrl,omitempty"`   // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
-		ThumbMediaId string `xml:"ThumbMediaId,omitempty" json:"ThumbMediaId,omitempty"` // 缩略图的媒体id, 通过上传多媒体文件得到
+		Title        string `xml:"Title"        json:"Title"`        // 音乐标题
+		Description  string `xml:"Description"  json:"Description"`  // 音乐描述
+		MusicURL     string `xml:"MusicUrl"     json:"MusicUrl"`     // 音乐链接
+		HQMusicURL   string `xml:"HQMusicUrl"   json:"HQMusicUrl"`   // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
+		ThumbMediaId string `xml:"ThumbMediaId" json:"ThumbMediaId"` // 通过素材管理接口上传多媒体文件得到 ThumbMediaId
 	} `xml:"Music" json:"Music"`
 }
 
-// 新建音乐消息
-//  thumbMediaId 通过上传多媒体文件得到
-//  title, description 可以为 ""
 func NewMusic(to, from string, timestamp int64, thumbMediaId, musicURL,
 	HQMusicURL, title, description string) (music *Music) {
 
@@ -182,30 +170,15 @@ type News struct {
 	Articles     []Article `xml:"Articles>item,omitempty" json:"Articles,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
 }
 
-// NOTE: articles 的长度不能超过 NewsArticleCountLimit
-func NewNews(to, from string, timestamp int64, articles []Article) (news *News) {
-	news = &News{
-		MessageHeader: mp.MessageHeader{
-			ToUserName:   to,
-			FromUserName: from,
-			CreateTime:   timestamp,
-			MsgType:      MsgTypeNews,
-		},
-	}
-	news.Articles = articles
-	news.ArticleCount = len(articles)
-	return
-}
-
 // 检查 News 是否有效, 有效返回 nil, 否则返回错误信息
 func (news *News) CheckValid() (err error) {
 	n := len(news.Articles)
-	if n != news.ArticleCount {
-		err = fmt.Errorf("图文消息的 ArticleCount == %d, 实际文章个数为 %d", news.ArticleCount, n)
-		return
-	}
 	if n <= 0 {
 		err = errors.New("图文消息里没有文章")
+		return
+	}
+	if n != news.ArticleCount {
+		err = fmt.Errorf("图文消息的 ArticleCount == %d, 实际文章个数为 %d", news.ArticleCount, n)
 		return
 	}
 	if n > NewsArticleCountLimit {
@@ -215,16 +188,30 @@ func (news *News) CheckValid() (err error) {
 	return
 }
 
-type TransInfo struct {
-	KfAccount string `xml:"KfAccount" json:"KfAccount"`
+func NewNews(to, from string, timestamp int64, articles []Article) (news *News) {
+	news = &News{
+		MessageHeader: mp.MessageHeader{
+			ToUserName:   to,
+			FromUserName: from,
+			CreateTime:   timestamp,
+			MsgType:      MsgTypeNews,
+		},
+	}
+	news.ArticleCount = len(articles)
+	news.Articles = articles
+	return
 }
 
-// 将消息转发到多客服
+// 将消息转发到多客服, 参见"多客服"模块
 type TransferToCustomerService struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	mp.MessageHeader
 
 	*TransInfo `xml:"TransInfo,omitempty" json:"TransInfo,omitempty"`
+}
+
+type TransInfo struct {
+	KfAccount string `xml:"KfAccount" json:"KfAccount"`
 }
 
 // 如果不指定客服则 kfAccount 留空.
