@@ -89,14 +89,7 @@ func GetVideo(msg *corp.MixedMessage) *Video {
 		ThumbMediaId:  msg.ThumbMediaId,
 	}
 }
-func GetShortVideo(msg *corp.MixedMessage) *Video {
-	return &Video{
-		MessageHeader: msg.MessageHeader,
-		MsgId:         msg.MsgId,
-		MediaId:       msg.MediaId,
-		ThumbMediaId:  msg.ThumbMediaId,
-	}
-}
+
 type Location struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	corp.MessageHeader
