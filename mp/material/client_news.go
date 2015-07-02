@@ -132,15 +132,17 @@ type NewsInfo struct {
 	UpdateTime int64 `json:"update_time"` // 最后更新时间
 }
 
+type BatchGetNewsResult struct {
+	TotalCount int        `json:"total_count"` // 该类型的素材的总数
+	ItemCount  int        `json:"item_count"`  // 本次调用获取的素材的数量
+	Items      []NewsInfo `json:"item"`        // 本次调用获取的素材列表
+}
+
 // 获取图文素材列表.
 //
 //  offset:       从全部素材的该偏移位置开始返回, 0表示从第一个素材 返回
 //  count:        返回素材的数量, 取值在1到20之间
-//
-//  TotalCount:   该类型的素材的总数
-//  ItemCount:    本次调用获取的素材的数量
-//  Items:        本次调用获取的素材
-func (clt Client) BatchGetNews(offset, count int) (TotalCount, ItemCount int, Items []NewsInfo, err error) {
+func (clt Client) BatchGetNews(offset, count int) (rslt *BatchGetNewsResult, err error) {
 	var request = struct {
 		MaterialType string `json:"type"`
 		Offset       int    `json:"offset"`
@@ -153,9 +155,7 @@ func (clt Client) BatchGetNews(offset, count int) (TotalCount, ItemCount int, It
 
 	var result struct {
 		mp.Error
-		TotalCount int        `json:"total_count"`
-		ItemCount  int        `json:"item_count"`
-		Items      []NewsInfo `json:"item"`
+		BatchGetNewsResult
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token="
@@ -167,8 +167,81 @@ func (clt Client) BatchGetNews(offset, count int) (TotalCount, ItemCount int, It
 		err = &result.Error
 		return
 	}
-	TotalCount = result.TotalCount
-	ItemCount = result.ItemCount
-	Items = result.Items
+	rslt = &result.BatchGetNewsResult
+	return
+}
+
+//  iter, err := Client.NewsIterator(0, 10)
+//  if err != nil {
+//      // TODO: 增加你的代码
+//  }
+//
+//  for iter.HasNext() {
+//      items, err := iter.NextPage()
+//      if err != nil {
+//          // TODO: 增加你的代码
+//      }
+//      // TODO: 增加你的代码
+//  }
+type NewsIterator struct {
+	clt Client // 关联的微信 Client
+
+	nextOffset int // 下一次获取数据时的 offset
+	count      int // 步长
+
+	lastBatchGetNewsResult *BatchGetNewsResult // 最近一次获取的数据
+	nextPageHasCalled      bool                // NextPage() 是否调用过
+}
+
+func (iter *NewsIterator) TotalCount() int {
+	return iter.lastBatchGetNewsResult.TotalCount
+}
+
+func (iter *NewsIterator) HasNext() bool {
+	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+		return iter.lastBatchGetNewsResult.ItemCount > 0 ||
+			iter.nextOffset < iter.lastBatchGetNewsResult.TotalCount
+	}
+
+	return iter.nextOffset < iter.lastBatchGetNewsResult.TotalCount
+}
+
+func (iter *NewsIterator) NextPage() (items []NewsInfo, err error) {
+	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+		iter.nextPageHasCalled = true
+
+		items = iter.lastBatchGetNewsResult.Items
+		return
+	}
+
+	rslt, err := iter.clt.BatchGetNews(iter.nextOffset, iter.count)
+	if err != nil {
+		return
+	}
+
+	iter.nextOffset += rslt.ItemCount
+	iter.lastBatchGetNewsResult = rslt
+
+	items = rslt.Items
+	return
+}
+
+func (clt Client) NewsIterator(MaterialType string, offset, count int) (iter *NewsIterator, err error) {
+	// 逻辑上相当于第一次调用 NewsIterator.NextPage, 因为第一次调用 NewsIterator.HasNext 需要数据支撑, 所以提前获取了数据
+
+	rslt, err := clt.BatchGetNews(offset, count)
+	if err != nil {
+		return
+	}
+
+	iter = &NewsIterator{
+		clt: clt,
+
+		nextOffset: offset + rslt.ItemCount,
+		count:      count,
+
+		lastBatchGetNewsResult: rslt,
+		nextPageHasCalled:      false,
+	}
 	return
 }

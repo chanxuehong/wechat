@@ -19,6 +19,7 @@ import (
 )
 
 // 下载多媒体到文件.
+//  对于视频素材, 先通过 Client.GetVideo 得到 VideoInfo, 然后通过 VideoInfo.DownURL 来下载
 func (clt Client) DownloadMaterial(mediaId, filepath string) (written int64, err error) {
 	file, err := os.Create(filepath)
 	if err != nil {
@@ -35,6 +36,7 @@ func (clt Client) DownloadMaterial(mediaId, filepath string) (written int64, err
 }
 
 // 下载多媒体到 io.Writer.
+//  对于视频素材, 先通过 Client.GetVideo 得到 VideoInfo, 然后通过 VideoInfo.DownURL 来下载
 func (clt Client) DownloadMaterialToWriter(mediaId string, writer io.Writer) (written int64, err error) {
 	if writer == nil {
 		err = errors.New("nil writer")

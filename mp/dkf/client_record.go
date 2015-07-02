@@ -89,53 +89,57 @@ func (clt Client) GetRecord(request *GetRecordRequest) (recordList []Record, err
 //      // TODO: 增加你的代码
 //  }
 type RecordIterator struct {
-	lastGetRecordRequest *GetRecordRequest // 上一次查询的 request
-	lastGetRecordResult  []Record          // 上一次查询的 result
+	clt Client // 关联的微信 Client
 
-	clt            Client // 关联的微信 Client
-	nextPageCalled bool   // NextPage() 是否调用过
+	nextGetRecordRequest *GetRecordRequest // 上一次查询的 request
+
+	lastGetRecordResult []Record // 上一次查询的 result
+	nextPageHasCalled   bool     // NextPage() 是否调用过
 }
 
 func (iter *RecordIterator) HasNext() bool {
-	if !iter.nextPageCalled { // 还没有调用 NextPage(), 从创建的时候获取的数据来判断
+	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
 		return len(iter.lastGetRecordResult) > 0
 	}
 
 	// 如果上一次读取的数据等于 PageSize, 则"可能"还有数据; 否则肯定是没有数据了.
-	return len(iter.lastGetRecordResult) == iter.lastGetRecordRequest.PageSize
+	return len(iter.lastGetRecordResult) == iter.nextGetRecordRequest.PageSize
 }
 
 func (iter *RecordIterator) NextPage() (records []Record, err error) {
-	if !iter.nextPageCalled { // 还没有调用 NextPage(), 从创建的时候获取的数据中获取
+	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+		iter.nextPageHasCalled = true
+
 		records = iter.lastGetRecordResult
-		iter.nextPageCalled = true
 		return
 	}
 
-	// 不是第一次调用的都要从服务器拉取数据
-	iter.lastGetRecordRequest.PageIndex++
-	records, err = iter.clt.GetRecord(iter.lastGetRecordRequest)
+	records, err = iter.clt.GetRecord(iter.nextGetRecordRequest)
 	if err != nil {
-		iter.lastGetRecordRequest.PageIndex-- //
 		return
 	}
 
+	iter.nextGetRecordRequest.PageIndex++
 	iter.lastGetRecordResult = records
 	return
 }
 
 // 获取聊天记录遍历器.
 func (clt Client) RecordIterator(request *GetRecordRequest) (iter *RecordIterator, err error) {
+	// 逻辑上相当于第一次调用 RecordIterator.NextPage, 因为第一次调用 RecordIterator.HasNext 需要数据支撑, 所以提前获取了数据
+
 	records, err := clt.GetRecord(request)
 	if err != nil {
 		return
 	}
 
+	request.PageIndex++
+
 	iter = &RecordIterator{
-		lastGetRecordRequest: request,
-		lastGetRecordResult:  records,
 		clt:                  clt,
-		nextPageCalled:       false,
+		nextGetRecordRequest: request,
+		lastGetRecordResult:  records,
+		nextPageHasCalled:    false,
 	}
 	return
 }
