@@ -12,7 +12,7 @@ import (
 type OAuth2Config struct {
 	AppId, AppSecret string
 
-	// 应用授权作用域，多个作用域用逗号（,）分隔;
+	// 应用授权作用域, 多个作用域用逗号(,)分隔;
 	// 目前有 snsapi_base, snsapi_userinfo.
 	Scope string
 

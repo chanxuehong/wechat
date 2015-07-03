@@ -50,7 +50,7 @@ type Image struct {
 	MessageHeader
 
 	Image struct {
-		MediaId string `xml:"MediaId" json:"MediaId"` // 图片文件id，可以调用上传媒体文件接口获取
+		MediaId string `xml:"MediaId" json:"MediaId"` // 图片文件id, 可以调用上传媒体文件接口获取
 	} `xml:"Image" json:"Image"`
 }
 
@@ -72,7 +72,7 @@ type Voice struct {
 	MessageHeader
 
 	Voice struct {
-		MediaId string `xml:"MediaId" json:"MediaId"` // 语音文件id，可以调用上传媒体文件接口获取
+		MediaId string `xml:"MediaId" json:"MediaId"` // 语音文件id, 可以调用上传媒体文件接口获取
 	} `xml:"Voice" json:"Voice"`
 }
 
@@ -94,7 +94,7 @@ type Video struct {
 	MessageHeader
 
 	Video struct {
-		MediaId     string `xml:"MediaId"               json:"MediaId"`               // 视频文件id，可以调用上传媒体文件接口获取
+		MediaId     string `xml:"MediaId"               json:"MediaId"`               // 视频文件id, 可以调用上传媒体文件接口获取
 		Title       string `xml:"Title,omitempty"       json:"Title,omitempty"`       // 视频消息的标题
 		Description string `xml:"Description,omitempty" json:"Description,omitempty"` // 视频消息的描述
 	} `xml:"Video" json:"Video"`
@@ -118,7 +118,7 @@ func NewVideo(to, from string, timestamp int64, mediaId, title, description stri
 type Article struct {
 	Title       string `xml:"Title,omitempty"       json:"Title,omitempty"`       // 图文消息标题
 	Description string `xml:"Description,omitempty" json:"Description,omitempty"` // 图文消息描述
-	PicURL      string `xml:"PicUrl,omitempty"      json:"PicUrl,omitempty"`      // 图片链接，支持JPG、PNG格式，较好的效果为大图360*200，小图200*200
+	PicURL      string `xml:"PicUrl,omitempty"      json:"PicUrl,omitempty"`      // 图片链接, 支持JPG, PNG格式, 较好的效果为大图360*200, 小图200*200
 	URL         string `xml:"Url,omitempty"         json:"Url,omitempty"`         // 点击图文消息跳转链接
 }
 
@@ -130,7 +130,7 @@ type News struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	MessageHeader
 
-	ArticleCount int       `xml:"ArticleCount"            json:"ArticleCount"` // 图文条数，默认第一条为大图。图文数不能超过10，否则将会无响应
+	ArticleCount int       `xml:"ArticleCount"            json:"ArticleCount"` // 图文条数, 默认第一条为大图. 图文数不能超过10, 否则将会无响应
 	Articles     []Article `xml:"Articles>item,omitempty" json:"Articles,omitempty"`
 }
 
@@ -148,7 +148,7 @@ func NewNews(to, from string, timestamp int64, articles []Article) (news *News) 
 	return
 }
 
-// 检查 News 是否有效，有效返回 nil，否则返回错误信息
+// 检查 News 是否有效, 有效返回 nil, 否则返回错误信息
 func (news *News) CheckValid() (err error) {
 	n := len(news.Articles)
 	if n != news.ArticleCount {

@@ -18,22 +18,21 @@ import (
 )
 
 var AccessTokenServer = corp.NewDefaultAccessTokenServer("corpId", "corpSecret", nil) // 一個應用只能有一個實例
-var CorpClient = corp.NewClient(AccessTokenServer, nil)
+var corpClient = corp.NewClient(AccessTokenServer, nil)
 
 func main() {
-	var mn menu.Menu
-	mn.Buttons = make([]menu.Button, 3)
-	mn.Buttons[0].SetAsClickButton("今日歌曲", "V1001_TODAY_MUSIC")
-	mn.Buttons[1].SetAsViewButton("视频", "http://v.qq.com/")
-
 	var subButtons = make([]menu.Button, 2)
 	subButtons[0].SetAsViewButton("搜索", "http://www.soso.com/")
 	subButtons[1].SetAsClickButton("赞一下我们", "V1001_GOOD")
 
+	var mn menu.Menu
+	mn.Buttons = make([]menu.Button, 3)
+	mn.Buttons[0].SetAsClickButton("今日歌曲", "V1001_TODAY_MUSIC")
+	mn.Buttons[1].SetAsViewButton("视频", "http://v.qq.com/")
 	mn.Buttons[2].SetAsSubMenuButton("子菜单", subButtons)
 
-	clt := menu.Client{Client: CorpClient}
-	if err := clt.CreateMenu(0 /* agentId */, mn); err != nil {
+	menuClient := menu.Client{Client: corpClient}
+	if err := menuClient.CreateMenu(0 /* agentId */, mn); err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -55,15 +54,14 @@ import (
 	"github.com/chanxuehong/wechat/util"
 )
 
-// 非法请求的 Handler
-func InvalidRequestHandler(w http.ResponseWriter, r *http.Request, err error) {
+func ErrorHandler(w http.ResponseWriter, r *http.Request, err error) {
 	log.Println(err.Error())
 }
 
 // 文本消息的 Handler
 func TextMessageHandler(w http.ResponseWriter, r *corp.Request) {
 	// 简单起见，把用户发送过来的文本原样回复过去
-	text := request.GetText(r.MixedMsg) // 可以省略...
+	text := request.GetText(r.MixedMsg) // 可以省略, 直接从 r.MixedMsg 取值
 	resp := response.NewText(text.FromUserName, text.ToUserName, text.CreateTime, text.Content)
 	corp.WriteResponse(w, r, resp)
 }
@@ -80,7 +78,7 @@ func main() {
 	// 下面函数的几个参数设置成你自己的参数: corpId, agentId, token
 	agentServer := corp.NewDefaultAgentServer("corpId", 0 /* agentId */, "token", aesKey, messageServeMux)
 
-	agentServerFrontend := corp.NewAgentServerFrontend(agentServer, corp.InvalidRequestHandlerFunc(InvalidRequestHandler), nil)
+	agentServerFrontend := corp.NewAgentServerFrontend(agentServer, corp.ErrorHandlerFunc(ErrorHandler), nil)
 
 	// 如果你在微信后台设置的回调地址是
 	//   http://xxx.yyy.zzz/agent
@@ -104,15 +102,14 @@ import (
 	"github.com/chanxuehong/wechat/util"
 )
 
-// 非法请求的 Handler
-func InvalidRequestHandler(w http.ResponseWriter, r *http.Request, err error) {
+func ErrorHandler(w http.ResponseWriter, r *http.Request, err error) {
 	log.Println(err.Error())
 }
 
 // 文本消息的 Handler
 func TextMessageHandler(w http.ResponseWriter, r *corp.Request) {
 	// 简单起见，把用户发送过来的文本原样回复过去
-	text := request.GetText(r.MixedMsg) // 可以省略...
+	text := request.GetText(r.MixedMsg) // 可以省略, 直接从 r.MixedMsg 取值
 	resp := response.NewText(text.FromUserName, text.ToUserName, text.CreateTime, text.Content)
 	corp.WriteResponse(w, r, resp)
 }
@@ -142,8 +139,8 @@ func main() {
 	// 下面函数的几个参数设置成你自己的参数: corpId2, agentId2, token2
 	agentServer2 := corp.NewDefaultAgentServer("corpId2", 2 /* agentId2 */, "token2", aesKey2, messageServeMux2)
 
-	// multiAgentServerFrontend
-	multiAgentServerFrontend := corp.NewMultiAgentServerFrontend(corp.InvalidRequestHandlerFunc(InvalidRequestHandler), nil)
+	// multiAgentServerFrontend, 第一个参数可以不是 agent_server, 可以自己指定
+	multiAgentServerFrontend := corp.NewMultiAgentServerFrontend("agent_server", corp.ErrorHandlerFunc(ErrorHandler), nil)
 	multiAgentServerFrontend.SetAgentServer("agent1", agentServer1) // 回調url上面要加上 agent_server=agent1
 	multiAgentServerFrontend.SetAgentServer("agent2", agentServer2) // 回調url上面要加上 agent_server=agent2
 

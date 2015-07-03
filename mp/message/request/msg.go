@@ -43,7 +43,7 @@ type Image struct {
 	mp.MessageHeader
 
 	MsgId   int64  `xml:"MsgId"   json:"MsgId"`   // 消息id, 64位整型
-	MediaId string `xml:"MediaId" json:"MediaId"` // 图片消息媒体id，可以调用多媒体文件下载接口拉取数据。
+	MediaId string `xml:"MediaId" json:"MediaId"` // 图片消息媒体id, 可以调用多媒体文件下载接口拉取数据.
 	PicURL  string `xml:"PicUrl"  json:"PicUrl"`  // 图片链接
 }
 
@@ -62,11 +62,11 @@ type Voice struct {
 	mp.MessageHeader
 
 	MsgId   int64  `xml:"MsgId"   json:"MsgId"`   // 消息id, 64位整型
-	MediaId string `xml:"MediaId" json:"MediaId"` // 语音消息媒体id，可以调用多媒体文件下载接口拉取该媒体
-	Format  string `xml:"Format"  json:"Format"`  // 语音格式，如amr，speex等
+	MediaId string `xml:"MediaId" json:"MediaId"` // 语音消息媒体id, 可以调用多媒体文件下载接口拉取该媒体
+	Format  string `xml:"Format"  json:"Format"`  // 语音格式, 如amr, speex等
 
-	// 语音识别结果，UTF8编码，
-	// NOTE: 需要开通语音识别功能，否则该字段为空，即使开通了语音识别该字段还是有可能为空
+	// 语音识别结果, UTF8编码,
+	// NOTE: 需要开通语音识别功能, 否则该字段为空, 即使开通了语音识别该字段还是有可能为空
 	Recognition string `xml:"Recognition,omitempty" json:"Recognition,omitempty"`
 }
 
@@ -86,8 +86,8 @@ type Video struct {
 	mp.MessageHeader
 
 	MsgId        int64  `xml:"MsgId"        json:"MsgId"`        // 消息id, 64位整型
-	MediaId      string `xml:"MediaId"      json:"MediaId"`      // 视频消息媒体id，可以调用多媒体文件下载接口拉取数据。
-	ThumbMediaId string `xml:"ThumbMediaId" json:"ThumbMediaId"` // 视频消息缩略图的媒体id，可以调用多媒体文件下载接口拉取数据。
+	MediaId      string `xml:"MediaId"      json:"MediaId"`      // 视频消息媒体id, 可以调用多媒体文件下载接口拉取数据.
+	ThumbMediaId string `xml:"ThumbMediaId" json:"ThumbMediaId"` // 视频消息缩略图的媒体id, 可以调用多媒体文件下载接口拉取数据.
 }
 
 func GetVideo(msg *mp.MixedMessage) *Video {
@@ -105,8 +105,8 @@ type ShortVideo struct {
 	mp.MessageHeader
 
 	MsgId        int64  `xml:"MsgId"        json:"MsgId"`        // 消息id, 64位整型
-	MediaId      string `xml:"MediaId"      json:"MediaId"`      // 视频消息媒体id，可以调用多媒体文件下载接口拉取数据。
-	ThumbMediaId string `xml:"ThumbMediaId" json:"ThumbMediaId"` // 视频消息缩略图的媒体id，可以调用多媒体文件下载接口拉取数据。
+	MediaId      string `xml:"MediaId"      json:"MediaId"`      // 视频消息媒体id, 可以调用多媒体文件下载接口拉取数据.
+	ThumbMediaId string `xml:"ThumbMediaId" json:"ThumbMediaId"` // 视频消息缩略图的媒体id, 可以调用多媒体文件下载接口拉取数据.
 }
 
 func GetShortVideo(msg *mp.MixedMessage) *ShortVideo {

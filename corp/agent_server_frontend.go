@@ -12,24 +12,24 @@ import (
 
 // 实现了 http.Handler, 处理一个企业号应用的消息(事件)请求.
 type AgentServerFrontend struct {
-	agentServer           AgentServer
-	invalidRequestHandler InvalidRequestHandler
-	interceptor           Interceptor
+	agentServer AgentServer
+	errHandler  ErrorHandler
+	interceptor Interceptor
 }
 
 // handler, interceptor 均可以为 nil
-func NewAgentServerFrontend(srv AgentServer, handler InvalidRequestHandler, interceptor Interceptor) *AgentServerFrontend {
+func NewAgentServerFrontend(srv AgentServer, handler ErrorHandler, interceptor Interceptor) *AgentServerFrontend {
 	if srv == nil {
 		panic("nil AgentServer")
 	}
 	if handler == nil {
-		handler = DefaultInvalidRequestHandler
+		handler = DefaultErrorHandler
 	}
 
 	return &AgentServerFrontend{
-		agentServer:           srv,
-		invalidRequestHandler: handler,
-		interceptor:           interceptor,
+		agentServer: srv,
+		errHandler:  handler,
+		interceptor: interceptor,
 	}
 }
 
@@ -37,7 +37,7 @@ func NewAgentServerFrontend(srv AgentServer, handler InvalidRequestHandler, inte
 func (frontend *AgentServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	queryValues, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
-		frontend.invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		frontend.errHandler.ServeError(w, r, err)
 		return
 	}
 
@@ -45,5 +45,5 @@ func (frontend *AgentServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	ServeHTTP(w, r, queryValues, frontend.agentServer, frontend.invalidRequestHandler)
+	ServeHTTP(w, r, queryValues, frontend.agentServer, frontend.errHandler)
 }

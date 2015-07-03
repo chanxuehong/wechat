@@ -23,7 +23,7 @@ import (
 // 客服基本信息
 type KfInfo struct {
 	Id           string `json:"kf_id,string"` // 客服工号
-	Account      string `json:"kf_account"`   // 完整客服账号，格式为：账号前缀@公众号微信号
+	Account      string `json:"kf_account"`   // 完整客服账号, 格式为: 账号前缀@公众号微信号
 	Nickname     string `json:"kf_nick"`      // 客服昵称
 	HeadImageURL string `json:"kf_headimg"`   // 客服头像
 }
@@ -93,8 +93,8 @@ const (
 // 在线客服接待信息
 type OnlineKfInfo struct {
 	Id                  string `json:"kf_id,string"`  // 客服工号
-	Account             string `json:"kf_account"`    // 完整客服账号，格式为：账号前缀@公众号微信号
-	Status              int    `json:"status"`        // 客服在线状态 1：pc在线，2：手机在线。若pc和手机同时在线则为 1+2=3
+	Account             string `json:"kf_account"`    // 完整客服账号, 格式为: 账号前缀@公众号微信号
+	Status              int    `json:"status"`        // 客服在线状态 1: pc在线, 2: 手机在线. 若pc和手机同时在线则为 1+2=3
 	AutoAcceptThreshold int    `json:"auto_accept"`   // 客服设置的最大自动接入数
 	AcceptingNumber     int    `json:"accepted_case"` // 客服当前正在接待的会话数
 }
@@ -120,8 +120,8 @@ func (clt Client) OnlineKfList() (KfList []OnlineKfInfo, err error) {
 }
 
 // 添加客服账号.
-//  account:    完整客服账号，格式为：账号前缀@公众号微信号，账号前缀最多10个字符，必须是英文或者数字字符。
-//  nickname:   客服昵称，最长6个汉字或12个英文字符
+//  account:    完整客服账号, 格式为: 账号前缀@公众号微信号, 账号前缀最多10个字符, 必须是英文或者数字字符.
+//  nickname:   客服昵称, 最长6个汉字或12个英文字符
 //  password:   客服账号登录密码
 //  isPwdPlain: 标识 password 是否为明文格式, true 表示是明文密码, false 表示是密文密码.
 func (clt Client) AddKfAccount(account, nickname, password string, isPwdPlain bool) (err error) {
@@ -155,8 +155,8 @@ func (clt Client) AddKfAccount(account, nickname, password string, isPwdPlain bo
 }
 
 // 设置客服信息
-//  account:    完整客服账号，格式为：账号前缀@公众号微信号，账号前缀最多10个字符，必须是英文或者数字字符。
-//  nickname:   客服昵称，最长6个汉字或12个英文字符
+//  account:    完整客服账号, 格式为: 账号前缀@公众号微信号, 账号前缀最多10个字符, 必须是英文或者数字字符.
+//  nickname:   客服昵称, 最长6个汉字或12个英文字符
 //  password:   客服账号登录密码
 //  isPwdPlain: 标识 password 是否为明文格式, true 表示是明文密码, false 表示是密文密码.
 func (clt Client) SetKfAccount(account, nickname, password string, isPwdPlain bool) (err error) {
@@ -190,7 +190,7 @@ func (clt Client) SetKfAccount(account, nickname, password string, isPwdPlain bo
 }
 
 // 上传客服头像.
-//  开发者可调用本接口来上传图片作为客服人员的头像，头像图片文件必须是jpg格式，推荐使用640*640大小的图片以达到最佳效果。
+//  开发者可调用本接口来上传图片作为客服人员的头像, 头像图片文件必须是jpg格式, 推荐使用640*640大小的图片以达到最佳效果.
 func (clt Client) UploadKfHeadImage(kfAccount, imagePath string) (err error) {
 	if kfAccount == "" {
 		return errors.New("empty kfAccount")
@@ -205,7 +205,7 @@ func (clt Client) UploadKfHeadImage(kfAccount, imagePath string) (err error) {
 }
 
 // 上传客服头像.
-//  开发者可调用本接口来上传图片作为客服人员的头像，头像图片文件必须是jpg格式，推荐使用640*640大小的图片以达到最佳效果。
+//  开发者可调用本接口来上传图片作为客服人员的头像, 头像图片文件必须是jpg格式, 推荐使用640*640大小的图片以达到最佳效果.
 //  注意参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
 func (clt Client) UploadKfHeadImageFromReader(kfAccount, filename string, reader io.Reader) (err error) {
 	if kfAccount == "" {

@@ -24,23 +24,21 @@ const (
 //      // TODO: 增加你的代码
 //  }
 type UserIterator struct {
-	lastUserListData *UserListResult // 最近一次获取的用户数据
+	clt Client // 关联的微信 Client
 
-	clt            Client // 关联的微信 Client
-	nextPageCalled bool   // NextPage() 是否调用过
+	lastUserListData  *UserListResult // 最近一次获取的用户数据
+	nextPageHasCalled bool            // NextPage() 是否调用过
 }
 
-func (iter *UserIterator) Total() int {
+func (iter *UserIterator) TotalCount() int {
 	return iter.lastUserListData.TotalCount
 }
 
 func (iter *UserIterator) HasNext() bool {
-	if !iter.nextPageCalled { // 还没有调用 NextPage(), 从创建的时候获取的数据来判断
+	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
 		return iter.lastUserListData.GotCount > 0
 	}
 
-	// 已经调用过 NextPage(), 根据上一次 next_openid 字段是否为空来判断
-	//
 	// 跟文档的描述貌似有点不一样, 即使后续没有用户, 貌似 next_openid 还是不为空!
 	// 所以增加了一个判断 iter.userGetResponse.GetCount == UserPageCountLimit
 	//
@@ -60,39 +58,41 @@ func (iter *UserIterator) HasNext() bool {
 	//     },
 	//     "next_openid": "os-IKuHd9pJ6xsn4mS7GyL4HxqI4"
 	// }
-	return iter.lastUserListData.NextOpenId != "" &&
-		iter.lastUserListData.GotCount == UserPageSizeLimit
+	return iter.lastUserListData.NextOpenId != "" && iter.lastUserListData.GotCount == UserPageSizeLimit
 }
 
 func (iter *UserIterator) NextPage() (openids []string, err error) {
-	if !iter.nextPageCalled { // 还没有调用 NextPage(), 从创建的时候获取的数据中获取
+	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+		iter.nextPageHasCalled = true
+
 		openids = iter.lastUserListData.Data.OpenId
-		iter.nextPageCalled = true
 		return
 	}
 
-	// 不是第一次调用的都要从服务器拉取数据
 	data, err := iter.clt.UserList(iter.lastUserListData.NextOpenId)
 	if err != nil {
 		return
 	}
 
+	iter.lastUserListData = data
+
 	openids = data.Data.OpenId
-	iter.lastUserListData = data //
 	return
 }
 
 // 获取用户遍历器, beginOpenId 表示开始遍历用户, 如果 beginOpenId == "" 则表示从头遍历.
 func (clt Client) UserIterator(beginOpenId string) (iter *UserIterator, err error) {
+	// 逻辑上相当于第一次调用 UserIterator.NextPage, 因为第一次调用 UserIterator.HasNext 需要数据支撑, 所以提前获取了数据
+
 	data, err := clt.UserList(beginOpenId)
 	if err != nil {
 		return
 	}
 
 	iter = &UserIterator{
-		lastUserListData: data,
-		clt:              clt,
-		nextPageCalled:   false,
+		clt:               clt,
+		lastUserListData:  data,
+		nextPageHasCalled: false,
 	}
 	return
 }

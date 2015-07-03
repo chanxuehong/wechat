@@ -19,7 +19,8 @@ import (
 )
 
 // 下载多媒体到文件.
-func (clt Client) DownloadMaterial(mediaId, filepath string) (err error) {
+//  对于视频素材, 先通过 Client.GetVideo 得到 VideoInfo, 然后通过 VideoInfo.DownURL 来下载
+func (clt Client) DownloadMaterial(mediaId, filepath string) (written int64, err error) {
 	file, err := os.Create(filepath)
 	if err != nil {
 		return
@@ -35,9 +36,11 @@ func (clt Client) DownloadMaterial(mediaId, filepath string) (err error) {
 }
 
 // 下载多媒体到 io.Writer.
-func (clt Client) DownloadMaterialToWriter(mediaId string, writer io.Writer) error {
+//  对于视频素材, 先通过 Client.GetVideo 得到 VideoInfo, 然后通过 VideoInfo.DownURL 来下载
+func (clt Client) DownloadMaterialToWriter(mediaId string, writer io.Writer) (written int64, err error) {
 	if writer == nil {
-		return errors.New("nil writer")
+		err = errors.New("nil writer")
+		return
 	}
 	return clt.downloadMaterialToWriter(mediaId, writer)
 }
@@ -48,7 +51,7 @@ var (
 )
 
 // 下载多媒体到 io.Writer.
-func (clt Client) downloadMaterialToWriter(mediaId string, writer io.Writer) (err error) {
+func (clt Client) downloadMaterialToWriter(mediaId string, writer io.Writer) (written int64, err error) {
 	var request = struct {
 		MediaId string `json:"media_id"`
 	}{
@@ -76,7 +79,8 @@ RETRY:
 	defer httpResp.Body.Close()
 
 	if httpResp.StatusCode != http.StatusOK {
-		return fmt.Errorf("http.Status: %s", httpResp.Status)
+		err = fmt.Errorf("http.Status: %s", httpResp.Status)
+		return
 	}
 
 	// fuck, 騰訊這次又蛋疼了, Content-Type 不能區分返回的是媒體類型還是錯誤
@@ -86,10 +90,11 @@ RETRY:
 	switch {
 	case err == nil:
 		break
-	case err == io.ErrUnexpectedEOF:
-		_, err = writer.Write(respBegin[:n])
+	case err == io.ErrUnexpectedEOF: // 很小的媒体, 基本不会出现
+		n, err = writer.Write(respBegin[:n])
+		written = int64(n)
 		return
-	case err == io.EOF:
+	case err == io.EOF: // 返回空的body, 基本不会出现
 		err = nil
 		return
 	default:
@@ -99,8 +104,7 @@ RETRY:
 	httpRespBody := io.MultiReader(bytes.NewReader(respBegin[:]), httpResp.Body)
 
 	if !bytes.Equal(respBegin[:], errRespBeginCode) && !bytes.Equal(respBegin[:], errRespBeginMsg) { // 返回的是媒體內容
-		_, err = io.Copy(writer, httpRespBody)
-		return
+		return io.Copy(writer, httpRespBody)
 	}
 
 	// 返回的是错误信息

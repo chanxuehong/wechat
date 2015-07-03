@@ -13,7 +13,7 @@ import (
 	"os"
 )
 
-func Download(url, filepath string, httpClient *http.Client) (err error) {
+func Download(url, filepath string, httpClient *http.Client) (written int64, err error) {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
@@ -32,9 +32,10 @@ func Download(url, filepath string, httpClient *http.Client) (err error) {
 	return downloadToWriter(url, file, httpClient)
 }
 
-func DownloadToWriter(url string, w io.Writer, httpClient *http.Client) (err error) {
+func DownloadToWriter(url string, w io.Writer, httpClient *http.Client) (written int64, err error) {
 	if w == nil {
-		return errors.New("nil w io.Writer")
+		err = errors.New("nil w io.Writer")
+		return
 	}
 	if httpClient == nil {
 		httpClient = http.DefaultClient
@@ -43,7 +44,7 @@ func DownloadToWriter(url string, w io.Writer, httpClient *http.Client) (err err
 	return downloadToWriter(url, w, httpClient)
 }
 
-func downloadToWriter(url string, w io.Writer, httpClient *http.Client) (err error) {
+func downloadToWriter(url string, w io.Writer, httpClient *http.Client) (written int64, err error) {
 	httpResp, err := httpClient.Get(url)
 	if err != nil {
 		return
@@ -51,11 +52,9 @@ func downloadToWriter(url string, w io.Writer, httpClient *http.Client) (err err
 	defer httpResp.Body.Close()
 
 	if httpResp.StatusCode != http.StatusOK {
-		return fmt.Errorf("http.Status: %s", httpResp.Status)
-	}
-
-	if _, err = io.Copy(w, httpResp.Body); err != nil {
+		err = fmt.Errorf("http.Status: %s", httpResp.Status)
 		return
 	}
-	return
+
+	return io.Copy(w, httpResp.Body)
 }

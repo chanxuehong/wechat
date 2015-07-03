@@ -20,16 +20,16 @@ type Attribute struct {
 
 // 创建成员的参数
 type UserCreateParameters struct {
-	UserId     string  `json:"userid,omitempty"`     // 必须;  员工UserID。对应管理端的帐号，企业内必须唯一。长度为1~64个字符
-	Name       string  `json:"name,omitempty"`       // 必须;  成员名称。长度为1~64个字符
-	Department []int64 `json:"department,omitempty"` // 非必须; 成员所属部门id列表。注意，每个部门的直属员工上限为1000个
-	Position   string  `json:"position,omitempty"`   // 非必须; 职位信息。长度为0~64个字符
-	Mobile     string  `json:"mobile,omitempty"`     // 非必须; 手机号码。企业内必须唯一，mobile/weixinid/email三者不能同时为空
-	Email      string  `json:"email,omitempty"`      // 非必须; 邮箱。长度为0~64个字符。企业内必须唯一
-	WeixinId   string  `json:"weixinid,omitempty"`   // 非必须; 微信号。企业内必须唯一。（注意：是微信号，不是微信的名字）
+	UserId     string  `json:"userid,omitempty"`     // 必须;  员工UserID. 对应管理端的帐号, 企业内必须唯一. 长度为1~64个字符
+	Name       string  `json:"name,omitempty"`       // 必须;  成员名称. 长度为1~64个字符
+	Department []int64 `json:"department,omitempty"` // 非必须; 成员所属部门id列表. 注意, 每个部门的直属员工上限为1000个
+	Position   string  `json:"position,omitempty"`   // 非必须; 职位信息. 长度为0~64个字符
+	Mobile     string  `json:"mobile,omitempty"`     // 非必须; 手机号码. 企业内必须唯一, mobile/weixinid/email三者不能同时为空
+	Email      string  `json:"email,omitempty"`      // 非必须; 邮箱. 长度为0~64个字符. 企业内必须唯一
+	WeixinId   string  `json:"weixinid,omitempty"`   // 非必须; 微信号. 企业内必须唯一. (注意: 是微信号, 不是微信的名字)
 	ExtAttr    struct {
 		Attrs []Attribute `json:"attrs,omitempty"`
-	} `json:"extattr"` // 非必须; 扩展属性。扩展属性需要在WEB管理端创建后才生效，否则忽略未知属性的赋值
+	} `json:"extattr"` // 非必须; 扩展属性. 扩展属性需要在WEB管理端创建后才生效, 否则忽略未知属性的赋值
 }
 
 // 创建成员
@@ -54,17 +54,17 @@ func (clt Client) UserCreate(para *UserCreateParameters) (err error) {
 }
 
 type UserUpdateParameters struct {
-	UserId     string  `json:"userid,omitempty"`     // 必须;  员工UserID。对应管理端的帐号，企业内必须唯一。长度为1~64个字符
-	Name       string  `json:"name,omitempty"`       // 非必须; 成员名称。长度为0~64个字符
-	Department []int64 `json:"department,omitempty"` // 非必须; 成员所属部门id列表。注意，每个部门的直属员工上限为1000个
-	Position   string  `json:"position,omitempty"`   // 非必须; 职位信息。长度为0~64个字符
-	Mobile     string  `json:"mobile,omitempty"`     // 非必须; 手机号码。企业内必须唯一，mobile/weixinid/email三者不能同时为空
-	Email      string  `json:"email,omitempty"`      // 非必须; 邮箱。长度为0~64个字符。企业内必须唯一
-	WeixinId   string  `json:"weixinid,omitempty"`   // 非必须; 微信号。企业内必须唯一。（注意：是微信号，不是微信的名字）
-	Enable     *int    `json:"enable,omitempty"`     // 非必须; 启用/禁用成员。1表示启用成员，0表示禁用成员
+	UserId     string  `json:"userid,omitempty"`     // 必须;  员工UserID. 对应管理端的帐号, 企业内必须唯一. 长度为1~64个字符
+	Name       string  `json:"name,omitempty"`       // 非必须; 成员名称. 长度为0~64个字符
+	Department []int64 `json:"department,omitempty"` // 非必须; 成员所属部门id列表. 注意, 每个部门的直属员工上限为1000个
+	Position   string  `json:"position,omitempty"`   // 非必须; 职位信息. 长度为0~64个字符
+	Mobile     string  `json:"mobile,omitempty"`     // 非必须; 手机号码. 企业内必须唯一, mobile/weixinid/email三者不能同时为空
+	Email      string  `json:"email,omitempty"`      // 非必须; 邮箱. 长度为0~64个字符. 企业内必须唯一
+	WeixinId   string  `json:"weixinid,omitempty"`   // 非必须; 微信号. 企业内必须唯一. (注意: 是微信号, 不是微信的名字)
+	Enable     *int    `json:"enable,omitempty"`     // 非必须; 启用/禁用成员. 1表示启用成员, 0表示禁用成员
 	ExtAttr    struct {
 		Attrs []Attribute `json:"attrs,omitempty"`
-	} `json:"extattr"` // 非必须; 扩展属性。扩展属性需要在WEB管理端创建后才生效，否则忽略未知属性的赋值
+	} `json:"extattr"` // 非必须; 扩展属性. 扩展属性需要在WEB管理端创建后才生效, 否则忽略未知属性的赋值
 }
 
 func (para *UserUpdateParameters) SetEnable(b bool) {
@@ -140,15 +140,15 @@ func (clt Client) UserBatchDelete(UserIdList []string) (err error) {
 }
 
 type UserInfo struct {
-	Id         string  `json:"userid"`               // 员工UserID。对应管理端的帐号
+	Id         string  `json:"userid"`               // 员工UserID. 对应管理端的帐号
 	Name       string  `json:"name"`                 // 成员名称
 	Department []int64 `json:"department,omitempty"` // 成员所属部门id列表
 	Position   string  `json:"position"`             // 职位信息
 	Mobile     string  `json:"mobile"`               // 手机号码
 	Email      string  `json:"email"`                // 邮箱
 	WeixinId   string  `json:"weixinid"`             // 微信号
-	Avatar     string  `json:"avatar"`               // 头像url。注：如果要获取小图将url最后的"/0"改成"/64"即可
-	Status     int     `json:"status"`               // 关注状态: 1=已关注，2=已冻结，4=未关注
+	Avatar     string  `json:"avatar"`               // 头像url. 注: 如果要获取小图将url最后的"/0"改成"/64"即可
+	Status     int     `json:"status"`               // 关注状态: 1=已关注, 2=已冻结, 4=未关注
 	ExtAttr    struct {
 		Attrs []Attribute `json:"attrs,omitempty"`
 	} `json:"extattr"` // 扩展属性
@@ -182,8 +182,8 @@ type UserBaseInfo struct {
 // 获取部门成员(基本)
 //  departmentId: 获取的部门id
 //  fetchChild:   是否递归获取子部门下面的成员
-//  status:       0 获取全部员工，1 获取已关注成员列表，2 获取禁用成员列表，4 获取未关注成员列表。
-//                status可叠加（可用逻辑运算符 | 来叠加, 一般都是后面 3 个叠加）。
+//  status:       0 获取全部员工, 1 获取已关注成员列表, 2 获取禁用成员列表, 4 获取未关注成员列表.
+//                status可叠加(可用逻辑运算符 | 来叠加, 一般都是后面 3 个叠加).
 func (clt Client) UserSimpleList(departmentId int64,
 	fetchChild bool, status int) (UserList []UserBaseInfo, err error) {
 
@@ -219,8 +219,8 @@ func (clt Client) UserSimpleList(departmentId int64,
 // 获取部门成员(详情)
 //  departmentId: 获取的部门id
 //  fetchChild:   是否递归获取子部门下面的成员
-//  status:       0 获取全部员工，1 获取已关注成员列表，2 获取禁用成员列表，4 获取未关注成员列表。
-//                status可叠加（可用逻辑运算符 | 来叠加, 一般都是后面 3 个叠加）。
+//  status:       0 获取全部员工, 1 获取已关注成员列表, 2 获取禁用成员列表, 4 获取未关注成员列表.
+//                status可叠加(可用逻辑运算符 | 来叠加, 一般都是后面 3 个叠加).
 func (clt Client) UserList(departmentId int64,
 	fetchChild bool, status int) (UserList []UserInfo, err error) {
 

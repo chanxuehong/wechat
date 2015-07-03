@@ -22,7 +22,7 @@ type Text struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	corp.MessageHeader
 
-	MsgId   int64  `xml:"MsgId"   json:"MsgId"`   // 消息id，64位整型
+	MsgId   int64  `xml:"MsgId"   json:"MsgId"`   // 消息id, 64位整型
 	Content string `xml:"Content" json:"Content"` // 文本消息内容
 }
 
@@ -38,8 +38,8 @@ type Image struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	corp.MessageHeader
 
-	MsgId   int64  `xml:"MsgId"   json:"MsgId"`   // 消息id，64位整型
-	MediaId string `xml:"MediaId" json:"MediaId"` // 图片媒体文件id，可以调用获取媒体文件接口拉取数据
+	MsgId   int64  `xml:"MsgId"   json:"MsgId"`   // 消息id, 64位整型
+	MediaId string `xml:"MediaId" json:"MediaId"` // 图片媒体文件id, 可以调用获取媒体文件接口拉取数据
 	PicURL  string `xml:"PicUrl"  json:"PicUrl"`  // 图片链接
 }
 
@@ -56,9 +56,9 @@ type Voice struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	corp.MessageHeader
 
-	MsgId   int64  `xml:"MsgId"   json:"MsgId"`   // 消息id，64位整型
-	MediaId string `xml:"MediaId" json:"MediaId"` // 语音媒体文件id，可以调用获取媒体文件接口拉取数据
-	Format  string `xml:"Format"  json:"Format"`  // 语音格式，如amr，speex等
+	MsgId   int64  `xml:"MsgId"   json:"MsgId"`   // 消息id, 64位整型
+	MediaId string `xml:"MediaId" json:"MediaId"` // 语音媒体文件id, 可以调用获取媒体文件接口拉取数据
+	Format  string `xml:"Format"  json:"Format"`  // 语音格式, 如amr, speex等
 }
 
 func GetVoice(msg *corp.MixedMessage) *Voice {
@@ -74,9 +74,9 @@ type Video struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	corp.MessageHeader
 
-	MsgId        int64  `xml:"MsgId"        json:"MsgId"`        // 消息id，64位整型
-	MediaId      string `xml:"MediaId"      json:"MediaId"`      // 视频媒体文件id，可以调用获取媒体文件接口拉取数据
-	ThumbMediaId string `xml:"ThumbMediaId" json:"ThumbMediaId"` // 视频消息缩略图的媒体id，可以调用获取媒体文件接口拉取数据
+	MsgId        int64  `xml:"MsgId"        json:"MsgId"`        // 消息id, 64位整型
+	MediaId      string `xml:"MediaId"      json:"MediaId"`      // 视频媒体文件id, 可以调用获取媒体文件接口拉取数据
+	ThumbMediaId string `xml:"ThumbMediaId" json:"ThumbMediaId"` // 视频消息缩略图的媒体id, 可以调用获取媒体文件接口拉取数据
 }
 
 func GetVideo(msg *corp.MixedMessage) *Video {
@@ -92,7 +92,7 @@ type Location struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	corp.MessageHeader
 
-	MsgId     int64   `xml:"MsgId"      json:"MsgId"`      // 消息id，64位整型
+	MsgId     int64   `xml:"MsgId"      json:"MsgId"`      // 消息id, 64位整型
 	LocationX float64 `xml:"Location_X" json:"Location_X"` // 地理位置纬度
 	LocationY float64 `xml:"Location_Y" json:"Location_Y"` // 地理位置经度
 	Scale     int     `xml:"Scale"      json:"Scale"`      // 地图缩放大小

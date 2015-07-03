@@ -7,5 +7,5 @@ package mass
 
 type MassStatus struct {
 	MsgId  int64  `json:"msg_id"`
-	Status string `json:"msg_status"` // 消息发送后的状态，SEND_SUCCESS表示发送成功
+	Status string `json:"msg_status"` // 消息发送后的状态, SEND_SUCCESS表示发送成功
 }

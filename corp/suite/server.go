@@ -6,6 +6,7 @@
 package suite
 
 import (
+	"bytes"
 	"errors"
 	"sync"
 )
@@ -75,16 +76,20 @@ func (srv *DefaultServer) LastAESKey() (key [32]byte, valid bool) {
 	return
 }
 
-// 更新當前的 aesKey
 func (srv *DefaultServer) UpdateAESKey(aesKey []byte) (err error) {
 	if len(aesKey) != 32 {
 		return errors.New("the length of aesKey must equal to 32")
 	}
 
 	srv.rwmutex.Lock()
+	defer srv.rwmutex.Unlock()
+
+	if bytes.Equal(aesKey, srv.currentAESKey[:]) {
+		return
+	}
+
 	srv.isLastAESKeyValid = true
 	srv.lastAESKey = srv.currentAESKey
 	copy(srv.currentAESKey[:], aesKey)
-	srv.rwmutex.Unlock()
 	return
 }

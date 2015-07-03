@@ -20,9 +20,9 @@ import (
 )
 
 type MultipartFormField struct {
-	ContentType int // 0==文件field, 1==普通的文本field
+	ContentType int // 0:文件field, 1:普通的文本field
 	FieldName   string
-	FileName    string
+	FileName    string // ContentType == 0 时有效
 	Value       io.Reader
 }
 

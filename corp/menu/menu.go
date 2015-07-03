@@ -35,16 +35,16 @@ const (
 )
 
 type Menu struct {
-	Buttons []Button `json:"button,omitempty"` // 一级菜单数组，个数应为1~3个
+	Buttons []Button `json:"button,omitempty"` // 一级菜单数组, 个数应为1~3个
 }
 
 // 菜单的按钮
 type Button struct {
 	Type       string   `json:"type,omitempty"`       // 非必须; 菜单的响应动作类型
-	Name       string   `json:"name,omitempty"`       // 必须;  菜单标题，不超过16个字节，子菜单不超过40个字节
-	Key        string   `json:"key,omitempty"`        // 非必须; 菜单KEY值，用于消息接口推送，不超过128字节
-	URL        string   `json:"url,omitempty"`        // 非必须; 网页链接，用户点击菜单可打开链接，不超过256字节
-	SubButtons []Button `json:"sub_button,omitempty"` // 非必须; 二级菜单数组，个数应为1~5个
+	Name       string   `json:"name,omitempty"`       // 必须;  菜单标题, 不超过16个字节, 子菜单不超过40个字节
+	Key        string   `json:"key,omitempty"`        // 非必须; 菜单KEY值, 用于消息接口推送, 不超过128字节
+	URL        string   `json:"url,omitempty"`        // 非必须; 网页链接, 用户点击菜单可打开链接, 不超过256字节
+	SubButtons []Button `json:"sub_button,omitempty"` // 非必须; 二级菜单数组, 个数应为1~5个
 }
 
 // 设置 btn 指向的 Button 为 子菜单 类型按钮
@@ -87,7 +87,7 @@ func (btn *Button) SetAsScanCodePushButton(name, key string) {
 	btn.SubButtons = nil
 }
 
-// 设置 btn 指向的 Button 为 扫码推事件且弹出“消息接收中”提示框 类型按钮
+// 设置 btn 指向的 Button 为 扫码推事件且弹出"消息接收中"提示框 类型按钮
 func (btn *Button) SetAsScanCodeWaitMsgButton(name, key string) {
 	btn.Name = name
 	btn.Type = ButtonTypeScanCodeWaitMsg

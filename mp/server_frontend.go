@@ -10,34 +10,33 @@ import (
 	"net/url"
 )
 
-// 实现了 http.Handler, 处理一个公众号的消息(事件)请求.
+// ServerFrontend 实现了 http.Handler, 处理一个公众号的消息(事件)请求.
 type ServerFrontend struct {
-	server                Server
-	invalidRequestHandler InvalidRequestHandler
-	interceptor           Interceptor
+	server      Server
+	errHandler  ErrorHandler
+	interceptor Interceptor
 }
 
-// handler, interceptor 均可以为 nil
-func NewServerFrontend(server Server, handler InvalidRequestHandler, interceptor Interceptor) *ServerFrontend {
+// NOTE: errHandler, interceptor 均可以为 nil
+func NewServerFrontend(server Server, errHandler ErrorHandler, interceptor Interceptor) *ServerFrontend {
 	if server == nil {
 		panic("nil Server")
 	}
-	if handler == nil {
-		handler = DefaultInvalidRequestHandler
+	if errHandler == nil {
+		errHandler = DefaultErrorHandler
 	}
 
 	return &ServerFrontend{
-		server:                server,
-		invalidRequestHandler: handler,
-		interceptor:           interceptor,
+		server:      server,
+		errHandler:  errHandler,
+		interceptor: interceptor,
 	}
 }
 
-// 实现 http.Handler.
 func (frontend *ServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	queryValues, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
-		frontend.invalidRequestHandler.ServeInvalidRequest(w, r, err)
+		frontend.errHandler.ServeError(w, r, err)
 		return
 	}
 
@@ -45,5 +44,5 @@ func (frontend *ServerFrontend) ServeHTTP(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	ServeHTTP(w, r, queryValues, frontend.server, frontend.invalidRequestHandler)
+	ServeHTTP(w, r, queryValues, frontend.server, frontend.errHandler)
 }
