@@ -7,7 +7,7 @@ https://github.com/chanxuehong/wechat/tree/legacy
 
 邮箱:        chanxuehong@gmail.com  
 QQ群:        297489459  
-微信群聊:    ![群聊二维码](https://github.com/chanxuehong/wechat/blob/master/weixin_group.png)  
+微信群聊:    ![群聊二维码](https://github.com/chanxuehong/wechat/blob/master/weixin_group1.png)  
 邮件列表:	 https://groups.google.com/d/forum/golang-wechat  
 
 ## 简介
