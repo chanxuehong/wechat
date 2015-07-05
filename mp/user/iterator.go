@@ -11,7 +11,7 @@ const (
 
 // 用户遍历器
 //
-//  iter, err := Client.UserIterator("beginOpenId")
+//  iter, err := Client.UserIterator("BeginOpenId")
 //  if err != nil {
 //      // TODO: 增加你的代码
 //  }
@@ -36,7 +36,7 @@ func (iter *UserIterator) TotalCount() int {
 
 func (iter *UserIterator) HasNext() bool {
 	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
-		return iter.lastUserListData.GotCount > 0
+		return iter.lastUserListData.GotCount > 0 || iter.lastUserListData.NextOpenId != ""
 	}
 
 	// 跟文档的描述貌似有点不一样, 即使后续没有用户, 貌似 next_openid 还是不为空!
@@ -61,11 +61,11 @@ func (iter *UserIterator) HasNext() bool {
 	return iter.lastUserListData.NextOpenId != "" && iter.lastUserListData.GotCount == UserPageSizeLimit
 }
 
-func (iter *UserIterator) NextPage() (openids []string, err error) {
+func (iter *UserIterator) NextPage() (openidList []string, err error) {
 	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
 		iter.nextPageHasCalled = true
 
-		openids = iter.lastUserListData.Data.OpenId
+		openidList = iter.lastUserListData.Data.OpenIdList
 		return
 	}
 
@@ -76,15 +76,15 @@ func (iter *UserIterator) NextPage() (openids []string, err error) {
 
 	iter.lastUserListData = data
 
-	openids = data.Data.OpenId
+	openidList = data.Data.OpenIdList
 	return
 }
 
-// 获取用户遍历器, beginOpenId 表示开始遍历用户, 如果 beginOpenId == "" 则表示从头遍历.
-func (clt Client) UserIterator(beginOpenId string) (iter *UserIterator, err error) {
+// 获取用户遍历器, BeginOpenId 表示开始遍历用户, 如果 BeginOpenId == "" 则表示从头遍历.
+func (clt Client) UserIterator(BeginOpenId string) (iter *UserIterator, err error) {
 	// 逻辑上相当于第一次调用 UserIterator.NextPage, 因为第一次调用 UserIterator.HasNext 需要数据支撑, 所以提前获取了数据
 
-	data, err := clt.UserList(beginOpenId)
+	data, err := clt.UserList(BeginOpenId)
 	if err != nil {
 		return
 	}

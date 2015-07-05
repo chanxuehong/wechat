@@ -87,10 +87,10 @@ func (info *UserInfo) HeadImageSize() (size int, err error) {
 	return
 }
 
-var ErrUserNotSubscriber = errors.New("用户没有订阅公众号")
-
-// 获取用户基本信息, 如果用户没有订阅公众号, 返回 ErrUserNotSubscriber 错误.
-//  lang 可以是 zh_CN, zh_TW, en, 如果留空 "" 则默认为 zh_CN.
+// 获取用户基本信息.
+//  注意:
+//  1. 需要判断返回的 UserInfo.IsSubscriber 是否等于 1 还是 0
+//  2. lang 可以是 zh_CN, zh_TW, en, 如果留空 "" 则默认为 zh_CN
 func (clt Client) UserInfo(openId string, lang string) (userinfo *UserInfo, err error) {
 	if openId == "" {
 		err = errors.New("empty openId")
@@ -120,10 +120,6 @@ func (clt Client) UserInfo(openId string, lang string) (userinfo *UserInfo, err 
 		err = &result.Error
 		return
 	}
-	if result.IsSubscriber == 0 {
-		err = ErrUserNotSubscriber
-		return
-	}
 	userinfo = &result.UserInfo
 	return
 }
@@ -151,15 +147,15 @@ func NewUserInfoBatchGetRequest(openIdList []string, lang string) (ret []UserInf
 }
 
 // 批量获取用户基本信息
-//  注意: 需要对返回的 userInfoList 的每个 UserInfo.IsSubscriber 做判断
-func (clt Client) UserInfoBatchGet(req []UserInfoBatchGetRequestItem) (userInfoList []UserInfo, err error) {
+//  注意: 需要对返回的 UserInfoList 的每个 UserInfo.IsSubscriber 做判断
+func (clt Client) UserInfoBatchGet(req []UserInfoBatchGetRequestItem) (UserInfoList []UserInfo, err error) {
 	if len(req) <= 0 {
 		err = errors.New("empty request")
 		return
 	}
 
 	var request = struct {
-		UserList []UserInfoBatchGetRequestItem `json:"user_list"`
+		UserList []UserInfoBatchGetRequestItem `json:"user_list,omitempty"`
 	}{
 		UserList: req,
 	}
@@ -178,12 +174,11 @@ func (clt Client) UserInfoBatchGet(req []UserInfoBatchGetRequestItem) (userInfoL
 		err = &result.Error
 		return
 	}
-	userInfoList = result.UserInfoList
+	UserInfoList = result.UserInfoList
 	return
 }
 
 // 开发者可以通过该接口对指定用户设置备注名.
-//  NOTE: 该接口暂时开放给微信认证的服务号.
 func (clt Client) UserUpdateRemark(openId, remark string) (err error) {
 	var request = struct {
 		OpenId string `json:"openid"`
@@ -210,29 +205,29 @@ func (clt Client) UserUpdateRemark(openId, remark string) (err error) {
 // 获取关注者列表返回的数据结构
 type UserListResult struct {
 	TotalCount int `json:"total"` // 关注该公众账号的总用户数
-	GotCount   int `json:"count"` // 拉取的OPENID个数, 最大值为10000
+	GotCount   int `json:"count"` // 拉取的 OPENID 个数, 最大值为10000
 
 	Data struct {
-		OpenId []string `json:"openid,omitempty"`
-	} `json:"data"` // 列表数据, OPENID的列表
+		OpenIdList []string `json:"openid,omitempty"`
+	} `json:"data"` // 列表数据, OPENID 的列表
 
 	// 拉取列表的后一个用户的OPENID, 如果 next_openid == "" 则表示没有了用户数据
 	NextOpenId string `json:"next_openid"`
 }
 
-// 获取关注者列表, 每次最多能获取 10000 个用户, 如果 beginOpenId == "" 则表示从头获取
-func (clt Client) UserList(beginOpenId string) (data *UserListResult, err error) {
+// 获取关注者列表.
+//  NOTE: 每次最多能获取 10000 个用户, 如果 BeginOpenId == "" 则表示从头获取
+func (clt Client) UserList(BeginOpenId string) (rslt *UserListResult, err error) {
 	var result struct {
 		mp.Error
 		UserListResult
 	}
 
 	var incompleteURL string
-	if beginOpenId == "" {
+	if BeginOpenId == "" {
 		incompleteURL = "https://api.weixin.qq.com/cgi-bin/user/get?access_token="
 	} else {
-		incompleteURL = "https://api.weixin.qq.com/cgi-bin/user/get?next_openid=" +
-			url.QueryEscape(beginOpenId) + "&access_token="
+		incompleteURL = "https://api.weixin.qq.com/cgi-bin/user/get?next_openid=" + url.QueryEscape(BeginOpenId) + "&access_token="
 	}
 
 	if err = clt.GetJSON(incompleteURL, &result); err != nil {
@@ -243,6 +238,6 @@ func (clt Client) UserList(beginOpenId string) (data *UserListResult, err error)
 		err = &result.Error
 		return
 	}
-	data = &result.UserListResult
+	rslt = &result.UserListResult
 	return
 }

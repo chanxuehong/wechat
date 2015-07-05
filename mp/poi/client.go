@@ -15,7 +15,6 @@ type Client struct {
 	*mp.Client
 }
 
-// 兼容保留, 建议实际项目中全局维护一个 *mp.Client
 func NewClient(srv mp.AccessTokenServer, clt *http.Client) Client {
 	return Client{
 		Client: mp.NewClient(srv, clt),
