@@ -29,28 +29,35 @@ type AutoReplyInfo struct {
 	IsAddFriendReplyOpen int `json:"is_add_friend_reply_open"` // 关注后自动回复是否开启，0代表未开启，1代表开启
 	IsAutoReplyOpen      int `json:"is_autoreply_open"`        // 消息自动回复是否开启，0代表未开启，1代表开启
 
-	AddFriendAutoReplyInfo struct {
-		Type    string `json:"type"`    // 自动回复的类型。关注后自动回复和消息自动回复的类型仅支持文本（text）、图片（img）、语音（voice）、视频（video），关键词自动回复则还多了图文消息
-		Content string `json:"content"` // 对于文本类型，content是文本内容，对于图片、语音、视频类型，content是mediaID
-	} `json:"add_friend_autoreply_info"` // 关注后自动回复的信息
-
-	MessageDefaultAutoReplyInfo struct {
-		Type    string `json:"type"`    // 自动回复的类型。关注后自动回复和消息自动回复的类型仅支持文本（text）、图片（img）、语音（voice）、视频（video），关键词自动回复则还多了图文消息
-		Content string `json:"content"` // 对于文本类型，content是文本内容，对于图片、语音、视频类型，content是mediaID
-	} `json:"message_default_autoreply_info"` // 消息自动回复的信息
-
-	KeywordAutoReplyInfo struct {
-		RuleList []KeywordAutoReplyRule `json:"list"`
-	} `json:"keyword_autoreply_info"` // 关键词自动回复的信息
+	AddFriendAutoReplyInfo      *AddFriendAutoReplyInfo      `json:"add_friend_autoreply_info,omitempty"`      // 关注后自动回复的信息
+	MessageDefaultAutoReplyInfo *MessageDefaultAutoReplyInfo `json:"message_default_autoreply_info,omitempty"` // 消息自动回复的信息
+	KeywordAutoReplyInfo        *KeywordAutoReplyInfo        `json:"keyword_autoreply_info,omitempty"`         // 关键词自动回复的信息
 }
 
-// 关键词自动回复规则
+// 关注后自动回复的信息
+type AddFriendAutoReplyInfo struct {
+	Type    string `json:"type"`    // 自动回复的类型。关注后自动回复和消息自动回复的类型仅支持文本（text）、图片（img）、语音（voice）、视频（video），关键词自动回复则还多了图文消息
+	Content string `json:"content"` // 对于文本类型，content是文本内容，对于图片、语音、视频类型，content是mediaID
+}
+
+// 消息自动回复的信息
+type MessageDefaultAutoReplyInfo struct {
+	Type    string `json:"type"`    // 自动回复的类型。关注后自动回复和消息自动回复的类型仅支持文本（text）、图片（img）、语音（voice）、视频（video），关键词自动回复则还多了图文消息
+	Content string `json:"content"` // 对于文本类型，content是文本内容，对于图片、语音、视频类型，content是mediaID
+}
+
+// 关键词自动回复的信息
+type KeywordAutoReplyInfo struct {
+	RuleList []KeywordAutoReplyRule `json:"list,omitempty"`
+}
+
+// 关键词自动回复的规则
 type KeywordAutoReplyRule struct {
-	RuleName        string        `json:"rule_name"`         // 规则名称
-	CreateTime      int64         `json:"create_time"`       // 创建时间
-	ReplyMode       string        `json:"reply_mode"`        // 回复模式，reply_all代表全部回复，random_one代表随机回复其中一条
-	KeywordInfoList []KeywordInfo `json:"keyword_list_info"` // 匹配的关键词列表
-	ReplyInfoList   []ReplyInfo   `json:"reply_list_info"`   // 回复信息列表
+	RuleName        string        `json:"rule_name"`                   // 规则名称
+	CreateTime      int64         `json:"create_time"`                 // 创建时间
+	ReplyMode       string        `json:"reply_mode"`                  // 回复模式，reply_all代表全部回复，random_one代表随机回复其中一条
+	KeywordInfoList []KeywordInfo `json:"keyword_list_info,omitempty"` // 匹配的关键词列表
+	ReplyInfoList   []ReplyInfo   `json:"reply_list_info,omitempty"`   // 回复信息列表
 }
 
 // 关键词匹配规则
@@ -65,12 +72,12 @@ type ReplyInfo struct {
 	Type string `json:"type"` // 自动回复的类型。关注后自动回复和消息自动回复的类型仅支持文本（text）、图片（img）、语音（voice）、视频（video），关键词自动回复则还多了图文消息
 
 	// 下面两个字段不会同时有效, 根据 ReplyInfo.Type 来做选择
-	Content  string   `json:"content"`   // 对于文本类型，content是文本内容，对于图片、语音、视频类型，content是mediaID
-	NewsInfo NewsInfo `json:"news_info"` // 图文消息的信息
+	Content  string    `json:"content,omitempty"`   // 对于文本类型，content是文本内容，对于图片、语音、视频类型，content是mediaID
+	NewsInfo *NewsInfo `json:"news_info,omitempty"` // 图文消息的信息
 }
 
 type NewsInfo struct {
-	ArticleList []Article `json:"list"`
+	ArticleList []Article `json:"list,omitempty"`
 }
 
 type Article struct {
