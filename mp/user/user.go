@@ -39,16 +39,16 @@ type UserInfo struct {
 
 	// 用户头像, 最后一个数值代表正方形头像大小(有0, 46, 64, 96, 132数值可选, 0代表640*640正方形头像),
 	// 用户没有头像时该项为空
-	HeadImageURL string `json:"headimgurl,omitempty"`
+	HeadImageURL string `json:"headimgurl"`
 
 	// 用户关注时间, 为时间戳. 如果用户曾多次关注, 则取最后关注时间
 	SubscribeTime int64 `json:"subscribe_time"`
 
 	// 只有在用户将公众号绑定到微信开放平台帐号后, 才会出现该字段.
-	UnionId string `json:"unionid,omitempty"`
+	UnionId string `json:"unionid"`
 
-	Remark  string `json:"remark,omitempty"`  // 公众号运营者对粉丝的备注, 公众号运营者可在微信公众平台用户管理界面对粉丝添加备注
-	GroupId int64  `json:"groupid,omitempty"` // 用户所在的分组ID
+	Remark  string `json:"remark"`  // 公众号运营者对粉丝的备注, 公众号运营者可在微信公众平台用户管理界面对粉丝添加备注
+	GroupId int64  `json:"groupid"` // 用户所在的分组ID
 }
 
 var ErrNoHeadImage = errors.New("没有头像")
