@@ -14,7 +14,7 @@ const (
 	MsgTypeText   = "text"
 	MsgTypeImage  = "image"
 	MsgTypeVoice  = "voice"
-	MsgTypeVideo  = "video"
+	MsgTypeVideo  = "mpvideo"
 	MsgTypeNews   = "mpnews"
 	MsgTypeWxCard = "wxcard"
 )
@@ -85,23 +85,17 @@ func NewVoice(toUser []string, mediaId string) *Voice {
 type Video struct {
 	MessageHeader
 	Video struct {
-		MediaId     string `json:"media_id"`
-		Title       string `json:"title,omitempty"`
-		Description string `json:"description,omitempty"`
-	} `json:"video"`
+		MediaId string `json:"media_id"`
+	} `json:"mpvideo"`
 }
 
 // 新建视频消息.
-//  NOTE:
-//  MediaId 应该通过 media.Client.CreateVideo 得到;
-//  title, description 可以为空.
-func NewVideo(toUser []string, mediaId, title, description string) *Video {
+//  NOTE: 对于临时素材, mediaId 应该通过 media.Client.CreateVideo 得到
+func NewVideo(toUser []string, mediaId string) *Video {
 	var msg Video
 	msg.MsgType = MsgTypeVideo
 	msg.ToUser = toUser
 	msg.Video.MediaId = mediaId
-	msg.Video.Title = title
-	msg.Video.Description = description
 	return &msg
 }
 
@@ -114,7 +108,7 @@ type News struct {
 }
 
 // 新建图文消息.
-//  NOTE: MediaId 应该通过 media.Client.CreateNews 得到
+//  NOTE: 对于临时素材, mediaId 应该通过 media.Client.CreateNews 得到
 func NewNews(toUser []string, mediaId string) *News {
 	var msg News
 	msg.MsgType = MsgTypeNews
@@ -131,7 +125,7 @@ type WxCard struct {
 	} `json:"wxcard"`
 }
 
-// 新建卡券，特别注意：目前该接口仅支持填入非自定义code的卡券和预存模式的自定义code卡券。
+// 新建卡券, 特别注意: 目前该接口仅支持填入非自定义code的卡券和预存模式的自定义code卡券.
 func NewWxCard(toUser []string, cardId string) *WxCard {
 	var msg WxCard
 	msg.MsgType = MsgTypeWxCard

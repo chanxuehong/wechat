@@ -52,8 +52,8 @@ type DefaultAccessTokenServer struct {
 
 	tokenGet struct {
 		sync.Mutex
-		LastTokenInfo accessTokenInfo // 最后一次成功从微信服务器获取的 access_token 信息
-		LastTimestamp int64           // 最后一次成功从微信服务器获取 access_token 的时间戳
+		LastTokenInfo accessTokenInfo // 最后一次"成功"从微信服务器获取的 access_token 信息
+		LastTimestamp int64           // 最后一次"成功"从微信服务器获取 access_token 的时间戳
 	}
 
 	tokenCache struct {

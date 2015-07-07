@@ -6,11 +6,11 @@
 package corp
 
 import (
+	"bytes"
 	"errors"
 	"sync"
 )
 
-// 企业号应用的服务端接口, 处理单个应用的消息(事件)请求.
 type AgentServer interface {
 	CorpId() string // 获取应用所属的企业号Id
 	AgentId() int64 // 获取应用的Id
@@ -82,16 +82,20 @@ func (srv *DefaultAgentServer) LastAESKey() (key [32]byte, valid bool) {
 	return
 }
 
-// 更新當前的 aesKey
 func (srv *DefaultAgentServer) UpdateAESKey(aesKey []byte) (err error) {
 	if len(aesKey) != 32 {
 		return errors.New("the length of aesKey must equal to 32")
 	}
 
 	srv.rwmutex.Lock()
+	defer srv.rwmutex.Unlock()
+
+	if bytes.Equal(aesKey, srv.currentAESKey[:]) {
+		return
+	}
+
 	srv.isLastAESKeyValid = true
 	srv.lastAESKey = srv.currentAESKey
 	copy(srv.currentAESKey[:], aesKey)
-	srv.rwmutex.Unlock()
 	return
 }

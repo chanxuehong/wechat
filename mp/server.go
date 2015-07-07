@@ -6,18 +6,18 @@
 package mp
 
 import (
+	"bytes"
 	"errors"
 	"sync"
 )
 
-// 公众号服务端接口, 处理单个公众号的消息(事件)请求.
 type Server interface {
-	OriId() string // 获取公众号的 原始ID, 如果爲空則不檢查消息的 ToUserName
-	AppId() string // 获取公众号的 AppId
-	Token() string // 获取公众号的 Token
+	OriId() string // 获取公众号的 原始ID, 用于校验消息(事件)的 ToUserName, 如果为空则表示不校验.
+	AppId() string // 获取公众号的 AppId, 加密解密的时候需要.
+	Token() string // 获取公众号的 Token, 校验签名的时候需要.
 
-	CurrentAESKey() [32]byte                // 获取当前有效的 AES 加密 Key
-	LastAESKey() (key [32]byte, valid bool) // 获取上一个有效的 AES 加密 Key
+	CurrentAESKey() [32]byte                // 获取当前的 AES 加密 Key
+	LastAESKey() (key [32]byte, valid bool) // 获取上一个 AES 加密 Key
 
 	MessageHandler() MessageHandler // 获取 MessageHandler
 }
@@ -30,17 +30,17 @@ type DefaultServer struct {
 	token string
 
 	rwmutex           sync.RWMutex
-	currentAESKey     [32]byte // 当前的 AES Key
-	lastAESKey        [32]byte // 最后一个 AES Key
-	isLastAESKeyValid bool     // lastAESKey 是否有效, 如果 lastAESKey 是 zero 则无效
+	currentAESKey     [32]byte
+	lastAESKey        [32]byte
+	isLastAESKeyValid bool
 
 	messageHandler MessageHandler
 }
 
-// 注意: 如果是明文模式, 则 AESKey 可以为 nil(比如测试账号只能用明文模式)
-func NewDefaultServer(oriId, token, appId string, AESKey []byte, handler MessageHandler) (srv *DefaultServer) {
-	if AESKey != nil && len(AESKey) != 32 {
-		panic("the length of AESKey must equal to 32")
+// NOTE: 如果是明文模式, 则 appId 可以为 "", aesKey 可以为 nil.
+func NewDefaultServer(oriId, token, appId string, aesKey []byte, handler MessageHandler) (srv *DefaultServer) {
+	if aesKey != nil && len(aesKey) != 32 {
+		panic("the length of aesKey must equal to 32")
 	}
 	if handler == nil {
 		panic("nil MessageHandler")
@@ -52,7 +52,7 @@ func NewDefaultServer(oriId, token, appId string, AESKey []byte, handler Message
 		token:          token,
 		messageHandler: handler,
 	}
-	copy(srv.currentAESKey[:], AESKey)
+	copy(srv.currentAESKey[:], aesKey)
 	return
 }
 
@@ -82,16 +82,20 @@ func (srv *DefaultServer) LastAESKey() (key [32]byte, valid bool) {
 	return
 }
 
-// 更新當前的 aesKey
 func (srv *DefaultServer) UpdateAESKey(aesKey []byte) (err error) {
 	if len(aesKey) != 32 {
 		return errors.New("the length of aesKey must equal to 32")
 	}
 
 	srv.rwmutex.Lock()
+	defer srv.rwmutex.Unlock()
+
+	if bytes.Equal(aesKey, srv.currentAESKey[:]) {
+		return
+	}
+
 	srv.isLastAESKeyValid = true
 	srv.lastAESKey = srv.currentAESKey
 	copy(srv.currentAESKey[:], aesKey)
-	srv.rwmutex.Unlock()
 	return
 }

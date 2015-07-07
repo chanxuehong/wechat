@@ -42,24 +42,24 @@ const (
 	ButtonTypePicWeixin       = "pic_weixin"         // 微信相册发图
 	ButtonTypeLocationSelect  = "location_select"    // 发送位置
 
-	// 专门给第三方平台旗下未微信认证（具体而言，是资质认证未通过）的订阅号准备的事件类型，
-	// 它们是没有事件推送的，能力相对受限，其他类型的公众号不必使用。
+	// 专门给第三方平台旗下未微信认证(具体而言, 是资质认证未通过)的订阅号准备的事件类型,
+	// 它们是没有事件推送的, 能力相对受限, 其他类型的公众号不必使用.
 	ButtonTypeMediaId     = "media_id"     // 下发消息
 	ButtonTypeViewLimited = "view_limited" // 跳转图文消息URL
 )
 
 type Menu struct {
-	Buttons []Button `json:"button,omitempty"` // 一级菜单数组，个数应为1~3个
+	Buttons []Button `json:"button,omitempty"` // 一级菜单数组, 个数应为1~3个
 }
 
 // 菜单的按钮
 type Button struct {
 	Type       string   `json:"type,omitempty"`       // 非必须; 菜单的响应动作类型
-	Name       string   `json:"name,omitempty"`       // 必须;  菜单标题，不超过16个字节，子菜单不超过40个字节
-	Key        string   `json:"key,omitempty"`        // 非必须; 菜单KEY值，用于消息接口推送，不超过128字节
-	URL        string   `json:"url,omitempty"`        // 非必须; 网页链接，用户点击菜单可打开链接，不超过256字节
+	Name       string   `json:"name,omitempty"`       // 必须;  菜单标题, 不超过16个字节, 子菜单不超过40个字节
+	Key        string   `json:"key,omitempty"`        // 非必须; 菜单KEY值, 用于消息接口推送, 不超过128字节
+	URL        string   `json:"url,omitempty"`        // 非必须; 网页链接, 用户点击菜单可打开链接, 不超过256字节
 	MediaId    string   `json:"media_id,omitempty"`   // 非必须; 调用新增永久素材接口返回的合法media_id
-	SubButtons []Button `json:"sub_button,omitempty"` // 非必须; 二级菜单数组，个数应为1~5个
+	SubButtons []Button `json:"sub_button,omitempty"` // 非必须; 二级菜单数组, 个数应为1~5个
 }
 
 // 设置 btn 指向的 Button 为 子菜单 类型按钮
@@ -106,7 +106,7 @@ func (btn *Button) SetAsScanCodePushButton(name, key string) {
 	btn.SubButtons = nil
 }
 
-// 设置 btn 指向的 Button 为 扫码推事件且弹出“消息接收中”提示框 类型按钮
+// 设置 btn 指向的 Button 为 扫码推事件且弹出"消息接收中"提示框 类型按钮
 func (btn *Button) SetAsScanCodeWaitMsgButton(name, key string) {
 	btn.Name = name
 	btn.Type = ButtonTypeScanCodeWaitMsg
@@ -161,7 +161,7 @@ func (btn *Button) SetAsLocationSelectButton(name, key string) {
 	btn.SubButtons = nil
 }
 
-// 设置 btn 指向的 Button 为 下发消息（除文本消息） 类型按钮
+// 设置 btn 指向的 Button 为 下发消息(除文本消息) 类型按钮
 func (btn *Button) SetAsMediaIdButton(name, mediaId string) {
 	btn.Name = name
 	btn.Type = ButtonTypeMediaId

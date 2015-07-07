@@ -32,60 +32,61 @@ type RequestHttpBody struct {
 
 // ServeHTTP 处理 http 消息请求
 //  NOTE: 调用者保证所有参数有效
-func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, srv Server, irh InvalidRequestHandler) {
+func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, srv Server, errHandler ErrorHandler) {
 	switch r.Method {
 	case "POST": // 消息处理
 		switch encryptType := queryValues.Get("encrypt_type"); encryptType {
 		case "aes": // 安全模式, 兼容模式
-			signature := queryValues.Get("signature") // 只讀取, 不驗證了
+			signature := queryValues.Get("signature") // 只读取, 不做校验
 
 			msgSignature1 := queryValues.Get("msg_signature")
 			if msgSignature1 == "" {
-				irh.ServeInvalidRequest(w, r, errors.New("msg_signature is empty"))
+				errHandler.ServeError(w, r, errors.New("msg_signature is empty"))
 				return
 			}
 			if len(msgSignature1) != 40 { // sha1
 				err := fmt.Errorf("the length of msg_signature mismatch, have: %d, want: 40", len(msgSignature1))
-				irh.ServeInvalidRequest(w, r, err)
+				errHandler.ServeError(w, r, err)
 				return
 			}
 
 			timestampStr := queryValues.Get("timestamp")
 			if timestampStr == "" {
-				irh.ServeInvalidRequest(w, r, errors.New("timestamp is empty"))
+				errHandler.ServeError(w, r, errors.New("timestamp is empty"))
 				return
 			}
 
 			timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
 			if err != nil {
 				err = errors.New("can not parse timestamp to int64: " + timestampStr)
-				irh.ServeInvalidRequest(w, r, err)
+				errHandler.ServeError(w, r, err)
 				return
 			}
 
 			nonce := queryValues.Get("nonce")
 			if nonce == "" {
-				irh.ServeInvalidRequest(w, r, errors.New("nonce is empty"))
+				errHandler.ServeError(w, r, errors.New("nonce is empty"))
 				return
 			}
 
 			var requestHttpBody RequestHttpBody
 			if err := xml.NewDecoder(r.Body).Decode(&requestHttpBody); err != nil {
-				irh.ServeInvalidRequest(w, r, err)
+				errHandler.ServeError(w, r, err)
 				return
 			}
 
 			// 安全考虑验证下 ToUserName
 			haveToUserName := requestHttpBody.ToUserName
-			if wantToUserName := srv.OriId(); wantToUserName != "" {
+			wantToUserName := srv.OriId()
+			if wantToUserName != "" {
 				if len(haveToUserName) != len(wantToUserName) {
-					err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
-					irh.ServeInvalidRequest(w, r, err)
+					err := fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
+					errHandler.ServeError(w, r, err)
 					return
 				}
 				if subtle.ConstantTimeCompare([]byte(haveToUserName), []byte(wantToUserName)) != 1 {
-					err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
-					irh.ServeInvalidRequest(w, r, err)
+					err := fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
+					errHandler.ServeError(w, r, err)
 					return
 				}
 			}
@@ -95,15 +96,15 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 			// 验证签名
 			msgSignature2 := util.MsgSign(token, timestampStr, nonce, requestHttpBody.EncryptedMsg)
 			if subtle.ConstantTimeCompare([]byte(msgSignature1), []byte(msgSignature2)) != 1 {
-				err = fmt.Errorf("check msg_signature failed, input: %s, local: %s", msgSignature1, msgSignature2)
-				irh.ServeInvalidRequest(w, r, err)
+				err := fmt.Errorf("check msg_signature failed, input: %s, local: %s", msgSignature1, msgSignature2)
+				errHandler.ServeError(w, r, err)
 				return
 			}
 
 			// 解密
 			encryptedMsgBytes, err := base64.StdEncoding.DecodeString(requestHttpBody.EncryptedMsg)
 			if err != nil {
-				irh.ServeInvalidRequest(w, r, err)
+				errHandler.ServeError(w, r, err)
 				return
 			}
 
@@ -115,7 +116,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 				// 尝试用上一次的 AESKey 来解密
 				lastAESKey, isLastAESKeyValid := srv.LastAESKey()
 				if !isLastAESKeyValid {
-					irh.ServeInvalidRequest(w, r, err)
+					errHandler.ServeError(w, r, err)
 					return
 				}
 
@@ -123,7 +124,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 
 				random, rawMsgXML, err = util.AESDecryptMsg(encryptedMsgBytes, appId, aesKey)
 				if err != nil {
-					irh.ServeInvalidRequest(w, r, err)
+					errHandler.ServeError(w, r, err)
 					return
 				}
 			}
@@ -131,19 +132,19 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 			// 解密成功, 解析 MixedMessage
 			var mixedMsg MixedMessage
 			if err := xml.Unmarshal(rawMsgXML, &mixedMsg); err != nil {
-				irh.ServeInvalidRequest(w, r, err)
+				errHandler.ServeError(w, r, err)
 				return
 			}
 
 			// 安全考虑再次验证 ToUserName
 			if haveToUserName != mixedMsg.ToUserName {
-				err = fmt.Errorf("the RequestHttpBody's ToUserName(==%s) mismatch the MixedMessage's ToUserName(==%s)", haveToUserName, mixedMsg.ToUserName)
-				irh.ServeInvalidRequest(w, r, err)
+				err := fmt.Errorf("the RequestHttpBody's ToUserName(==%s) mismatch the MixedMessage's ToUserName(==%s)", haveToUserName, mixedMsg.ToUserName)
+				errHandler.ServeError(w, r, err)
 				return
 			}
 
 			// 成功, 交给 MessageHandler
-			r := &Request{
+			req := &Request{
 				HttpRequest: r,
 
 				QueryValues: queryValues,
@@ -154,44 +155,44 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 				RawMsgXML: rawMsgXML,
 				MixedMsg:  &mixedMsg,
 
-				MsgSignature: msgSignature1,
 				EncryptType:  encryptType,
+				MsgSignature: msgSignature1,
 				AESKey:       aesKey,
 				Random:       random,
 
-				Token: token,
 				AppId: appId,
+				Token: token,
 			}
-			srv.MessageHandler().ServeMessage(w, r)
+			srv.MessageHandler().ServeMessage(w, req)
 
 		case "", "raw": // 明文模式
 			signature1 := queryValues.Get("signature")
 			if signature1 == "" {
-				irh.ServeInvalidRequest(w, r, errors.New("signature is empty"))
+				errHandler.ServeError(w, r, errors.New("signature is empty"))
 				return
 			}
 			if len(signature1) != 40 { // sha1
 				err := fmt.Errorf("the length of signature mismatch, have: %d, want: 40", len(signature1))
-				irh.ServeInvalidRequest(w, r, err)
+				errHandler.ServeError(w, r, err)
 				return
 			}
 
 			timestampStr := queryValues.Get("timestamp")
 			if timestampStr == "" {
-				irh.ServeInvalidRequest(w, r, errors.New("timestamp is empty"))
+				errHandler.ServeError(w, r, errors.New("timestamp is empty"))
 				return
 			}
 
 			timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
 			if err != nil {
 				err = errors.New("can not parse timestamp to int64: " + timestampStr)
-				irh.ServeInvalidRequest(w, r, err)
+				errHandler.ServeError(w, r, err)
 				return
 			}
 
 			nonce := queryValues.Get("nonce")
 			if nonce == "" {
-				irh.ServeInvalidRequest(w, r, errors.New("nonce is empty"))
+				errHandler.ServeError(w, r, errors.New("nonce is empty"))
 				return
 			}
 
@@ -199,41 +200,42 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 
 			signature2 := util.Sign(token, timestampStr, nonce)
 			if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
-				err = fmt.Errorf("check signature failed, input: %s, local: %s", signature1, signature2)
-				irh.ServeInvalidRequest(w, r, err)
+				err := fmt.Errorf("check signature failed, input: %s, local: %s", signature1, signature2)
+				errHandler.ServeError(w, r, err)
 				return
 			}
 
 			// 验证签名成功, 解析 MixedMessage
 			rawMsgXML, err := ioutil.ReadAll(r.Body)
 			if err != nil {
-				irh.ServeInvalidRequest(w, r, err)
+				errHandler.ServeError(w, r, err)
 				return
 			}
 
 			var mixedMsg MixedMessage
 			if err := xml.Unmarshal(rawMsgXML, &mixedMsg); err != nil {
-				irh.ServeInvalidRequest(w, r, err)
+				errHandler.ServeError(w, r, err)
 				return
 			}
 
 			// 安全考虑验证 ToUserName
 			haveToUserName := mixedMsg.ToUserName
-			if wantToUserName := srv.OriId(); wantToUserName != "" {
+			wantToUserName := srv.OriId()
+			if wantToUserName != "" {
 				if len(haveToUserName) != len(wantToUserName) {
-					err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
-					irh.ServeInvalidRequest(w, r, err)
+					err := fmt.Errorf("the Message's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
+					errHandler.ServeError(w, r, err)
 					return
 				}
 				if subtle.ConstantTimeCompare([]byte(haveToUserName), []byte(wantToUserName)) != 1 {
-					err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
-					irh.ServeInvalidRequest(w, r, err)
+					err := fmt.Errorf("the Message's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
+					errHandler.ServeError(w, r, err)
 					return
 				}
 			}
 
 			// 成功, 交给 MessageHandler
-			r := &Request{
+			req := &Request{
 				HttpRequest: r,
 
 				QueryValues: queryValues,
@@ -249,48 +251,48 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 				AppId: srv.AppId(),
 				Token: token,
 			}
-			srv.MessageHandler().ServeMessage(w, r)
+			srv.MessageHandler().ServeMessage(w, req)
 
 		default: // 未知的加密类型
 			err := errors.New("unknown encrypt_type: " + encryptType)
-			irh.ServeInvalidRequest(w, r, err)
+			errHandler.ServeError(w, r, err)
 			return
 		}
 
-	case "GET": // 首次验证
+	case "GET": // 验证回调 url 有效性
 		signature1 := queryValues.Get("signature")
 		if signature1 == "" {
-			irh.ServeInvalidRequest(w, r, errors.New("signature is empty"))
+			errHandler.ServeError(w, r, errors.New("signature is empty"))
 			return
 		}
 		if len(signature1) != 40 { // sha1
 			err := fmt.Errorf("the length of signature mismatch, have: %d, want: 40", len(signature1))
-			irh.ServeInvalidRequest(w, r, err)
+			errHandler.ServeError(w, r, err)
 			return
 		}
 
 		timestamp := queryValues.Get("timestamp")
 		if timestamp == "" {
-			irh.ServeInvalidRequest(w, r, errors.New("timestamp is empty"))
+			errHandler.ServeError(w, r, errors.New("timestamp is empty"))
 			return
 		}
 
 		nonce := queryValues.Get("nonce")
 		if nonce == "" {
-			irh.ServeInvalidRequest(w, r, errors.New("nonce is empty"))
+			errHandler.ServeError(w, r, errors.New("nonce is empty"))
 			return
 		}
 
 		echostr := queryValues.Get("echostr")
 		if echostr == "" {
-			irh.ServeInvalidRequest(w, r, errors.New("echostr is empty"))
+			errHandler.ServeError(w, r, errors.New("echostr is empty"))
 			return
 		}
 
 		signature2 := util.Sign(srv.Token(), timestamp, nonce)
 		if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
 			err := fmt.Errorf("check signature failed, input: %s, local: %s", signature1, signature2)
-			irh.ServeInvalidRequest(w, r, err)
+			errHandler.ServeError(w, r, err)
 			return
 		}
 

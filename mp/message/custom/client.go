@@ -16,7 +16,6 @@ type Client struct {
 	*mp.Client
 }
 
-// 兼容保留, 建議實際項目全局維護一個 *mp.Client
 func NewClient(srv mp.AccessTokenServer, clt *http.Client) Client {
 	return Client{
 		Client: mp.NewClient(srv, clt),
@@ -70,6 +69,14 @@ func (clt Client) SendNews(msg *News) (err error) {
 	}
 	if err = msg.CheckValid(); err != nil {
 		return
+	}
+	return clt.send(msg)
+}
+
+// 发送客服消息, 卡卷.
+func (clt Client) SendWxCard(msg *WxCard) (err error) {
+	if msg == nil {
+		return errors.New("msg == nil")
 	}
 	return clt.send(msg)
 }

@@ -11,7 +11,7 @@ const (
 
 // 用户遍历器
 //
-//  iter, err := Client.UserIterator("beginOpenId")
+//  iter, err := Client.UserIterator("NextOpenId")
 //  if err != nil {
 //      // TODO: 增加你的代码
 //  }
@@ -24,75 +24,98 @@ const (
 //      // TODO: 增加你的代码
 //  }
 type UserIterator struct {
-	lastUserListData *UserListResult // 最近一次获取的用户数据
+	clt Client // 关联的微信 Client
 
-	clt            Client // 关联的微信 Client
-	nextPageCalled bool   // NextPage() 是否调用过
+	lastUserListData  *UserListResult // 最近一次获取的用户数据
+	nextPageHasCalled bool            // NextPage() 是否调用过
 }
 
-func (iter *UserIterator) Total() int {
+func (iter *UserIterator) TotalCount() int {
 	return iter.lastUserListData.TotalCount
 }
 
 func (iter *UserIterator) HasNext() bool {
-	if !iter.nextPageCalled { // 还没有调用 NextPage(), 从创建的时候获取的数据来判断
-		return iter.lastUserListData.GotCount > 0
+	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+		return iter.lastUserListData.GotCount > 0 ||
+			iter.lastUserListData.NextOpenId != ""
 	}
 
-	// 已经调用过 NextPage(), 根据上一次 next_openid 字段是否为空来判断
+	// 跟文档的描述貌似有点不一样, 返回的 next_openid 并不是列表后一个用户, 而是列表最后一个用户,
+	// 并且还要多做最后一次判断才会返回 next_openid=="", 不过这个问题不大, 很多文件读取也是这样, 最后一次返回 0, EOF
 	//
-	// 跟文档的描述貌似有点不一样, 即使后续没有用户, 貌似 next_openid 还是不为空!
-	// 所以增加了一个判断 iter.userGetResponse.GetCount == UserPageCountLimit
+	// https://api.weixin.qq.com/cgi-bin/user/get?access_token=k53fhGGYBYCSCEGHj9uveBb9_Y9LigUTtV-L4fJhHuehMCbrtYUsnzVgH9EUejMNNVJLldwLhC81KFEUlInhDO2Zu7KjBXPdDQAgwykW8Go&next_openid=o0seyt4j7FR_tcnOgjK29qoIzZhE
 	//
 	// 200	OK
 	// Connection: keep-alive
-	// Date: Sat, 28 Jun 2014 07:00:10 GMT
-	// Server: nginx/1.4.4
+	// Date: Mon, 06 Jul 2015 06:16:59 GMT
+	// Server: nginx/1.8.0
 	// Content-Type: application/json; encoding=utf-8
-	// Content-Length: 117
+	// Content-Length: 241
 	// {
-	//     "total": 1,
-	//     "count": 1,
+	//     "total": 6,
+	//     "count": 5,
 	//     "data": {
 	//         "openid": [
-	//             "os-IKuHd9pJ6xsn4mS7GyL4HxqI4"
+	//             "o0seyt0svpBRlwfhv6TGHTgVO6mQ",
+	//             "o0seyt1qIaOfmckPrWU-6kCM0oWk",
+	//             "o0seytyB45l6wg40Jd8dyAc-Uod0",
+	//             "o0seyt8pxzMBI2pttQn5RE9Ce3bk",
+	//             "o0seyt0rKDLVlh_VHWPgOORWTe8c"
 	//         ]
 	//     },
-	//     "next_openid": "os-IKuHd9pJ6xsn4mS7GyL4HxqI4"
+	//     "next_openid": "o0seyt0rKDLVlh_VHWPgOORWTe8c"
 	// }
-	return iter.lastUserListData.NextOpenId != "" &&
-		iter.lastUserListData.GotCount == UserPageSizeLimit
+	//
+	// https://api.weixin.qq.com/cgi-bin/user/get?access_token=k53fhGGYBYCSCEGHj9uveBb9_Y9LigUTtV-L4fJhHuehMCbrtYUsnzVgH9EUejMNNVJLldwLhC81KFEUlInhDO2Zu7KjBXPdDQAgwykW8Go&next_openid=o0seyt0rKDLVlh_VHWPgOORWTe8c
+	//
+	// 200	OK
+	// Connection: keep-alive
+	// Date: Mon, 06 Jul 2015 06:20:30 GMT
+	// Server: nginx/1.8.0
+	// Content-Type: application/json; encoding=utf-8
+	// Content-Length: 38
+	// {
+	//     "total": 6,
+	//     "count": 0,
+	//     "next_openid": ""
+	// }
+	//
+	return iter.lastUserListData.NextOpenId != ""
 }
 
-func (iter *UserIterator) NextPage() (openids []string, err error) {
-	if !iter.nextPageCalled { // 还没有调用 NextPage(), 从创建的时候获取的数据中获取
-		openids = iter.lastUserListData.Data.OpenId
-		iter.nextPageCalled = true
+func (iter *UserIterator) NextPage() (OpenIdList []string, err error) {
+	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+		iter.nextPageHasCalled = true
+
+		OpenIdList = iter.lastUserListData.Data.OpenIdList
 		return
 	}
 
-	// 不是第一次调用的都要从服务器拉取数据
 	data, err := iter.clt.UserList(iter.lastUserListData.NextOpenId)
 	if err != nil {
 		return
 	}
 
-	openids = data.Data.OpenId
-	iter.lastUserListData = data //
+	iter.lastUserListData = data
+
+	OpenIdList = data.Data.OpenIdList
 	return
 }
 
-// 获取用户遍历器, beginOpenId 表示开始遍历用户, 如果 beginOpenId == "" 则表示从头遍历.
-func (clt Client) UserIterator(beginOpenId string) (iter *UserIterator, err error) {
-	data, err := clt.UserList(beginOpenId)
+// 获取用户遍历器, 从 NextOpenId 开始遍历, 如果 NextOpenId == "" 则表示从头遍历.
+//  NOTE: 目前微信是从 NextOpenId 下一个用户开始遍历的, 和微信文档描述不一样!!!
+func (clt Client) UserIterator(NextOpenId string) (iter *UserIterator, err error) {
+	// 逻辑上相当于第一次调用 UserIterator.NextPage, 因为第一次调用 UserIterator.HasNext 需要数据支撑, 所以提前获取了数据
+
+	data, err := clt.UserList(NextOpenId)
 	if err != nil {
 		return
 	}
 
 	iter = &UserIterator{
-		lastUserListData: data,
-		clt:              clt,
-		nextPageCalled:   false,
+		clt:               clt,
+		lastUserListData:  data,
+		nextPageHasCalled: false,
 	}
 	return
 }

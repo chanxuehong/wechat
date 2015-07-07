@@ -26,22 +26,17 @@ const (
 )
 
 // 上传多媒体图片
-func (clt Client) UploadImage(filepath string) (mediaId string, err error) {
+func (clt Client) UploadImage(filepath string) (mediaId, _url string, err error) {
 	return clt.uploadMaterial(MaterialTypeImage, filepath)
 }
 
 // 上传多媒体缩略图
-func (clt Client) UploadThumb(filepath string) (mediaId string, err error) {
+func (clt Client) UploadThumb(filepath string) (mediaId, _url string, err error) {
 	return clt.uploadMaterial(MaterialTypeThumb, filepath)
 }
 
-// 上传多媒体语音
-func (clt Client) UploadVoice(filepath string) (mediaId string, err error) {
-	return clt.uploadMaterial(MaterialTypeVoice, filepath)
-}
-
 // 上传多媒体
-func (clt Client) uploadMaterial(materialType, _filepath string) (mediaId string, err error) {
+func (clt Client) uploadMaterial(materialType, _filepath string) (mediaId, _url string, err error) {
 	file, err := os.Open(_filepath)
 	if err != nil {
 		return
@@ -53,7 +48,7 @@ func (clt Client) uploadMaterial(materialType, _filepath string) (mediaId string
 
 // 上传多媒体图片
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt Client) UploadImageFromReader(filename string, reader io.Reader) (mediaId string, err error) {
+func (clt Client) UploadImageFromReader(filename string, reader io.Reader) (mediaId, _url string, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
 		return
@@ -67,7 +62,7 @@ func (clt Client) UploadImageFromReader(filename string, reader io.Reader) (medi
 
 // 上传多媒体缩略图
 //  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt Client) UploadThumbFromReader(filename string, reader io.Reader) (mediaId string, err error) {
+func (clt Client) UploadThumbFromReader(filename string, reader io.Reader) (mediaId, _url string, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
 		return
@@ -79,24 +74,11 @@ func (clt Client) UploadThumbFromReader(filename string, reader io.Reader) (medi
 	return clt.uploadMaterialFromReader(MaterialTypeThumb, filename, reader)
 }
 
-// 上传多媒体语音
-//  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt Client) UploadVoiceFromReader(filename string, reader io.Reader) (mediaId string, err error) {
-	if filename == "" {
-		err = errors.New("empty filename")
-		return
-	}
-	if reader == nil {
-		err = errors.New("nil reader")
-		return
-	}
-	return clt.uploadMaterialFromReader(MaterialTypeVoice, filename, reader)
-}
-
-func (clt Client) uploadMaterialFromReader(materialType, filename string, reader io.Reader) (mediaId string, err error) {
+func (clt Client) uploadMaterialFromReader(materialType, filename string, reader io.Reader) (mediaId, _url string, err error) {
 	var result struct {
 		mp.Error
 		MediaId string `json:"media_id"`
+		URL     string `json:"url"`
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/add_material?type=" +
@@ -116,10 +98,63 @@ func (clt Client) uploadMaterialFromReader(materialType, filename string, reader
 		return
 	}
 	mediaId = result.MediaId
+	_url = result.URL
 	return
 }
 
-// =============================================================================
+// voice =======================================================================
+
+// 上传多媒体语音
+func (clt Client) UploadVoice(_filepath string) (mediaId string, err error) {
+	file, err := os.Open(_filepath)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	return clt.uploadVoiceFromReader(filepath.Base(_filepath), file)
+}
+
+// 上传多媒体语音
+//  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
+func (clt Client) UploadVoiceFromReader(filename string, reader io.Reader) (mediaId string, err error) {
+	if filename == "" {
+		err = errors.New("empty filename")
+		return
+	}
+	if reader == nil {
+		err = errors.New("nil reader")
+		return
+	}
+	return clt.uploadVoiceFromReader(filename, reader)
+}
+
+func (clt Client) uploadVoiceFromReader(filename string, reader io.Reader) (mediaId string, err error) {
+	var result struct {
+		mp.Error
+		MediaId string `json:"media_id"`
+	}
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/add_material?type=voice&access_token="
+	fields := []mp.MultipartFormField{{
+		ContentType: 0,
+		FieldName:   "media",
+		FileName:    filename,
+		Value:       reader,
+	}}
+	if err = clt.PostMultipartForm(incompleteURL, fields, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	mediaId = result.MediaId
+	return
+}
+
+// video =======================================================================
 
 // 上传多媒体视频
 func (clt Client) UploadVideo(_filepath string, title, introduction string) (mediaId string, err error) {

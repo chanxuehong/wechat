@@ -15,14 +15,14 @@ import (
 type UpstreamMsgData struct {
 	RefDate string `json:"ref_date"` // 数据的日期, YYYY-MM-DD 格式
 
-	// 消息类型，代表含义如下：
+	// 消息类型, 代表含义如下:
 	// 1代表文字
 	// 2代表图片
 	// 3代表语音
 	// 4代表视频
-	// 6代表第三方应用消息（链接消息）
+	// 6代表第三方应用消息(链接消息)
 	MsgType  int `json:"msg_type"`
-	MsgUser  int `json:"msg_user"`  // 上行发送了（向公众号发送了）消息的用户数
+	MsgUser  int `json:"msg_user"`  // 上行发送了(向公众号发送了)消息的用户数
 	MsgCount int `json:"msg_count"` // 上行发送了消息的消息总数
 }
 
@@ -54,7 +54,7 @@ func (clt Client) GetUpstreamMsg(req *Request) (list []UpstreamMsgData, err erro
 // 消息分送分时数据
 type UpstreamMsgHourData struct {
 	UpstreamMsgData
-	RefHour int `json:"ref_hour"` // 数据的小时，包括从000到2300，分别代表的是[000,100)到[2300,2400)，即每日的第1小时和最后1小时
+	RefHour int `json:"ref_hour"` // 数据的小时, 包括从000到2300, 分别代表的是[000,100)到[2300,2400), 即每日的第1小时和最后1小时
 }
 
 // 获取消息分送分时数据.
@@ -145,8 +145,8 @@ func (clt Client) GetUpstreamMsgMonth(req *Request) (list []UpstreamMsgMonthData
 // 消息发送分布数据
 type UpstreamMsgDistData struct {
 	RefDate       string `json:"ref_date"`       // 数据的日期, YYYY-MM-DD 格式
-	CountInterval int    `json:"count_interval"` // 当日发送消息量分布的区间，0代表 “0”，1代表“1-5”，2代表“6-10”，3代表“10次以上”
-	MsgUser       int    `json:"msg_user"`       // 上行发送了（向公众号发送了）消息的用户数
+	CountInterval int    `json:"count_interval"` // 当日发送消息量分布的区间, 0代表 "0", 1代表"1-5", 2代表"6-10", 3代表"10次以上"
+	MsgUser       int    `json:"msg_user"`       // 上行发送了(向公众号发送了)消息的用户数
 }
 
 // 获取消息发送分布数据.

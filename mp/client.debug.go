@@ -19,7 +19,6 @@ import (
 	wechatjson "github.com/chanxuehong/wechat/json"
 )
 
-// 微信公众号"主动"请求功能的基本封装.
 type Client struct {
 	AccessTokenServer
 	HttpClient *http.Client

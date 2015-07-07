@@ -19,8 +19,8 @@ import (
 )
 
 // 下载多媒体到文件.
-//  请注意，视频文件不支持下载
-func (clt Client) DownloadMedia(mediaId, filepath string) (err error) {
+//  请注意, 视频文件不支持下载
+func (clt Client) DownloadMedia(mediaId, filepath string) (written int64, err error) {
 	file, err := os.Create(filepath)
 	if err != nil {
 		return
@@ -36,16 +36,17 @@ func (clt Client) DownloadMedia(mediaId, filepath string) (err error) {
 }
 
 // 下载多媒体到 io.Writer.
-//  请注意，视频文件不支持下载
-func (clt Client) DownloadMediaToWriter(mediaId string, writer io.Writer) error {
+//  请注意, 视频文件不支持下载
+func (clt Client) DownloadMediaToWriter(mediaId string, writer io.Writer) (written int64, err error) {
 	if writer == nil {
-		return errors.New("nil writer")
+		err = errors.New("nil writer")
+		return
 	}
 	return clt.downloadMediaToWriter(mediaId, writer)
 }
 
 // 下载多媒体到 io.Writer.
-func (clt Client) downloadMediaToWriter(mediaId string, writer io.Writer) (err error) {
+func (clt Client) downloadMediaToWriter(mediaId string, writer io.Writer) (written int64, err error) {
 	token, err := clt.Token()
 	if err != nil {
 		return
@@ -63,13 +64,13 @@ RETRY:
 	defer httpResp.Body.Close()
 
 	if httpResp.StatusCode != http.StatusOK {
-		return fmt.Errorf("http.Status: %s", httpResp.Status)
+		err = fmt.Errorf("http.Status: %s", httpResp.Status)
+		return
 	}
 
 	ContentType, _, _ := mime.ParseMediaType(httpResp.Header.Get("Content-Type"))
 	if ContentType != "text/plain" && ContentType != "application/json" { // 返回的是媒体流
-		_, err = io.Copy(writer, httpResp.Body)
-		return
+		return io.Copy(writer, httpResp.Body)
 	}
 
 	// 返回的是错误信息
@@ -106,7 +107,7 @@ RETRY:
 
 // 创建图文消息素材.
 func (clt Client) CreateNews(articles []Article) (info *MediaInfo, err error) {
-	if len(articles) == 0 {
+	if len(articles) <= 0 {
 		err = errors.New("图文素材是空的")
 		return
 	}
