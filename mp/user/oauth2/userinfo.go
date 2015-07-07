@@ -3,17 +3,11 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// +build wechatdebug
-
 package oauth2
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 
@@ -74,24 +68,32 @@ func (info *UserInfo) HeadImageSize() (size int, err error) {
 
 	sizeStr := HeadImageURL[HeadImageIndex:]
 
-	size64, err := strconv.ParseUint(sizeStr, 10, 64)
+	size, err = strconv.Atoi(sizeStr)
 	if err != nil {
 		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
 		return
 	}
 
-	if size64 == 0 {
-		size64 = 640
+	if size == 0 {
+		size = 640
 	}
-	size = int(size64)
 	return
 }
 
 // 获取用户信息(需scope为 snsapi_userinfo).
 //  NOTE:
-//  1. Client 需要指定 OAuth2Config, OAuth2Token
+//  1. Client 需要指定 Config, Token
 //  2. lang 可能的取值是 zh_CN, zh_TW, en, 如果留空 "" 则默认为 zh_CN.
 func (clt *Client) UserInfo(lang string) (info *UserInfo, err error) {
+	if clt.Config == nil {
+		err = errors.New("nil Config")
+		return
+	}
+	if clt.Token == nil {
+		err = errors.New("nil Token")
+		return
+	}
+
 	switch lang {
 	case "":
 		lang = Language_zh_CN
@@ -100,42 +102,18 @@ func (clt *Client) UserInfo(lang string) (info *UserInfo, err error) {
 		lang = Language_zh_CN
 	}
 
-	if clt.OAuth2Config == nil { // clt.TokenRefresh() 需要
-		err = errors.New("没有提供 OAuth2Config")
-		return
-	}
-	if clt.OAuth2Token == nil {
-		err = errors.New("没有提供 OAuth2Token")
-		return
-	}
-
-	if clt.accessTokenExpired() {
+	if clt.Token.AccessTokenExpired() {
 		if _, err = clt.TokenRefresh(); err != nil {
 			return
 		}
 	}
 
-	if clt.AccessToken == "" {
-		err = errors.New("没有有效的 AccessToken")
+	if clt.Token.AccessToken == "" {
+		err = errors.New("empty AccessToken")
 		return
 	}
-	if clt.OpenId == "" {
-		err = errors.New("没有有效的 OpenId")
-		return
-	}
-
-	_url := "https://api.weixin.qq.com/sns/userinfo" +
-		"?access_token=" + url.QueryEscape(clt.AccessToken) +
-		"&openid=" + url.QueryEscape(clt.OpenId) +
-		"&lang=" + url.QueryEscape(lang)
-	httpResp, err := clt.httpClient().Get(_url)
-	if err != nil {
-		return
-	}
-	defer httpResp.Body.Close()
-
-	if httpResp.StatusCode != http.StatusOK {
-		err = fmt.Errorf("http.Status: %s", httpResp.Status)
+	if clt.Token.OpenId == "" {
+		err = errors.New("empty OpenId")
 		return
 	}
 
@@ -143,16 +121,7 @@ func (clt *Client) UserInfo(lang string) (info *UserInfo, err error) {
 		mp.Error
 		UserInfo
 	}
-
-	respBody, err := ioutil.ReadAll(httpResp.Body)
-	if err != nil {
-		return
-	}
-
-	mp.LogInfoln("[WECHAT_DEBUG] request url:", _url)
-	mp.LogInfoln("[WECHAT_DEBUG] response json:", string(respBody))
-
-	if err = json.Unmarshal(respBody, &result); err != nil {
+	if err = clt.getJSON(clt.Config.UserInfoURL(clt.Token.AccessToken, clt.Token.OpenId, lang), &result); err != nil {
 		return
 	}
 
