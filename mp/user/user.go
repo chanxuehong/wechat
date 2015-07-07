@@ -74,16 +74,15 @@ func (info *UserInfo) HeadImageSize() (size int, err error) {
 
 	sizeStr := HeadImageURL[HeadImageIndex:]
 
-	size64, err := strconv.ParseUint(sizeStr, 10, 64)
+	size, err = strconv.Atoi(sizeStr)
 	if err != nil {
 		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
 		return
 	}
 
-	if size64 == 0 {
-		size64 = 640
+	if size == 0 {
+		size = 640
 	}
-	size = int(size64)
 	return
 }
 
