@@ -11,33 +11,28 @@ import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
-type PoiBrief struct {
-	BaseInfo struct {
-		PoiId          string `json:"poi_id,omitempty"`        // Poi 的id, 只有审核通过后才有
-		AvailableState int    `json:"available_state"`         // 门店是否可用状态. 1 表示系统错误, 2 表示审核中, 3 审核通过, 4 审核驳回. 当该字段为1, 2, 4 状态时, poi_id 为空
-		Sid            string `json:"sid,omitempty"`           // 商户自己的id, 用于后续审核通过收到poi_id 的通知时, 做对应关系. 请商户自己保证唯一识别性
-		BusinessName   string `json:"business_name,omitempty"` // 门店名称(仅为商户名, 如: 国美, 麦当劳, 不应包含地区, 店号等信息, 错误示例: 北京国美)
-		BranchName     string `json:"branch_name,omitempty"`   // 分店名称(不应包含地区信息, 不应与门店名重复, 错误示例: 北京王府井店)
-		Address        string `json:"address,omitempty"`       // 门店所在的详细街道地址(不要填写省市信息)
-	} `json:"base_info"`
+type PoiListResult struct {
+	TotalCount int   `json:"total_count"`   // 门店总数量
+	ItemCount  int   `json:"item_count"`    // 本次调用获取的门店数量
+	PoiList    []Poi `json:"business_list"` // 本次调用获取的门店列表
 }
 
 // 查询门店列表.
 //  begin: 开始位置, 0 即为从第一条开始查询
 //  limit: 返回数据条数, 最大允许50, 默认为20
-func (clt Client) PoiList(begin, limit int) (list []PoiBrief, totalCount int, err error) {
+func (clt Client) PoiList(begin, limit int) (rslt *PoiListResult, err error) {
 	if begin < 0 {
 		err = fmt.Errorf("invalid begin: %d", begin)
 		return
 	}
-	if limit < 0 {
+	if limit <= 0 {
 		err = fmt.Errorf("invalid limit: %d", limit)
 		return
 	}
 
 	var request = struct {
 		Begin int `json:"begin"`
-		Limit int `json:"limit,omitempty"`
+		Limit int `json:"limit"`
 	}{
 		Begin: begin,
 		Limit: limit,
@@ -45,8 +40,7 @@ func (clt Client) PoiList(begin, limit int) (list []PoiBrief, totalCount int, er
 
 	var result struct {
 		mp.Error
-		PoiList    []PoiBrief `json:"business_list"`
-		TotalCount int        `json:"total_count"`
+		PoiListResult
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/poi/getpoilist?access_token="
@@ -58,7 +52,82 @@ func (clt Client) PoiList(begin, limit int) (list []PoiBrief, totalCount int, er
 		err = &result.Error
 		return
 	}
-	list = result.PoiList
-	totalCount = result.TotalCount
+	result.PoiListResult.ItemCount = len(result.PoiListResult.PoiList)
+	rslt = &result.PoiListResult
+	return
+}
+
+//  iter, err := Client.PoiIterator(0, 10)
+//  if err != nil {
+//      // TODO: 增加你的代码
+//  }
+//
+//  for iter.HasNext() {
+//      items, err := iter.NextPage()
+//      if err != nil {
+//          // TODO: 增加你的代码
+//      }
+//      // TODO: 增加你的代码
+//  }
+type PoiIterator struct {
+	clt Client // 关联的微信 Client
+
+	nextOffset int // 下一次获取数据时的 offset
+	count      int // 步长
+
+	lastPoiListResult *PoiListResult // 最近一次获取的数据
+	nextPageHasCalled bool           // NextPage() 是否调用过
+}
+
+func (iter *PoiIterator) TotalCount() int {
+	return iter.lastPoiListResult.TotalCount
+}
+
+func (iter *PoiIterator) HasNext() bool {
+	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+		return iter.lastPoiListResult.ItemCount > 0 ||
+			iter.nextOffset < iter.lastPoiListResult.TotalCount
+	}
+
+	return iter.nextOffset < iter.lastPoiListResult.TotalCount
+}
+
+func (iter *PoiIterator) NextPage() (poiList []Poi, err error) {
+	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+		iter.nextPageHasCalled = true
+
+		poiList = iter.lastPoiListResult.PoiList
+		return
+	}
+
+	rslt, err := iter.clt.PoiList(iter.nextOffset, iter.count)
+	if err != nil {
+		return
+	}
+
+	iter.nextOffset += rslt.ItemCount
+	iter.lastPoiListResult = rslt
+
+	poiList = rslt.PoiList
+	return
+}
+
+func (clt Client) PoiIterator(begin, limit int) (iter *PoiIterator, err error) {
+	// 逻辑上相当于第一次调用 PoiIterator.NextPage, 因为第一次调用 PoiIterator.HasNext 需要数据支撑, 所以提前获取了数据
+
+	rslt, err := clt.PoiList(begin, limit)
+	if err != nil {
+		return
+	}
+
+	iter = &PoiIterator{
+		clt: clt,
+
+		nextOffset: begin + rslt.ItemCount,
+		count:      limit,
+
+		lastPoiListResult: rslt,
+		nextPageHasCalled: false,
+	}
 	return
 }
