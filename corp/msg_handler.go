@@ -90,7 +90,7 @@ type MixedMessage struct {
 		LocationY float64 `xml:"Location_Y" json:"Location_Y"`
 		Scale     int     `xml:"Scale"      json:"Scale"`
 		Label     string  `xml:"Label"      json:"Label"`
-		Poiname   string  `xml:"Poiname"    json:"Poiname"`
+		PoiName   string  `xml:"Poiname"    json:"Poiname"`
 	} `xml:"SendLocationInfo" json:"SendLocationInfo"`
 
 	Latitude  float64 `xml:"Latitude"    json:"Latitude"`

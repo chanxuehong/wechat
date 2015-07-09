@@ -3,5 +3,5 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 网页授权获取用户基本信息.
+// 网页授权获取用户基本信息
 package oauth2

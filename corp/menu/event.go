@@ -192,7 +192,7 @@ type LocationSelectEvent struct {
 		LocationY float64 `xml:"Location_Y" json:"Location_Y"` // 地理位置经度
 		Scale     int     `xml:"Scale"      json:"Scale"`      // 精度, 可理解为精度或者比例尺, 越精细的话 scale越高
 		Label     string  `xml:"Label"      json:"Label"`      // 地理位置的字符串信息
-		Poiname   string  `xml:"Poiname"    json:"Poiname"`    // 朋友圈POI的名字, 可能为空
+		PoiName   string  `xml:"Poiname"    json:"Poiname"`    // 朋友圈POI的名字, 可能为空
 	} `xml:"SendLocationInfo" json:"SendLocationInfo"` // 发送的位置信息
 }
 
