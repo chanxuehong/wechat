@@ -7,17 +7,12 @@ package account
 
 import (
 	"errors"
-	"fmt"
-	"io"
-	"net/http"
-	"net/url"
-	"os"
 
 	"github.com/chanxuehong/wechat/mp"
 )
 
 const (
-	TemporaryQRCodeExpireSecondsLimit = 1800   // 临时二维码 expire_seconds 限制
+	TemporaryQRCodeExpireSecondsLimit = 604800 // 临时二维码 expire_seconds 限制
 	PermanentQRCodeSceneIdLimit       = 100000 // 永久二维码 scene_id 限制
 )
 
@@ -33,13 +28,13 @@ type PermanentQRCode struct {
 
 // 临时二维码
 type TemporaryQRCode struct {
+	ExpireSeconds int `json:"expire_seconds,omitempty"` // 二维码的有效时间, 以秒为单位. 最大不超过 604800.
 	PermanentQRCode
-	ExpireSeconds int `json:"expire_seconds,omitempty"` // 二维码的有效时间, 以秒为单位. 最大不超过1800.
 }
 
 // 创建临时二维码
 //  SceneId:       场景值ID, 为32位非0整型
-//  ExpireSeconds: 二维码有效时间, 以秒为单位.  最大不超过1800.
+//  ExpireSeconds: 二维码有效时间, 以秒为单位.  最大不超过 604800.
 func (clt Client) CreateTemporaryQRCode(SceneId uint32, ExpireSeconds int) (qrcode *TemporaryQRCode, err error) {
 	if SceneId == 0 {
 		err = errors.New("SceneId should be greater than 0")
@@ -153,108 +148,4 @@ func (clt Client) CreatePermanentQRCodeWithSceneString(SceneString string) (qrco
 	result.PermanentQRCode.SceneString = SceneString
 	qrcode = &result.PermanentQRCode
 	return
-}
-
-// 通过ticket换取二维码, 写入到 writer.
-func (clt Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (written int64, err error) {
-	if ticket == "" {
-		err = errors.New("empty ticket")
-		return
-	}
-	if writer == nil {
-		err = errors.New("nil writer")
-		return
-	}
-	if clt.HttpClient == nil {
-		clt.HttpClient = http.DefaultClient
-	}
-	return qrcodeDownloadToWriter(ticket, writer, clt.HttpClient)
-}
-
-// 通过ticket换取二维码, 写入到 filepath 路径的文件.
-func (clt Client) QRCodeDownload(ticket, filepath string) (written int64, err error) {
-	if ticket == "" {
-		err = errors.New("empty ticket")
-		return
-	}
-
-	file, err := os.Create(filepath)
-	if err != nil {
-		return
-	}
-	defer func() {
-		file.Close()
-		if err != nil {
-			os.Remove(filepath)
-		}
-	}()
-
-	if clt.HttpClient == nil {
-		clt.HttpClient = http.DefaultClient
-	}
-	return qrcodeDownloadToWriter(ticket, file, clt.HttpClient)
-}
-
-// 通过ticket换取二维码, 写入到 writer.
-//  如果 clt == nil 则默认用 http.DefaultClient.
-func QRCodeDownloadToWriter(ticket string, writer io.Writer, clt *http.Client) (written int64, err error) {
-	if ticket == "" {
-		err = errors.New("empty ticket")
-		return
-	}
-	if writer == nil {
-		err = errors.New("nil writer")
-		return
-	}
-	if clt == nil {
-		clt = http.DefaultClient
-	}
-	return qrcodeDownloadToWriter(ticket, writer, clt)
-}
-
-// 通过ticket换取二维码, 写入到 filepath 路径的文件.
-//  如果 clt == nil 则默认用 http.DefaultClient
-func QRCodeDownload(ticket, filepath string, clt *http.Client) (written int64, err error) {
-	if ticket == "" {
-		err = errors.New("empty ticket")
-		return
-	}
-
-	file, err := os.Create(filepath)
-	if err != nil {
-		return
-	}
-	defer func() {
-		file.Close()
-		if err != nil {
-			os.Remove(filepath)
-		}
-	}()
-
-	if clt == nil {
-		clt = http.DefaultClient
-	}
-	return qrcodeDownloadToWriter(ticket, file, clt)
-}
-
-// 二维码图片的URL, 可以GET此URL下载二维码或者在线显示此二维码.
-func QRCodePicURL(ticket string) string {
-	return "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=" + url.QueryEscape(ticket)
-}
-
-// 通过ticket换取二维码, 写入到 writer.
-//  NOTE: 调用者保证所有参数有效.
-func qrcodeDownloadToWriter(ticket string, writer io.Writer, clt *http.Client) (written int64, err error) {
-	httpResp, err := clt.Get(QRCodePicURL(ticket))
-	if err != nil {
-		return
-	}
-	defer httpResp.Body.Close()
-
-	if httpResp.StatusCode != http.StatusOK {
-		err = fmt.Errorf("http.Status: %s", httpResp.Status)
-		return
-	}
-
-	return io.Copy(writer, httpResp.Body)
 }
