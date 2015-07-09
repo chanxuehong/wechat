@@ -94,7 +94,7 @@ type MixedMessage struct {
 		LocationY float64 `xml:"Location_Y" json:"Location_Y"`
 		Scale     int     `xml:"Scale"      json:"Scale"`
 		Label     string  `xml:"Label"      json:"Label"`
-		Poiname   string  `xml:"Poiname"    json:"Poiname"`
+		PoiName   string  `xml:"Poiname"    json:"Poiname"`
 	} `xml:"SendLocationInfo" json:"SendLocationInfo"`
 
 	Ticket      string  `xml:"Ticket"      json:"Ticket"`
@@ -106,10 +106,12 @@ type MixedMessage struct {
 	FilterCount int     `xml:"FilterCount" json:"FilterCount"`
 	SentCount   int     `xml:"SentCount"   json:"SentCount"`
 	ErrorCount  int     `xml:"ErrorCount"  json:"ErrorCount"`
-	OrderId     string  `xml:"OrderId"     json:"OrderId"`
-	OrderStatus int     `xml:"OrderStatus" json:"OrderStatus"`
-	ProductId   string  `xml:"ProductId"   json:"ProductId"`
-	SKUInfo     string  `xml:"SkuInfo"     json:"SkuInfo"`
+
+	// merchant
+	OrderId     string `xml:"OrderId"     json:"OrderId"`
+	OrderStatus int    `xml:"OrderStatus" json:"OrderStatus"`
+	ProductId   string `xml:"ProductId"   json:"ProductId"`
+	SKUInfo     string `xml:"SkuInfo"     json:"SkuInfo"`
 
 	// card
 	CardId         string `xml:"CardId"         json:"CardId"`

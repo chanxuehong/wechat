@@ -81,19 +81,8 @@ func (info *UserInfo) HeadImageSize() (size int, err error) {
 }
 
 // 获取用户信息(需scope为 snsapi_userinfo).
-//  NOTE:
-//  1. Client 需要指定 Config, Token
-//  2. lang 可能的取值是 zh_CN, zh_TW, en, 如果留空 "" 则默认为 zh_CN.
+//  lang 可能的取值是 zh_CN, zh_TW, en, 如果留空 "" 则默认为 zh_CN.
 func (clt *Client) UserInfo(lang string) (info *UserInfo, err error) {
-	if clt.Config == nil {
-		err = errors.New("nil Config")
-		return
-	}
-	if clt.Token == nil {
-		err = errors.New("nil Token")
-		return
-	}
-
 	switch lang {
 	case "":
 		lang = Language_zh_CN
@@ -102,26 +91,41 @@ func (clt *Client) UserInfo(lang string) (info *UserInfo, err error) {
 		lang = Language_zh_CN
 	}
 
-	if clt.Token.AccessTokenExpired() {
-		if _, err = clt.TokenRefresh(); err != nil {
+	if clt.Config == nil {
+		err = errors.New("nil Config")
+		return
+	}
+
+	var tk *Token
+	if clt.TokenStorage != nil {
+		if tk, err = clt.TokenStorage.Get(); err != nil {
+			return
+		}
+		if tk == nil {
+			err = errors.New("Incorrect TokenStorage.Get()")
+			return
+		}
+		clt.Token = tk // update local
+	} else {
+		tk = clt.Token
+		if tk == nil {
+			err = errors.New("nil TokenStorage and nil Token")
 			return
 		}
 	}
 
-	if clt.Token.AccessToken == "" {
-		err = errors.New("empty AccessToken")
-		return
-	}
-	if clt.Token.OpenId == "" {
-		err = errors.New("empty OpenId")
-		return
+	// 过期自动刷新 Token
+	if tk.AccessTokenExpired() {
+		if tk, err = clt.tokenRefresh(tk); err != nil {
+			return
+		}
 	}
 
 	var result struct {
 		mp.Error
 		UserInfo
 	}
-	if err = clt.getJSON(clt.Config.UserInfoURL(clt.Token.AccessToken, clt.Token.OpenId, lang), &result); err != nil {
+	if err = clt.getJSON(clt.Config.UserInfoURL(tk.AccessToken, tk.OpenId, lang), &result); err != nil {
 		return
 	}
 

@@ -15,7 +15,11 @@ import (
 
 type Client struct {
 	Config Config
-	Token  *Token // 程序会自动更新最新的 Token 到这个字段, 如有必要该字段可以保存起来
+
+	// TokenStorage, Token 正常情况下只需要指定一个; 如果两个都指定了, 优先使用 TokenStorage;
+	// 程序会自动更新最新的 Token 到 Client.Token, 不管一开始是否已经赋值.
+	TokenStorage TokenStorage
+	Token        *Token
 
 	HttpClient *http.Client // 如果 HttpClient == nil 则默认用 http.DefaultClient
 }
