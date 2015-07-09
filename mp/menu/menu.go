@@ -75,8 +75,8 @@ func (btn *Button) SetAsSubMenuButton(name string, subButtons []Button) {
 
 // 设置 btn 指向的 Button 为 click 类型按钮
 func (btn *Button) SetAsClickButton(name, key string) {
-	btn.Name = name
 	btn.Type = ButtonTypeClick
+	btn.Name = name
 	btn.Key = key
 
 	btn.URL = ""
@@ -86,8 +86,8 @@ func (btn *Button) SetAsClickButton(name, key string) {
 
 // 设置 btn 指向的 Button 为 view 类型按钮
 func (btn *Button) SetAsViewButton(name, url string) {
-	btn.Name = name
 	btn.Type = ButtonTypeView
+	btn.Name = name
 	btn.URL = url
 
 	btn.Key = ""
@@ -97,8 +97,8 @@ func (btn *Button) SetAsViewButton(name, url string) {
 
 // 设置 btn 指向的 Button 为 扫码推事件 类型按钮
 func (btn *Button) SetAsScanCodePushButton(name, key string) {
-	btn.Name = name
 	btn.Type = ButtonTypeScanCodePush
+	btn.Name = name
 	btn.Key = key
 
 	btn.URL = ""
@@ -108,8 +108,8 @@ func (btn *Button) SetAsScanCodePushButton(name, key string) {
 
 // 设置 btn 指向的 Button 为 扫码推事件且弹出"消息接收中"提示框 类型按钮
 func (btn *Button) SetAsScanCodeWaitMsgButton(name, key string) {
-	btn.Name = name
 	btn.Type = ButtonTypeScanCodeWaitMsg
+	btn.Name = name
 	btn.Key = key
 
 	btn.URL = ""
@@ -119,8 +119,8 @@ func (btn *Button) SetAsScanCodeWaitMsgButton(name, key string) {
 
 // 设置 btn 指向的 Button 为 弹出系统拍照发图 类型按钮
 func (btn *Button) SetAsPicSysPhotoButton(name, key string) {
-	btn.Name = name
 	btn.Type = ButtonTypePicSysPhoto
+	btn.Name = name
 	btn.Key = key
 
 	btn.URL = ""
@@ -130,8 +130,8 @@ func (btn *Button) SetAsPicSysPhotoButton(name, key string) {
 
 // 设置 btn 指向的 Button 为 弹出拍照或者相册发图 类型按钮
 func (btn *Button) SetAsPicPhotoOrAlbumButton(name, key string) {
-	btn.Name = name
 	btn.Type = ButtonTypePicPhotoOrAlbum
+	btn.Name = name
 	btn.Key = key
 
 	btn.URL = ""
@@ -141,8 +141,8 @@ func (btn *Button) SetAsPicPhotoOrAlbumButton(name, key string) {
 
 // 设置 btn 指向的 Button 为 弹出微信相册发图器 类型按钮
 func (btn *Button) SetAsPicWeixinButton(name, key string) {
-	btn.Name = name
 	btn.Type = ButtonTypePicWeixin
+	btn.Name = name
 	btn.Key = key
 
 	btn.URL = ""
@@ -152,8 +152,8 @@ func (btn *Button) SetAsPicWeixinButton(name, key string) {
 
 // 设置 btn 指向的 Button 为 弹出地理位置选择器 类型按钮
 func (btn *Button) SetAsLocationSelectButton(name, key string) {
-	btn.Name = name
 	btn.Type = ButtonTypeLocationSelect
+	btn.Name = name
 	btn.Key = key
 
 	btn.URL = ""
@@ -163,8 +163,8 @@ func (btn *Button) SetAsLocationSelectButton(name, key string) {
 
 // 设置 btn 指向的 Button 为 下发消息(除文本消息) 类型按钮
 func (btn *Button) SetAsMediaIdButton(name, mediaId string) {
-	btn.Name = name
 	btn.Type = ButtonTypeMediaId
+	btn.Name = name
 	btn.MediaId = mediaId
 
 	btn.Key = ""
@@ -174,8 +174,8 @@ func (btn *Button) SetAsMediaIdButton(name, mediaId string) {
 
 // 设置 btn 指向的 Button 为 跳转图文消息URL 类型按钮
 func (btn *Button) SetAsViewLimitedButton(name, mediaId string) {
-	btn.Name = name
 	btn.Type = ButtonTypeViewLimited
+	btn.Name = name
 	btn.MediaId = mediaId
 
 	btn.Key = ""
