@@ -125,4 +125,9 @@ type MixedMessage struct {
 	PoiId  string `xml:"PoiId"  json:"PoiId"`
 	Result string `xml:"Result" json:"Result"`
 	Msg    string `xml:"Msg"    json:"Msg"`
+
+	// dkf
+	KfAccount     string `xml:"KfAccount"     json:"KfAccount"`
+	FromKfAccount string `xml:"FromKfAccount" json:"FromKfAccount"`
+	ToKfAccount   string `xml:"ToKfAccount"   json:"ToKfAccount"`
 }

@@ -3,76 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package dkf
-
-import (
-	"errors"
-
-	"github.com/chanxuehong/wechat/mp"
-)
-
-// 一条聊天记录
-type Record struct {
-	Worker string `json:"worker"` // 客服账号
-	OpenId string `json:"openid"` // 用户的标识, 对当前公众号唯一
-
-	// 操作ID(会话状态):
-	// 1000	 创建未接入会话
-	// 1001	 接入会话
-	// 1002	 主动发起会话
-	// 1004	 关闭会话
-	// 1005	 抢接会话
-	// 2001	 公众号收到消息
-	// 2002	 客服发送消息
-	// 2003	 客服收到消息
-	OperCode  int    `json:"opercode"`
-	Timestamp int64  `json:"time"` // 操作时间, UNIX时间戳
-	Text      string `json:"text"` // 聊天记录
-}
-
-const (
-	RecordPageSizeLimit = 1000 // 客户聊天记录每页最多拉取1000条
-)
-
-// 获取客服聊天记录 请求消息结构
-type GetRecordRequest struct {
-	StartTime int64  `json:"starttime"` // 查询开始时间, UNIX时间戳
-	EndTime   int64  `json:"endtime"`   // 查询结束时间, UNIX时间戳, 每次查询不能跨日查询
-	OpenId    string `json:"openid"`    // 普通用户的标识, 对当前公众号唯一
-	PageSize  int    `json:"pagesize"`  // 每页大小, 每页最多拉取1000条
-	PageIndex int    `json:"pageindex"` // 查询第几页, 从1开始
-}
-
-// 获取客服聊天记录
-func (clt Client) GetRecord(request *GetRecordRequest) (recordList []Record, err error) {
-	if request == nil {
-		err = errors.New("nil request")
-		return
-	}
-
-	var result struct {
-		mp.Error
-		RecordList []Record `json:"recordlist"`
-	}
-	// 预分配一定的容量
-	if size := request.PageSize; size >= 64 {
-		result.RecordList = make([]Record, 0, 64)
-	} else {
-		result.RecordList = make([]Record, 0, size)
-	}
-
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/customservice/getrecord?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
-		return
-	}
-
-	if result.ErrCode != mp.ErrCodeOK {
-		err = &result.Error
-		return
-	}
-	recordList = result.RecordList
-	return
-}
+package record
 
 // 聊天记录遍历器.
 //
