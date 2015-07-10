@@ -10,7 +10,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"io"
-	"net/url"
 	"os"
 	"path/filepath"
 
@@ -23,6 +22,9 @@ import (
 //  password:   客服账号登录密码
 //  isPwdPlain: 标识 password 是否为明文格式, true 表示是明文密码, false 表示是密文密码.
 func (clt Client) AddKfAccount(account, nickname, password string, isPwdPlain bool) (err error) {
+	if password == "" {
+		return errors.New("empty password")
+	}
 	if isPwdPlain {
 		md5Sum := md5.Sum([]byte(password))
 		password = hex.EncodeToString(md5Sum[:])
@@ -52,13 +54,13 @@ func (clt Client) AddKfAccount(account, nickname, password string, isPwdPlain bo
 	return
 }
 
-// 设置客服信息
+// 设置客服信息(增量更新, 不更新的可以留空).
 //  account:    完整客服账号, 格式为: 账号前缀@公众号微信号, 账号前缀最多10个字符, 必须是英文或者数字字符.
 //  nickname:   客服昵称, 最长6个汉字或12个英文字符
 //  password:   客服账号登录密码
 //  isPwdPlain: 标识 password 是否为明文格式, true 表示是明文密码, false 表示是密文密码.
 func (clt Client) SetKfAccount(account, nickname, password string, isPwdPlain bool) (err error) {
-	if isPwdPlain {
+	if isPwdPlain && password != "" {
 		md5Sum := md5.Sum([]byte(password))
 		password = hex.EncodeToString(md5Sum[:])
 	}
@@ -124,8 +126,11 @@ func (clt Client) UploadKfHeadImageFromReader(kfAccount, filename string, reader
 func (clt Client) uploadKfHeadImageFromReader(kfAccount, filename string, reader io.Reader) (err error) {
 	var result mp.Error
 
+	// TODO
+	//	incompleteURL := "https://api.weixin.qq.com/customservice/kfaccount/uploadheadimg?kf_account=" +
+	//		url.QueryEscape(kfAccount) + "&access_token="
 	incompleteURL := "https://api.weixin.qq.com/customservice/kfaccount/uploadheadimg?kf_account=" +
-		url.QueryEscape(kfAccount) + "&access_token="
+		kfAccount + "&access_token="
 	fields := []mp.MultipartFormField{{
 		ContentType: 0,
 		FieldName:   "media",
@@ -147,8 +152,11 @@ func (clt Client) uploadKfHeadImageFromReader(kfAccount, filename string, reader
 func (clt Client) DeleteKfAccount(kfAccount string) (err error) {
 	var result mp.Error
 
+	// TODO
+	//	incompleteURL := "https://api.weixin.qq.com/customservice/kfaccount/del?kf_account=" +
+	//		url.QueryEscape(kfAccount) + "&access_token="
 	incompleteURL := "https://api.weixin.qq.com/customservice/kfaccount/del?kf_account=" +
-		url.QueryEscape(kfAccount) + "&access_token="
+		kfAccount + "&access_token="
 	if err = clt.GetJSON(incompleteURL, &result); err != nil {
 		return
 	}

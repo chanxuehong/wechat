@@ -56,7 +56,7 @@ func (clt Client) CloseSession(openId, kfAccount, text string) (err error) {
 
 	var result mp.Error
 
-	incompleteURL := " https://api.weixin.qq.com/customservice/kfsession/close?access_token="
+	incompleteURL := "https://api.weixin.qq.com/customservice/kfsession/close?access_token="
 	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
@@ -104,8 +104,11 @@ func (clt Client) GetSessionList(kfAccount string) (list []Session, err error) {
 		SessionList []Session `json:"sessionlist"`
 	}
 
+	// TODO
+	//	incompleteURL := "https://api.weixin.qq.com/customservice/kfsession/getsessionlist?kf_account=" +
+	//		url.QueryEscape(kfAccount) + "&access_token="
 	incompleteURL := "https://api.weixin.qq.com/customservice/kfsession/getsessionlist?kf_account=" +
-		url.QueryEscape(kfAccount) + "&access_token="
+		kfAccount + "&access_token="
 	if err = clt.GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
