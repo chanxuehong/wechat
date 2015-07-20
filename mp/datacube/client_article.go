@@ -24,7 +24,8 @@ type ArticleBaseData struct {
 
 // 图文群发每日数据
 type ArticleSummaryData struct {
-	RefDate string `json:"ref_date"` // 数据的日期, YYYY-MM-DD 格式
+	RefDate    string `json:"ref_date"`    // 数据的日期, YYYY-MM-DD 格式
+	UserSource int    `json:"user_source"` // 返回的 json 有这个字段, 文档中没有, 都是 0 值, 可能没有实际意义!!!
 
 	// 这里的msgid实际上是由msgid(图文消息id)和index(消息次序索引)组成,
 	// 例如12003_3,  其中12003是msgid, 即一次群发的id消息的;
@@ -61,10 +62,11 @@ func (clt Client) GetArticleSummary(req *Request) (list []ArticleSummaryData, er
 
 // 图文群发总数据
 type ArticleTotalData struct {
-	RefDate string `json:"ref_date"` // 数据的日期, YYYY-MM-DD 格式
-	MsgId   string `json:"msgid"`    // 同 ArticleSummaryData.MsgId
-	Title   string `json:"title"`
-	Details []struct {
+	RefDate    string `json:"ref_date"`    // 数据的日期, YYYY-MM-DD 格式
+	UserSource int    `json:"user_source"` // 返回的 json 有这个字段, 文档中没有, 都是 0 值, 可能没有实际意义!!!
+	MsgId      string `json:"msgid"`       // 同 ArticleSummaryData.MsgId
+	Title      string `json:"title"`
+	Details    []struct {
 		StatDate   string `json:"stat_date"`   // 统计的日期, 在getarticletotal接口中, ref_date指的是文章群发出日期,  而stat_date是数据统计日期
 		TargetUser int    `json:"target_user"` // 送达人数, 一般约等于总粉丝数(需排除黑名单或其他异常情况下无法收到消息的粉丝)
 		ArticleBaseData
@@ -130,8 +132,9 @@ func (clt Client) GetUserRead(req *Request) (list []UserReadData, err error) {
 
 // 图文统计分时数据
 type UserReadHourData struct {
+	RefHour         int   `json:"ref_hour"`          // 数据的小时, 包括从000到2300, 分别代表的是[000,100)到[2300,2400), 即每日的第1小时和最后1小时
+	TotalOnlineTime int64 `json:"total_online_time"` // 返回的 json 有这个字段, 文档中没有, 都是 0 值, 可能没有实际意义!!!
 	UserReadData
-	RefHour int `json:"ref_hour"` // 数据的小时, 包括从000到2300, 分别代表的是[000,100)到[2300,2400), 即每日的第1小时和最后1小时
 }
 
 // 获取图文统计分时数据.
@@ -162,9 +165,10 @@ func (clt Client) GetUserReadHour(req *Request) (list []UserReadHourData, err er
 // 图文分享转发数据
 type UserShareData struct {
 	RefDate    string `json:"ref_date"`    // 数据的日期, YYYY-MM-DD 格式
+	UserSource int    `json:"user_source"` // 返回的 json 有这个字段, 文档中没有, 都是 0 值, 可能没有实际意义!!!
 	ShareScene int    `json:"share_scene"` // 分享的场景, 1代表好友转发 2代表朋友圈 3代表腾讯微博 255代表其他
-	ShareUser  int    `json:"share_user"`  // 分享的人数
 	ShareCount int    `json:"share_count"` // 分享的次数
+	ShareUser  int    `json:"share_user"`  // 分享的人数
 }
 
 // 获取图文分享转发数据.
@@ -194,8 +198,8 @@ func (clt Client) GetUserShare(req *Request) (list []UserShareData, err error) {
 
 // 图文分享转发分时数据
 type UserShareHourData struct {
-	UserShareData
 	RefHour int `json:"ref_hour"` // 数据的小时, 包括从000到2300, 分别代表的是[000,100)到[2300,2400), 即每日的第1小时和最后1小时
+	UserShareData
 }
 
 // 获取图文分享转发分时数据.
