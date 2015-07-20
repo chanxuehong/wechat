@@ -4,7 +4,7 @@
 
 邮箱:        chanxuehong@gmail.com  
 QQ群:        297489459  
-微信群聊:    ![群聊二维码](https://github.com/chanxuehong/wechat/blob/master/mmqrcode1436497242236.png)   
+微信群聊:    ![群聊二维码](https://github.com/chanxuehong/wechat/blob/master/mmqrcode1437405773353.png)   
 
 ## 简介
 mp   微信公众平台 SDK  
