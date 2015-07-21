@@ -74,7 +74,7 @@ func (clt Client) GetMenu() (menu Menu, err error) {
 }
 
 // 获取自定义菜单配置接口
-func (clt Client) GetCurrentSelfMenuInfo() (info MenuInfo, isMenuOpen bool, err error) {
+func (clt Client) GetMenuInfo() (info MenuInfo, isMenuOpen bool, err error) {
 	var result struct {
 		mp.Error
 		IsMenuOpen int      `json:"is_menu_open"`

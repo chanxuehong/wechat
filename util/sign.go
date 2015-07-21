@@ -16,8 +16,7 @@ func Sign(token, timestamp, nonce string) (signature string) {
 	strs := sort.StringSlice{token, timestamp, nonce}
 	strs.Sort()
 
-	n := len(token) + len(timestamp) + len(nonce)
-	buf := make([]byte, 0, n)
+	buf := make([]byte, 0, len(token)+len(timestamp)+len(nonce))
 
 	buf = append(buf, strs[0]...)
 	buf = append(buf, strs[1]...)
@@ -32,8 +31,7 @@ func MsgSign(token, timestamp, nonce, encryptedMsg string) (signature string) {
 	strs := sort.StringSlice{token, timestamp, nonce, encryptedMsg}
 	strs.Sort()
 
-	n := len(token) + len(timestamp) + len(nonce) + len(encryptedMsg)
-	buf := make([]byte, 0, n)
+	buf := make([]byte, 0, len(token)+len(timestamp)+len(nonce)+len(encryptedMsg))
 
 	buf = append(buf, strs[0]...)
 	buf = append(buf, strs[1]...)

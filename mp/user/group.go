@@ -110,11 +110,9 @@ func (clt Client) GroupUpdate(groupId int64, newName string) (err error) {
 
 // 查询所有分组.
 func (clt Client) GroupList() (groups []Group, err error) {
-	var result = struct {
+	var result struct {
 		mp.Error
 		Groups []Group `json:"groups"`
-	}{
-		Groups: make([]Group, 0, 16),
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/groups/get?access_token="

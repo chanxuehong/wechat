@@ -226,7 +226,7 @@ func (iter *NewsIterator) NextPage() (items []NewsInfo, err error) {
 	return
 }
 
-func (clt Client) NewsIterator(MaterialType string, offset, count int) (iter *NewsIterator, err error) {
+func (clt Client) NewsIterator(offset, count int) (iter *NewsIterator, err error) {
 	// 逻辑上相当于第一次调用 NewsIterator.NextPage, 因为第一次调用 NewsIterator.HasNext 需要数据支撑, 所以提前获取了数据
 
 	rslt, err := clt.BatchGetNews(offset, count)

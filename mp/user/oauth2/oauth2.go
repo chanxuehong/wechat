@@ -15,6 +15,11 @@ import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
+type TokenStorage interface {
+	Get() (*Token, error)
+	Put(*Token) error
+}
+
 type Token struct {
 	AccessToken  string // 网页授权接口调用凭证, 注意: 此access_token与基础支持的access_token不同
 	ExpiresAt    int64  // 过期时间, unixtime, 分布式系统要求时间同步, 建议使用 NTP
@@ -31,16 +36,23 @@ func (token *Token) AccessTokenExpired() bool {
 }
 
 // 通过code换取网页授权access_token.
-//  NOTE:
-//  1. Client 需要指定 Config
-//  2. 如果指定了 Token, 则会更新这个 Token, 否则会为 clt.Token 分配内存, 返回的 token == clt.Token
+//  返回的 token == clt.Token
 func (clt *Client) Exchange(code string) (token *Token, err error) {
 	if clt.Config == nil {
 		err = errors.New("nil Config")
 		return
 	}
 
-	tk := clt.Token
+	var tk *Token
+	if clt.TokenStorage != nil {
+		if tk, _ = clt.TokenStorage.Get(); tk == nil {
+			tk = clt.Token
+		} else {
+			clt.Token = tk // update local
+		}
+	} else {
+		tk = clt.Token
+	}
 	if tk == nil {
 		tk = new(Token)
 	}
@@ -49,84 +61,62 @@ func (clt *Client) Exchange(code string) (token *Token, err error) {
 		return
 	}
 
+	if clt.TokenStorage != nil {
+		if err = clt.TokenStorage.Put(tk); err != nil {
+			return
+		}
+	}
 	clt.Token = tk
 	token = tk
 	return
 }
 
 // 刷新access_token(如果需要).
-//  NOTE: Client 需要指定 Config, Token, 返回的 token == clt.Token
+//  返回的 token == clt.Token
 func (clt *Client) TokenRefresh() (token *Token, err error) {
 	if clt.Config == nil {
 		err = errors.New("nil Config")
 		return
 	}
-	if clt.Token == nil {
-		err = errors.New("nil Token")
-		return
+
+	var tk *Token
+	if clt.TokenStorage != nil {
+		if tk, err = clt.TokenStorage.Get(); err != nil {
+			return
+		}
+		if tk == nil {
+			err = errors.New("Incorrect TokenStorage.Get()")
+			return
+		}
+		clt.Token = tk // update local
+	} else {
+		tk = clt.Token
+		if tk == nil {
+			err = errors.New("nil TokenStorage and nil Token")
+			return
+		}
 	}
-	if clt.Token.RefreshToken == "" {
-		err = errors.New("empty RefreshToken")
+
+	return clt.tokenRefresh(tk)
+}
+
+func (clt *Client) tokenRefresh(tk *Token) (token *Token, err error) {
+	if err = clt.updateToken(tk, clt.Config.RefreshTokenURL(tk.RefreshToken)); err != nil {
 		return
 	}
 
-	if err = clt.updateToken(clt.Token, clt.Config.RefreshTokenURL(clt.Token.RefreshToken)); err != nil {
-		return
+	if clt.TokenStorage != nil {
+		if err = clt.TokenStorage.Put(tk); err != nil {
+			return
+		}
 	}
-
-	token = clt.Token
+	clt.Token = tk
+	token = tk
 	return
 }
 
-// 检验授权凭证(access_token)是否有效.
-//  NOTE:
-//  1. Client 需要指定 Config, Token
-//  2. 先判断 err 然后再判断 valid
-func (clt *Client) CheckAccessTokenValid() (valid bool, err error) {
-	if clt.Config == nil {
-		err = errors.New("nil Config")
-		return
-	}
-	if clt.Token == nil {
-		err = errors.New("nil Token")
-		return
-	}
-	if clt.Token.AccessToken == "" {
-		err = errors.New("empty AccessToken")
-		return
-	}
-	if clt.Token.OpenId == "" {
-		err = errors.New("empty OpenId")
-		return
-	}
-
-	var result mp.Error
-
-	_url := "https://api.weixin.qq.com/sns/auth?access_token=" + url.QueryEscape(clt.Token.AccessToken) +
-		"&openid=" + url.QueryEscape(clt.Token.OpenId)
-	if err = clt.getJSON(_url, &result); err != nil {
-		return
-	}
-
-	switch result.ErrCode {
-	case mp.ErrCodeOK:
-		valid = true
-		return
-	case 40001:
-		//valid = false
-		return
-	default:
-		err = &result
-		return
-	}
-}
-
-// 从服务器获取新的 token 更新 tk
+// 从服务器获取新的 token 更新 tk, 通过 code 换取 token 或者刷新 token
 func (clt *Client) updateToken(tk *Token, url string) (err error) {
-	if tk == nil {
-		return errors.New("nil Token")
-	}
-
 	var result struct {
 		mp.Error
 
@@ -184,4 +174,50 @@ func (clt *Client) updateToken(tk *Token, url string) (err error) {
 		tk.Scopes = append(tk.Scopes, str)
 	}
 	return
+}
+
+// 检验授权凭证(access_token)是否有效.
+func (clt *Client) CheckAccessTokenValid() (valid bool, err error) {
+	if clt.Config == nil { // 保留, 以后可能需要
+		err = errors.New("nil Config")
+		return
+	}
+
+	var tk *Token
+	if clt.TokenStorage != nil {
+		if tk, err = clt.TokenStorage.Get(); err != nil {
+			return
+		}
+		if tk == nil {
+			err = errors.New("Incorrect TokenStorage.Get()")
+			return
+		}
+		clt.Token = tk // update local
+	} else {
+		tk = clt.Token
+		if tk == nil {
+			err = errors.New("nil TokenStorage and nil Token")
+			return
+		}
+	}
+
+	var result mp.Error
+
+	_url := "https://api.weixin.qq.com/sns/auth?access_token=" + url.QueryEscape(tk.AccessToken) +
+		"&openid=" + url.QueryEscape(tk.OpenId)
+	if err = clt.getJSON(_url, &result); err != nil {
+		return
+	}
+
+	switch result.ErrCode {
+	case mp.ErrCodeOK:
+		valid = true
+		return
+	case 40001:
+		//valid = false
+		return
+	default:
+		err = &result
+		return
+	}
 }

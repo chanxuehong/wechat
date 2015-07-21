@@ -3,5 +3,20 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 网页授权获取用户基本信息
-package oauth2
+package session
+
+import (
+	"net/http"
+
+	"github.com/chanxuehong/wechat/mp"
+)
+
+type Client struct {
+	*mp.Client
+}
+
+func NewClient(srv mp.AccessTokenServer, clt *http.Client) Client {
+	return Client{
+		Client: mp.NewClient(srv, clt),
+	}
+}

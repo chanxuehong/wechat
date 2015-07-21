@@ -1,14 +1,10 @@
 # wechat SDK for go(golang)
 
-## 历史版本
-https://github.com/chanxuehong/wechat/tree/legacy
-
 ## 联系方式
 
 邮箱:        chanxuehong@gmail.com  
 QQ群:        297489459  
-微信群聊:    ![群聊二维码](https://github.com/chanxuehong/wechat/blob/master/weixin_group1.png)  
-邮件列表:	 https://groups.google.com/d/forum/golang-wechat  
+微信群聊:    ![群聊二维码](https://github.com/chanxuehong/wechat/blob/master/mmqrcode1437405773353.png)   
 
 ## 简介
 mp   微信公众平台 SDK  

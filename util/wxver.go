@@ -6,7 +6,7 @@
 package util
 
 import (
-	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -20,8 +20,8 @@ func WXVersion(userAgent string) (x, y, z int, err error) {
 	lastSlashIndex := strings.LastIndex(userAgent, "/")
 	versionIndex := lastSlashIndex + 1
 
-	if lastSlashIndex == -1 || versionIndex == len(userAgent) {
-		err = errors.New("不是有效的微信浏览器 user-agent")
+	if lastSlashIndex == -1 || versionIndex >= len(userAgent) {
+		err = fmt.Errorf("不是有效的微信浏览器 user-agent, %s", userAgent)
 		return
 	}
 
@@ -29,13 +29,11 @@ func WXVersion(userAgent string) (x, y, z int, err error) {
 	verArr := make([]int, len(strArr))
 
 	for i, str := range strArr {
-		var ver uint64
-		ver, err = strconv.ParseUint(str, 10, 16)
+		verArr[i], err = strconv.Atoi(str)
 		if err != nil {
-			err = errors.New("不是有效的微信浏览器 user-agent")
+			err = fmt.Errorf("不是有效的微信浏览器 user-agent, %s", userAgent)
 			return
 		}
-		verArr[i] = int(ver)
 	}
 
 	// len(verArr) == len(strArr) >= 1, why?

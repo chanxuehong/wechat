@@ -6,7 +6,7 @@
 package mp
 
 // 获取自动回复规则
-func (clt *Client) GetCurrentAutoReplyInfo() (info *AutoReplyInfo, err error) {
+func (clt *Client) GetAutoReplyInfo() (info *AutoReplyInfo, err error) {
 	var result struct {
 		Error
 		AutoReplyInfo
