@@ -12,15 +12,10 @@ import (
 	"github.com/chanxuehong/wechat/corp"
 )
 
-type Client struct {
-	*corp.Client
-}
+type Client corp.Client
 
-// 兼容保留, 建議實際項目全局維護一個 *corp.Client
-func NewClient(srv corp.AccessTokenServer, clt *http.Client) Client {
-	return Client{
-		Client: corp.NewClient(srv, clt),
-	}
+func NewClient(srv corp.AccessTokenServer, clt *http.Client) *Client {
+	return (*Client)(corp.NewClient(srv, clt))
 }
 
 // 发送消息返回的数据结构
@@ -30,7 +25,7 @@ type Result struct {
 	InvalidTag   string `json:"invalidtag"`
 }
 
-func (clt Client) SendText(msg *Text) (r *Result, err error) {
+func (clt *Client) SendText(msg *Text) (r *Result, err error) {
 	if msg == nil {
 		err = errors.New("nil msg")
 		return
@@ -38,7 +33,7 @@ func (clt Client) SendText(msg *Text) (r *Result, err error) {
 	return clt.send(msg)
 }
 
-func (clt Client) SendImage(msg *Image) (r *Result, err error) {
+func (clt *Client) SendImage(msg *Image) (r *Result, err error) {
 	if msg == nil {
 		err = errors.New("nil msg")
 		return
@@ -46,7 +41,7 @@ func (clt Client) SendImage(msg *Image) (r *Result, err error) {
 	return clt.send(msg)
 }
 
-func (clt Client) SendVoice(msg *Voice) (r *Result, err error) {
+func (clt *Client) SendVoice(msg *Voice) (r *Result, err error) {
 	if msg == nil {
 		err = errors.New("nil msg")
 		return
@@ -54,7 +49,7 @@ func (clt Client) SendVoice(msg *Voice) (r *Result, err error) {
 	return clt.send(msg)
 }
 
-func (clt Client) SendVideo(msg *Video) (r *Result, err error) {
+func (clt *Client) SendVideo(msg *Video) (r *Result, err error) {
 	if msg == nil {
 		err = errors.New("nil msg")
 		return
@@ -62,7 +57,7 @@ func (clt Client) SendVideo(msg *Video) (r *Result, err error) {
 	return clt.send(msg)
 }
 
-func (clt Client) SendFile(msg *File) (r *Result, err error) {
+func (clt *Client) SendFile(msg *File) (r *Result, err error) {
 	if msg == nil {
 		err = errors.New("nil msg")
 		return
@@ -70,18 +65,7 @@ func (clt Client) SendFile(msg *File) (r *Result, err error) {
 	return clt.send(msg)
 }
 
-func (clt Client) SendNews(msg *News) (r *Result, err error) {
-	if msg == nil {
-		err = errors.New("nil msg")
-		return
-	}
-	if err = msg.CheckValid(); err != nil {
-		return
-	}
-	return clt.send(msg)
-}
-
-func (clt Client) SendMPNews(msg *MPNews) (r *Result, err error) {
+func (clt *Client) SendNews(msg *News) (r *Result, err error) {
 	if msg == nil {
 		err = errors.New("nil msg")
 		return
@@ -92,14 +76,25 @@ func (clt Client) SendMPNews(msg *MPNews) (r *Result, err error) {
 	return clt.send(msg)
 }
 
-func (clt Client) send(msg interface{}) (r *Result, err error) {
+func (clt *Client) SendMPNews(msg *MPNews) (r *Result, err error) {
+	if msg == nil {
+		err = errors.New("nil msg")
+		return
+	}
+	if err = msg.CheckValid(); err != nil {
+		return
+	}
+	return clt.send(msg)
+}
+
+func (clt *Client) send(msg interface{}) (r *Result, err error) {
 	var result struct {
 		corp.Error
 		Result
 	}
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token="
-	if err = clt.PostJSON(incompleteURL, msg, &result); err != nil {
+	if err = ((*corp.Client)(clt)).PostJSON(incompleteURL, msg, &result); err != nil {
 		return
 	}
 

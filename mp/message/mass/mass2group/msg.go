@@ -3,6 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
+// 群发给分组的消息数据结构.
 package mass2group
 
 const (

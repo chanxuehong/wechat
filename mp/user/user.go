@@ -90,7 +90,7 @@ func (info *UserInfo) HeadImageSize() (size int, err error) {
 //  注意:
 //  1. 需要判断返回的 UserInfo.IsSubscriber 是否等于 1 还是 0
 //  2. lang 可以是 zh_CN, zh_TW, en, 如果留空 "" 则默认为 zh_CN
-func (clt Client) UserInfo(openId string, lang string) (userinfo *UserInfo, err error) {
+func (clt *Client) UserInfo(openId string, lang string) (userinfo *UserInfo, err error) {
 	if openId == "" {
 		err = errors.New("empty openId")
 		return
@@ -111,7 +111,7 @@ func (clt Client) UserInfo(openId string, lang string) (userinfo *UserInfo, err 
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/user/info?openid=" + url.QueryEscape(openId) +
 		"&lang=" + url.QueryEscape(lang) + "&access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*mp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 
@@ -147,7 +147,7 @@ func NewUserInfoBatchGetRequest(openIdList []string, lang string) (ret []UserInf
 
 // 批量获取用户基本信息
 //  注意: 需要对返回的 UserInfoList 的每个 UserInfo.IsSubscriber 做判断
-func (clt Client) UserInfoBatchGet(req []UserInfoBatchGetRequestItem) (UserInfoList []UserInfo, err error) {
+func (clt *Client) UserInfoBatchGet(req []UserInfoBatchGetRequestItem) (UserInfoList []UserInfo, err error) {
 	if len(req) <= 0 {
 		err = errors.New("empty request")
 		return
@@ -165,7 +165,7 @@ func (clt Client) UserInfoBatchGet(req []UserInfoBatchGetRequestItem) (UserInfoL
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/user/info/batchget?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -178,7 +178,7 @@ func (clt Client) UserInfoBatchGet(req []UserInfoBatchGetRequestItem) (UserInfoL
 }
 
 // 开发者可以通过该接口对指定用户设置备注名.
-func (clt Client) UserUpdateRemark(openId, remark string) (err error) {
+func (clt *Client) UserUpdateRemark(openId, remark string) (err error) {
 	var request = struct {
 		OpenId string `json:"openid"`
 		Remark string `json:"remark"`
@@ -190,7 +190,7 @@ func (clt Client) UserUpdateRemark(openId, remark string) (err error) {
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/user/info/updateremark?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -218,7 +218,7 @@ type UserListResult struct {
 //  NOTE:
 //  1. 每次最多能获取 10000 个用户, 可以多次指定 NextOpenId 来获取以满足需求, 如果 NextOpenId == "" 则表示从头获取
 //  2. 目前微信返回的数据并不包括 NextOpenId 本身, 是从 NextOpenId 下一个用户开始的, 和微信文档描述不一样!!!
-func (clt Client) UserList(NextOpenId string) (rslt *UserListResult, err error) {
+func (clt *Client) UserList(NextOpenId string) (rslt *UserListResult, err error) {
 	var result struct {
 		mp.Error
 		UserListResult
@@ -231,7 +231,7 @@ func (clt Client) UserList(NextOpenId string) (rslt *UserListResult, err error) 
 		incompleteURL = "https://api.weixin.qq.com/cgi-bin/user/get?next_openid=" + url.QueryEscape(NextOpenId) + "&access_token="
 	}
 
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*mp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 

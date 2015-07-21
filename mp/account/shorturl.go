@@ -10,7 +10,7 @@ import (
 )
 
 // 将一条长链接转成短链接.
-func (clt Client) ShortURL(longURL string) (shortURL string, err error) {
+func (clt *Client) ShortURL(longURL string) (shortURL string, err error) {
 	var request = struct {
 		Action  string `json:"action"`
 		LongURL string `json:"long_url"`
@@ -25,7 +25,7 @@ func (clt Client) ShortURL(longURL string) (shortURL string, err error) {
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/shorturl?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 

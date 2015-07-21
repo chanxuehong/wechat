@@ -3,6 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
+// 群发给用户列表的消息数据结构.
 package mass2users
 
 import (

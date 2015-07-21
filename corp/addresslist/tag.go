@@ -13,7 +13,7 @@ import (
 )
 
 // 创建标签
-func (clt Client) TagCreate(tagName string) (id int64, err error) {
+func (clt *Client) TagCreate(tagName string) (id int64, err error) {
 	var request = struct {
 		TagName string `json:"tagname"`
 	}{
@@ -26,7 +26,7 @@ func (clt Client) TagCreate(tagName string) (id int64, err error) {
 	}
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/tag/create?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*corp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -39,7 +39,7 @@ func (clt Client) TagCreate(tagName string) (id int64, err error) {
 }
 
 // 更新标签名字
-func (clt Client) TagUpdate(id int64, name string) (err error) {
+func (clt *Client) TagUpdate(id int64, name string) (err error) {
 	var request = struct {
 		TagId   int64  `json:"tagid"`
 		TagName string `json:"tagname"`
@@ -51,7 +51,7 @@ func (clt Client) TagUpdate(id int64, name string) (err error) {
 	var result corp.Error
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/tag/update?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*corp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -63,12 +63,12 @@ func (clt Client) TagUpdate(id int64, name string) (err error) {
 }
 
 // 删除标签
-func (clt Client) TagDelete(id int64) (err error) {
+func (clt *Client) TagDelete(id int64) (err error) {
 	var result corp.Error
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/tag/delete?tagid=" +
 		strconv.FormatInt(id, 10) + "&access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*corp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 
@@ -80,7 +80,7 @@ func (clt Client) TagDelete(id int64) (err error) {
 }
 
 // 获取标签成员
-func (clt Client) TagInfo(id int64) (userList []UserBaseInfo, departmentList []int64, err error) {
+func (clt *Client) TagInfo(id int64) (userList []UserBaseInfo, departmentList []int64, err error) {
 	var result struct {
 		corp.Error
 		UserList       []UserBaseInfo `json:"userlist"`
@@ -89,7 +89,7 @@ func (clt Client) TagInfo(id int64) (userList []UserBaseInfo, departmentList []i
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/tag/get?tagid=" +
 		strconv.FormatInt(id, 10) + "&access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*corp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 
@@ -103,7 +103,7 @@ func (clt Client) TagInfo(id int64) (userList []UserBaseInfo, departmentList []i
 }
 
 // 增加标签成员
-func (clt Client) TagAddUser(id int64, userList []string,
+func (clt *Client) TagAddUser(id int64, userList []string,
 	departmentList []int64) (invalidUserList []string, invalidDepartmentList []int64, err error) {
 
 	if len(userList) <= 0 && len(departmentList) <= 0 {
@@ -127,7 +127,7 @@ func (clt Client) TagAddUser(id int64, userList []string,
 	}
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/tag/addtagusers?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*corp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -149,7 +149,7 @@ func (clt Client) TagAddUser(id int64, userList []string,
 }
 
 // 删除标签成员
-func (clt Client) TagDeleteUser(id int64, userList []string,
+func (clt *Client) TagDeleteUser(id int64, userList []string,
 	departmentList []int64) (invalidUserList []string, invalidDepartmentList []int64, err error) {
 
 	if len(userList) <= 0 && len(departmentList) <= 0 {
@@ -173,7 +173,7 @@ func (clt Client) TagDeleteUser(id int64, userList []string,
 	}
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/tag/deltagusers?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*corp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -200,14 +200,14 @@ type Tag struct {
 }
 
 // 获取标签列表
-func (clt Client) TagList() (list []Tag, err error) {
+func (clt *Client) TagList() (list []Tag, err error) {
 	var result struct {
 		corp.Error
 		TagList []Tag `json:"taglist"`
 	}
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/tag/list?access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*corp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 

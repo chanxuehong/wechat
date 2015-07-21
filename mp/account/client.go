@@ -11,12 +11,8 @@ import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
-type Client struct {
-	*mp.Client
-}
+type Client mp.Client
 
-func NewClient(srv mp.AccessTokenServer, clt *http.Client) Client {
-	return Client{
-		Client: mp.NewClient(srv, clt),
-	}
+func NewClient(srv mp.AccessTokenServer, clt *http.Client) *Client {
+	return (*Client)(mp.NewClient(srv, clt))
 }
