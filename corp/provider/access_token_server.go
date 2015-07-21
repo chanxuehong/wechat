@@ -52,16 +52,16 @@ type DefaultAccessTokenServer struct {
 
 	resetTickerChan chan time.Duration // 用于重置 tokenDaemon 里的 ticker
 
-	tokenGet  struct {
-		          sync.Mutex
-		          LastTokenInfo accessTokenInfo // 最后一次成功从微信服务器获取的 provider_access_token 信息
-		          LastTimestamp int64           // 最后一次成功从微信服务器获取 provider_access_token 的时间戳
-	          }
+	tokenGet        struct {
+		                sync.Mutex
+		                LastTokenInfo accessTokenInfo // 最后一次成功从微信服务器获取的 provider_access_token 信息
+		                LastTimestamp int64           // 最后一次成功从微信服务器获取 provider_access_token 的时间戳
+	                }
 
-	tokenCache  struct {
-		            sync.RWMutex
-		            Token string
-	            }
+	tokenCache      struct {
+		                sync.RWMutex
+		                Token string
+	                }
 }
 
 // 创建一个新的 DefaultAccessTokenServer.
