@@ -25,7 +25,7 @@ type BoardingPassCheckinParameters struct {
 
 // 在线值机接口.
 //  领取电影票后通过调用"更新电影票"接口update 电影信息及用户选座信息
-func (clt Client) BoardingPassCheckin(para *BoardingPassCheckinParameters) (err error) {
+func (clt *Client) BoardingPassCheckin(para *BoardingPassCheckinParameters) (err error) {
 	if para == nil {
 		return errors.New("nil BoardingPassCheckinParameters")
 	}
@@ -33,7 +33,7 @@ func (clt Client) BoardingPassCheckin(para *BoardingPassCheckinParameters) (err 
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/card/boardingpass/checkin?access_token="
-	if err = clt.PostJSON(incompleteURL, para, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, para, &result); err != nil {
 		return
 	}
 

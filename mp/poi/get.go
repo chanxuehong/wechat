@@ -37,7 +37,7 @@ type Poi struct {
 }
 
 // 查询门店信息.
-func (clt Client) PoiGet(poiId string) (poi *Poi, err error) {
+func (clt *Client) PoiGet(poiId string) (poi *Poi, err error) {
 	var request = struct {
 		PoiId string `json:"poi_id"`
 	}{
@@ -50,7 +50,7 @@ func (clt Client) PoiGet(poiId string) (poi *Poi, err error) {
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/poi/getpoi?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 

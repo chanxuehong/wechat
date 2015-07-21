@@ -10,14 +10,14 @@ import (
 )
 
 // 查询门店信息.
-func (clt Client) GetWxCategory() (categoryList []string, err error) {
+func (clt *Client) GetWxCategory() (categoryList []string, err error) {
 	var result struct {
 		mp.Error
 		CategoryList []string `json:"category_list"`
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/api_getwxcategory?access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*mp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 

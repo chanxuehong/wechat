@@ -38,7 +38,7 @@ func (article *Article) SetShowCoverPic(b bool) {
 }
 
 // 新增永久图文素材.
-func (clt Client) AddNews(news News) (mediaId string, err error) {
+func (clt *Client) AddNews(news News) (mediaId string, err error) {
 	if len(news) == 0 {
 		err = errors.New("图文素材是空的")
 		return
@@ -60,7 +60,7 @@ func (clt Client) AddNews(news News) (mediaId string, err error) {
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/add_news?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -73,7 +73,7 @@ func (clt Client) AddNews(news News) (mediaId string, err error) {
 }
 
 // 修改永久图文素材.
-func (clt Client) UpdateNews(mediaId string, index int, article *Article) (err error) {
+func (clt *Client) UpdateNews(mediaId string, index int, article *Article) (err error) {
 	var request = struct {
 		MediaId string   `json:"media_id"`
 		Index   int      `json:"index"`
@@ -87,7 +87,7 @@ func (clt Client) UpdateNews(mediaId string, index int, article *Article) (err e
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/update_news?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -99,7 +99,7 @@ func (clt Client) UpdateNews(mediaId string, index int, article *Article) (err e
 }
 
 // 获取永久图文素材.
-func (clt Client) GetNews(mediaId string) (news News, err error) {
+func (clt *Client) GetNews(mediaId string) (news News, err error) {
 	var request = struct {
 		MediaId string `json:"media_id"`
 	}{
@@ -112,7 +112,7 @@ func (clt Client) GetNews(mediaId string) (news News, err error) {
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/get_material?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -142,7 +142,7 @@ type BatchGetNewsResult struct {
 //
 //  offset:       从全部素材的该偏移位置开始返回, 0表示从第一个素材 返回
 //  count:        返回素材的数量, 取值在1到20之间
-func (clt Client) BatchGetNews(offset, count int) (rslt *BatchGetNewsResult, err error) {
+func (clt *Client) BatchGetNews(offset, count int) (rslt *BatchGetNewsResult, err error) {
 	var request = struct {
 		MaterialType string `json:"type"`
 		Offset       int    `json:"offset"`
@@ -159,7 +159,7 @@ func (clt Client) BatchGetNews(offset, count int) (rslt *BatchGetNewsResult, err
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -184,7 +184,7 @@ func (clt Client) BatchGetNews(offset, count int) (rslt *BatchGetNewsResult, err
 //      // TODO: 增加你的代码
 //  }
 type NewsIterator struct {
-	clt Client // 关联的微信 Client
+	clt *Client // 关联的微信 Client
 
 	nextOffset int // 下一次获取数据时的 offset
 	count      int // 步长
@@ -226,7 +226,7 @@ func (iter *NewsIterator) NextPage() (items []NewsInfo, err error) {
 	return
 }
 
-func (clt Client) NewsIterator(offset, count int) (iter *NewsIterator, err error) {
+func (clt *Client) NewsIterator(offset, count int) (iter *NewsIterator, err error) {
 	// 逻辑上相当于第一次调用 NewsIterator.NextPage, 因为第一次调用 NewsIterator.HasNext 需要数据支撑, 所以提前获取了数据
 
 	rslt, err := clt.BatchGetNews(offset, count)

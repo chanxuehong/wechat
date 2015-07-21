@@ -18,12 +18,12 @@ import (
 //  根据code和agentid获取员工的userid.
 //
 //  企业在员工验证成功后, 调用如下接口即可让员工关注成功.
-func (clt Client) UserAuthSuccess(userId string) (err error) {
+func (clt *Client) UserAuthSuccess(userId string) (err error) {
 	var result corp.Error
 
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/user/authsucc?userid=" +
 		url.QueryEscape(userId) + "&access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*corp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 

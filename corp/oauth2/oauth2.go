@@ -28,15 +28,10 @@ func AuthCodeURL(corpId, redirectURL, scope, state string) string {
 		"#wechat_redirect"
 }
 
-type Client struct {
-	*corp.Client
-}
+type Client corp.Client
 
-// 兼容保留, 建議實際項目全局維護一個 *corp.Client
-func NewClient(srv corp.AccessTokenServer, clt *http.Client) Client {
-	return Client{
-		Client: corp.NewClient(srv, clt),
-	}
+func NewClient(srv corp.AccessTokenServer, clt *http.Client) *Client {
+	return (*Client)(corp.NewClient(srv, clt))
 }
 
 type UserInfo struct {
@@ -48,7 +43,7 @@ type UserInfo struct {
 //  agentId: 跳转链接时所在的企业应用ID
 //  code:    通过员工授权获取到的code, 每次员工授权带上的code将不一样,
 //           code只能使用一次, 5分钟未被使用自动过期
-func (clt Client) UserInfo(agentId int64, code string) (info *UserInfo, err error) {
+func (clt *Client) UserInfo(agentId int64, code string) (info *UserInfo, err error) {
 	var result struct {
 		corp.Error
 		UserInfo
@@ -57,7 +52,7 @@ func (clt Client) UserInfo(agentId int64, code string) (info *UserInfo, err erro
 	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?agentid=" +
 		strconv.FormatInt(agentId, 10) + "&code=" + url.QueryEscape(code) +
 		"&access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*corp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 

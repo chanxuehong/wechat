@@ -28,7 +28,7 @@ type UpstreamMsgData struct {
 }
 
 // 获取消息发送概况数据.
-func (clt Client) GetUpstreamMsg(req *Request) (list []UpstreamMsgData, err error) {
+func (clt *Client) GetUpstreamMsg(req *Request) (list []UpstreamMsgData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -40,7 +40,7 @@ func (clt Client) GetUpstreamMsg(req *Request) (list []UpstreamMsgData, err erro
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getupstreammsg?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 
@@ -59,7 +59,7 @@ type UpstreamMsgHourData struct {
 }
 
 // 获取消息分送分时数据.
-func (clt Client) GetUpstreamMsgHour(req *Request) (list []UpstreamMsgHourData, err error) {
+func (clt *Client) GetUpstreamMsgHour(req *Request) (list []UpstreamMsgHourData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -71,7 +71,7 @@ func (clt Client) GetUpstreamMsgHour(req *Request) (list []UpstreamMsgHourData, 
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getupstreammsghour?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 
@@ -87,7 +87,7 @@ func (clt Client) GetUpstreamMsgHour(req *Request) (list []UpstreamMsgHourData, 
 type UpstreamMsgWeekData UpstreamMsgData
 
 // 获取消息发送周数据.
-func (clt Client) GetUpstreamMsgWeek(req *Request) (list []UpstreamMsgWeekData, err error) {
+func (clt *Client) GetUpstreamMsgWeek(req *Request) (list []UpstreamMsgWeekData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -99,7 +99,7 @@ func (clt Client) GetUpstreamMsgWeek(req *Request) (list []UpstreamMsgWeekData, 
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getupstreammsgweek?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 
@@ -115,7 +115,7 @@ func (clt Client) GetUpstreamMsgWeek(req *Request) (list []UpstreamMsgWeekData, 
 type UpstreamMsgMonthData UpstreamMsgData
 
 // 获取消息发送月数据.
-func (clt Client) GetUpstreamMsgMonth(req *Request) (list []UpstreamMsgMonthData, err error) {
+func (clt *Client) GetUpstreamMsgMonth(req *Request) (list []UpstreamMsgMonthData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -127,7 +127,7 @@ func (clt Client) GetUpstreamMsgMonth(req *Request) (list []UpstreamMsgMonthData
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getupstreammsgmonth?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 
@@ -148,7 +148,7 @@ type UpstreamMsgDistData struct {
 }
 
 // 获取消息发送分布数据.
-func (clt Client) GetUpstreamMsgDist(req *Request) (list []UpstreamMsgDistData, err error) {
+func (clt *Client) GetUpstreamMsgDist(req *Request) (list []UpstreamMsgDistData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -160,7 +160,7 @@ func (clt Client) GetUpstreamMsgDist(req *Request) (list []UpstreamMsgDistData, 
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getupstreammsgdist?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 
@@ -176,7 +176,7 @@ func (clt Client) GetUpstreamMsgDist(req *Request) (list []UpstreamMsgDistData, 
 type UpstreamMsgDistWeekData UpstreamMsgDistData
 
 // 获取消息发送分布周数据.
-func (clt Client) GetUpstreamMsgDistWeek(req *Request) (list []UpstreamMsgDistWeekData, err error) {
+func (clt *Client) GetUpstreamMsgDistWeek(req *Request) (list []UpstreamMsgDistWeekData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -188,7 +188,7 @@ func (clt Client) GetUpstreamMsgDistWeek(req *Request) (list []UpstreamMsgDistWe
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getupstreammsgdistweek?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 
@@ -204,7 +204,7 @@ func (clt Client) GetUpstreamMsgDistWeek(req *Request) (list []UpstreamMsgDistWe
 type UpstreamMsgDistMonthData UpstreamMsgDistData
 
 // 获取消息发送分布月数据.
-func (clt Client) GetUpstreamMsgDistMonth(req *Request) (list []UpstreamMsgDistMonthData, err error) {
+func (clt *Client) GetUpstreamMsgDistMonth(req *Request) (list []UpstreamMsgDistMonthData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -216,7 +216,7 @@ func (clt Client) GetUpstreamMsgDistMonth(req *Request) (list []UpstreamMsgDistM
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getupstreammsgdistmonth?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 

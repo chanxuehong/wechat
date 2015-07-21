@@ -15,14 +15,14 @@ type Color struct {
 }
 
 // 获得卡券的最新颜色列表, 用于卡券创建.
-func (clt Client) GetColors() (colors []Color, err error) {
+func (clt *Client) GetColors() (colors []Color, err error) {
 	var result struct {
 		mp.Error
 		Colors []Color `json:"colors"`
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/card/getcolors?access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*mp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 

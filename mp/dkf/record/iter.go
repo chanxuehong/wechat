@@ -20,7 +20,7 @@ package record
 //      // TODO: 增加你的代码
 //  }
 type RecordIterator struct {
-	clt Client // 关联的微信 Client
+	clt *Client // 关联的微信 Client
 
 	nextGetRecordRequest *GetRecordRequest // 上一次查询的 request
 
@@ -56,7 +56,7 @@ func (iter *RecordIterator) NextPage() (records []Record, err error) {
 }
 
 // 获取聊天记录遍历器.
-func (clt Client) RecordIterator(request *GetRecordRequest) (iter *RecordIterator, err error) {
+func (clt *Client) RecordIterator(request *GetRecordRequest) (iter *RecordIterator, err error) {
 	// 逻辑上相当于第一次调用 RecordIterator.NextPage, 因为第一次调用 RecordIterator.HasNext 需要数据支撑, 所以提前获取了数据
 
 	records, err := clt.GetRecord(request)

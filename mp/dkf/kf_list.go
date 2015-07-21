@@ -58,14 +58,14 @@ func (info *KfInfo) HeadImageSize() (size int, err error) {
 }
 
 // 获取客服基本信息.
-func (clt Client) KfList() (kfList []KfInfo, err error) {
+func (clt *Client) KfList() (kfList []KfInfo, err error) {
 	var result struct {
 		mp.Error
 		KfList []KfInfo `json:"kf_list"`
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/customservice/getkflist?access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*mp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 
@@ -93,14 +93,14 @@ type OnlineKfInfo struct {
 }
 
 // 获取在线客服接待信息.
-func (clt Client) OnlineKfList() (kfList []OnlineKfInfo, err error) {
+func (clt *Client) OnlineKfList() (kfList []OnlineKfInfo, err error) {
 	var result struct {
 		mp.Error
 		OnlineKfInfoList []OnlineKfInfo `json:"kf_online_list"`
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/customservice/getonlinekflist?access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*mp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 

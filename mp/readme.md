@@ -31,7 +31,7 @@ func main() {
 	mn.Buttons[1].SetAsViewButton("视频", "http://v.qq.com/")
 	mn.Buttons[2].SetAsSubMenuButton("子菜单", subButtons)
 
-	menuClient := menu.Client{Client: mpClient}
+	menuClient := (*menu.Client)(mpClient)
 	if err := menuClient.CreateMenu(mn); err != nil {
 		fmt.Println(err)
 		return

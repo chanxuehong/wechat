@@ -11,22 +11,18 @@ import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
-type Client struct {
-	*mp.Client
-}
+type Client mp.Client
 
-func NewClient(srv mp.AccessTokenServer, clt *http.Client) Client {
-	return Client{
-		Client: mp.NewClient(srv, clt),
-	}
+func NewClient(srv mp.AccessTokenServer, clt *http.Client) *Client {
+	return (*Client)(mp.NewClient(srv, clt))
 }
 
 // 创建自定义菜单.
-func (clt Client) CreateMenu(menu Menu) (err error) {
+func (clt *Client) CreateMenu(menu Menu) (err error) {
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/create?access_token="
-	if err = clt.PostJSON(incompleteURL, &menu, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &menu, &result); err != nil {
 		return
 	}
 
@@ -38,11 +34,11 @@ func (clt Client) CreateMenu(menu Menu) (err error) {
 }
 
 // 删除自定义菜单
-func (clt Client) DeleteMenu() (err error) {
+func (clt *Client) DeleteMenu() (err error) {
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*mp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 
@@ -54,14 +50,14 @@ func (clt Client) DeleteMenu() (err error) {
 }
 
 // 获取自定义菜单
-func (clt Client) GetMenu() (menu Menu, err error) {
+func (clt *Client) GetMenu() (menu Menu, err error) {
 	var result struct {
 		mp.Error
 		Menu Menu `json:"menu"`
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/get?access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*mp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 
@@ -74,7 +70,7 @@ func (clt Client) GetMenu() (menu Menu, err error) {
 }
 
 // 获取自定义菜单配置接口
-func (clt Client) GetMenuInfo() (info MenuInfo, isMenuOpen bool, err error) {
+func (clt *Client) GetMenuInfo() (info MenuInfo, isMenuOpen bool, err error) {
 	var result struct {
 		mp.Error
 		IsMenuOpen int      `json:"is_menu_open"`
@@ -82,7 +78,7 @@ func (clt Client) GetMenuInfo() (info MenuInfo, isMenuOpen bool, err error) {
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/get_current_selfmenu_info?access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*mp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 

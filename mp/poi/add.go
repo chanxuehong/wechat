@@ -39,7 +39,7 @@ type PoiAddParameters struct {
 }
 
 // 创建门店.
-func (clt Client) PoiAdd(para *PoiAddParameters) (err error) {
+func (clt *Client) PoiAdd(para *PoiAddParameters) (err error) {
 	if para == nil {
 		return errors.New("nil PoiAddParameters")
 	}
@@ -53,7 +53,7 @@ func (clt Client) PoiAdd(para *PoiAddParameters) (err error) {
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/poi/addpoi?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 

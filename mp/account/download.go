@@ -20,7 +20,7 @@ func QRCodePicURL(ticket string) string {
 }
 
 // 通过ticket换取二维码, 写入到 filepath 路径的文件.
-func (clt Client) QRCodeDownload(ticket, filepath string) (written int64, err error) {
+func (clt *Client) QRCodeDownload(ticket, filepath string) (written int64, err error) {
 	if ticket == "" {
 		err = errors.New("empty ticket")
 		return
@@ -44,7 +44,7 @@ func (clt Client) QRCodeDownload(ticket, filepath string) (written int64, err er
 }
 
 // 通过ticket换取二维码, 写入到 writer.
-func (clt Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (written int64, err error) {
+func (clt *Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (written int64, err error) {
 	if ticket == "" {
 		err = errors.New("empty ticket")
 		return

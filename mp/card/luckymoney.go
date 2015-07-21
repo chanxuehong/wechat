@@ -20,7 +20,7 @@ package card
 
 //// 更新红包金额.
 ////  支持领取红包后通过调用"更新红包"接口update 红包余额.
-//func (clt Client) LuckyMoneyUpdateUserBalance(para *LuckyMoneyUpdateUserBalanceParameters) (err error) {
+//func (clt *Client) LuckyMoneyUpdateUserBalance(para *LuckyMoneyUpdateUserBalanceParameters) (err error) {
 //	if para == nil {
 //		return errors.New("nil LuckyMoneyUpdateUserBalanceParameters")
 //	}
@@ -28,7 +28,7 @@ package card
 //	var result mp.Error
 //
 //	incompleteURL := "https://api.weixin.qq.com/card/luckymoney/updateuserbalance?access_token="
-//	if err = clt.PostJSON(incompleteURL, para, &result); err != nil {
+//	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, para, &result); err != nil {
 //		return
 //	}
 //
