@@ -9,9 +9,6 @@ import (
 	"github.com/chanxuehong/wechat/corp"
 )
 
-
-
-
 type CorpInfo struct {
 	CorpId            string `json:"corpid"`
 	CorpName          string `json:"corp_name"`
@@ -29,7 +26,6 @@ type AuthInfo struct {
 type Agent struct {
 	AgentId  int64   `json:"agentid"`
 	AuthType int64   `json:"auth_type"`
-
 }
 
 type AuthInfoDepartment struct {
@@ -48,7 +44,6 @@ type UserInfo struct {
 
 
 type LoginInfo struct {
-
 	IsInner   bool       `json:"is_inner"`
 	IsSys     bool       `json:"is_sys"`
 	UserInfo  UserInfo `json:"user_info"`
@@ -76,7 +71,6 @@ func (clt *Client) GetLoginInfo(authCode string) (info *LoginInfo, err error) {
 	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
-
 
 	if result.ErrCode != corp.ErrCodeOK {
 		err = &result.Error
