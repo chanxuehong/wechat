@@ -21,7 +21,7 @@ import (
 //  nickname:   客服昵称, 最长6个汉字或12个英文字符
 //  password:   客服账号登录密码
 //  isPwdPlain: 标识 password 是否为明文格式, true 表示是明文密码, false 表示是密文密码.
-func (clt Client) AddKfAccount(account, nickname, password string, isPwdPlain bool) (err error) {
+func (clt *Client) AddKfAccount(account, nickname, password string, isPwdPlain bool) (err error) {
 	if password == "" {
 		return errors.New("empty password")
 	}
@@ -43,7 +43,7 @@ func (clt Client) AddKfAccount(account, nickname, password string, isPwdPlain bo
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/customservice/kfaccount/add?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -59,7 +59,7 @@ func (clt Client) AddKfAccount(account, nickname, password string, isPwdPlain bo
 //  nickname:   客服昵称, 最长6个汉字或12个英文字符
 //  password:   客服账号登录密码
 //  isPwdPlain: 标识 password 是否为明文格式, true 表示是明文密码, false 表示是密文密码.
-func (clt Client) SetKfAccount(account, nickname, password string, isPwdPlain bool) (err error) {
+func (clt *Client) SetKfAccount(account, nickname, password string, isPwdPlain bool) (err error) {
 	if isPwdPlain && password != "" {
 		md5Sum := md5.Sum([]byte(password))
 		password = hex.EncodeToString(md5Sum[:])
@@ -78,7 +78,7 @@ func (clt Client) SetKfAccount(account, nickname, password string, isPwdPlain bo
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/customservice/kfaccount/update?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -91,7 +91,7 @@ func (clt Client) SetKfAccount(account, nickname, password string, isPwdPlain bo
 
 // 上传客服头像.
 //  开发者可调用本接口来上传图片作为客服人员的头像, 头像图片文件必须是jpg格式, 推荐使用640*640大小的图片以达到最佳效果.
-func (clt Client) UploadKfHeadImage(kfAccount, imagePath string) (err error) {
+func (clt *Client) UploadKfHeadImage(kfAccount, imagePath string) (err error) {
 	if kfAccount == "" {
 		return errors.New("empty kfAccount")
 	}
@@ -107,7 +107,7 @@ func (clt Client) UploadKfHeadImage(kfAccount, imagePath string) (err error) {
 // 上传客服头像.
 //  开发者可调用本接口来上传图片作为客服人员的头像, 头像图片文件必须是jpg格式, 推荐使用640*640大小的图片以达到最佳效果.
 //  注意参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt Client) UploadKfHeadImageFromReader(kfAccount, filename string, reader io.Reader) (err error) {
+func (clt *Client) UploadKfHeadImageFromReader(kfAccount, filename string, reader io.Reader) (err error) {
 	if kfAccount == "" {
 		return errors.New("empty kfAccount")
 	}
@@ -123,7 +123,7 @@ func (clt Client) UploadKfHeadImageFromReader(kfAccount, filename string, reader
 
 // 上传客服头像.
 //  注意参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
-func (clt Client) uploadKfHeadImageFromReader(kfAccount, filename string, reader io.Reader) (err error) {
+func (clt *Client) uploadKfHeadImageFromReader(kfAccount, filename string, reader io.Reader) (err error) {
 	var result mp.Error
 
 	// TODO
@@ -137,7 +137,7 @@ func (clt Client) uploadKfHeadImageFromReader(kfAccount, filename string, reader
 		FileName:    filename,
 		Value:       reader,
 	}}
-	if err = clt.PostMultipartForm(incompleteURL, fields, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostMultipartForm(incompleteURL, fields, &result); err != nil {
 		return
 	}
 
@@ -149,7 +149,7 @@ func (clt Client) uploadKfHeadImageFromReader(kfAccount, filename string, reader
 }
 
 // 删除客服账号
-func (clt Client) DeleteKfAccount(kfAccount string) (err error) {
+func (clt *Client) DeleteKfAccount(kfAccount string) (err error) {
 	var result mp.Error
 
 	// TODO
@@ -157,7 +157,7 @@ func (clt Client) DeleteKfAccount(kfAccount string) (err error) {
 	//		url.QueryEscape(kfAccount) + "&access_token="
 	incompleteURL := "https://api.weixin.qq.com/customservice/kfaccount/del?kf_account=" +
 		kfAccount + "&access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*mp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 

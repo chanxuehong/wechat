@@ -21,7 +21,7 @@ type InterfaceSummaryData struct {
 }
 
 // 获取接口分析数据.
-func (clt Client) GetInterfaceSummary(req *Request) (list []InterfaceSummaryData, err error) {
+func (clt *Client) GetInterfaceSummary(req *Request) (list []InterfaceSummaryData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -33,7 +33,7 @@ func (clt Client) GetInterfaceSummary(req *Request) (list []InterfaceSummaryData
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getinterfacesummary?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 
@@ -51,7 +51,7 @@ type InterfaceSummaryHourData struct {
 }
 
 // 获取接口分析分时数据.
-func (clt Client) GetInterfaceSummaryHour(req *Request) (list []InterfaceSummaryHourData, err error) {
+func (clt *Client) GetInterfaceSummaryHour(req *Request) (list []InterfaceSummaryHourData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -63,7 +63,7 @@ func (clt Client) GetInterfaceSummaryHour(req *Request) (list []InterfaceSummary
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getinterfacesummaryhour?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 

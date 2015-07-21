@@ -24,7 +24,7 @@ type MemberCardActivateParameters struct {
 }
 
 // 激活/绑定会员卡
-func (clt Client) MemberCardActivate(para *MemberCardActivateParameters) (err error) {
+func (clt *Client) MemberCardActivate(para *MemberCardActivateParameters) (err error) {
 	if para == nil {
 		return errors.New("nil MemberCardActivateParameters")
 	}
@@ -32,7 +32,7 @@ func (clt Client) MemberCardActivate(para *MemberCardActivateParameters) (err er
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/card/membercard/activate?access_token="
-	if err = clt.PostJSON(incompleteURL, para, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, para, &result); err != nil {
 		return
 	}
 
@@ -61,7 +61,7 @@ type MemberCardUpdateUserResult struct {
 
 // 会员卡交易.
 //  会员卡交易后每次积分及余额变更需通过接口通知微信, 便于后续消息通知及其他扩展功能.
-func (clt Client) MemberCardUpdateUser(para *MemberCardUpdateUserParameters) (rst *MemberCardUpdateUserResult, err error) {
+func (clt *Client) MemberCardUpdateUser(para *MemberCardUpdateUserParameters) (rst *MemberCardUpdateUserResult, err error) {
 	if para == nil {
 		err = errors.New("nil MemberCardUpdateUserParameters")
 		return
@@ -73,7 +73,7 @@ func (clt Client) MemberCardUpdateUser(para *MemberCardUpdateUserParameters) (rs
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/card/membercard/updateuser?access_token="
-	if err = clt.PostJSON(incompleteURL, para, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, para, &result); err != nil {
 		return
 	}
 

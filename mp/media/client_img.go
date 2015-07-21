@@ -20,7 +20,7 @@ type ImageInfo struct {
 }
 
 // 上传图片到微信服务器, 给其他场景使用, 比如卡卷, POI.
-func (clt Client) UploadImagePermanent(imgPath string) (info ImageInfo, err error) {
+func (clt *Client) UploadImagePermanent(imgPath string) (info ImageInfo, err error) {
 	file, err := os.Open(imgPath)
 	if err != nil {
 		return
@@ -31,7 +31,7 @@ func (clt Client) UploadImagePermanent(imgPath string) (info ImageInfo, err erro
 }
 
 // 上传图片到微信服务器, 给其他场景使用, 比如卡卷, POI.
-func (clt Client) UploadImagePermanentFromReader(filename string, reader io.Reader) (info ImageInfo, err error) {
+func (clt *Client) UploadImagePermanentFromReader(filename string, reader io.Reader) (info ImageInfo, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
 		return
@@ -44,7 +44,7 @@ func (clt Client) UploadImagePermanentFromReader(filename string, reader io.Read
 	return clt.uploadImagePermanentFromReader(filename, reader)
 }
 
-func (clt Client) uploadImagePermanentFromReader(filename string, reader io.Reader) (info ImageInfo, err error) {
+func (clt *Client) uploadImagePermanentFromReader(filename string, reader io.Reader) (info ImageInfo, err error) {
 	var result struct {
 		mp.Error
 		ImageInfo
@@ -57,7 +57,7 @@ func (clt Client) uploadImagePermanentFromReader(filename string, reader io.Read
 		FileName:    filename,
 		Value:       reader,
 	}}
-	if err = clt.PostMultipartForm(incompleteURL, fields, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostMultipartForm(incompleteURL, fields, &result); err != nil {
 		return
 	}
 

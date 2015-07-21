@@ -12,7 +12,7 @@ import (
 )
 
 // 删除永久素材.
-func (clt Client) DeleteMaterial(mediaId string) (err error) {
+func (clt *Client) DeleteMaterial(mediaId string) (err error) {
 	var request = struct {
 		MediaId string `json:"media_id"`
 	}{
@@ -22,7 +22,7 @@ func (clt Client) DeleteMaterial(mediaId string) (err error) {
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/del_material?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -42,14 +42,14 @@ type MaterialCountInfo struct {
 }
 
 // 获取素材总数.
-func (clt Client) GetMaterialCount() (info *MaterialCountInfo, err error) {
+func (clt *Client) GetMaterialCount() (info *MaterialCountInfo, err error) {
 	var result struct {
 		mp.Error
 		MaterialCountInfo
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/get_materialcount?access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*mp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 
@@ -79,7 +79,7 @@ type BatchGetMaterialResult struct {
 //  MaterialType: 素材的类型, 图片(image), 视频(video), 语音 (voice)
 //  offset:       从全部素材的该偏移位置开始返回, 0表示从第一个素材
 //  count:        返回素材的数量, 取值在1到20之间
-func (clt Client) BatchGetMaterial(MaterialType string, offset, count int) (rslt *BatchGetMaterialResult, err error) {
+func (clt *Client) BatchGetMaterial(MaterialType string, offset, count int) (rslt *BatchGetMaterialResult, err error) {
 	switch MaterialType {
 	case MaterialTypeImage, MaterialTypeVideo, MaterialTypeVoice:
 	default:
@@ -112,7 +112,7 @@ func (clt Client) BatchGetMaterial(MaterialType string, offset, count int) (rslt
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -137,7 +137,7 @@ func (clt Client) BatchGetMaterial(MaterialType string, offset, count int) (rslt
 //      // TODO: 增加你的代码
 //  }
 type MaterialIterator struct {
-	clt Client // 关联的微信 Client
+	clt *Client // 关联的微信 Client
 
 	materialType string // image, video, voice
 	nextOffset   int    // 下一次获取数据时的 offset
@@ -180,7 +180,7 @@ func (iter *MaterialIterator) NextPage() (items []MaterialInfo, err error) {
 	return
 }
 
-func (clt Client) MaterialIterator(MaterialType string, offset, count int) (iter *MaterialIterator, err error) {
+func (clt *Client) MaterialIterator(MaterialType string, offset, count int) (iter *MaterialIterator, err error) {
 	// 逻辑上相当于第一次调用 MaterialIterator.NextPage, 因为第一次调用 MaterialIterator.HasNext 需要数据支撑, 所以提前获取了数据
 
 	rslt, err := clt.BatchGetMaterial(MaterialType, offset, count)

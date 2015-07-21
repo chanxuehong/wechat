@@ -36,7 +36,7 @@ type ArticleSummaryData struct {
 }
 
 // 获取图文群发每日数据.
-func (clt Client) GetArticleSummary(req *Request) (list []ArticleSummaryData, err error) {
+func (clt *Client) GetArticleSummary(req *Request) (list []ArticleSummaryData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -48,7 +48,7 @@ func (clt Client) GetArticleSummary(req *Request) (list []ArticleSummaryData, er
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getarticlesummary?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 
@@ -74,7 +74,7 @@ type ArticleTotalData struct {
 }
 
 // 获取图文群发总数据.
-func (clt Client) GetArticleTotal(req *Request) (list []ArticleTotalData, err error) {
+func (clt *Client) GetArticleTotal(req *Request) (list []ArticleTotalData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -86,7 +86,7 @@ func (clt Client) GetArticleTotal(req *Request) (list []ArticleTotalData, err er
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getarticletotal?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 
@@ -106,7 +106,7 @@ type UserReadData struct {
 }
 
 // 获取图文统计数据.
-func (clt Client) GetUserRead(req *Request) (list []UserReadData, err error) {
+func (clt *Client) GetUserRead(req *Request) (list []UserReadData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -118,7 +118,7 @@ func (clt Client) GetUserRead(req *Request) (list []UserReadData, err error) {
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getuserread?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 
@@ -138,7 +138,7 @@ type UserReadHourData struct {
 }
 
 // 获取图文统计分时数据.
-func (clt Client) GetUserReadHour(req *Request) (list []UserReadHourData, err error) {
+func (clt *Client) GetUserReadHour(req *Request) (list []UserReadHourData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -150,7 +150,7 @@ func (clt Client) GetUserReadHour(req *Request) (list []UserReadHourData, err er
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getuserreadhour?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 
@@ -172,7 +172,7 @@ type UserShareData struct {
 }
 
 // 获取图文分享转发数据.
-func (clt Client) GetUserShare(req *Request) (list []UserShareData, err error) {
+func (clt *Client) GetUserShare(req *Request) (list []UserShareData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -184,7 +184,7 @@ func (clt Client) GetUserShare(req *Request) (list []UserShareData, err error) {
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getusershare?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 
@@ -203,7 +203,7 @@ type UserShareHourData struct {
 }
 
 // 获取图文分享转发分时数据.
-func (clt Client) GetUserShareHour(req *Request) (list []UserShareHourData, err error) {
+func (clt *Client) GetUserShareHour(req *Request) (list []UserShareHourData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -215,7 +215,7 @@ func (clt Client) GetUserShareHour(req *Request) (list []UserShareHourData, err 
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getusersharehour?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 

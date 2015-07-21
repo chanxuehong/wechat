@@ -3,5 +3,16 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-// 根据分组进行群发消息.
-package mass2group
+package mass
+
+import (
+	"net/http"
+
+	"github.com/chanxuehong/wechat/mp"
+)
+
+type Client mp.Client
+
+func NewClient(srv mp.AccessTokenServer, clt *http.Client) *Client {
+	return (*Client)(mp.NewClient(srv, clt))
+}

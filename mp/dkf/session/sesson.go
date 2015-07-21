@@ -14,7 +14,7 @@ import (
 //  openId:    必须, 客户openid
 //  kfAccount: 必须, 完整客服账号，格式为：账号前缀@公众号微信号
 //  text:      可选, 附加信息，文本会展示在客服人员的多客服客户端
-func (clt Client) CreateSession(openId, kfAccount, text string) (err error) {
+func (clt *Client) CreateSession(openId, kfAccount, text string) (err error) {
 	request := struct {
 		KfAccount string `json:"kf_account"`
 		OpenId    string `json:"openid"`
@@ -28,7 +28,7 @@ func (clt Client) CreateSession(openId, kfAccount, text string) (err error) {
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/customservice/kfsession/create?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -43,7 +43,7 @@ func (clt Client) CreateSession(openId, kfAccount, text string) (err error) {
 //  openId:    必须, 客户openid
 //  kfAccount: 必须, 完整客服账号，格式为：账号前缀@公众号微信号
 //  text:      可选, 附加信息，文本会展示在客服人员的多客服客户端
-func (clt Client) CloseSession(openId, kfAccount, text string) (err error) {
+func (clt *Client) CloseSession(openId, kfAccount, text string) (err error) {
 	request := struct {
 		KfAccount string `json:"kf_account"`
 		OpenId    string `json:"openid"`
@@ -57,7 +57,7 @@ func (clt Client) CloseSession(openId, kfAccount, text string) (err error) {
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/customservice/kfsession/close?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -75,7 +75,7 @@ type Session struct {
 }
 
 // 获取客户的会话
-func (clt Client) GetSession(openId string) (ss *Session, err error) {
+func (clt *Client) GetSession(openId string) (ss *Session, err error) {
 	var result struct {
 		mp.Error
 		Session
@@ -83,7 +83,7 @@ func (clt Client) GetSession(openId string) (ss *Session, err error) {
 
 	incompleteURL := "https://api.weixin.qq.com/customservice/kfsession/getsession?openid=" +
 		url.QueryEscape(openId) + "&access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*mp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 
@@ -98,7 +98,7 @@ func (clt Client) GetSession(openId string) (ss *Session, err error) {
 
 // 获取客服的会话列表
 //  开发者可以通过本接口获取某个客服正在接待的会话列表。
-func (clt Client) GetSessionList(kfAccount string) (list []Session, err error) {
+func (clt *Client) GetSessionList(kfAccount string) (list []Session, err error) {
 	var result struct {
 		mp.Error
 		SessionList []Session `json:"sessionlist"`
@@ -109,7 +109,7 @@ func (clt Client) GetSessionList(kfAccount string) (list []Session, err error) {
 	//		url.QueryEscape(kfAccount) + "&access_token="
 	incompleteURL := "https://api.weixin.qq.com/customservice/kfsession/getsessionlist?kf_account=" +
 		kfAccount + "&access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*mp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 
@@ -126,7 +126,7 @@ func (clt Client) GetSessionList(kfAccount string) (list []Session, err error) {
 
 // 获取未接入会话列表
 //  开发者可以通过本接口获取当前正在等待队列中的会话列表，此接口最多返回最早进入队列的100个未接入会话。
-func (clt Client) GetWaitSessionList() (list []Session, totalCount int, err error) {
+func (clt *Client) GetWaitSessionList() (list []Session, totalCount int, err error) {
 	var result struct {
 		mp.Error
 		TotalCount  int       `json:"count"`
@@ -134,7 +134,7 @@ func (clt Client) GetWaitSessionList() (list []Session, totalCount int, err erro
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/customservice/kfsession/getwaitcase?access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	if err = ((*mp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 

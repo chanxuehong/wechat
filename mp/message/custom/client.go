@@ -12,18 +12,14 @@ import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
-type Client struct {
-	*mp.Client
-}
+type Client mp.Client
 
-func NewClient(srv mp.AccessTokenServer, clt *http.Client) Client {
-	return Client{
-		Client: mp.NewClient(srv, clt),
-	}
+func NewClient(srv mp.AccessTokenServer, clt *http.Client) *Client {
+	return (*Client)(mp.NewClient(srv, clt))
 }
 
 // 发送客服消息, 文本.
-func (clt Client) SendText(msg *Text) error {
+func (clt *Client) SendText(msg *Text) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
@@ -31,7 +27,7 @@ func (clt Client) SendText(msg *Text) error {
 }
 
 // 发送客服消息, 图片.
-func (clt Client) SendImage(msg *Image) error {
+func (clt *Client) SendImage(msg *Image) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
@@ -39,7 +35,7 @@ func (clt Client) SendImage(msg *Image) error {
 }
 
 // 发送客服消息, 语音.
-func (clt Client) SendVoice(msg *Voice) error {
+func (clt *Client) SendVoice(msg *Voice) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
@@ -47,7 +43,7 @@ func (clt Client) SendVoice(msg *Voice) error {
 }
 
 // 发送客服消息, 视频.
-func (clt Client) SendVideo(msg *Video) error {
+func (clt *Client) SendVideo(msg *Video) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
@@ -55,7 +51,7 @@ func (clt Client) SendVideo(msg *Video) error {
 }
 
 // 发送客服消息, 音乐.
-func (clt Client) SendMusic(msg *Music) error {
+func (clt *Client) SendMusic(msg *Music) error {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
@@ -63,7 +59,7 @@ func (clt Client) SendMusic(msg *Music) error {
 }
 
 // 发送客服消息, 图文.
-func (clt Client) SendNews(msg *News) (err error) {
+func (clt *Client) SendNews(msg *News) (err error) {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
@@ -74,18 +70,18 @@ func (clt Client) SendNews(msg *News) (err error) {
 }
 
 // 发送客服消息, 卡卷.
-func (clt Client) SendWxCard(msg *WxCard) (err error) {
+func (clt *Client) SendWxCard(msg *WxCard) (err error) {
 	if msg == nil {
 		return errors.New("msg == nil")
 	}
 	return clt.send(msg)
 }
 
-func (clt Client) send(msg interface{}) (err error) {
+func (clt *Client) send(msg interface{}) (err error) {
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token="
-	if err = clt.PostJSON(incompleteURL, msg, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, msg, &result); err != nil {
 		return
 	}
 

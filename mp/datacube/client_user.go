@@ -33,7 +33,7 @@ type UserSummaryData struct {
 }
 
 // 获取用户增减数据.
-func (clt Client) GetUserSummary(req *Request) (list []UserSummaryData, err error) {
+func (clt *Client) GetUserSummary(req *Request) (list []UserSummaryData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -45,7 +45,7 @@ func (clt Client) GetUserSummary(req *Request) (list []UserSummaryData, err erro
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getusersummary?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 
@@ -65,7 +65,7 @@ type UserCumulateData struct {
 }
 
 // 获取累计用户数据.
-func (clt Client) GetUserCumulate(req *Request) (list []UserCumulateData, err error) {
+func (clt *Client) GetUserCumulate(req *Request) (list []UserCumulateData, err error) {
 	if req == nil {
 		err = errors.New("nil Request")
 		return
@@ -77,7 +77,7 @@ func (clt Client) GetUserCumulate(req *Request) (list []UserCumulateData, err er
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/datacube/getusercumulate?access_token="
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 

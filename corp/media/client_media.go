@@ -19,7 +19,7 @@ import (
 )
 
 // 下载多媒体到文件.
-func (clt Client) DownloadMedia(mediaId, filepath string) (written int64, err error) {
+func (clt *Client) DownloadMedia(mediaId, filepath string) (written int64, err error) {
 	file, err := os.Create(filepath)
 	if err != nil {
 		return
@@ -35,7 +35,7 @@ func (clt Client) DownloadMedia(mediaId, filepath string) (written int64, err er
 }
 
 // 下载多媒体到 io.Writer.
-func (clt Client) DownloadMediaToWriter(mediaId string, writer io.Writer) (written int64, err error) {
+func (clt *Client) DownloadMediaToWriter(mediaId string, writer io.Writer) (written int64, err error) {
 	if writer == nil {
 		err = errors.New("nil writer")
 		return
@@ -44,7 +44,7 @@ func (clt Client) DownloadMediaToWriter(mediaId string, writer io.Writer) (writt
 }
 
 // 下载多媒体到 io.Writer.
-func (clt Client) downloadMediaToWriter(mediaId string, writer io.Writer) (written int64, err error) {
+func (clt *Client) downloadMediaToWriter(mediaId string, writer io.Writer) (written int64, err error) {
 	token, err := clt.Token()
 	if err != nil {
 		return

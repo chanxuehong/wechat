@@ -24,7 +24,7 @@ const (
 //      // TODO: 增加你的代码
 //  }
 type UserIterator struct {
-	clt Client // 关联的微信 Client
+	clt *Client // 关联的微信 Client
 
 	lastUserListData  *UserListResult // 最近一次获取的用户数据
 	nextPageHasCalled bool            // NextPage() 是否调用过
@@ -104,7 +104,7 @@ func (iter *UserIterator) NextPage() (OpenIdList []string, err error) {
 
 // 获取用户遍历器, 从 NextOpenId 开始遍历, 如果 NextOpenId == "" 则表示从头遍历.
 //  NOTE: 目前微信是从 NextOpenId 下一个用户开始遍历的, 和微信文档描述不一样!!!
-func (clt Client) UserIterator(NextOpenId string) (iter *UserIterator, err error) {
+func (clt *Client) UserIterator(NextOpenId string) (iter *UserIterator, err error) {
 	// 逻辑上相当于第一次调用 UserIterator.NextPage, 因为第一次调用 UserIterator.HasNext 需要数据支撑, 所以提前获取了数据
 
 	data, err := clt.UserList(NextOpenId)

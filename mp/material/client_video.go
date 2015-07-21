@@ -16,7 +16,7 @@ type VideoInfo struct {
 }
 
 // 获取视频消息素材.
-func (clt Client) GetVideo(mediaId string) (info *VideoInfo, err error) {
+func (clt *Client) GetVideo(mediaId string) (info *VideoInfo, err error) {
 	var request = struct {
 		MediaId string `json:"media_id"`
 	}{
@@ -29,7 +29,7 @@ func (clt Client) GetVideo(mediaId string) (info *VideoInfo, err error) {
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/get_material?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 

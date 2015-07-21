@@ -20,7 +20,7 @@ type PoiListResult struct {
 // 查询门店列表.
 //  begin: 开始位置, 0 即为从第一条开始查询
 //  limit: 返回数据条数, 最大允许50, 默认为20
-func (clt Client) PoiList(begin, limit int) (rslt *PoiListResult, err error) {
+func (clt *Client) PoiList(begin, limit int) (rslt *PoiListResult, err error) {
 	if begin < 0 {
 		err = fmt.Errorf("invalid begin: %d", begin)
 		return
@@ -44,7 +44,7 @@ func (clt Client) PoiList(begin, limit int) (rslt *PoiListResult, err error) {
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/poi/getpoilist?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -70,7 +70,7 @@ func (clt Client) PoiList(begin, limit int) (rslt *PoiListResult, err error) {
 //      // TODO: 增加你的代码
 //  }
 type PoiIterator struct {
-	clt Client // 关联的微信 Client
+	clt *Client // 关联的微信 Client
 
 	nextOffset int // 下一次获取数据时的 offset
 	count      int // 步长
@@ -112,7 +112,7 @@ func (iter *PoiIterator) NextPage() (poiList []Poi, err error) {
 	return
 }
 
-func (clt Client) PoiIterator(begin, limit int) (iter *PoiIterator, err error) {
+func (clt *Client) PoiIterator(begin, limit int) (iter *PoiIterator, err error) {
 	// 逻辑上相当于第一次调用 PoiIterator.NextPage, 因为第一次调用 PoiIterator.HasNext 需要数据支撑, 所以提前获取了数据
 
 	rslt, err := clt.PoiList(begin, limit)
