@@ -130,4 +130,24 @@ type MixedMessage struct {
 	KfAccount     string `xml:"KfAccount"     json:"KfAccount"`
 	FromKfAccount string `xml:"FromKfAccount" json:"FromKfAccount"`
 	ToKfAccount   string `xml:"ToKfAccount"   json:"ToKfAccount"`
+
+	// shakearound
+	ChosenBeacon  ChosenBeacon   `xml:"ChosenBeacon,omitempty"               json:"ChosenBeacon,omitempty"`
+	AroundBeacons []AroundBeacon `xml:"AroundBeacons>AroundBeacon,omitempty" json:"AroundBeacons,omitempty"`
+}
+
+// 和 github.com/chanxuehong/wechat/mp/shakearound.ChosenBeacon 一样, 同步修改
+type ChosenBeacon struct {
+	UUID     string  `xml:"Uuid"     json:"Uuid"`
+	Major    int     `xml:"Major"    json:"Major"`
+	Minor    int     `xml:"Minor"    json:"Minor"`
+	Distance float64 `xml:"Distance" json:"Distance"`
+}
+
+// 和 github.com/chanxuehong/wechat/mp/shakearound.AroundBeacon 一样, 同步修改
+type AroundBeacon struct {
+	UUID     string  `xml:"Uuid"     json:"Uuid"`
+	Major    int     `xml:"Major"    json:"Major"`
+	Minor    int     `xml:"Minor"    json:"Minor"`
+	Distance float64 `xml:"Distance" json:"Distance"`
 }
