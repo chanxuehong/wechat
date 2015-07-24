@@ -132,7 +132,7 @@ type MixedMessage struct {
 	ToKfAccount   string `xml:"ToKfAccount"   json:"ToKfAccount"`
 
 	// shakearound
-	ChosenBeacon  ChosenBeacon   `xml:"ChosenBeacon,omitempty"               json:"ChosenBeacon,omitempty"`
+	ChosenBeacon  ChosenBeacon   `xml:"ChosenBeacon"                         json:"ChosenBeacon"`
 	AroundBeacons []AroundBeacon `xml:"AroundBeacons>AroundBeacon,omitempty" json:"AroundBeacons,omitempty"`
 }
 
