@@ -171,6 +171,8 @@ func (clt *Client) BatchGetNews(offset, count int) (rslt *BatchGetNewsResult, er
 	return
 }
 
+// NewsIterator
+//
 //  iter, err := Client.NewsIterator(0, 10)
 //  if err != nil {
 //      // TODO: 增加你的代码

@@ -84,6 +84,8 @@ func Search(clt *mp.Client, query *SearchQuery) (rslt *SearchResult, err error) 
 	return
 }
 
+// DeviceIterator
+//
 //  iter, err := NewDeviceIterator(*mp.Client, *SearchQuery)
 //  if err != nil {
 //      // TODO: 增加你的代码
