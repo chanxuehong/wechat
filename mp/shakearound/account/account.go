@@ -10,12 +10,12 @@ import (
 )
 
 type RegisterParameters struct {
-	Name                  string   `json:"name"`                              // 必须, 联系人姓名
-	PhoneNumber           string   `json:"phone_number"`                      // 必须, 联系人电话
-	Email                 string   `json:"email"`                             // 必须, 联系人邮箱
-	IndustryId            string   `json:"industry_id"`                       // 必须, 平台定义的行业代号，具体请查看链接行业代号
-	QualificationCertURLs []string `json:"qualification_cert_urls,omitempty"` // 必须, 相关资质文件的图片url，图片需先上传至微信侧服务器，用“素材管理-上传图片素材”接口上传图片，返回的图片URL再配置在此处；当不需要资质文件时，数组内可以不填写url
-	ApplyReason           string   `json:"apply_reason,omitempty"`            // 可选, 申请理由
+	Name                  string   `json:"name"`                    // 必须, 联系人姓名
+	PhoneNumber           string   `json:"phone_number"`            // 必须, 联系人电话
+	Email                 string   `json:"email"`                   // 必须, 联系人邮箱
+	IndustryId            string   `json:"industry_id"`             // 必须, 平台定义的行业代号，具体请查看链接行业代号
+	QualificationCertURLs []string `json:"qualification_cert_urls"` // 必须, 相关资质文件的图片url，图片需先上传至微信侧服务器，用“素材管理-上传图片素材”接口上传图片，返回的图片URL再配置在此处；当不需要资质文件时，数组内可以不填写url
+	ApplyReason           string   `json:"apply_reason,omitempty"`  // 可选, 申请理由
 }
 
 // 申请开通功能
