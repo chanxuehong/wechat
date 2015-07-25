@@ -124,6 +124,8 @@ func (clt *Client) BatchGetMaterial(MaterialType string, offset, count int) (rsl
 	return
 }
 
+// MaterialIterator
+//
 //  iter, err := Client.MaterialIterator(MaterialTypeImage, 0, 10)
 //  if err != nil {
 //      // TODO: 增加你的代码

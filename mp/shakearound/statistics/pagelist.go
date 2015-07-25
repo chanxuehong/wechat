@@ -9,6 +9,8 @@ import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
+const PageListPageSize = 50
+
 type PageListResult struct {
 	PageIndex int   `json:"page_index"`
 	Date      int64 `json:"date"`
@@ -51,5 +53,81 @@ func PageList(clt *mp.Client, date int64, pageIndex int) (rslt *PageListResult, 
 	}
 	rslt.ItemCount = len(rslt.Data.PageStatisticsList)
 	rslt = &result.PageListResult
+	return
+}
+
+// PageStatisticsIterator
+//
+//  iter, err := NewPageStatisticsIterator(clt, date, pageIndex)
+//  if err != nil {
+//      // TODO: 增加你的代码
+//  }
+//
+//  for iter.HasNext() {
+//      items, err := iter.NextPage()
+//      if err != nil {
+//          // TODO: 增加你的代码
+//      }
+//      // TODO: 增加你的代码
+//  }
+type PageStatisticsIterator struct {
+	clt *mp.Client
+
+	date          int64
+	nextPageIndex int
+
+	lastPageListResult *PageListResult // 最近一次获取的数据
+	nextPageHasCalled  bool            // NextPage() 是否调用过
+}
+
+func (iter *PageStatisticsIterator) TotalCount() int {
+	return iter.lastPageListResult.TotalCount
+}
+
+func (iter *PageStatisticsIterator) HasNext() bool {
+	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+		return iter.lastPageListResult.ItemCount > 0
+	}
+
+	return iter.lastPageListResult.ItemCount >= PageListPageSize
+}
+
+func (iter *PageStatisticsIterator) NextPage() (statisticsList []PageStatistics, err error) {
+	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+		iter.nextPageHasCalled = true
+
+		statisticsList = iter.lastPageListResult.Data.PageStatisticsList
+		return
+	}
+
+	rslt, err := PageList(iter.clt, iter.date, iter.nextPageIndex)
+	if err != nil {
+		return
+	}
+
+	iter.nextPageIndex++
+	iter.lastPageListResult = rslt
+
+	statisticsList = rslt.Data.PageStatisticsList
+	return
+}
+
+func NewPageStatisticsIterator(clt *mp.Client, date int64, pageIndex int) (iter *PageStatisticsIterator, err error) {
+	// 逻辑上相当于第一次调用 PageStatisticsIterator.NextPage, 因为第一次调用 PageStatisticsIterator.HasNext 需要数据支撑, 所以提前获取了数据
+
+	rslt, err := PageList(clt, date, pageIndex)
+	if err != nil {
+		return
+	}
+
+	iter = &PageStatisticsIterator{
+		clt: clt,
+
+		date:          date,
+		nextPageIndex: pageIndex + 1,
+
+		lastPageListResult: rslt,
+		nextPageHasCalled:  false,
+	}
 	return
 }

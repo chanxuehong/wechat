@@ -5,7 +5,7 @@
 
 package record
 
-// 聊天记录遍历器.
+// RecordIterator
 //
 //  iter, err := Client.RecordIterator(request)
 //  if err != nil {
