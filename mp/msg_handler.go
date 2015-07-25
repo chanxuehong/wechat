@@ -134,6 +134,13 @@ type MixedMessage struct {
 	// shakearound
 	ChosenBeacon  ChosenBeacon   `xml:"ChosenBeacon"                         json:"ChosenBeacon"`
 	AroundBeacons []AroundBeacon `xml:"AroundBeacons>AroundBeacon,omitempty" json:"AroundBeacons,omitempty"`
+
+	// bizwifi
+	ConnectTime int64  `xml:"ConnectTime" json:"ConnectTime"`
+	ExpireTime  int64  `xml:"ExpireTime"  json:"ExpireTime"`
+	VendorId    string `xml:"VendorId"    json:"VendorId"`
+	PlaceId     int64  `xml:"PlaceId"     json:"PlaceId"`
+	DeviceNo    string `xml:"DeviceNo"    json:"DeviceNo"`
 }
 
 // 和 github.com/chanxuehong/wechat/mp/shakearound.ChosenBeacon 一样, 同步修改

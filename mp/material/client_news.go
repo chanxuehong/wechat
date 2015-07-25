@@ -167,6 +167,7 @@ func (clt *Client) BatchGetNews(offset, count int) (rslt *BatchGetNewsResult, er
 		err = &result.Error
 		return
 	}
+
 	rslt = &result.BatchGetNewsResult
 	return
 }

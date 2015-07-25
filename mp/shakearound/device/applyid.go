@@ -38,6 +38,7 @@ func ApplyId(clt *mp.Client, para *ApplyIdParameters) (rslt *ApplyIdResult, err 
 		err = &result.Error
 		return
 	}
+
 	rslt = &result.ApplyIdResult
 	return
 }

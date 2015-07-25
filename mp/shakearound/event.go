@@ -12,14 +12,15 @@ import (
 )
 
 const (
-	EventTypeUserShake = "ShakearoundUserShake"
+	// 推送到公众号URL上的事件类型
+	EventTypeUserShake = "ShakearoundUserShake" // 摇一摇事件通知
 )
 
 type UserShakeEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	mp.MessageHeader
 
-	Event string `xml:"Event" json:"Event"`
+	Event string `xml:"Event" json:"Event"` // 事件类型，ShakearoundUserShake
 
 	ChosenBeacon  ChosenBeacon   `xml:"ChosenBeacon"                         json:"ChosenBeacon"`
 	AroundBeacons []AroundBeacon `xml:"AroundBeacons>AroundBeacon,omitempty" json:"AroundBeacons,omitempty"`

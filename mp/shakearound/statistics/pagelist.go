@@ -48,10 +48,11 @@ func PageList(clt *mp.Client, date int64, pageIndex int) (rslt *PageListResult, 
 		return
 	}
 
-	for i, l := 0, len(rslt.Data.PageStatisticsList); i < l; i++ {
-		rslt.Data.PageStatisticsList[i].Ftime = rslt.Date
+	pages := result.PageListResult.Data.PageStatisticsList
+	for i := 0; i < len(pages); i++ {
+		pages[i].Ftime = result.PageListResult.Date
 	}
-	rslt.ItemCount = len(rslt.Data.PageStatisticsList)
+	result.PageListResult.ItemCount = len(pages)
 	rslt = &result.PageListResult
 	return
 }
