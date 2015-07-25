@@ -120,6 +120,7 @@ func (clt *Client) BatchGetMaterial(MaterialType string, offset, count int) (rsl
 		err = &result.Error
 		return
 	}
+
 	rslt = &result.BatchGetMaterialResult
 	return
 }

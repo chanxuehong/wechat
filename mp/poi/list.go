@@ -52,6 +52,7 @@ func (clt *Client) PoiList(begin, limit int) (rslt *PoiListResult, err error) {
 		err = &result.Error
 		return
 	}
+
 	result.PoiListResult.ItemCount = len(result.PoiListResult.PoiList)
 	rslt = &result.PoiListResult
 	return

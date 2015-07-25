@@ -48,10 +48,11 @@ func DeviceList(clt *mp.Client, date int64, pageIndex int) (rslt *DeviceListResu
 		return
 	}
 
-	for i, l := 0, len(rslt.Data.DeviceStatisticsList); i < l; i++ {
-		rslt.Data.DeviceStatisticsList[i].Ftime = rslt.Date
+	devices := result.DeviceListResult.Data.DeviceStatisticsList
+	for i := 0; i < len(devices); i++ {
+		devices[i].Ftime = result.DeviceListResult.Date
 	}
-	rslt.ItemCount = len(rslt.Data.DeviceStatisticsList)
+	result.DeviceListResult.ItemCount = len(devices)
 	rslt = &result.DeviceListResult
 	return
 }
