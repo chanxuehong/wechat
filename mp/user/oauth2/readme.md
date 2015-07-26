@@ -20,10 +20,10 @@ var (
 	sessionStorage = session.New(20*60, 60*60)
 
 	oauth2Config = oauth2.NewOAuth2Config(
-		"appid",							// 填上自己的参数
-		"appsecret",						// 填上自己的参数
-		"http://192.168.1.80/page2",        // 授权后跳转地址
-		"snsapi_userinfo",                  // 需要用户授权, snsapi_base 不需要
+		"appid",                     // 填上自己的参数
+		"appsecret",                 // 填上自己的参数
+		"http://192.168.1.80/page2", // 授权后跳转地址
+		"snsapi_userinfo",           // 需要用户授权, snsapi_base 不需要
 	)
 )
 
@@ -50,7 +50,7 @@ func Page1Handler(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, &cookie)
 
-	AuthCodeURL := oauth2Config.AuthCodeURL(state)
+	AuthCodeURL := oauth2Config.AuthCodeURL(state, nil)
 	log.Println("AuthCodeURL:", AuthCodeURL)
 
 	http.Redirect(w, r, AuthCodeURL, http.StatusFound)
