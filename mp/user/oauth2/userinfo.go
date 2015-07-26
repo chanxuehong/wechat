@@ -96,22 +96,9 @@ func (clt *Client) UserInfo(lang string) (info *UserInfo, err error) {
 		return
 	}
 
-	var tk *Token
-	if clt.TokenStorage != nil {
-		if tk, err = clt.TokenStorage.Get(); err != nil {
-			return
-		}
-		if tk == nil {
-			err = errors.New("Incorrect TokenStorage.Get()")
-			return
-		}
-		clt.Token = tk // update local
-	} else {
-		tk = clt.Token
-		if tk == nil {
-			err = errors.New("nil TokenStorage and nil Token")
-			return
-		}
+	tk, err := clt.getToken()
+	if err != nil {
+		return
 	}
 
 	// 过期自动刷新 Token
