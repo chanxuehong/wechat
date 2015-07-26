@@ -15,11 +15,6 @@ import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
-type TokenStorage interface {
-	Get() (*Token, error)
-	Put(*Token) error
-}
-
 type Token struct {
 	AccessToken  string // 网页授权接口调用凭证, 注意: 此access_token与基础支持的access_token不同
 	ExpiresAt    int64  // 过期时间, unixtime, 分布式系统要求时间同步, 建议使用 NTP
@@ -178,7 +173,7 @@ func (clt *Client) updateToken(tk *Token, url string) (err error) {
 
 // 检验授权凭证(access_token)是否有效.
 func (clt *Client) CheckAccessTokenValid() (valid bool, err error) {
-	if clt.Config == nil { // 保留, 以后可能需要
+	if clt.Config == nil {
 		err = errors.New("nil Config")
 		return
 	}

@@ -13,11 +13,16 @@ import (
 	"net/http"
 )
 
+type TokenStorage interface {
+	Get() (*Token, error)
+	Put(*Token) error
+}
+
 type Client struct {
 	Config Config
 
-	// TokenStorage, Token 正常情况下只需要指定一个; 如果两个都指定了, 优先使用 TokenStorage;
-	// 程序会自动更新最新的 Token 到 Client.Token, 不管一开始是否已经赋值.
+	// TokenStorage, Token 两个字段正常情况下只用指定一个, 如果两个同时被指定了, 优先使用 TokenStorage;
+	// Client 会自动将最新的 Token 更新到 Client.Token 字段, 不管 Token 字段一开始是否被指定!!!
 	TokenStorage TokenStorage
 	Token        *Token
 
