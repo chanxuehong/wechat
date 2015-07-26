@@ -50,12 +50,15 @@ type SearchResult struct {
 	Devices    []Device `json:"devices"`     // 查询的设备信息列表
 }
 
-type Device struct {
+type DeviceBase struct {
 	DeviceId int64  `json:"device_id"`
 	UUID     string `json:"uuid"`
 	Major    int    `json:"major"`
 	Minor    int    `json:"minor"`
+}
 
+type Device struct {
+	DeviceBase
 	Comment string `json:"comment"`  // 设备的备注信息
 	PageIds string `json:"page_ids"` // 与此设备关联的页面ID列表，用逗号隔开
 	Status  int    `json:"status"`   // 激活状态，0：未激活，1：已激活（但不活跃），2：活跃

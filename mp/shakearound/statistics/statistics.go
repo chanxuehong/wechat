@@ -5,6 +5,10 @@
 
 package statistics
 
+import (
+	"github.com/chanxuehong/wechat/mp/shakearound/device"
+)
+
 type StatisticsBase struct {
 	Ftime   int64 `json:"ftime"`    // 当天0点对应的时间戳
 	ClickPV int   `json:"click_pv"` // 点击摇周边消息的次数
@@ -14,16 +18,11 @@ type StatisticsBase struct {
 }
 
 type DeviceStatistics struct {
-	DeviceId int64  `json:"device_id"`
-	UUID     string `json:"uuid"`
-	Major    int    `json:"major"`
-	Minor    int    `json:"minor"`
-
+	device.DeviceBase
 	StatisticsBase
 }
 
 type PageStatistics struct {
 	PageId int64 `json:"page_id"`
-
 	StatisticsBase
 }

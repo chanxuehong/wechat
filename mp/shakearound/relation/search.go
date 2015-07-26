@@ -53,11 +53,7 @@ type SearchResult struct {
 }
 
 type Relation struct {
-	DeviceId int64  `json:"device_id"`
-	UUID     string `json:"uuid"`
-	Major    int    `json:"major"`
-	Minor    int    `json:"minor"`
-
+	device.DeviceBase
 	PageId int64 `json:"page_id"`
 }
 
