@@ -9,6 +9,7 @@ package oauth2
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -27,6 +28,37 @@ type Client struct {
 	Token        *Token
 
 	HttpClient *http.Client // 如果 HttpClient == nil 则默认用 http.DefaultClient
+}
+
+func (clt *Client) getToken() (tk *Token, err error) {
+	if clt.TokenStorage != nil {
+		if tk, err = clt.TokenStorage.Get(); err != nil {
+			return
+		}
+		if tk == nil {
+			err = errors.New("Incorrect TokenStorage.Get()")
+			return
+		}
+		clt.Token = tk // update local
+		return
+	}
+
+	tk = clt.Token
+	if tk == nil {
+		err = errors.New("nil TokenStorage and nil Token")
+		return
+	}
+	return
+}
+
+func (clt *Client) putToken(tk *Token) (err error) {
+	if clt.TokenStorage != nil {
+		if err = clt.TokenStorage.Put(tk); err != nil {
+			return
+		}
+	}
+	clt.Token = tk
+	return
 }
 
 func (clt *Client) httpClient() *http.Client {

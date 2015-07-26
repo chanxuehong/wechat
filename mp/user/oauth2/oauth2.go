@@ -56,12 +56,9 @@ func (clt *Client) Exchange(code string) (token *Token, err error) {
 		return
 	}
 
-	if clt.TokenStorage != nil {
-		if err = clt.TokenStorage.Put(tk); err != nil {
-			return
-		}
+	if err = clt.putToken(tk); err != nil {
+		return
 	}
-	clt.Token = tk
 	token = tk
 	return
 }
@@ -74,22 +71,9 @@ func (clt *Client) TokenRefresh() (token *Token, err error) {
 		return
 	}
 
-	var tk *Token
-	if clt.TokenStorage != nil {
-		if tk, err = clt.TokenStorage.Get(); err != nil {
-			return
-		}
-		if tk == nil {
-			err = errors.New("Incorrect TokenStorage.Get()")
-			return
-		}
-		clt.Token = tk // update local
-	} else {
-		tk = clt.Token
-		if tk == nil {
-			err = errors.New("nil TokenStorage and nil Token")
-			return
-		}
+	tk, err := clt.getToken()
+	if err != nil {
+		return
 	}
 
 	return clt.tokenRefresh(tk)
@@ -100,12 +84,9 @@ func (clt *Client) tokenRefresh(tk *Token) (token *Token, err error) {
 		return
 	}
 
-	if clt.TokenStorage != nil {
-		if err = clt.TokenStorage.Put(tk); err != nil {
-			return
-		}
+	if err = clt.putToken(tk); err != nil {
+		return
 	}
-	clt.Token = tk
 	token = tk
 	return
 }
@@ -178,22 +159,9 @@ func (clt *Client) CheckAccessTokenValid() (valid bool, err error) {
 		return
 	}
 
-	var tk *Token
-	if clt.TokenStorage != nil {
-		if tk, err = clt.TokenStorage.Get(); err != nil {
-			return
-		}
-		if tk == nil {
-			err = errors.New("Incorrect TokenStorage.Get()")
-			return
-		}
-		clt.Token = tk // update local
-	} else {
-		tk = clt.Token
-		if tk == nil {
-			err = errors.New("nil TokenStorage and nil Token")
-			return
-		}
+	tk, err := clt.getToken()
+	if err != nil {
+		return
 	}
 
 	var result mp.Error
