@@ -3,26 +3,24 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package card
+package code
 
 import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
-type Color struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
-// 获取卡券最新的颜色列表.
-func GetColors(clt *mp.Client) (colors []Color, err error) {
+// 核销Code接口.
+func Consume(clt *mp.Client, id *CardItemIdentifier) (cardId, openId string, err error) {
 	var result struct {
 		mp.Error
-		Colors []Color `json:"colors"`
+		Card struct {
+			CardId string `json:"card_id"`
+		} `json:"card"`
+		OpenId string `json:"openid"`
 	}
 
-	incompleteURL := "https://api.weixin.qq.com/card/getcolors?access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	incompleteURL := "https://api.weixin.qq.com/card/code/consume?access_token="
+	if err = clt.PostJSON(incompleteURL, id, &result); err != nil {
 		return
 	}
 
@@ -30,6 +28,7 @@ func GetColors(clt *mp.Client) (colors []Color, err error) {
 		err = &result.Error
 		return
 	}
-	colors = result.Colors
+	cardId = result.Card.CardId
+	openId = result.OpenId
 	return
 }

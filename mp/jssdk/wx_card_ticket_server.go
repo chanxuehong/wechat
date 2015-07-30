@@ -3,7 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package card
+package jssdk
 
 import (
 	"errors"
@@ -14,32 +14,14 @@ import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
-// jsapi_ticket 中控服务器接口.
-type TicketServer interface {
-	// 从中控服务器获取被缓存的 jsapi_ticket.
-	Ticket() (string, error)
-
-	// 请求中控服务器到微信服务器刷新 jsapi_ticket.
-	//
-	//  高并发场景下某个时间点可能有很多请求(比如缓存的 jsapi_ticket 刚好过期时), 但是我们
-	//  不期望也没有必要让这些请求都去微信服务器获取 jsapi_ticket(有可能导致api超过调用限制),
-	//  实际上这些请求只需要一个新的 jsapi_ticket 即可, 所以建议 TicketServer 从微信服务器
-	//  获取一次 jsapi_ticket 之后的至多5秒内(收敛时间, 视情况而定, 理论上至多5个http或tcp周期)
-	//  再次调用该函数不再去微信服务器获取, 而是直接返回之前的结果.
-	TicketRefresh() (string, error)
-
-	// 没有实际意义, 接口标识
-	Tag60DA35BEFE9911E4B462A4DB30FED8E1()
-}
-
-var _ TicketServer = (*DefaultTicketServer)(nil)
+var _ TicketServer = (*WxCardTicketServer)(nil)
 
 // TicketServer 的简单实现.
 //  NOTE:
 //  1. 用于单进程环境.
-//  2. 因为 DefaultTicketServer 同时也是一个简单的中控服务器, 而不是仅仅实现 TicketServer 接口,
-//     所以整个系统只能存在一个 DefaultTicketServer 实例!
-type DefaultTicketServer struct {
+//  2. 因为 WxCardTicketServer 同时也是一个简单的中控服务器, 而不是仅仅实现 TicketServer 接口,
+//     所以整个系统只能存在一个 WxCardTicketServer 实例!
+type WxCardTicketServer struct {
 	mpClient *mp.Client
 
 	resetTickerChan chan time.Duration // 用于重置 ticketDaemon 里的 ticker
@@ -56,13 +38,13 @@ type DefaultTicketServer struct {
 	}
 }
 
-// 创建一个新的 DefaultTicketServer.
-func NewDefaultTicketServer(clt *mp.Client) (srv *DefaultTicketServer) {
+// 创建一个新的 WxCardTicketServer.
+func NewWxCardTicketServer(clt *mp.Client) (srv *WxCardTicketServer) {
 	if clt == nil {
 		panic("nil mp.Client")
 	}
 
-	srv = &DefaultTicketServer{
+	srv = &WxCardTicketServer{
 		mpClient:        clt,
 		resetTickerChan: make(chan time.Duration),
 	}
@@ -71,9 +53,9 @@ func NewDefaultTicketServer(clt *mp.Client) (srv *DefaultTicketServer) {
 	return
 }
 
-func (srv *DefaultTicketServer) Tag60DA35BEFE9911E4B462A4DB30FED8E1() {}
+func (srv *WxCardTicketServer) TagB38894EBFE9911E4BE17A4DB30FED8E1() {}
 
-func (srv *DefaultTicketServer) Ticket() (ticket string, err error) {
+func (srv *WxCardTicketServer) Ticket() (ticket string, err error) {
 	srv.ticketCache.RLock()
 	ticket = srv.ticketCache.Ticket
 	srv.ticketCache.RUnlock()
@@ -84,7 +66,7 @@ func (srv *DefaultTicketServer) Ticket() (ticket string, err error) {
 	return srv.TicketRefresh()
 }
 
-func (srv *DefaultTicketServer) TicketRefresh() (ticket string, err error) {
+func (srv *WxCardTicketServer) TicketRefresh() (ticket string, err error) {
 	ticketInfo, cached, err := srv.getTicket()
 	if err != nil {
 		return
@@ -96,7 +78,7 @@ func (srv *DefaultTicketServer) TicketRefresh() (ticket string, err error) {
 	return
 }
 
-func (srv *DefaultTicketServer) ticketDaemon(tickDuration time.Duration) {
+func (srv *WxCardTicketServer) ticketDaemon(tickDuration time.Duration) {
 NEW_TICK_DURATION:
 	ticker := time.NewTicker(tickDuration)
 
@@ -123,14 +105,9 @@ NEW_TICK_DURATION:
 	}
 }
 
-type ticketInfo struct {
-	Ticket    string `json:"ticket"`
-	ExpiresIn int64  `json:"expires_in"` // 有效时间, seconds
-}
-
 // 从微信服务器获取 jsapi_ticket.
 //  同一时刻只能一个 goroutine 进入, 防止没必要的重复获取.
-func (srv *DefaultTicketServer) getTicket() (ticket ticketInfo, cached bool, err error) {
+func (srv *WxCardTicketServer) getTicket() (ticket ticketInfo, cached bool, err error) {
 	srv.ticketGet.Lock()
 	defer srv.ticketGet.Unlock()
 

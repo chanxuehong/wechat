@@ -3,26 +3,27 @@
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
-package card
+package code
 
 import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
-type Color struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
-// 获取卡券最新的颜色列表.
-func GetColors(clt *mp.Client) (colors []Color, err error) {
-	var result struct {
-		mp.Error
-		Colors []Color `json:"colors"`
+// Code解码接口
+func Decrypt(clt *mp.Client, encryptCode string) (code string, err error) {
+	request := struct {
+		EncryptCode string `json:"encrypt_code"`
+	}{
+		EncryptCode: encryptCode,
 	}
 
-	incompleteURL := "https://api.weixin.qq.com/card/getcolors?access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	var result struct {
+		mp.Error
+		Code string `json:"code"`
+	}
+
+	incompleteURL := "https://api.weixin.qq.com/card/code/decrypt?access_token="
+	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -30,6 +31,6 @@ func GetColors(clt *mp.Client) (colors []Color, err error) {
 		err = &result.Error
 		return
 	}
-	colors = result.Colors
+	code = result.Code
 	return
 }
