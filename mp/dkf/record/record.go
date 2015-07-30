@@ -32,7 +32,7 @@ type GetRecordRequest struct {
 }
 
 // 获取客服聊天记录
-func (clt *Client) GetRecord(request *GetRecordRequest) (recordList []Record, err error) {
+func GetRecord(clt *mp.Client, request *GetRecordRequest) (recordList []Record, err error) {
 	if request == nil {
 		err = errors.New("nil GetRecordRequest")
 		return
@@ -44,7 +44,7 @@ func (clt *Client) GetRecord(request *GetRecordRequest) (recordList []Record, er
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/customservice/msgrecord/getrecord?access_token="
-	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
