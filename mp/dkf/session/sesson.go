@@ -98,7 +98,7 @@ func GetSession(clt *mp.Client, openId string) (ss *Session, err error) {
 
 // 获取客服的会话列表
 //  开发者可以通过本接口获取某个客服正在接待的会话列表。
-func t(clt *mp.Client, kfAccount string) (list []Session, err error) {
+func GetSessionList(clt *mp.Client, kfAccount string) (list []Session, err error) {
 	var result struct {
 		mp.Error
 		SessionList []Session `json:"sessionlist"`
