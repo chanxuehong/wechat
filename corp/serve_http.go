@@ -71,32 +71,33 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 			return
 		}
 
-		corpId := srv.CorpId()
-
 		haveCorpId := requestHttpBody.CorpId
-		if len(haveCorpId) != len(corpId) {
-			err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveCorpId, corpId)
-			errHandler.ServeError(w, r, err)
-			return
+		wantCorpId := srv.CorpId()
+		if wantCorpId != "" {
+			if len(haveCorpId) != len(wantCorpId) {
+				err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveCorpId, wantCorpId)
+				errHandler.ServeError(w, r, err)
+				return
+			}
+			if subtle.ConstantTimeCompare([]byte(haveCorpId), []byte(wantCorpId)) != 1 {
+				err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveCorpId, wantCorpId)
+				errHandler.ServeError(w, r, err)
+				return
+			}
 		}
-		if subtle.ConstantTimeCompare([]byte(haveCorpId), []byte(corpId)) != 1 {
-			err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveCorpId, corpId)
-			errHandler.ServeError(w, r, err)
-			return
-		}
-
-		agentId := srv.AgentId()
 
 		haveAgentId := requestHttpBody.AgentId
-		if haveAgentId != agentId && haveAgentId != 0 {
-			err = fmt.Errorf("the RequestHttpBody's AgentId mismatch, have: %d, want: %d", haveAgentId, agentId)
-			errHandler.ServeError(w, r, err)
-			return
+		wantAgentId := srv.AgentId()
+		if wantCorpId != "" && wantAgentId != -1 {
+			if haveAgentId != wantAgentId && haveAgentId != 0 {
+				err = fmt.Errorf("the RequestHttpBody's AgentId mismatch, have: %d, want: %d", haveAgentId, wantAgentId)
+				errHandler.ServeError(w, r, err)
+				return
+			}
+			// 此时
+			// 要么 haveAgentId == wantAgentId,
+			// 要么 haveAgentId == 0
 		}
-
-		// 此时
-		// 要么 haveAgentId == wantAgentId,
-		// 要么 haveAgentId == 0
 
 		agentToken := srv.Token()
 
@@ -116,7 +117,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 		}
 
 		aesKey := srv.CurrentAESKey()
-		random, rawMsgXML, err := util.AESDecryptMsg(encryptedMsgBytes, corpId, aesKey)
+		random, rawMsgXML, aesAppId, err := util.AESDecryptMsg(encryptedMsgBytes, aesKey)
 		if err != nil {
 			// 尝试用上一次的 AESKey 来解密
 			lastAESKey, isLastAESKeyValid := srv.LastAESKey()
@@ -127,11 +128,16 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 
 			aesKey = lastAESKey // NOTE
 
-			random, rawMsgXML, err = util.AESDecryptMsg(encryptedMsgBytes, corpId, aesKey)
+			random, rawMsgXML, aesAppId, err = util.AESDecryptMsg(encryptedMsgBytes, aesKey)
 			if err != nil {
 				errHandler.ServeError(w, r, err)
 				return
 			}
+		}
+		if haveCorpId != string(aesAppId) {
+			err = fmt.Errorf("the RequestHttpBody's ToUserName(==%s) mismatch the CorpId with aes encrypt(==%s)", haveCorpId, aesAppId)
+			errHandler.ServeError(w, r, err)
+			return
 		}
 
 		// 解密成功, 解析 MixedMessage
@@ -154,12 +160,12 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 		}
 
 		// 如果是订阅/取消订阅 整个企业号, haveAgentId == 0
-		if haveAgentId != agentId {
+		if wantCorpId != "" && wantAgentId != -1 && haveAgentId != wantAgentId {
 			if mixedMsg.MsgType == "event" &&
 				(mixedMsg.Event == "subscribe" || mixedMsg.Event == "unsubscribe") {
 				// do nothing
 			} else {
-				err = fmt.Errorf("the RequestHttpBody's AgentId mismatch, have: %d, want: %d", haveAgentId, agentId)
+				err = fmt.Errorf("the RequestHttpBody's AgentId mismatch, have: %d, want: %d", haveAgentId, wantAgentId)
 				errHandler.ServeError(w, r, err)
 				return
 			}
@@ -167,9 +173,11 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 
 		// 成功, 交给 MessageHandler
 		req := &Request{
-			HttpRequest: r,
+			AgentToken: agentToken,
 
-			QueryValues:  queryValues,
+			HttpRequest: r,
+			QueryValues: queryValues,
+
 			MsgSignature: msgSignature1,
 			Timestamp:    timestamp,
 			Nonce:        nonce,
@@ -177,12 +185,10 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 			RawMsgXML: rawMsgXML,
 			MixedMsg:  &mixedMsg,
 
-			AESKey: aesKey,
-			Random: random,
-
-			CorpId:     haveCorpId,
-			AgentId:    haveAgentId,
-			AgentToken: agentToken,
+			AESKey:  aesKey,
+			Random:  random,
+			CorpId:  haveCorpId,
+			AgentId: haveAgentId,
 		}
 		srv.MessageHandler().ServeMessage(w, req)
 
@@ -230,10 +236,16 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 			return
 		}
 
-		corpId := srv.CorpId()
 		aesKey := srv.CurrentAESKey()
-		_, echostr, err := util.AESDecryptMsg(encryptedMsgBytes, corpId, aesKey)
+		_, echostr, aesAppId, err := util.AESDecryptMsg(encryptedMsgBytes, aesKey)
 		if err != nil {
+			errHandler.ServeError(w, r, err)
+			return
+		}
+
+		wantCorpId := srv.CorpId()
+		if wantCorpId != "" && wantCorpId != string(aesAppId) {
+			err = fmt.Errorf("AppId with aes encrypt mismatch, have: %s, want: %s", aesAppId, wantCorpId)
 			errHandler.ServeError(w, r, err)
 			return
 		}

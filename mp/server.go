@@ -12,12 +12,12 @@ import (
 )
 
 type Server interface {
-	OriId() string // 获取公众号的 原始ID, 用于校验消息(事件)的 ToUserName, 如果为空则表示不校验.
-	AppId() string // 获取公众号的 AppId, 加密解密的时候需要.
-	Token() string // 获取公众号的 Token, 校验签名的时候需要.
-
+	Token() string                          // 获取公众号的 Token, 用于校验签名.
 	CurrentAESKey() [32]byte                // 获取当前的 AES 加密 Key
 	LastAESKey() (key [32]byte, valid bool) // 获取上一个 AES 加密 Key
+
+	OriId() string // 公众号的原始ID, 用于约束消息的 ToUserName, 如果为空表示不约束
+	AppId() string // AppId, 用于约束消息的 AppId, 如果为空表示不约束
 
 	MessageHandler() MessageHandler // 获取 MessageHandler
 }
@@ -37,7 +37,8 @@ type DefaultServer struct {
 	messageHandler MessageHandler
 }
 
-// NOTE: 如果是明文模式, 则 appId 可以为 "", aesKey 可以为 nil.
+// NewDefaultServer 创建一个新的 DefaultServer.
+//  如果是明文模式, 则 appId 可以为 "", aesKey 可以为 nil.
 func NewDefaultServer(oriId, token, appId string, aesKey []byte, handler MessageHandler) (srv *DefaultServer) {
 	if aesKey != nil && len(aesKey) != 32 {
 		panic("the length of aesKey must equal to 32")

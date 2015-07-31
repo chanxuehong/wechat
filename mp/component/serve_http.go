@@ -73,19 +73,19 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 				return
 			}
 
-			appId := srv.AppId()
-
-			// 安全考虑验证下 AppId
 			haveAppId := requestHttpBody.AppId
-			if len(haveAppId) != len(appId) {
-				err = fmt.Errorf("the RequestHttpBody's AppId mismatch, have: %s, want: %s", haveAppId, appId)
-				errHandler.ServeError(w, r, err)
-				return
-			}
-			if subtle.ConstantTimeCompare([]byte(haveAppId), []byte(appId)) != 1 {
-				err = fmt.Errorf("the RequestHttpBody's AppId mismatch, have: %s, want: %s", haveAppId, appId)
-				errHandler.ServeError(w, r, err)
-				return
+			wantAppId := srv.AppId()
+			if wantAppId != "" {
+				if len(haveAppId) != len(wantAppId) {
+					err = fmt.Errorf("the RequestHttpBody's AppId mismatch, have: %s, want: %s", haveAppId, wantAppId)
+					errHandler.ServeError(w, r, err)
+					return
+				}
+				if subtle.ConstantTimeCompare([]byte(haveAppId), []byte(wantAppId)) != 1 {
+					err = fmt.Errorf("the RequestHttpBody's AppId mismatch, have: %s, want: %s", haveAppId, wantAppId)
+					errHandler.ServeError(w, r, err)
+					return
+				}
 			}
 
 			token := srv.Token()
@@ -106,8 +106,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 			}
 
 			aesKey := srv.CurrentAESKey()
-
-			random, rawMsgXML, err := util.AESDecryptMsg(encryptedMsgBytes, appId, aesKey)
+			random, rawMsgXML, aesAppId, err := util.AESDecryptMsg(encryptedMsgBytes, aesKey)
 			if err != nil {
 				// 尝试用上一次的 AESKey 来解密
 				lastAESKey, isLastAESKeyValid := srv.LastAESKey()
@@ -118,11 +117,16 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 
 				aesKey = lastAESKey // NOTE
 
-				random, rawMsgXML, err = util.AESDecryptMsg(encryptedMsgBytes, appId, aesKey)
+				random, rawMsgXML, aesAppId, err = util.AESDecryptMsg(encryptedMsgBytes, aesKey)
 				if err != nil {
 					errHandler.ServeError(w, r, err)
 					return
 				}
+			}
+			if haveAppId != string(aesAppId) {
+				err = fmt.Errorf("the RequestHttpBody's ToUserName(==%s) mismatch the AppId with aes encrypt(==%s)", haveAppId, aesAppId)
+				errHandler.ServeError(w, r, err)
+				return
 			}
 
 			// 解密成功, 解析 MixedMessage
@@ -141,9 +145,11 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 
 			// 成功, 交给 MessageHandler
 			req := &Request{
-				HttpRequest: r,
+				Token: token,
 
-				QueryValues:  queryValues,
+				HttpRequest: r,
+				QueryValues: queryValues,
+
 				MsgSignature: msgSignature1,
 				EncryptType:  encryptType,
 				Timestamp:    timestamp,
@@ -154,9 +160,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 
 				AESKey: aesKey,
 				Random: random,
-
-				AppId: appId,
-				Token: token,
+				AppId:  haveAppId,
 			}
 			srv.MessageHandler().ServeMessage(w, req)
 

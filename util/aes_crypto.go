@@ -65,7 +65,7 @@ func AESEncryptMsg(random, rawXMLMsg []byte, appId string, aesKey [32]byte) (cip
 }
 
 // ciphertext = AES_Encrypt[random(16B) + msg_len(4B) + rawXMLMsg + appId]
-func AESDecryptMsg(ciphertext []byte, appId string, aesKey [32]byte) (random, rawXMLMsg []byte, err error) {
+func AESDecryptMsg(ciphertext []byte, aesKey [32]byte) (random, rawXMLMsg, appId []byte, err error) {
 	const (
 		BLOCK_SIZE = 32             // PKCS#7
 		BLOCK_MASK = BLOCK_SIZE - 1 // BLOCK_SIZE 为 2^n 时, 可以用 mask 获取针对 BLOCK_SIZE 的余数
@@ -93,7 +93,7 @@ func AESDecryptMsg(ciphertext []byte, appId string, aesKey [32]byte) (random, ra
 	// PKCS#7 去除补位
 	amountToPad := int(plaintext[len(plaintext)-1])
 	if amountToPad < 1 || amountToPad > BLOCK_SIZE {
-		err = fmt.Errorf("the amount to pad is invalid: %d", amountToPad)
+		err = fmt.Errorf("the amount to pad is incorrect: %d", amountToPad)
 		return
 	}
 	plaintext = plaintext[:len(plaintext)-amountToPad]
@@ -106,7 +106,7 @@ func AESDecryptMsg(ciphertext []byte, appId string, aesKey [32]byte) (random, ra
 	}
 	rawXMLMsgLen := int(decodeNetworkByteOrder(plaintext[16:20]))
 	if rawXMLMsgLen < 0 {
-		err = fmt.Errorf("invalid msg length: %d", rawXMLMsgLen)
+		err = fmt.Errorf("incorrect msg length: %d", rawXMLMsgLen)
 		return
 	}
 	appIdOffset := 20 + rawXMLMsgLen
@@ -115,13 +115,8 @@ func AESDecryptMsg(ciphertext []byte, appId string, aesKey [32]byte) (random, ra
 		return
 	}
 
-	appIdHave := string(plaintext[appIdOffset:])
-	if appIdHave != appId {
-		err = fmt.Errorf("appId mismatch, have: %s, want: %s", appIdHave, appId)
-		return
-	}
-
 	random = plaintext[:16:20]
-	rawXMLMsg = plaintext[20:appIdOffset]
+	rawXMLMsg = plaintext[20:appIdOffset:appIdOffset]
+	appId = plaintext[appIdOffset:]
 	return
 }

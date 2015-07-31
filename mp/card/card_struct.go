@@ -89,12 +89,12 @@ type MemberCard struct {
 type MemberCardCustomField struct {
 	// 会员信息类目名称:
 	//
-	// FIELD_NAME_TYPE_LEVEL		等级
-	// FIELD_NAME_TYPE_COUPON		优惠券
-	// FIELD_NAME_TYPE_STAMP		印花
-	// FIELD_NAME_TYPE_DISCOUNT		折扣
-	// FIELD_NAME_TYPE_ACHIEVEMEN	成就
-	// FIELD_NAME_TYPE_MILEAGE		里程
+	// FIELD_NAME_TYPE_LEVEL        等级
+	// FIELD_NAME_TYPE_COUPON       优惠券
+	// FIELD_NAME_TYPE_STAMP        印花
+	// FIELD_NAME_TYPE_DISCOUNT     折扣
+	// FIELD_NAME_TYPE_ACHIEVEMEN   成就
+	// FIELD_NAME_TYPE_MILEAGE      里程
 	NameType string `json:"name_type,omitempty"`
 	URL      string `json:"url,omitempty"` // 点击类目跳转外链url
 }
