@@ -52,11 +52,14 @@ func (clt *Client) PoiList(begin, limit int) (rslt *PoiListResult, err error) {
 		err = &result.Error
 		return
 	}
+
 	result.PoiListResult.ItemCount = len(result.PoiListResult.PoiList)
 	rslt = &result.PoiListResult
 	return
 }
 
+// PoiIterator
+//
 //  iter, err := Client.PoiIterator(0, 10)
 //  if err != nil {
 //      // TODO: 增加你的代码

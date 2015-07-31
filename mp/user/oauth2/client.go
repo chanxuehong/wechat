@@ -9,19 +9,56 @@ package oauth2
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 )
 
+type TokenStorage interface {
+	Get() (*Token, error)
+	Put(*Token) error
+}
+
 type Client struct {
 	Config Config
 
-	// TokenStorage, Token 正常情况下只需要指定一个; 如果两个都指定了, 优先使用 TokenStorage;
-	// 程序会自动更新最新的 Token 到 Client.Token, 不管一开始是否已经赋值.
+	// TokenStorage, Token 两个字段正常情况下只用指定一个, 如果两个同时被指定了, 优先使用 TokenStorage;
+	// Client 会自动将最新的 Token 更新到 Client.Token 字段, 不管 Token 字段一开始是否被指定!!!
 	TokenStorage TokenStorage
 	Token        *Token
 
 	HttpClient *http.Client // 如果 HttpClient == nil 则默认用 http.DefaultClient
+}
+
+func (clt *Client) getToken() (tk *Token, err error) {
+	if clt.TokenStorage != nil {
+		if tk, err = clt.TokenStorage.Get(); err != nil {
+			return
+		}
+		if tk == nil {
+			err = errors.New("Incorrect TokenStorage.Get()")
+			return
+		}
+		clt.Token = tk // update local
+		return
+	}
+
+	tk = clt.Token
+	if tk == nil {
+		err = errors.New("nil TokenStorage and nil Token")
+		return
+	}
+	return
+}
+
+func (clt *Client) putToken(tk *Token) (err error) {
+	if clt.TokenStorage != nil {
+		if err = clt.TokenStorage.Put(tk); err != nil {
+			return
+		}
+	}
+	clt.Token = tk
+	return
 }
 
 func (clt *Client) httpClient() *http.Client {

@@ -9,7 +9,7 @@ const (
 	UserPageSizeLimit = 10000 // 每次拉取的 OPENID 个数最大值为 10000
 )
 
-// 用户遍历器
+// UserIterator
 //
 //  iter, err := Client.UserIterator("NextOpenId")
 //  if err != nil {

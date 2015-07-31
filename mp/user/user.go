@@ -239,6 +239,7 @@ func (clt *Client) UserList(NextOpenId string) (rslt *UserListResult, err error)
 		err = &result.Error
 		return
 	}
+
 	rslt = &result.UserListResult
 	return
 }

@@ -36,28 +36,32 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 		if !ok || ReturnCode == ReturnCodeSuccess {
 			haveAppId := msg["appid"]
 			wantAppId := srv.AppId()
-			if len(haveAppId) != len(wantAppId) {
-				err = fmt.Errorf("the message's appid mismatch, have: %s, want: %s", haveAppId, wantAppId)
-				errHandler.ServeError(w, r, err)
-				return
-			}
-			if subtle.ConstantTimeCompare([]byte(haveAppId), []byte(wantAppId)) != 1 {
-				err = fmt.Errorf("the message's appid mismatch, have: %s, want: %s", haveAppId, wantAppId)
-				errHandler.ServeError(w, r, err)
-				return
+			if wantAppId != "" {
+				if len(haveAppId) != len(wantAppId) {
+					err = fmt.Errorf("the message's appid mismatch, have: %s, want: %s", haveAppId, wantAppId)
+					errHandler.ServeError(w, r, err)
+					return
+				}
+				if subtle.ConstantTimeCompare([]byte(haveAppId), []byte(wantAppId)) != 1 {
+					err = fmt.Errorf("the message's appid mismatch, have: %s, want: %s", haveAppId, wantAppId)
+					errHandler.ServeError(w, r, err)
+					return
+				}
 			}
 
 			haveMchId := msg["mch_id"]
 			wantMchId := srv.MchId()
-			if len(haveMchId) != len(wantMchId) {
-				err = fmt.Errorf("the message's mch_id mismatch, have: %s, want: %s", haveMchId, wantMchId)
-				errHandler.ServeError(w, r, err)
-				return
-			}
-			if subtle.ConstantTimeCompare([]byte(haveMchId), []byte(wantMchId)) != 1 {
-				err = fmt.Errorf("the message's mch_id mismatch, have: %s, want: %s", haveMchId, wantMchId)
-				errHandler.ServeError(w, r, err)
-				return
+			if wantMchId != "" {
+				if len(haveMchId) != len(wantMchId) {
+					err = fmt.Errorf("the message's mch_id mismatch, have: %s, want: %s", haveMchId, wantMchId)
+					errHandler.ServeError(w, r, err)
+					return
+				}
+				if subtle.ConstantTimeCompare([]byte(haveMchId), []byte(wantMchId)) != 1 {
+					err = fmt.Errorf("the message's mch_id mismatch, have: %s, want: %s", haveMchId, wantMchId)
+					errHandler.ServeError(w, r, err)
+					return
+				}
 			}
 
 			// 认证签名

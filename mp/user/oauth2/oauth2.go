@@ -15,11 +15,6 @@ import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
-type TokenStorage interface {
-	Get() (*Token, error)
-	Put(*Token) error
-}
-
 type Token struct {
 	AccessToken  string // 网页授权接口调用凭证, 注意: 此access_token与基础支持的access_token不同
 	ExpiresAt    int64  // 过期时间, unixtime, 分布式系统要求时间同步, 建议使用 NTP
@@ -61,12 +56,9 @@ func (clt *Client) Exchange(code string) (token *Token, err error) {
 		return
 	}
 
-	if clt.TokenStorage != nil {
-		if err = clt.TokenStorage.Put(tk); err != nil {
-			return
-		}
+	if err = clt.putToken(tk); err != nil {
+		return
 	}
-	clt.Token = tk
 	token = tk
 	return
 }
@@ -79,22 +71,9 @@ func (clt *Client) TokenRefresh() (token *Token, err error) {
 		return
 	}
 
-	var tk *Token
-	if clt.TokenStorage != nil {
-		if tk, err = clt.TokenStorage.Get(); err != nil {
-			return
-		}
-		if tk == nil {
-			err = errors.New("Incorrect TokenStorage.Get()")
-			return
-		}
-		clt.Token = tk // update local
-	} else {
-		tk = clt.Token
-		if tk == nil {
-			err = errors.New("nil TokenStorage and nil Token")
-			return
-		}
+	tk, err := clt.getToken()
+	if err != nil {
+		return
 	}
 
 	return clt.tokenRefresh(tk)
@@ -105,12 +84,9 @@ func (clt *Client) tokenRefresh(tk *Token) (token *Token, err error) {
 		return
 	}
 
-	if clt.TokenStorage != nil {
-		if err = clt.TokenStorage.Put(tk); err != nil {
-			return
-		}
+	if err = clt.putToken(tk); err != nil {
+		return
 	}
-	clt.Token = tk
 	token = tk
 	return
 }
@@ -178,27 +154,14 @@ func (clt *Client) updateToken(tk *Token, url string) (err error) {
 
 // 检验授权凭证(access_token)是否有效.
 func (clt *Client) CheckAccessTokenValid() (valid bool, err error) {
-	if clt.Config == nil { // 保留, 以后可能需要
+	if clt.Config == nil {
 		err = errors.New("nil Config")
 		return
 	}
 
-	var tk *Token
-	if clt.TokenStorage != nil {
-		if tk, err = clt.TokenStorage.Get(); err != nil {
-			return
-		}
-		if tk == nil {
-			err = errors.New("Incorrect TokenStorage.Get()")
-			return
-		}
-		clt.Token = tk // update local
-	} else {
-		tk = clt.Token
-		if tk == nil {
-			err = errors.New("nil TokenStorage and nil Token")
-			return
-		}
+	tk, err := clt.getToken()
+	if err != nil {
+		return
 	}
 
 	var result mp.Error

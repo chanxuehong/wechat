@@ -23,25 +23,22 @@ func (fn MessageHandlerFunc) ServeMessage(w http.ResponseWriter, r *Request) {
 
 // 消息(事件)请求信息
 type Request struct {
+	AgentToken string // 请求消息所属企业号应用的 Token
+
 	HttpRequest *http.Request // 可以为 nil, 因为某些 http 框架没有提供此参数
+	QueryValues url.Values    // 回调请求 URL 中的查询参数集合
 
-	// 下面的字段必须提供
-
-	QueryValues  url.Values // 回调请求 URL 中的查询参数集合
-	MsgSignature string     // 回调请求 URL 中的消息体签名: msg_signature
-	Timestamp    int64      // 回调请求 URL 中的时间戳: timestamp
-	Nonce        string     // 回调请求 URL 中的随机数: nonce
+	MsgSignature string // 回调请求 URL 中的消息体签名: msg_signature
+	Timestamp    int64  // 回调请求 URL 中的时间戳: timestamp
+	Nonce        string // 回调请求 URL 中的随机数: nonce
 
 	RawMsgXML []byte        // 消息的"明文"XML 文本
 	MixedMsg  *MixedMessage // RawMsgXML 解析后的消息
 
-	AESKey [32]byte // 当前消息 AES 加密的 key
-	Random []byte   // 当前消息加密时所用的 random, 16 bytes
-
-	// 下面字段是企业号应用的基本信息
-	CorpId     string // 请求消息所属企业号的 ID
-	AgentId    int64  // 请求消息所属企业号应用的 ID
-	AgentToken string // 请求消息所属企业号应用的 Token
+	AESKey  [32]byte // 当前消息 AES 加密的 key
+	Random  []byte   // 当前消息加密时所用的 random, 16 bytes
+	CorpId  string   // 当前消息的企业号ID
+	AgentId int64    // 当前消息的应用ID
 }
 
 // 微信服务器推送过来的消息(事件)通用的消息头
