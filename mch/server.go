@@ -6,8 +6,8 @@
 package mch
 
 type Server interface {
-	AppId() string
-	MchId() string
+	AppId() string  // AppId, 用于约束消息的 appid, 如果为空表示不约束
+	MchId() string  // MchId, 用于约束消息的 mch_id, 如果为空表示不约束
 	APIKey() string // API密钥
 
 	MessageHandler() MessageHandler // 获取 MessageHandler

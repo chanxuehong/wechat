@@ -12,12 +12,12 @@ import (
 )
 
 type AgentServer interface {
-	CorpId() string // 获取应用所属的企业号Id
-	AgentId() int64 // 获取应用的Id
-	Token() string  // 获取应用的Token
-
+	Token() string                          // 获取应用的Token, 用于校验签名.
 	CurrentAESKey() [32]byte                // 获取当前有效的 AES 加密 Key
 	LastAESKey() (key [32]byte, valid bool) // 获取上一个有效的 AES 加密 Key
+
+	CorpId() string // 企业号Id, 用于约束消息的 CorpId, 如果为空表示不约束, 同时忽略 AgentId 的约束
+	AgentId() int64 // 应用Id, 用于约束消息的 AgentId, 如果为 -1 表示不约束
 
 	MessageHandler() MessageHandler // 获取 MessageHandler
 }

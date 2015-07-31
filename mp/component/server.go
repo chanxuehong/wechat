@@ -12,8 +12,8 @@ import (
 )
 
 type Server interface {
-	AppId() string // 获取第三方平台AppId
 	Token() string // 获取第三方平台的Token
+	AppId() string // AppId, 用于约束消息的 AppId, 如果为空表示不约束
 
 	CurrentAESKey() [32]byte                // 获取当前有效的 AES 加密 Key
 	LastAESKey() (key [32]byte, valid bool) // 获取上一个有效的 AES 加密 Key

@@ -119,10 +119,8 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 				return
 			}
 
-			appId := srv.AppId()
 			aesKey := srv.CurrentAESKey()
-
-			random, rawMsgXML, err := util.AESDecryptMsg(encryptedMsgBytes, appId, aesKey)
+			random, rawMsgXML, haveAppIdBytes, err := util.AESDecryptMsg(encryptedMsgBytes, aesKey)
 			if err != nil {
 				// 尝试用上一次的 AESKey 来解密
 				lastAESKey, isLastAESKeyValid := srv.LastAESKey()
@@ -133,11 +131,18 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 
 				aesKey = lastAESKey // NOTE
 
-				random, rawMsgXML, err = util.AESDecryptMsg(encryptedMsgBytes, appId, aesKey)
+				random, rawMsgXML, haveAppIdBytes, err = util.AESDecryptMsg(encryptedMsgBytes, aesKey)
 				if err != nil {
 					errHandler.ServeError(w, r, err)
 					return
 				}
+			}
+			haveAppId := string(haveAppIdBytes)
+			wantAppId := srv.AppId()
+			if wantAppId != "" && wantAppId != haveAppId {
+				err := fmt.Errorf("the message's appid mismatch, have: %s, want: %s", haveAppId, wantAppId)
+				errHandler.ServeError(w, r, err)
+				return
 			}
 
 			LogInfoln("[WECHAT_DEBUG] request msg raw xml:\r\n", string(rawMsgXML))
@@ -158,23 +163,23 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 
 			// 成功, 交给 MessageHandler
 			req := &Request{
+				Token: token,
+
 				HttpRequest: r,
-
 				QueryValues: queryValues,
-				Signature:   signature,
-				Timestamp:   timestamp,
-				Nonce:       nonce,
 
-				RawMsgXML: rawMsgXML,
-				MixedMsg:  &mixedMsg,
+				Signature: signature,
+				Timestamp: timestamp,
+				Nonce:     nonce,
 
-				EncryptType:  encryptType,
+				EncryptType: encryptType,
+				RawMsgXML:   rawMsgXML,
+				MixedMsg:    &mixedMsg,
+
 				MsgSignature: msgSignature1,
 				AESKey:       aesKey,
 				Random:       random,
-
-				AppId: appId,
-				Token: token,
+				AppId:        haveAppId,
 			}
 			srv.MessageHandler().ServeMessage(w, req)
 
@@ -251,20 +256,18 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 
 			// 成功, 交给 MessageHandler
 			req := &Request{
+				Token: token,
+
 				HttpRequest: r,
-
 				QueryValues: queryValues,
-				Signature:   signature1,
-				Timestamp:   timestamp,
-				Nonce:       nonce,
 
-				RawMsgXML: rawMsgXML,
-				MixedMsg:  &mixedMsg,
+				Signature: signature1,
+				Timestamp: timestamp,
+				Nonce:     nonce,
 
 				EncryptType: encryptType,
-
-				AppId: srv.AppId(),
-				Token: token,
+				RawMsgXML:   rawMsgXML,
+				MixedMsg:    &mixedMsg,
 			}
 			srv.MessageHandler().ServeMessage(w, req)
 
