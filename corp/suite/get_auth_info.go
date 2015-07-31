@@ -67,7 +67,7 @@ type AuthInfoAgent struct {
 	Name          string   `json:"name"`
 	RoundLogoURL  string   `json:"round_logo_url"`
 	SquareLogoURL string   `json:"square_logo_url"`
-	AppId         int64    `json:"app_id"`
+	AppId         int64    `json:"appid"`
 	APIGroup      []string `json:"api_group,omitempty"`
 }
 
