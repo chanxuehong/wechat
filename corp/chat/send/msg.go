@@ -36,8 +36,12 @@ type ClearNotify struct {
 	       }  `json:"chat"`
 }
 
-
-
+// 成员新消息免打扰参数，数组，最大支持10000个成员
+type UserMute struct {
+		Userid string `json:"userid"` //成员UserID
+		Status int64 `json:"status"`  //免打扰状态，0关闭，1打开,默认为0。
+	                                  // 当打开时所有消息不提醒；当关闭时，以成员对会话的设置为准。
+}
 
 
 const (

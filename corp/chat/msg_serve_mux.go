@@ -138,11 +138,8 @@ func (mux *MessageServeMux) getEventHandler(eventType string) (handler MessageHa
 // MessageServeMux 实现了 MessageHandler 接口.
 func (mux *MessageServeMux) ServeMessage(w http.ResponseWriter, r *Request) {
 
-
 	//先按腾讯协议将packageId写回去
 	w.Write([]byte(fmt.Sprintf("%d", r.MixedMsg.PackageId)))
-
-
 
 	for _, item := range r.MixedMsg.Item {
 		r.MixedMsg.CurrentItem=item

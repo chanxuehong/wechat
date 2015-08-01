@@ -25,7 +25,6 @@ func (fn MessageHandlerFunc) ServeMessage(w http.ResponseWriter, r *Request) {
 type Request struct {
 	HttpRequest  *http.Request // 可以为 nil, 因为某些 http 框架没有提供此参数
 
-                               // 下面的字段必须提供
 
 	QueryValues  url.Values    // 回调请求 URL 中的查询参数集合
 	MsgSignature string        // 回调请求 URL 中的消息体签名: msg_signature
@@ -74,17 +73,17 @@ type ItemHeader struct {
 type Item struct {
 
 	ItemHeader
-	Event       string   `xml:"Event"  json:"Event"`
-	MsgId       int64    `xml:"MsgId" json:"MsgId"`
-	Name        string   `xml:"Name"  json:"Name"`
-	Owner       string   `xml:"Owner"  json:"Owner"`
+	Event       string   `xml:"Event"        json:"Event"`
+	MsgId       int64    `xml:"MsgId"        json:"MsgId"`
+	Name        string   `xml:"Name"         json:"Name"`
+	Owner       string   `xml:"Owner"        json:"Owner"`
 	AddUserList string   `xml:"AddUserList"  json:"AddUserList"`
 	DelUserList string   `xml:"DelUserList"  json:"DelUserList"`
-	ChatId      string   `xml:"ChatId"  json:"ChatId"`
-	ChatInfo    ChatInfo `xml:"ChatInfo"  json:"ChatInfo"`
+	ChatId      string   `xml:"ChatId"       json:"ChatId"`
+	ChatInfo    ChatInfo `xml:"ChatInfo"     json:"ChatInfo"`
 	Content     string   `xml:"Content"      json:"Content"`
-	Receiver    Receiver `xml:"Receiver"      json:"Receiver"`
-	PicUrl      string   `xml:"PicUrl"      json:"PicUrl"`
+	Receiver    Receiver `xml:"Receiver"     json:"Receiver"`
+	PicUrl      string   `xml:"PicUrl"       json:"PicUrl"`
 	MediaId     string   `xml:"MediaId"      json:"MediaId"`
 
 
@@ -93,13 +92,13 @@ type Item struct {
 
 type  Receiver     struct {
 	Type string   `xml:"Type"  json:"Type"` //接收人类型：single|group，分别表示：群聊|单聊
-	Id   string   `xml:"Id"  json:"Id"`     //接收人的值，为userid|chatid，分别表示：成员id|会话id
+	Id   string   `xml:"Id"    json:"Id"`     //接收人的值，为userid|chatid，分别表示：成员id|会话id
 }
 
 
 type ChatInfo struct {
-	Chatid   string `json:"chatid"` // 会话id
-	Name     string `json:"name"`   // 会话标题
-	Owner    string `json:"owner"`
-	Userlist string `json:"userlist"`
+	ChatId   string `xml:"ChatId"   json:"chatid"` // 会话id
+	Name     string `xml:"Name"     json:"name"`   // 会话标题
+	Owner    string `xml:"Owner"    json:"owner"`
+	UserList string `xml:"UserList" json:"userlist"`
 }
