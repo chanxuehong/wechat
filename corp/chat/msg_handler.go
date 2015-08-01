@@ -45,18 +45,18 @@ type Request struct {
 
 // 微信服务器推送过来的消息(事件)通用的消息头
 type MessageHeader struct {
-	AgentType  string `xml:"AgentType"   json:"AgentType"` //固定为chat
-	ToUserName string `xml:"ToUserName" json:"ToUserName"`
-	ItemCount  int64  `xml:"ItemCount"   json:"ItemCount"`
-	PackageId  int64  `xml:"PackageId"      json:"PackageId"`
+	AgentType  string `xml:"AgentType"     json:"AgentType"` //固定为chat
+	ToUserName string `xml:"ToUserName"    json:"ToUserName"`
+	ItemCount  int64  `xml:"ItemCount"     json:"ItemCount"`
+	PackageId  int64  `xml:"PackageId"     json:"PackageId"`
 
 }
 
 // 微信服务器推送过来的消息(事件)的合集.
 type MixedMessage struct {
-	XMLName     struct {} `xml:"xml" json:"-"`
+	XMLName     struct {} `xml:"xml"       json:"-"`
 	MessageHeader
-	Item        []Item  `xml:"Item"      json:"-"`
+	Item        []Item    `xml:"Item"      json:"-"`
 	CurrentItem Item //当前处理的Item
 }
 
@@ -64,8 +64,8 @@ type MixedMessage struct {
 // 微信服务器推送过来的Item(事件)通用的消息头
 type ItemHeader struct {
 	FromUserName string   `xml:"FromUserName"  json:"FromUserName"` //成员UserID
-	CreateTime   string   `xml:"CreateTime"  json:"CreateTime  "`   // 消息创建时间（整型）
-	MsgType      string   `xml:"MsgType"  json:"MsgType "`          //消息类型
+	CreateTime   string   `xml:"CreateTime"    json:"CreateTime  "`   // 消息创建时间（整型）
+	MsgType      string   `xml:"MsgType"       json:"MsgType "`          //消息类型
 
 }
 
