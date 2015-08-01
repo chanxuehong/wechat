@@ -12,7 +12,7 @@ import (
 )
 
 type ChatServer interface {
-	CorpId() string // 企业号Id, 用于约束消息的 CorpId, 如果为空表示不约束, 同时忽略 AgentId 的约束
+	CorpId() string // 企业号Id, 用于约束消息的 CorpId, 如果为空表示不约束
 	Token() string  // 获取应用的Token
 
 	CurrentAESKey() [32]byte                // 获取当前有效的 AES 加密 Key
