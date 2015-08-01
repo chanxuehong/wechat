@@ -12,8 +12,7 @@ import (
 )
 
 type ChatServer interface {
-	CorpId() string // 获取应用所属的企业号Id
-	ChatId() int64 // 获取应用的Id
+	CorpId() string // 企业号Id, 用于约束消息的 CorpId, 如果为空表示不约束
 	Token() string  // 获取应用的Token
 
 	CurrentAESKey() [32]byte                // 获取当前有效的 AES 加密 Key
@@ -25,20 +24,19 @@ type ChatServer interface {
 var _ ChatServer = (*DefaultChatServer)(nil)
 
 type DefaultChatServer struct {
-	corpId  string
-	agentId int64
-	token   string
+	corpId            string
+	token             string
 
 	rwmutex           sync.RWMutex
 	currentAESKey     [32]byte // 当前的 AES Key
 	lastAESKey        [32]byte // 最后一个 AES Key
 	isLastAESKeyValid bool     // lastAESKey 是否有效, 如果 lastAESKey 是 zero 则无效
 
-	messageHandler MessageHandler
+	messageHandler    MessageHandler
 }
 
 // NewDefaultChatServer 创建一个新的 DefaultChatServer.
-func NewDefaultChatServer(corpId string, agentId int64, token string, aesKey []byte, handler MessageHandler) (srv *DefaultChatServer) {
+func NewDefaultChatServer(corpId string, token string, aesKey []byte, handler MessageHandler) (srv *DefaultChatServer) {
 	if len(aesKey) != 32 {
 		panic("the length of aesKey must equal to 32")
 	}
@@ -48,7 +46,6 @@ func NewDefaultChatServer(corpId string, agentId int64, token string, aesKey []b
 
 	srv = &DefaultChatServer{
 		corpId:         corpId,
-		agentId:        agentId,
 		token:          token,
 		messageHandler: handler,
 	}
@@ -59,9 +56,8 @@ func NewDefaultChatServer(corpId string, agentId int64, token string, aesKey []b
 func (srv *DefaultChatServer) CorpId() string {
 	return srv.corpId
 }
-func (srv *DefaultChatServer) ChatId() int64 {
-	return srv.agentId
-}
+
+
 func (srv *DefaultChatServer) Token() string {
 	return srv.token
 }

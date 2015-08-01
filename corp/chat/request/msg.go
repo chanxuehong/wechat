@@ -13,8 +13,6 @@ const (
 // 微信服务器推送过来的消息类型
 	MsgTypeText = "text"     // 文本消息
 	MsgTypeImage = "image"    // 图片消息
-
-
 )
 
 type Text struct {

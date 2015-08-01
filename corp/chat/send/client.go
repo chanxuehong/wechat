@@ -126,6 +126,34 @@ func (clt *Client) ClearNotify(request *ClearNotify) (err error) {
 }
 
 
+//设置成员新消息免打扰
+// 成员新消息免打扰参数，数组，最大支持10000个成员
+func (clt *Client) SetMute(userMuteList []*UserMute) (invaliduser []string, err error) {
+	var request = struct {
+		UserMuteList []*UserMute `json:"user_mute_list"`
+	}{
+		UserMuteList:userMuteList,
+	}
+
+
+	var result struct {
+		corp.Error
+		Invaliduser []string `json:"invaliduser"`
+	}
+
+	incompleteURL := "https://qyapi.weixin.qq.com/cgi-bin/chat/setmute?access_token="
+	if err = ((*corp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != corp.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	invaliduser=result.Invaliduser
+	return
+}
+
 
 
 

@@ -107,7 +107,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, f
 		}
 
 		aesKey := srv.CurrentAESKey()
-		random, rawMsgXML, err := util.AESDecryptMsg(encryptedMsgBytes, corpId, aesKey)
+		random, rawMsgXML, _, err := util.AESDecryptMsg(encryptedMsgBytes, aesKey)
 		if err != nil {
 			// 尝试用上一次的 AESKey 来解密
 			lastAESKey, isLastAESKeyValid := srv.LastAESKey()
@@ -118,12 +118,14 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, f
 
 			aesKey = lastAESKey // NOTE
 
-			random, rawMsgXML, err = util.AESDecryptMsg(encryptedMsgBytes, corpId, aesKey)
+			random, rawMsgXML, _, err = util.AESDecryptMsg(encryptedMsgBytes, aesKey)
 			if err != nil {
 				errHandler.ServeError(w, r, err)
 				return
 			}
 		}
+
+
 
 		// 解密成功, 解析 MixedMessage
 		var mixedMsg MixedMessage
