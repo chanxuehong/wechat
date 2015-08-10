@@ -95,6 +95,7 @@ type Department struct {
 	Id       int64  `json:"id"`
 	Name     string `json:"name"`
 	ParentId int64  `json:"parentid"`
+	Order    int64  `json:"order"`
 }
 
 // 获取 rootId 部门的子部门
