@@ -11,8 +11,16 @@ import (
 	"github.com/chanxuehong/wechat/mp"
 )
 
+type MassResult struct {
+	MsgId int64 `json:"msg_id"` // 消息发送任务的ID
+
+	// 消息的数据ID，，该字段只有在群发图文消息时，才会出现。可以用于在图文分析数据接口中，获取到对应的图文消息的数据，
+	// 是图文分析数据接口中的msgid字段中的前半部分，详见图文分析数据接口中的msgid字段的介绍。
+	MsgDataId int64 `json:"msg_data_id"`
+}
+
 // 群发消息给所有用户
-func (clt *Client) MassToAll(msg interface{}) (msgid int64, err error) {
+func (clt *Client) MassToAll(msg interface{}) (rslt *MassResult, err error) {
 	if msg == nil {
 		err = errors.New("nil msg")
 		return
@@ -20,7 +28,7 @@ func (clt *Client) MassToAll(msg interface{}) (msgid int64, err error) {
 
 	var result struct {
 		mp.Error
-		MsgId int64 `json:"msg_id"`
+		MassResult
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/message/mass/sendall?access_token="
@@ -32,12 +40,12 @@ func (clt *Client) MassToAll(msg interface{}) (msgid int64, err error) {
 		err = &result.Error
 		return
 	}
-	msgid = result.MsgId
+	rslt = &result.MassResult
 	return
 }
 
 // 群发消息给指定分组
-func (clt *Client) MassToGroup(msg interface{}) (msgid int64, err error) {
+func (clt *Client) MassToGroup(msg interface{}) (rslt *MassResult, err error) {
 	if msg == nil {
 		err = errors.New("nil msg")
 		return
@@ -45,7 +53,7 @@ func (clt *Client) MassToGroup(msg interface{}) (msgid int64, err error) {
 
 	var result struct {
 		mp.Error
-		MsgId int64 `json:"msg_id"`
+		MassResult
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/message/mass/sendall?access_token="
@@ -57,12 +65,12 @@ func (clt *Client) MassToGroup(msg interface{}) (msgid int64, err error) {
 		err = &result.Error
 		return
 	}
-	msgid = result.MsgId
+	rslt = &result.MassResult
 	return
 }
 
 // 群发消息给指定用户列表
-func (clt *Client) MassToUsers(msg interface{}) (msgid int64, err error) {
+func (clt *Client) MassToUsers(msg interface{}) (rslt *MassResult, err error) {
 	if msg == nil {
 		err = errors.New("nil msg")
 		return
@@ -70,7 +78,7 @@ func (clt *Client) MassToUsers(msg interface{}) (msgid int64, err error) {
 
 	var result struct {
 		mp.Error
-		MsgId int64 `json:"msg_id"`
+		MassResult
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token="
@@ -82,21 +90,18 @@ func (clt *Client) MassToUsers(msg interface{}) (msgid int64, err error) {
 		err = &result.Error
 		return
 	}
-	msgid = result.MsgId
+	rslt = &result.MassResult
 	return
 }
 
 // 预览消息
-func (clt *Client) Preview(msg interface{}) (msgid int64, err error) {
+func (clt *Client) Preview(msg interface{}) (err error) {
 	if msg == nil {
 		err = errors.New("nil msg")
 		return
 	}
 
-	var result struct {
-		mp.Error
-		MsgId int64 `json:"msg_id"`
-	}
+	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/message/mass/preview?access_token="
 	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, msg, &result); err != nil {
@@ -104,10 +109,9 @@ func (clt *Client) Preview(msg interface{}) (msgid int64, err error) {
 	}
 
 	if result.ErrCode != mp.ErrCodeOK {
-		err = &result.Error
+		err = &result
 		return
 	}
-	msgid = result.MsgId
 	return
 }
 
