@@ -28,7 +28,7 @@ func NativeURL1(appId, mchId, productId, timestamp, nonceStr, apiKey string) str
 		"&nonce_str=" + url.QueryEscape(nonceStr)
 }
 
-// 扫码原生支付模式2的地址
+// 扫码原生支付模式2的地址, 建议直接用 code_url
 func NativeURL2(codeURL string) string {
-	return "weixin://wxpay/bizpayurl?sr=" + url.QueryEscape(codeURL)
+	return codeURL
 }
