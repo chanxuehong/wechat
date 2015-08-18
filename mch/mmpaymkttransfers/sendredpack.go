@@ -11,6 +11,6 @@ import (
 
 // 红包发放.
 //  NOTE: 请求需要双向证书
-func SendRedPack(proxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
-	return proxy.PostXML("https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack", req)
+func SendRedPack(pxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
+	return pxy.PostXML("https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack", req)
 }

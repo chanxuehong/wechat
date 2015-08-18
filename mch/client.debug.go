@@ -18,26 +18,37 @@ import (
 )
 
 type Proxy struct {
+	appId      string
+	mchId      string
 	apiKey     string
 	httpClient *http.Client
 }
 
+func (pxy *Proxy) AppId() string {
+	return pxy.appId
+}
+func (pxy *Proxy) MchId() string {
+	return pxy.mchId
+}
+
 // 创建一个新的 Proxy.
 //  如果 httpClient == nil 则默认用 http.DefaultClient.
-func NewProxy(apiKey string, httpClient *http.Client) *Proxy {
+func NewProxy(appId, mchId, apiKey string, httpClient *http.Client) *Proxy {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 
 	return &Proxy{
+		appId:      appId,
+		mchId:      mchId,
 		apiKey:     apiKey,
 		httpClient: httpClient,
 	}
 }
 
 // 微信支付通用请求方法.
-//  注意: err == nil 表示协议状态都为 SUCCESS.
-func (proxy *Proxy) PostXML(url string, req map[string]string) (resp map[string]string, err error) {
+//  注意: err == nil 表示协议状态都为 SUCCESS(return_code == SUCCESS).
+func (pxy *Proxy) PostXML(url string, req map[string]string) (resp map[string]string, err error) {
 	bodyBuf := textBufferPool.Get().(*bytes.Buffer)
 	bodyBuf.Reset()
 	defer textBufferPool.Put(bodyBuf)
@@ -49,7 +60,7 @@ func (proxy *Proxy) PostXML(url string, req map[string]string) (resp map[string]
 	LogInfoln("[WECHAT_DEBUG] request url:", url)
 	LogInfoln("[WECHAT_DEBUG] request xml:", bodyBuf.String())
 
-	httpResp, err := proxy.httpClient.Post(url, "text/xml; charset=utf-8", bodyBuf)
+	httpResp, err := pxy.httpClient.Post(url, "text/xml; charset=utf-8", bodyBuf)
 	if err != nil {
 		return
 	}
@@ -84,13 +95,25 @@ func (proxy *Proxy) PostXML(url string, req map[string]string) (resp map[string]
 		return
 	}
 
+	// 安全考虑, 做下验证
+	appId, ok := resp["appid"]
+	if ok && appId != pxy.appId {
+		err = fmt.Errorf("appid mismatch, have: %q, want: %q", appId, pxy.appId)
+		return
+	}
+	mchId, ok := resp["mch_id"]
+	if ok && mchId != pxy.mchId {
+		err = fmt.Errorf("mch_id mismatch, have: %q, want: %q", mchId, pxy.mchId)
+		return
+	}
+
 	// 认证签名
 	signature1, ok := resp["sign"]
 	if !ok {
 		err = errors.New("no sign parameter")
 		return
 	}
-	signature2 := Sign(resp, proxy.apiKey, nil)
+	signature2 := Sign(resp, pxy.apiKey, nil)
 	if signature1 != signature2 {
 		err = fmt.Errorf("check signature failed, \r\ninput: %q, \r\nlocal: %q", signature1, signature2)
 		return

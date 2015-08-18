@@ -10,6 +10,6 @@ import (
 )
 
 // 查询代金券信息.
-func QueryCoupon(proxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
-	return proxy.PostXML("https://api.mch.weixin.qq.com/promotion/query_coupon", req)
+func QueryCoupon(pxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
+	return pxy.PostXML("https://api.mch.weixin.qq.com/promotion/query_coupon", req)
 }

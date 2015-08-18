@@ -9,13 +9,13 @@ import (
 	"github.com/chanxuehong/wechat/mch"
 )
 
-// 提交被扫支付.
-func MicroPay(proxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
-	return proxy.PostXML("https://api.mch.weixin.qq.com/pay/micropay", req)
+// 提交刷卡支付.
+func MicroPay(pxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
+	return pxy.PostXML("https://api.mch.weixin.qq.com/pay/micropay", req)
 }
 
-// 撤销支付.
+// 撤销订单.
 //  NOTE: 请求需要双向证书.
-func Reverse(proxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
-	return proxy.PostXML("https://api.mch.weixin.qq.com/secapi/pay/reverse", req)
+func Reverse(pxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
+	return pxy.PostXML("https://api.mch.weixin.qq.com/secapi/pay/reverse", req)
 }
