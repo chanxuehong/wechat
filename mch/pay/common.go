@@ -17,29 +17,29 @@ import (
 )
 
 // 统一下单.
-func UnifiedOrder(proxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
-	return proxy.PostXML("https://api.mch.weixin.qq.com/pay/unifiedorder", req)
+func UnifiedOrder(pxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
+	return pxy.PostXML("https://api.mch.weixin.qq.com/pay/unifiedorder", req)
 }
 
-// 订单查询.
-func OrderQuery(proxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
-	return proxy.PostXML("https://api.mch.weixin.qq.com/pay/orderquery", req)
+// 查询订单.
+func OrderQuery(pxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
+	return pxy.PostXML("https://api.mch.weixin.qq.com/pay/orderquery", req)
 }
 
 // 关闭订单.
-func CloseOrder(proxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
-	return proxy.PostXML("https://api.mch.weixin.qq.com/pay/closeorder", req)
+func CloseOrder(pxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
+	return pxy.PostXML("https://api.mch.weixin.qq.com/pay/closeorder", req)
 }
 
 // 申请退款.
 //  NOTE: 请求需要双向证书.
-func Refund(proxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
-	return proxy.PostXML("https://api.mch.weixin.qq.com/secapi/pay/refund", req)
+func Refund(pxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
+	return pxy.PostXML("https://api.mch.weixin.qq.com/secapi/pay/refund", req)
 }
 
-// 退款查询.
-func RefundQuery(proxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
-	return proxy.PostXML("https://api.mch.weixin.qq.com/pay/refundquery", req)
+// 查询退款.
+func RefundQuery(pxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
+	return pxy.PostXML("https://api.mch.weixin.qq.com/pay/refundquery", req)
 }
 
 // 下载对账单.

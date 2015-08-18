@@ -33,7 +33,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 		}
 
 		ReturnCode, ok := msg["return_code"]
-		if !ok || ReturnCode == ReturnCodeSuccess {
+		if ReturnCode == ReturnCodeSuccess || !ok {
 			haveAppId := msg["appid"]
 			wantAppId := srv.AppId()
 			if wantAppId != "" {
@@ -93,6 +93,6 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 		srv.MessageHandler().ServeMessage(w, req)
 
 	default:
-		errHandler.ServeError(w, r, errors.New("Request.Method: "+r.Method))
+		errHandler.ServeError(w, r, errors.New("Not expect Request.Method: "+r.Method))
 	}
 }

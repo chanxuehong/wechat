@@ -8,6 +8,7 @@ package mch
 import (
 	"bytes"
 	"crypto/md5"
+	"crypto/sha1"
 	"encoding/hex"
 	"hash"
 	"sort"
@@ -31,21 +32,65 @@ func Sign(parameters map[string]string, apiKey string, fn func() hash.Hash) stri
 		fn = md5.New
 	}
 	h := fn()
-	signature := make([]byte, h.Size()*2)
 
+	buf := make([]byte, 256)
 	for _, k := range ks {
 		v := parameters[k]
 		if v == "" {
 			continue
 		}
-		h.Write([]byte(k))
-		h.Write([]byte{'='})
-		h.Write([]byte(v))
-		h.Write([]byte{'&'})
-	}
-	h.Write([]byte("key="))
-	h.Write([]byte(apiKey))
 
+		buf = buf[:0]
+		buf = append(buf, k...)
+		buf = append(buf, '=')
+		buf = append(buf, v...)
+		buf = append(buf, '&')
+		h.Write(buf)
+	}
+	buf = buf[:0]
+	buf = append(buf, "key="...)
+	buf = append(buf, apiKey...)
+	h.Write(buf)
+
+	signature := make([]byte, h.Size()*2)
 	hex.Encode(signature, h.Sum(nil))
 	return string(bytes.ToUpper(signature))
+}
+
+// 收货地址共享接口签名
+func EditAddressSign(appId, url, timestamp, nonceStr, accessToken string) string {
+	h := sha1.New()
+	buf := make([]byte, 256)
+
+	// accesstoken
+	// appid
+	// noncestr
+	// timestamp
+	// url
+	buf = buf[:0]
+	buf = append(buf, "accesstoken="...)
+	buf = append(buf, accessToken...)
+	h.Write(buf)
+
+	buf = buf[:0]
+	buf = append(buf, "&appid="...)
+	buf = append(buf, appId...)
+	h.Write(buf)
+
+	buf = buf[:0]
+	buf = append(buf, "&noncestr="...)
+	buf = append(buf, nonceStr...)
+	h.Write(buf)
+
+	buf = buf[:0]
+	buf = append(buf, "&timestamp="...)
+	buf = append(buf, timestamp...)
+	h.Write(buf)
+
+	buf = buf[:0]
+	buf = append(buf, "&url="...)
+	buf = append(buf, url...)
+	h.Write(buf)
+
+	return hex.EncodeToString(h.Sum(nil))
 }
