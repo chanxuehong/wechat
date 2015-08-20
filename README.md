@@ -1,12 +1,10 @@
 # wechat SDK for go(golang)
 
-## 联系方式
-
+## 联系方式  
 邮箱:        chanxuehong@gmail.com  
-QQ群:        297489459  
-微信群聊:    ![群聊二维码](https://github.com/chanxuehong/wechat/blob/master/mmqrcode1437405773353.png)   
+QQ群:        297489459   
 
-## 简介
+## 简介  
 mp   微信公众平台 SDK  
 corp 微信企业号 SDK  
 mch  微信商户平台（微信支付） SDK  
@@ -16,11 +14,9 @@ mch  微信商户平台（微信支付） SDK
 
 	go get -u github.com/chanxuehong/wechat/...
 
-## 文档
-
-### [在线文档](http://godoc.org/github.com/chanxuehong/wechat)
-
-### 离线文档
+## 文档  
+### [在线文档](http://godoc.org/github.com/chanxuehong/wechat)  
+### 离线文档  
 通过上面步骤下载下来后，可以在shell(windows 下面是 cmd) 里运行
 
 	godoc -http=:8080
