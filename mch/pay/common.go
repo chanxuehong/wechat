@@ -118,7 +118,7 @@ func downloadBillToWriter(writer io.Writer, req map[string]string, httpClient *h
 			return
 		}
 		var n2 int64
-		n2, err = io.CopyBuffer(writer, httpResp.Body, buf)
+		n2, err = CopyBuffer(writer, httpResp.Body, buf)
 		written += n2
 		return
 	case err == io.ErrUnexpectedEOF:
