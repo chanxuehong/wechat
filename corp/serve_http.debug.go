@@ -8,7 +8,6 @@
 package corp
 
 import (
-	"crypto/subtle"
 	"encoding/base64"
 	"encoding/xml"
 	"errors"
@@ -17,6 +16,8 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"github.com/chanxuehong/util/security"
 
 	"github.com/chanxuehong/wechat/util"
 )
@@ -42,11 +43,6 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 		msgSignature1 := queryValues.Get("msg_signature")
 		if msgSignature1 == "" {
 			errHandler.ServeError(w, r, errors.New("msg_signature is empty"))
-			return
-		}
-		if len(msgSignature1) != 40 { // sha1
-			err := fmt.Errorf("the length of msg_signature mismatch, have: %d, want: 40", len(msgSignature1))
-			errHandler.ServeError(w, r, err)
 			return
 		}
 
@@ -85,17 +81,10 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 
 		haveCorpId := requestHttpBody.CorpId
 		wantCorpId := srv.CorpId()
-		if wantCorpId != "" {
-			if len(haveCorpId) != len(wantCorpId) {
-				err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveCorpId, wantCorpId)
-				errHandler.ServeError(w, r, err)
-				return
-			}
-			if subtle.ConstantTimeCompare([]byte(haveCorpId), []byte(wantCorpId)) != 1 {
-				err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveCorpId, wantCorpId)
-				errHandler.ServeError(w, r, err)
-				return
-			}
+		if wantCorpId != "" && !security.SecureCompareString(haveCorpId, wantCorpId) {
+			err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveCorpId, wantCorpId)
+			errHandler.ServeError(w, r, err)
+			return
 		}
 
 		haveAgentId := requestHttpBody.AgentId
@@ -115,8 +104,8 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 
 		// 验证签名
 		msgSignature2 := util.MsgSign(agentToken, timestampStr, nonce, requestHttpBody.EncryptedMsg)
-		if subtle.ConstantTimeCompare([]byte(msgSignature1), []byte(msgSignature2)) != 1 {
-			err = fmt.Errorf("check msg_signature failed, input: %s, local: %s", msgSignature1, msgSignature2)
+		if !security.SecureCompareString(msgSignature1, msgSignature2) {
+			err := fmt.Errorf("check msg_signature failed, input: %s, local: %s", msgSignature1, msgSignature2)
 			errHandler.ServeError(w, r, err)
 			return
 		}
@@ -212,11 +201,6 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 			errHandler.ServeError(w, r, errors.New("msg_signature is empty"))
 			return
 		}
-		if len(msgSignature1) != 40 { // sha1
-			err := fmt.Errorf("the length of msg_signature mismatch, have: %d, want: 40", len(msgSignature1))
-			errHandler.ServeError(w, r, err)
-			return
-		}
 
 		timestamp := queryValues.Get("timestamp")
 		if timestamp == "" {
@@ -237,7 +221,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 		}
 
 		msgSignature2 := util.MsgSign(srv.Token(), timestamp, nonce, encryptedMsg)
-		if subtle.ConstantTimeCompare([]byte(msgSignature1), []byte(msgSignature2)) != 1 {
+		if !security.SecureCompareString(msgSignature1, msgSignature2) {
 			err := fmt.Errorf("check msg_signature failed, input: %s, local: %s", msgSignature1, msgSignature2)
 			errHandler.ServeError(w, r, err)
 			return
