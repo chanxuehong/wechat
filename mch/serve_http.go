@@ -7,12 +7,13 @@ package mch
 
 import (
 	"bytes"
-	"crypto/subtle"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/chanxuehong/util/security"
 
 	"github.com/chanxuehong/util"
 )
@@ -36,32 +37,18 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 		if ReturnCode == ReturnCodeSuccess || !ok {
 			haveAppId := msg["appid"]
 			wantAppId := srv.AppId()
-			if wantAppId != "" {
-				if len(haveAppId) != len(wantAppId) {
-					err = fmt.Errorf("the message's appid mismatch, have: %s, want: %s", haveAppId, wantAppId)
-					errHandler.ServeError(w, r, err)
-					return
-				}
-				if subtle.ConstantTimeCompare([]byte(haveAppId), []byte(wantAppId)) != 1 {
-					err = fmt.Errorf("the message's appid mismatch, have: %s, want: %s", haveAppId, wantAppId)
-					errHandler.ServeError(w, r, err)
-					return
-				}
+			if wantAppId != "" && !security.SecureCompareString(haveAppId, wantAppId) {
+				err = fmt.Errorf("the message's appid mismatch, have: %s, want: %s", haveAppId, wantAppId)
+				errHandler.ServeError(w, r, err)
+				return
 			}
 
 			haveMchId := msg["mch_id"]
 			wantMchId := srv.MchId()
-			if wantMchId != "" {
-				if len(haveMchId) != len(wantMchId) {
-					err = fmt.Errorf("the message's mch_id mismatch, have: %s, want: %s", haveMchId, wantMchId)
-					errHandler.ServeError(w, r, err)
-					return
-				}
-				if subtle.ConstantTimeCompare([]byte(haveMchId), []byte(wantMchId)) != 1 {
-					err = fmt.Errorf("the message's mch_id mismatch, have: %s, want: %s", haveMchId, wantMchId)
-					errHandler.ServeError(w, r, err)
-					return
-				}
+			if wantMchId != "" && !security.SecureCompareString(haveMchId, wantMchId) {
+				err = fmt.Errorf("the message's mch_id mismatch, have: %s, want: %s", haveMchId, wantMchId)
+				errHandler.ServeError(w, r, err)
+				return
 			}
 
 			// 认证签名
@@ -77,7 +64,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 				errHandler.ServeError(w, r, err)
 				return
 			}
-			if subtle.ConstantTimeCompare([]byte(signature1), []byte(signature2)) != 1 {
+			if !security.SecureCompareString(signature1, signature2) {
 				err = fmt.Errorf("check signature failed, \r\ninput: %q, \r\nlocal: %q", signature1, signature2)
 				errHandler.ServeError(w, r, err)
 				return
