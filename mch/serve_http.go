@@ -59,11 +59,6 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 				return
 			}
 			signature2 := Sign(msg, srv.APIKey(), nil)
-			if len(signature1) != len(signature2) {
-				err = fmt.Errorf("check signature failed, \r\ninput: %q, \r\nlocal: %q", signature1, signature2)
-				errHandler.ServeError(w, r, err)
-				return
-			}
 			if !security.SecureCompareString(signature1, signature2) {
 				err = fmt.Errorf("check signature failed, \r\ninput: %q, \r\nlocal: %q", signature1, signature2)
 				errHandler.ServeError(w, r, err)

@@ -117,7 +117,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 			}
 			haveAppId := string(haveAppIdBytes)
 			wantAppId := srv.AppId()
-			if wantAppId != "" && wantAppId != haveAppId {
+			if wantAppId != "" && !security.SecureCompareString(haveAppId, wantAppId) {
 				err := fmt.Errorf("the message's appid mismatch, have: %s, want: %s", haveAppId, wantAppId)
 				errHandler.ServeError(w, r, err)
 				return
