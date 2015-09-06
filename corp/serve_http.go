@@ -228,7 +228,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 		}
 
 		wantCorpId := srv.CorpId()
-		if wantCorpId != "" && wantCorpId != string(aesAppId) {
+		if wantCorpId != "" && !security.SecureCompare(aesAppId, []byte(wantCorpId)) {
 			err = fmt.Errorf("AppId with aes encrypt mismatch, have: %s, want: %s", aesAppId, wantCorpId)
 			errHandler.ServeError(w, r, err)
 			return
