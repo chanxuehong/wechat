@@ -37,7 +37,14 @@ func init() {
 func Page1Handler(w http.ResponseWriter, r *http.Request) {
 	state := string(random.NewRandomEx())
 
-	sid := string(id.NewSessionId())
+	sidBytes, err := id.NewSessionId()
+	if err != nil {
+		io.WriteString(w, err.Error())
+		log.Println(err)
+		return
+	}
+	sid := string(sidBytes)
+
 	if err := sessionStorage.Add(sid, state); err != nil {
 		io.WriteString(w, err.Error())
 		log.Println(err)
