@@ -49,7 +49,7 @@ func (clt *Client) GetUserInfo(userinfo interface{}, lang string) (err error) {
 	}
 
 	var errResult Error
-	if err = json.Unmarshal(httpRespBytes, errResult); err != nil {
+	if err = json.Unmarshal(httpRespBytes, &errResult); err != nil {
 		return
 	}
 	if errResult.ErrCode != ErrCodeOK {
