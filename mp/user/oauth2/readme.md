@@ -11,9 +11,9 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/chanxuehong/rand"
 	"github.com/chanxuehong/session"
-	"github.com/chanxuehong/util/id"
-	"github.com/chanxuehong/util/random"
+	"github.com/chanxuehong/sid"
 	"github.com/chanxuehong/wechat/mp/user/oauth2"
 )
 
@@ -35,15 +35,8 @@ func init() {
 
 // 建立必要的 session, 然后跳转到授权页面
 func Page1Handler(w http.ResponseWriter, r *http.Request) {
-	state := string(random.NewRandomEx())
-
-	sidBytes, err := id.NewSessionId()
-	if err != nil {
-		io.WriteString(w, err.Error())
-		log.Println(err)
-		return
-	}
-	sid := string(sidBytes)
+	state := string(rand.NewHex())
+	sid := sid.New()
 
 	if err := sessionStorage.Add(sid, state); err != nil {
 		io.WriteString(w, err.Error())
