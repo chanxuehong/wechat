@@ -31,8 +31,8 @@ mch  微信商户平台（微信支付） SDK
 如果这个项目对您有用，我们欢迎各方任何形式的捐助，也包括参与到项目代码更新或意见反馈中来。谢谢！
 
 资金捐助:  
-![捐助wechat](https://github.com/chanxuehong/wechat/blob/master/weixin_pay.png)
-![捐助wechat](https://github.com/chanxuehong/wechat/blob/master/alipay.png)
+![微信支付](https://github.com/chanxuehong/wechat/blob/v1/weixin_pay.png)
+![支付宝](https://github.com/chanxuehong/wechat/blob/v1/alipay.png)
 
 支付宝账户: 15967396@qq.com
 
