@@ -791,11 +791,7 @@ func (e *encodeState) string(s string) int {
 	start := 0
 	for i := 0; i < len(s); {
 		if b := s[i]; b < utf8.RuneSelf {
-			//if 0x20 <= b && b != '\\' && b != '"' && b != '<' && b != '>' && b != '&' {
-			//	i++
-			//	continue
-			//}
-			if 0x20 <= b && b != '\\' && b != '"' {
+			if 0x20 <= b && b != '\\' && b != '"' /* && b != '<' && b != '>' && b != '&' */ {
 				i++
 				continue
 			}
@@ -871,11 +867,7 @@ func (e *encodeState) stringBytes(s []byte) int {
 	start := 0
 	for i := 0; i < len(s); {
 		if b := s[i]; b < utf8.RuneSelf {
-			//if 0x20 <= b && b != '\\' && b != '"' && b != '<' && b != '>' && b != '&' {
-			//	i++
-			//	continue
-			//}
-			if 0x20 <= b && b != '\\' && b != '"' {
+			if 0x20 <= b && b != '\\' && b != '"' /* && b != '<' && b != '>' && b != '&' */ {
 				i++
 				continue
 			}

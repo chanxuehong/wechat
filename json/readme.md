@@ -1,11 +1,6 @@
-encoding/json 默认会对 html 标记 <, >, & 做转换, 但是狗日的腾讯不识别,  
-所以只能 hack 标准的 json 库, 去掉这三个字符的转换(从 go1.5 encoding/json fork 而来).  
+encoding/json 默认会对 html 标记 <, >, & 做编码转换(转换为 \u003c, \u003e, \u0026),  
+但是狗日的腾讯不识别, 所以只能 hack encoding/json 库, 去掉这三个字符的转换.  
 
-修改的文件有:
-
-encode.go:  
-注释掉 794-797行, 增加 798-801 行  
-注释掉 874-877行, 增加 878-881 行  
-
-indent.go:  
-注释掉 21-29 行  
+**对应 golang 标准库的版本: 5755c011de9c75a05825b0c08ce61c77c5207f1d, 修改的文件有:**  
+1. encode.go: 注释掉 794, 870 行的部分代码  
+2. indent.go: 注释掉 21-29 行的全部代码  
