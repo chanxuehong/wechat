@@ -15,7 +15,7 @@ import (
 
 	"github.com/chanxuehong/util/security"
 
-	"github.com/chanxuehong/wechat.v2/util"
+	"github.com/chanxuehong/wechat/util"
 )
 
 // Server 用于处理微信服务器推送过来的消息(事件).
