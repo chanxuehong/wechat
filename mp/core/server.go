@@ -18,10 +18,9 @@ import (
 	"github.com/chanxuehong/wechat/util"
 )
 
-// Server 用于处理微信服务器推送过来的消息(事件).
-//
-// 通常一个 Server 实例处理一个公众号的消息(事件), 此时建议指定 oriId(原始ID), appId 用于约束消息(事件),
-// 也可以一个 Server 实例处理多个公众号的消息(事件), 此时 oriId(原始ID), appId 必须设置为 "".
+// Server 处理微信服务器的回调请求. 并发安全!
+//  通常一个 Server 实例处理一个公众号的消息(事件), 此时建议指定 oriId(原始ID), appId 用于约束消息(事件),
+//  也可以一个 Server 实例处理多个公众号的消息(事件), 此时 oriId(原始ID), appId 必须设置为 "".
 type Server struct {
 	oriId string
 	appId string
@@ -37,7 +36,7 @@ type Server struct {
 
 // NewServer 创建一个新的 Server.
 //  oriId:        可选; 公众号的原始ID(微信公众号管理后台查看), 如果设置了值则该Server只能处理 ToUserName 为该值的公众号的消息(事件);
-//  appId:        可选; 公众号的AppId, 如果设置了值则该Server只能处理 AppId 为该值的公众号的消息(事件);
+//  appId:        可选; 公众号的AppId, 如果设置了值则安全模式时该Server只能处理 AppId 为该值的公众号的消息(事件);
 //  token:        必须; 公众号用于验证签名的token;
 //  base64AESKey: 可选; aes加密解密key, 43字节长(base64编码, 去掉了尾部的'='), 安全模式必须设置;
 //  handler:      必须; 处理微信服务器推送过来的消息(事件)的Handler;
@@ -48,6 +47,9 @@ func NewServer(oriId, appId, token, base64AESKey string, handler Handler, errorH
 	}
 	if handler == nil {
 		panic("nil Handler")
+	}
+	if errorHandler == nil {
+		errorHandler = DefaultErrorHandler
 	}
 
 	var (
@@ -62,10 +64,6 @@ func NewServer(oriId, appId, token, base64AESKey string, handler Handler, errorH
 		if err != nil {
 			panic(fmt.Sprintf("Decode base64AESKey:%q failed", base64AESKey))
 		}
-	}
-
-	if errorHandler == nil {
-		errorHandler = DefaultErrorHandler
 	}
 
 	return &Server{
@@ -114,16 +112,7 @@ func (srv *Server) SetAESKey(base64AESKey string) (err error) {
 	return
 }
 
-// ServeHTTP ===========================================================================================================
-
-// 安全模式下微信服务器推送过来的消息(事件)的数据结构
-type RequestHttpBody struct {
-	XMLName struct{} `xml:"xml" json:"-"`
-
-	ToUserName   string `xml:"ToUserName" json:"ToUserName"`
-	EncryptedMsg string `xml:"Encrypt"    json:"Encrypt"`
-}
-
+// ServeHTTP 处理微信服务器的回调请求, queryParams 参数可以为 nil.
 func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams url.Values) {
 	if queryParams == nil {
 		queryParams = r.URL.Query()
@@ -135,7 +124,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 		encryptType := queryParams.Get("encrypt_type")
 		switch encryptType {
 		case "aes": // 安全模式, 兼容模式
-			signature := queryParams.Get("signature") // 只读取, 不做校验
+			signature := queryParams.Get("signature") // No need to check
 
 			haveMsgSignature := queryParams.Get("msg_signature")
 			if haveMsgSignature == "" {
@@ -159,8 +148,12 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				return
 			}
 
-			var requestHttpBody RequestHttpBody
-			if err := xml.NewDecoder(r.Body).Decode(&requestHttpBody); err != nil {
+			var requestHttpBody struct {
+				XMLName      struct{} `xml:"xml"`
+				ToUserName   string   `xml:"ToUserName"`
+				EncryptedMsg []byte   `xml:"Encrypt"`
+			}
+			if err = xml.NewDecoder(r.Body).Decode(&requestHttpBody); err != nil {
 				errorHandler.ServeError(w, r, err)
 				return
 			}
@@ -168,38 +161,41 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			haveToUserName := requestHttpBody.ToUserName
 			wantToUserName := srv.oriId
 			if wantToUserName != "" && !security.SecureCompareString(haveToUserName, wantToUserName) {
-				err := fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
+				err = fmt.Errorf("the RequestHttpBody's ToUserName mismatch, have: %s, want: %s",
+					haveToUserName, wantToUserName)
 				errorHandler.ServeError(w, r, err)
 				return
 			}
 
-			wantMsgSignature := util.MsgSign(srv.token, timestampString, nonce, requestHttpBody.EncryptedMsg)
+			wantMsgSignature := util.MsgSign(srv.token, timestampString, nonce, string(requestHttpBody.EncryptedMsg))
 			if !security.SecureCompareString(haveMsgSignature, wantMsgSignature) {
-				err := fmt.Errorf("check msg_signature failed, have: %s, want: %s", haveMsgSignature, wantMsgSignature)
+				err = fmt.Errorf("check msg_signature failed, have: %s, want: %s", haveMsgSignature, wantMsgSignature)
 				errorHandler.ServeError(w, r, err)
 				return
 			}
 
-			encryptedMsgBytes, err := base64.StdEncoding.DecodeString(requestHttpBody.EncryptedMsg)
+			base64DecodedEncryptedMsg := make([]byte, base64.StdEncoding.DecodedLen(len(requestHttpBody.EncryptedMsg)))
+			n, err := base64.StdEncoding.Decode(base64DecodedEncryptedMsg, requestHttpBody.EncryptedMsg)
 			if err != nil {
 				errorHandler.ServeError(w, r, err)
 				return
 			}
+			base64DecodedEncryptedMsg = base64DecodedEncryptedMsg[:n]
+
 			aesKey := srv.getCurrentAESKey()
-			if len(aesKey) == 0 {
-				errorHandler.ServeError(w, r, errors.New("not found aes key"))
+			if aesKey == nil {
+				errorHandler.ServeError(w, r, errors.New("aes-key was not set"))
 				return
 			}
-			random, msgPlaintext, haveAppIdBytes, err := util.AESDecryptMsg(encryptedMsgBytes, aesKey)
+			random, msgPlaintext, haveAppIdBytes, err := util.AESDecryptMsg(base64DecodedEncryptedMsg, aesKey)
 			if err != nil {
 				lastAESKey := srv.getLastAESKey()
-				if len(lastAESKey) == 0 {
+				if lastAESKey == nil {
 					errorHandler.ServeError(w, r, err)
 					return
 				}
 				aesKey = lastAESKey // NOTE
-
-				random, msgPlaintext, haveAppIdBytes, err = util.AESDecryptMsg(encryptedMsgBytes, aesKey)
+				random, msgPlaintext, haveAppIdBytes, err = util.AESDecryptMsg(base64DecodedEncryptedMsg, aesKey)
 				if err != nil {
 					errorHandler.ServeError(w, r, err)
 					return
@@ -208,18 +204,19 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			haveAppId := string(haveAppIdBytes)
 			wantAppId := srv.appId
 			if wantAppId != "" && !security.SecureCompareString(haveAppId, wantAppId) {
-				err := fmt.Errorf("the message's AppId mismatch, have: %s, want: %s", haveAppId, wantAppId)
+				err = fmt.Errorf("the message's AppId mismatch, have: %s, want: %s", haveAppId, wantAppId)
 				errorHandler.ServeError(w, r, err)
 				return
 			}
 
 			var mixedMsg MixedMsg
-			if err := xml.Unmarshal(msgPlaintext, &mixedMsg); err != nil {
+			if err = xml.Unmarshal(msgPlaintext, &mixedMsg); err != nil {
 				errorHandler.ServeError(w, r, err)
 				return
 			}
 			if haveToUserName != mixedMsg.ToUserName {
-				err := fmt.Errorf("the RequestHttpBody's ToUserName(==%s) mismatch the MixedMsg's ToUserName(==%s)", haveToUserName, mixedMsg.ToUserName)
+				err = fmt.Errorf("the RequestHttpBody's ToUserName(==%s) mismatch the MixedMsg's ToUserName(==%s)",
+					haveToUserName, mixedMsg.ToUserName)
 				errorHandler.ServeError(w, r, err)
 				return
 			}
@@ -235,8 +232,9 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				Timestamp:    timestamp,
 				Nonce:        nonce,
 
-				MsgPlaintext: msgPlaintext,
-				MixedMsg:     &mixedMsg,
+				MsgCiphertext: requestHttpBody.EncryptedMsg,
+				MsgPlaintext:  msgPlaintext,
+				MixedMsg:      &mixedMsg,
 
 				Token:  srv.token,
 				AESKey: aesKey,
@@ -272,7 +270,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 
 			wantSignature := util.Sign(srv.token, timestampString, nonce)
 			if !security.SecureCompareString(haveSignature, wantSignature) {
-				err := fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
+				err = fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
 				errorHandler.ServeError(w, r, err)
 				return
 			}
@@ -284,7 +282,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			}
 
 			var mixedMsg MixedMsg
-			if err := xml.Unmarshal(msgPlaintext, &mixedMsg); err != nil {
+			if err = xml.Unmarshal(msgPlaintext, &mixedMsg); err != nil {
 				errorHandler.ServeError(w, r, err)
 				return
 			}
@@ -292,7 +290,8 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			haveToUserName := mixedMsg.ToUserName
 			wantToUserName := srv.oriId
 			if wantToUserName != "" && !security.SecureCompareString(haveToUserName, wantToUserName) {
-				err := fmt.Errorf("the Message's ToUserName mismatch, have: %s, want: %s", haveToUserName, wantToUserName)
+				err = fmt.Errorf("the Message's ToUserName mismatch, have: %s, want: %s",
+					haveToUserName, wantToUserName)
 				errorHandler.ServeError(w, r, err)
 				return
 			}
@@ -317,8 +316,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			srv.handler.ServeMsg(ctx)
 
 		default: // 未知的加密类型
-			err := errors.New("unknown encrypt_type: " + encryptType)
-			errorHandler.ServeError(w, r, err)
+			errorHandler.ServeError(w, r, errors.New("unknown encrypt_type: "+encryptType))
 			return
 		}
 
@@ -350,6 +348,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			errorHandler.ServeError(w, r, err)
 			return
 		}
+
 		io.WriteString(w, echostr)
 	}
 }

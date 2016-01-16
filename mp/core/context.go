@@ -10,6 +10,7 @@ const (
 	abortHandlerIndex = maxHandlerChainSize
 )
 
+// Context 是 Handler 处理消息(事件)的上下文环境. 非并发安全!
 type Context struct {
 	ResponseWriter http.ResponseWriter
 	Request        *http.Request
@@ -21,28 +22,41 @@ type Context struct {
 	Timestamp    int64      // 回调请求 URL 的时间戳参数: timestamp
 	Nonce        string     // 回调请求 URL 的随机数参数: nonce
 
-	MsgPlaintext []byte    // 消息的xml明文文本
-	MixedMsg     *MixedMsg // 消息
+	MsgCiphertext []byte    // 消息的xml密文文本
+	MsgPlaintext  []byte    // 消息的xml明文文本
+	MixedMsg      *MixedMsg // 消息
 
 	Token  string // 当前消息所属公众号的 Token
 	AESKey []byte // 当前消息加密所用的 aes-key, read-only!!!
 	Random []byte // 当前消息加密所用的 random, 16-bytes
 	AppId  string // 当前消息加密所用的 AppId
 
-	handlerIndex int
 	handlers     HandlerChain
+	handlerIndex int
 
 	kvs map[string]interface{}
 }
 
+// IsAborted 返回 true 如果没有后续的 handlers 可执行了(可能调用了 Context.Abort(),
+// 也可能所有的 handlers 都执行完毕了), 否则返回 false.
 func (ctx *Context) IsAborted() bool {
 	return ctx.handlerIndex >= abortHandlerIndex
 }
 
+// Abort 阻止系统调用当前 handler 后续的 handlers, 即当前的 handler 处理完毕就返回, 一般在 middleware 中调用.
 func (ctx *Context) Abort() {
 	ctx.handlerIndex = abortHandlerIndex
 }
 
+// Next 中断当前 handler 程序逻辑执行其后续的 handlers, 一般在 middleware 中调用.
+func (ctx *Context) Next() {
+	for ctx.handlerIndex++; ctx.handlerIndex < len(ctx.handlers); ctx.handlerIndex++ {
+		ctx.handlers[ctx.handlerIndex].ServeMsg(ctx)
+	}
+}
+
+// SetHandlers 设置 handlers 给 Context.Next() 调用, 务必在 Context.Next() 调用之前设置, 否则会 panic.
+//  NOTE: 此方法一般用不到, 除非你自己实现一个 Handler 给 Server 使用, 参考 ServeMux.
 func (ctx *Context) SetHandlers(handlers HandlerChain) {
 	for _, h := range handlers {
 		if h == nil {
@@ -55,15 +69,9 @@ func (ctx *Context) SetHandlers(handlers HandlerChain) {
 	ctx.handlers = handlers
 }
 
-func (ctx *Context) Next() {
-	for ctx.handlerIndex++; ctx.handlerIndex < len(ctx.handlers); ctx.handlerIndex++ {
-		ctx.handlers[ctx.handlerIndex].ServeMsg(ctx)
-	}
-}
+// Context:kvs =========================================================================================================
 
-// ================================== kvs ======================================
-
-// Set is used to store a new key/value pair exclusivelly for this context.
+// Set 存储 key-value pair 到 Context 中.
 func (ctx *Context) Set(key string, value interface{}) {
 	if ctx.kvs == nil {
 		ctx.kvs = make(map[string]interface{})
@@ -71,14 +79,13 @@ func (ctx *Context) Set(key string, value interface{}) {
 	ctx.kvs[key] = value
 }
 
-// Get returns the value for the given key, ie: (value, true).
-// If the value does not exists it returns (nil, false)
+// Get 返回 Context 中 key 对应的 value, 如果 key 存在的返回 (value, true), 否则返回 (nil, false).
 func (ctx *Context) Get(key string) (value interface{}, exists bool) {
 	value, exists = ctx.kvs[key]
 	return
 }
 
-// MustGet Returns the value for the given key if it exists, otherwise it panics.
+// MustGet 返回 Context 中 key 对应的 value, 如果 key 不存在则会 panic.
 func (ctx *Context) MustGet(key string) interface{} {
 	if value, exists := ctx.Get(key); exists {
 		return value

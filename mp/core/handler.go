@@ -20,7 +20,7 @@ func (fn HandlerFunc) ServeMsg(ctx *Context) { fn(ctx) }
 
 var _ Handler = (*ServeMux)(nil)
 
-// ServeMux 是一个消息(事件)路由器, 同时也是一个 Handler 的实现.
+// ServeMux 是一个消息(事件)路由器, 同时也是一个 Handler 的实现. 非并发安全!
 type ServeMux struct {
 	msgMiddlewares   HandlerChain
 	eventMiddlewares HandlerChain
@@ -84,7 +84,9 @@ func (mux *ServeMux) getEventHandlerChain(EventType string) (handlers HandlerCha
 	return
 }
 
-// Use 注册 middlewares 使其在所有消息(事件)的 Handler 之前处理该处理消息(事件).
+// ServeMux: registers HandlerChain ====================================================================================
+
+// Use 注册(新增) middlewares 使其在所有消息(事件)的 Handler 之前处理该处理消息(事件).
 func (mux *ServeMux) Use(middlewares ...Handler) {
 	if len(middlewares) == 0 {
 		return
@@ -98,7 +100,25 @@ func (mux *ServeMux) Use(middlewares ...Handler) {
 	mux.useForEvent(middlewares)
 }
 
-// UseForMsg 注册 middlewares 使其在所有消息的 Handler 之前处理该处理消息.
+// UseFunc 注册(新增) middlewares 使其在所有消息(事件)的 Handler 之前处理该处理消息(事件).
+func (mux *ServeMux) UseFunc(middlewares ...func(*Context)) {
+	if len(middlewares) == 0 {
+		return
+	}
+	for _, h := range middlewares {
+		if h == nil {
+			panic("handler can not be nil")
+		}
+	}
+	middlewares2 := make(HandlerChain, len(middlewares))
+	for i := 0; i < len(middlewares); i++ {
+		middlewares2[i] = HandlerFunc(middlewares[i])
+	}
+	mux.useForMsg(middlewares2)
+	mux.useForEvent(middlewares2)
+}
+
+// UseForMsg 注册(新增) middlewares 使其在所有消息的 Handler 之前处理该处理消息.
 func (mux *ServeMux) UseForMsg(middlewares ...Handler) {
 	if len(middlewares) == 0 {
 		return
@@ -111,6 +131,23 @@ func (mux *ServeMux) UseForMsg(middlewares ...Handler) {
 	mux.useForMsg(middlewares)
 }
 
+// UseFuncForMsg 注册(新增) middlewares 使其在所有消息的 Handler 之前处理该处理消息.
+func (mux *ServeMux) UseFuncForMsg(middlewares ...func(*Context)) {
+	if len(middlewares) == 0 {
+		return
+	}
+	for _, h := range middlewares {
+		if h == nil {
+			panic("handler can not be nil")
+		}
+	}
+	middlewares2 := make(HandlerChain, len(middlewares))
+	for i := 0; i < len(middlewares); i++ {
+		middlewares2[i] = HandlerFunc(middlewares[i])
+	}
+	mux.useForMsg(middlewares2)
+}
+
 func (mux *ServeMux) useForMsg(middlewares []Handler) {
 	if len(mux.defaultMsgHandlerChain) > 0 || len(mux.msgHandlerChainMap) > 0 {
 		panic("please call this method before any other methods those registered handlers for message")
@@ -118,7 +155,7 @@ func (mux *ServeMux) useForMsg(middlewares []Handler) {
 	mux.msgMiddlewares = combineHandlerChain(mux.msgMiddlewares, middlewares)
 }
 
-// UseForEvent 注册 middlewares 使其在所有事件的 Handler 之前处理该处理事件.
+// UseForEvent 注册(新增) middlewares 使其在所有事件的 Handler 之前处理该处理事件.
 func (mux *ServeMux) UseForEvent(middlewares ...Handler) {
 	if len(middlewares) == 0 {
 		return
@@ -131,6 +168,23 @@ func (mux *ServeMux) UseForEvent(middlewares ...Handler) {
 	mux.useForEvent(middlewares)
 }
 
+// UseFuncForEvent 注册(新增) middlewares 使其在所有事件的 Handler 之前处理该处理事件.
+func (mux *ServeMux) UseFuncForEvent(middlewares ...func(*Context)) {
+	if len(middlewares) == 0 {
+		return
+	}
+	for _, h := range middlewares {
+		if h == nil {
+			panic("handler can not be nil")
+		}
+	}
+	middlewares2 := make(HandlerChain, len(middlewares))
+	for i := 0; i < len(middlewares); i++ {
+		middlewares2[i] = HandlerFunc(middlewares[i])
+	}
+	mux.useForEvent(middlewares2)
+}
+
 func (mux *ServeMux) useForEvent(middlewares []Handler) {
 	if len(mux.defaultEventHandlerChain) > 0 || len(mux.eventHandlerChainMap) > 0 {
 		panic("please call this method before any other methods those registered handlers for event")
@@ -138,7 +192,7 @@ func (mux *ServeMux) useForEvent(middlewares []Handler) {
 	mux.eventMiddlewares = combineHandlerChain(mux.eventMiddlewares, middlewares)
 }
 
-// DefaultMsgHandle 注册 handlers 以处理没有匹配到具体类型的 HandlerChain 的消息.
+// DefaultMsgHandle 设置 handlers 以处理没有匹配到具体类型的 HandlerChain 的消息.
 func (mux *ServeMux) DefaultMsgHandle(handlers ...Handler) {
 	if len(handlers) == 0 {
 		return
@@ -151,7 +205,7 @@ func (mux *ServeMux) DefaultMsgHandle(handlers ...Handler) {
 	mux.defaultMsgHandlerChain = combineHandlerChain(mux.msgMiddlewares, handlers)
 }
 
-// DefaultMsgHandleFunc 注册 handlers 以处理没有匹配到具体类型的 HandlerChain 的消息.
+// DefaultMsgHandleFunc 设置 handlers 以处理没有匹配到具体类型的 HandlerChain 的消息.
 func (mux *ServeMux) DefaultMsgHandleFunc(handlers ...func(*Context)) {
 	if len(handlers) == 0 {
 		return
@@ -168,7 +222,7 @@ func (mux *ServeMux) DefaultMsgHandleFunc(handlers ...func(*Context)) {
 	mux.defaultMsgHandlerChain = combineHandlerChain(mux.msgMiddlewares, handlers2)
 }
 
-// DefaultEventHandle 注册 handlers 以处理没有匹配到具体类型的 HandlerChain 的事件.
+// DefaultEventHandle 设置 handlers 以处理没有匹配到具体类型的 HandlerChain 的事件.
 func (mux *ServeMux) DefaultEventHandle(handlers ...Handler) {
 	if len(handlers) == 0 {
 		return
@@ -181,7 +235,7 @@ func (mux *ServeMux) DefaultEventHandle(handlers ...Handler) {
 	mux.defaultEventHandlerChain = combineHandlerChain(mux.eventMiddlewares, handlers)
 }
 
-// DefaultEventHandleFunc 注册 handlers 以处理没有匹配到具体类型的 HandlerChain 的事件.
+// DefaultEventHandleFunc 设置 handlers 以处理没有匹配到具体类型的 HandlerChain 的事件.
 func (mux *ServeMux) DefaultEventHandleFunc(handlers ...func(*Context)) {
 	if len(handlers) == 0 {
 		return
@@ -198,7 +252,7 @@ func (mux *ServeMux) DefaultEventHandleFunc(handlers ...func(*Context)) {
 	mux.defaultEventHandlerChain = combineHandlerChain(mux.eventMiddlewares, handlers2)
 }
 
-// MsgHandle 注册 handlers 以处理特定类型的消息.
+// MsgHandle 设置 handlers 以处理特定类型的消息.
 func (mux *ServeMux) MsgHandle(MsgType string, handlers ...Handler) {
 	if len(handlers) == 0 {
 		return
@@ -211,7 +265,7 @@ func (mux *ServeMux) MsgHandle(MsgType string, handlers ...Handler) {
 	mux.msgHandlerChainMap[MsgType] = combineHandlerChain(mux.msgMiddlewares, handlers)
 }
 
-// MsgHandleFunc 注册 handlers 以处理特定类型的消息.
+// MsgHandleFunc 设置 handlers 以处理特定类型的消息.
 func (mux *ServeMux) MsgHandleFunc(MsgType string, handlers ...func(*Context)) {
 	if len(handlers) == 0 {
 		return
@@ -228,7 +282,7 @@ func (mux *ServeMux) MsgHandleFunc(MsgType string, handlers ...func(*Context)) {
 	mux.msgHandlerChainMap[MsgType] = combineHandlerChain(mux.msgMiddlewares, handlers2)
 }
 
-// EventHandle 注册 handlers 以处理特定类型的事件.
+// EventHandle 设置 handlers 以处理特定类型的事件.
 func (mux *ServeMux) EventHandle(EventType string, handlers ...Handler) {
 	if len(handlers) == 0 {
 		return
@@ -241,7 +295,7 @@ func (mux *ServeMux) EventHandle(EventType string, handlers ...Handler) {
 	mux.eventHandlerChainMap[EventType] = combineHandlerChain(mux.eventMiddlewares, handlers)
 }
 
-// EventHandleFunc 注册 handlers 以处理特定类型的事件.
+// EventHandleFunc 设置 handlers 以处理特定类型的事件.
 func (mux *ServeMux) EventHandleFunc(EventType string, handlers ...func(*Context)) {
 	if len(handlers) == 0 {
 		return

@@ -1,5 +1,13 @@
 package core
 
+// 微信服务器推送过来的消息(事件)的通用消息头.
+type MsgHeader struct {
+	ToUserName   string `xml:"ToUserName"   json:"ToUserName"`
+	FromUserName string `xml:"FromUserName" json:"FromUserName"`
+	CreateTime   int64  `xml:"CreateTime"   json:"CreateTime"`
+	MsgType      string `xml:"MsgType"      json:"MsgType"`
+}
+
 // 微信服务器推送过来的消息(事件)的合集.
 type MixedMsg struct {
 	XMLName struct{} `xml:"xml" json:"-"`
@@ -82,8 +90,18 @@ type MixedMsg struct {
 	ToKfAccount   string `xml:"ToKfAccount"   json:"ToKfAccount"`
 
 	// shakearound
-	ChosenBeacon  ChosenBeacon   `xml:"ChosenBeacon"                         json:"ChosenBeacon"`
-	AroundBeacons []AroundBeacon `xml:"AroundBeacons>AroundBeacon,omitempty" json:"AroundBeacons,omitempty"`
+	ChosenBeacon struct {
+		UUID     string  `xml:"Uuid"     json:"Uuid"`
+		Major    int     `xml:"Major"    json:"Major"`
+		Minor    int     `xml:"Minor"    json:"Minor"`
+		Distance float64 `xml:"Distance" json:"Distance"`
+	} `xml:"ChosenBeacon"                         json:"ChosenBeacon"`
+	AroundBeacons []struct {
+		UUID     string  `xml:"Uuid"     json:"Uuid"`
+		Major    int     `xml:"Major"    json:"Major"`
+		Minor    int     `xml:"Minor"    json:"Minor"`
+		Distance float64 `xml:"Distance" json:"Distance"`
+	} `xml:"AroundBeacons>AroundBeacon,omitempty" json:"AroundBeacons,omitempty"`
 
 	// bizwifi
 	ConnectTime int64  `xml:"ConnectTime" json:"ConnectTime"`
@@ -91,28 +109,4 @@ type MixedMsg struct {
 	VendorId    string `xml:"VendorId"    json:"VendorId"`
 	PlaceId     int64  `xml:"PlaceId"     json:"PlaceId"`
 	DeviceNo    string `xml:"DeviceNo"    json:"DeviceNo"`
-}
-
-// 微信服务器推送过来的消息(事件)通用的消息头
-type MsgHeader struct {
-	ToUserName   string `xml:"ToUserName"   json:"ToUserName"`
-	FromUserName string `xml:"FromUserName" json:"FromUserName"`
-	CreateTime   int64  `xml:"CreateTime"   json:"CreateTime"`
-	MsgType      string `xml:"MsgType"      json:"MsgType"`
-}
-
-// 和 github.com/chanxuehong/wechat/mp/shakearound.ChosenBeacon 一样, 同步修改
-type ChosenBeacon struct {
-	UUID     string  `xml:"Uuid"     json:"Uuid"`
-	Major    int     `xml:"Major"    json:"Major"`
-	Minor    int     `xml:"Minor"    json:"Minor"`
-	Distance float64 `xml:"Distance" json:"Distance"`
-}
-
-// 和 github.com/chanxuehong/wechat/mp/shakearound.AroundBeacon 一样, 同步修改
-type AroundBeacon struct {
-	UUID     string  `xml:"Uuid"     json:"Uuid"`
-	Major    int     `xml:"Major"    json:"Major"`
-	Minor    int     `xml:"Minor"    json:"Minor"`
-	Distance float64 `xml:"Distance" json:"Distance"`
 }
