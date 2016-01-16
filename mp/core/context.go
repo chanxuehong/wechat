@@ -37,8 +37,7 @@ type Context struct {
 	kvs map[string]interface{}
 }
 
-// IsAborted 返回 true 如果没有后续的 handlers 可执行了(可能调用了 Context.Abort(),
-// 也可能所有的 handlers 都执行完毕了), 否则返回 false.
+// IsAborted 返回 true 如果 Context.Abort() 被调用了, 否则返回 false.
 func (ctx *Context) IsAborted() bool {
 	return ctx.handlerIndex >= abortHandlerIndex
 }
@@ -53,6 +52,7 @@ func (ctx *Context) Next() {
 	for ctx.handlerIndex++; ctx.handlerIndex < len(ctx.handlers); ctx.handlerIndex++ {
 		ctx.handlers[ctx.handlerIndex].ServeMsg(ctx)
 	}
+	ctx.handlerIndex--
 }
 
 // SetHandlers 设置 handlers 给 Context.Next() 调用, 务必在 Context.Next() 调用之前设置, 否则会 panic.
