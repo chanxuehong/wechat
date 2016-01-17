@@ -54,10 +54,14 @@ func (ctx *Context) Abort() {
 
 // Next 中断当前 handler 程序逻辑执行其后续的 handlers, 一般在 middleware 中调用.
 func (ctx *Context) Next() {
-	for ctx.handlerIndex++; ctx.handlerIndex < len(ctx.handlers); ctx.handlerIndex++ {
+	for {
+		ctx.handlerIndex++
+		if ctx.handlerIndex >= len(ctx.handlers) {
+			ctx.handlerIndex--
+			break
+		}
 		ctx.handlers[ctx.handlerIndex].ServeMsg(ctx)
 	}
-	ctx.handlerIndex--
 }
 
 // SetHandlers 设置 handlers 给 Context.Next() 调用, 务必在 Context.Next() 调用之前设置, 否则会 panic.
