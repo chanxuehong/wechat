@@ -1,8 +1,13 @@
 package core
 
 import (
+	"encoding/base64"
+	"encoding/xml"
 	"net/http"
 	"net/url"
+	"strconv"
+
+	"github.com/chanxuehong/wechat/util"
 )
 
 const (
@@ -22,8 +27,8 @@ type Context struct {
 	Timestamp    int64      // 回调请求 URL 的时间戳参数: timestamp
 	Nonce        string     // 回调请求 URL 的随机数参数: nonce
 
-	MsgCiphertext []byte    // 消息的xml密文文本
-	MsgPlaintext  []byte    // 消息的xml明文文本
+	MsgCiphertext []byte    // 消息的密文文本
+	MsgPlaintext  []byte    // 消息的明文文本, xml格式
 	MixedMsg      *MixedMsg // 消息
 
 	Token  string // 当前消息所属公众号的 Token
@@ -91,4 +96,52 @@ func (ctx *Context) MustGet(key string) interface{} {
 		return value
 	}
 	panic(`[kvs] key "` + key + `" does not exist`)
+}
+
+// Context:response ====================================================================================================
+
+// RawResponse 回复明文消息给微信服务器.
+//  msg: 经过 encoding/xml.Marshal 得到的结果符合微信消息格式的任何数据结构
+func (ctx *Context) RawResponse(msg interface{}) (err error) {
+	return xml.NewEncoder(ctx.ResponseWriter).Encode(msg)
+}
+
+// AESResponse 回复aes加密的消息给微信服务器.
+//  msg:       经过 encoding/xml.Marshal 得到的结果符合微信消息格式的任何数据结构
+//  timestamp: 时间戳, 如果为 0 则默认使用 Context.Timestamp
+//  nonce:     随机数, 如果为 "" 则默认使用 Context.Nonce
+//  random:    16字节的随机字符串, 如果为 nil 则默认使用 Context.Random
+func (ctx *Context) AESResponse(msg interface{}, timestamp int64, nonce string, random []byte) (err error) {
+	if timestamp == 0 {
+		timestamp = ctx.Timestamp
+	}
+	if nonce == "" {
+		nonce = ctx.Nonce
+	}
+	if random == nil {
+		random = ctx.Random
+	}
+
+	msgPlaintext, err := xml.Marshal(msg)
+	if err != nil {
+		return
+	}
+
+	encryptedMsg := util.AESEncryptMsg(random, msgPlaintext, ctx.AppId, ctx.AESKey)
+	base64EncryptedMsg := base64.StdEncoding.EncodeToString(encryptedMsg)
+
+	timestampString := strconv.FormatInt(timestamp, 10)
+	responseHttpBody := struct {
+		XMLName            struct{} `xml:"xml"`
+		Base64EncryptedMsg string   `xml:"Encrypt"`
+		MsgSignature       string   `xml:"MsgSignature"`
+		Timestamp          string   `xml:"TimeStamp"`
+		Nonce              string   `xml:"Nonce"`
+	}{
+		Base64EncryptedMsg: base64EncryptedMsg,
+		MsgSignature:       util.MsgSign(ctx.Token, timestampString, nonce, base64EncryptedMsg),
+		Timestamp:          timestampString,
+		Nonce:              nonce,
+	}
+	return xml.NewEncoder(ctx.ResponseWriter).Encode(&responseHttpBody)
 }

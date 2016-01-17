@@ -149,9 +149,9 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			}
 
 			var requestHttpBody struct {
-				XMLName      struct{} `xml:"xml"`
-				ToUserName   string   `xml:"ToUserName"`
-				EncryptedMsg []byte   `xml:"Encrypt"`
+				XMLName            struct{} `xml:"xml"`
+				ToUserName         string   `xml:"ToUserName"`
+				Base64EncryptedMsg []byte   `xml:"Encrypt"`
 			}
 			if err = xml.NewDecoder(r.Body).Decode(&requestHttpBody); err != nil {
 				errorHandler.ServeError(w, r, err)
@@ -167,27 +167,27 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				return
 			}
 
-			wantMsgSignature := util.MsgSign(srv.token, timestampString, nonce, string(requestHttpBody.EncryptedMsg))
+			wantMsgSignature := util.MsgSign(srv.token, timestampString, nonce, string(requestHttpBody.Base64EncryptedMsg))
 			if !security.SecureCompareString(haveMsgSignature, wantMsgSignature) {
 				err = fmt.Errorf("check msg_signature failed, have: %s, want: %s", haveMsgSignature, wantMsgSignature)
 				errorHandler.ServeError(w, r, err)
 				return
 			}
 
-			base64DecodedEncryptedMsg := make([]byte, base64.StdEncoding.DecodedLen(len(requestHttpBody.EncryptedMsg)))
-			n, err := base64.StdEncoding.Decode(base64DecodedEncryptedMsg, requestHttpBody.EncryptedMsg)
+			encryptedMsg := make([]byte, base64.StdEncoding.DecodedLen(len(requestHttpBody.Base64EncryptedMsg)))
+			n, err := base64.StdEncoding.Decode(encryptedMsg, requestHttpBody.Base64EncryptedMsg)
 			if err != nil {
 				errorHandler.ServeError(w, r, err)
 				return
 			}
-			base64DecodedEncryptedMsg = base64DecodedEncryptedMsg[:n]
+			encryptedMsg = encryptedMsg[:n]
 
 			aesKey := srv.getCurrentAESKey()
 			if aesKey == nil {
 				errorHandler.ServeError(w, r, errors.New("aes-key was not set"))
 				return
 			}
-			random, msgPlaintext, haveAppIdBytes, err := util.AESDecryptMsg(base64DecodedEncryptedMsg, aesKey)
+			random, msgPlaintext, haveAppIdBytes, err := util.AESDecryptMsg(encryptedMsg, aesKey)
 			if err != nil {
 				lastAESKey := srv.getLastAESKey()
 				if lastAESKey == nil {
@@ -195,7 +195,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 					return
 				}
 				aesKey = lastAESKey // NOTE
-				random, msgPlaintext, haveAppIdBytes, err = util.AESDecryptMsg(base64DecodedEncryptedMsg, aesKey)
+				random, msgPlaintext, haveAppIdBytes, err = util.AESDecryptMsg(encryptedMsg, aesKey)
 				if err != nil {
 					errorHandler.ServeError(w, r, err)
 					return
@@ -232,7 +232,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				Timestamp:    timestamp,
 				Nonce:        nonce,
 
-				MsgCiphertext: requestHttpBody.EncryptedMsg,
+				MsgCiphertext: requestHttpBody.Base64EncryptedMsg,
 				MsgPlaintext:  msgPlaintext,
 				MixedMsg:      &mixedMsg,
 
