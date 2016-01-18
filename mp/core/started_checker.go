@@ -12,7 +12,7 @@ const (
 type startedChecker uintptr
 
 func (p *startedChecker) start() {
-	if uintptr(*p) != startedCheckerStartedValue {
+	if uintptr(*p) == startedCheckerInitialValue {
 		atomic.CompareAndSwapUintptr((*uintptr)(p), startedCheckerInitialValue, startedCheckerStartedValue)
 	}
 }
