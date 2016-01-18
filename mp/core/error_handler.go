@@ -3,11 +3,14 @@ package core
 import (
 	"log"
 	"net/http"
+	"os"
 )
 
 type ErrorHandler interface {
 	ServeError(http.ResponseWriter, *http.Request, error)
 }
+
+var DefaultErrorHandler ErrorHandler = ErrorHandlerFunc(defaultErrorHandlerFunc)
 
 type ErrorHandlerFunc func(http.ResponseWriter, *http.Request, error)
 
@@ -15,8 +18,8 @@ func (fn ErrorHandlerFunc) ServeError(w http.ResponseWriter, r *http.Request, er
 	fn(w, r, err)
 }
 
-var DefaultErrorHandler ErrorHandler = ErrorHandlerFunc(defaultErrorHandlerFunc)
+var errorLogger = log.New(os.Stderr, "[WECHAT_ERROR] ", log.Ldate|log.Ltime|log.Lmicroseconds|log.Llongfile)
 
 func defaultErrorHandlerFunc(w http.ResponseWriter, r *http.Request, err error) {
-	log.Printf("[Error]: %q\r\n", err.Error())
+	errorLogger.Output(3, err.Error())
 }
