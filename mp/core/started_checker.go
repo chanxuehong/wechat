@@ -6,7 +6,7 @@ import (
 
 const (
 	startedCheckerInitialValue = uintptr(0)
-	startedCheckerStartedValue = ^uintptr(0)
+	startedCheckerStartedValue = ^startedCheckerInitialValue
 )
 
 type startedChecker uintptr

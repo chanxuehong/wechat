@@ -121,9 +121,8 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 
 	switch r.Method {
 	case "POST": // 推送消息(事件)
-		encryptType := queryParams.Get("encrypt_type")
-		switch encryptType {
-		case "aes": // 安全模式, 兼容模式
+		switch encryptType := queryParams.Get("encrypt_type"); encryptType {
+		case "aes":
 			signature := queryParams.Get("signature") // No need to check
 
 			haveMsgSignature := queryParams.Get("msg_signature")
@@ -245,7 +244,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			}
 			srv.handler.ServeMsg(ctx)
 
-		case "", "raw": // 明文模式
+		case "", "raw":
 			haveSignature := queryParams.Get("signature")
 			if haveSignature == "" {
 				errorHandler.ServeError(w, r, errors.New("not found signature query parameter"))
@@ -315,9 +314,8 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			}
 			srv.handler.ServeMsg(ctx)
 
-		default: // 未知的加密类型
+		default:
 			errorHandler.ServeError(w, r, errors.New("unknown encrypt_type: "+encryptType))
-			return
 		}
 
 	case "GET": // 验证回调URL是否有效
@@ -348,7 +346,6 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			errorHandler.ServeError(w, r, err)
 			return
 		}
-
 		io.WriteString(w, echostr)
 	}
 }
