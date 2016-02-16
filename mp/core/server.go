@@ -18,9 +18,9 @@ import (
 	"github.com/chanxuehong/wechat/util"
 )
 
-// Server 处理微信服务器的回调请求. 并发安全!
-//  通常一个 Server 实例处理一个公众号的消息(事件), 此时建议指定 oriId(原始ID), appId 用于约束消息(事件),
-//  也可以一个 Server 实例处理多个公众号的消息(事件), 此时 oriId(原始ID), appId 必须设置为 "".
+// Server 用于处理微信服务器的回调请求, 并发安全!
+//  通常情况下一个 Server 实例用于处理一个公众号的消息(事件), 此时建议指定 oriId(原始ID) 和 appId(明文模式下无需指定) 用于约束消息(事件);
+//  特殊情况下也可以一个 Server 实例用于处理多个公众号的消息(事件), 此时要求这些公众号的 token 是一样的, 并且 oriId 和 appId 必须设置为 "".
 type Server struct {
 	oriId string
 	appId string
