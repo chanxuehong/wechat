@@ -123,8 +123,11 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 	case "POST": // 推送消息(事件)
 		switch encryptType := queryParams.Get("encrypt_type"); encryptType {
 		case "aes":
-			signature := queryParams.Get("signature") // No need to check
-
+			haveSignature := queryParams.Get("signature")
+			if haveSignature == "" {
+				errorHandler.ServeError(w, r, errors.New("not found signature query parameter"))
+				return
+			}
 			haveMsgSignature := queryParams.Get("msg_signature")
 			if haveMsgSignature == "" {
 				errorHandler.ServeError(w, r, errors.New("not found msg_signature query parameter"))
@@ -137,13 +140,20 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			}
 			timestamp, err := strconv.ParseInt(timestampString, 10, 64)
 			if err != nil {
-				err = errors.New("can not parse timestamp query parameter to int64: " + timestampString)
+				err = fmt.Errorf("can not parse timestamp query parameter %q to int64", timestampString)
 				errorHandler.ServeError(w, r, err)
 				return
 			}
 			nonce := queryParams.Get("nonce")
 			if nonce == "" {
 				errorHandler.ServeError(w, r, errors.New("not found nonce query parameter"))
+				return
+			}
+
+			wantSignature := util.Sign(srv.token, timestampString, nonce)
+			if !security.SecureCompareString(haveSignature, wantSignature) {
+				err = fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
+				errorHandler.ServeError(w, r, err)
 				return
 			}
 
@@ -174,16 +184,17 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			}
 
 			encryptedMsg := make([]byte, base64.StdEncoding.DecodedLen(len(requestHttpBody.Base64EncryptedMsg)))
-			n, err := base64.StdEncoding.Decode(encryptedMsg, requestHttpBody.Base64EncryptedMsg)
+			encryptedMsgLen, err := base64.StdEncoding.Decode(encryptedMsg, requestHttpBody.Base64EncryptedMsg)
 			if err != nil {
 				errorHandler.ServeError(w, r, err)
 				return
 			}
-			encryptedMsg = encryptedMsg[:n]
+			encryptedMsg = encryptedMsg[:encryptedMsgLen]
 
 			aesKey := srv.getCurrentAESKey()
 			if aesKey == nil {
-				errorHandler.ServeError(w, r, errors.New("aes key was not set for Server, see NewServer function"))
+				err = errors.New("aes key was not set for Server, see NewServer function or Server.SetAESKey method")
+				errorHandler.ServeError(w, r, err)
 				return
 			}
 			random, msgPlaintext, haveAppIdBytes, err := util.AESDecryptMsg(encryptedMsg, aesKey)
@@ -227,7 +238,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				QueryParams:  queryParams,
 				EncryptType:  encryptType,
 				MsgSignature: haveMsgSignature,
-				Signature:    signature,
+				Signature:    haveSignature,
 				Timestamp:    timestamp,
 				Nonce:        nonce,
 
@@ -257,7 +268,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			}
 			timestamp, err := strconv.ParseInt(timestampString, 10, 64)
 			if err != nil {
-				err = errors.New("can not parse timestamp query parameter to int64: " + timestampString)
+				err = fmt.Errorf("can not parse timestamp query parameter %q to int64", timestampString)
 				errorHandler.ServeError(w, r, err)
 				return
 			}
