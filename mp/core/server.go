@@ -62,7 +62,7 @@ func NewServer(oriId, appId, token, base64AESKey string, handler Handler, errorH
 		}
 		aesKey, err = base64.StdEncoding.DecodeString(base64AESKey + "=")
 		if err != nil {
-			panic(fmt.Sprintf("Decode base64AESKey:%q failed", base64AESKey))
+			panic(fmt.Sprintf("Decode base64AESKey:%s failed", base64AESKey))
 		}
 	}
 
@@ -225,7 +225,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				return
 			}
 			if haveToUserName != mixedMsg.ToUserName {
-				err = fmt.Errorf("the message ToUserName mismatch between ciphertext(%q) and plaintext(%q)",
+				err = fmt.Errorf("the message ToUserName mismatch between ciphertext and plaintext, %q != %q",
 					haveToUserName, mixedMsg.ToUserName)
 				errorHandler.ServeError(w, r, err)
 				return
