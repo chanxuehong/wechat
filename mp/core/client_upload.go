@@ -18,7 +18,7 @@ type MultipartFormField struct {
 	Value       io.Reader
 }
 
-// 通用上传接口.
+// PostMultipartForm 通用上传接口.
 //
 //  --BOUNDARY
 //  Content-Disposition: form-data; name="FIELDNAME"; filename="FILENAME"
@@ -41,12 +41,35 @@ type MultipartFormField struct {
 //          ...
 //      }
 func (clt *Client) PostMultipartForm(incompleteURL string, fields []MultipartFormField, response interface{}) (err error) {
+	responseValue := reflect.ValueOf(response)
+	if responseValue.Kind() != reflect.Ptr {
+		panic("the type of response is incorrect")
+	}
+	responseStructValue := responseValue.Elem()
+	if responseStructValue.Kind() != reflect.Struct {
+		panic("the type of response is incorrect")
+	}
+
+	var ErrorStructValue reflect.Value // Error
+	if t := responseStructValue.Type(); t == errorType {
+		ErrorStructValue = responseStructValue
+	} else {
+		if t.NumField() == 0 {
+			panic("the type of response is incorrect")
+		}
+		v := responseStructValue.Field(0)
+		if v.Type() != errorType {
+			panic("the type of response is incorrect")
+		}
+		ErrorStructValue = v
+	}
+	ErrorErrCodeValue := ErrorStructValue.Field(errorErrCodeIndex)
+
 	bodyBuf := mediaBufferPool.Get().(*bytes.Buffer)
 	bodyBuf.Reset()
 	defer mediaBufferPool.Put(bodyBuf)
 
 	multipartWriter := multipart.NewWriter(bodyBuf)
-
 	for _, field := range fields {
 		switch field.ContentType {
 		case 0: // 文件
@@ -67,11 +90,9 @@ func (clt *Client) PostMultipartForm(incompleteURL string, fields []MultipartFor
 			}
 		}
 	}
-
 	if err = multipartWriter.Close(); err != nil {
 		return
 	}
-
 	bodyBytes := bodyBuf.Bytes()
 
 	token, err := clt.Token()
@@ -87,38 +108,26 @@ RETRY:
 	if err != nil {
 		return
 	}
-	defer httpResp.Body.Close()
+	defer httpResp.Body.Close() // 在发生 RETRY 的场景下可以正确工作
 
 	if httpResp.StatusCode != http.StatusOK {
-		err = fmt.Errorf("http.Status: %s", httpResp.Status)
-		return
+		return fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
 
 	if err = json.NewDecoder(httpResp.Body).Decode(response); err != nil {
 		return
 	}
 
-	var ErrorStructValue reflect.Value // Error
-
-	// 下面的代码对 response 有特定要求, 见此函数 NOTE
-	responseStructValue := reflect.ValueOf(response).Elem()
-	if v := responseStructValue.Field(0); v.Kind() == reflect.Struct {
-		ErrorStructValue = v
-	} else {
-		ErrorStructValue = responseStructValue
-	}
-
-	switch ErrCode := ErrorStructValue.Field(0).Int(); ErrCode {
+	switch errCode := ErrorErrCodeValue.Int(); errCode {
 	case ErrCodeOK:
 		return
 	case ErrCodeInvalidCredential, ErrCodeAccessTokenExpired:
 		if !hasRetried {
 			hasRetried = true
-
+			responseStructValue.Set(reflect.Zero(responseStructValue.Type()))
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
-			responseStructValue.Set(reflect.New(responseStructValue.Type()).Elem())
 			goto RETRY
 		}
 		fallthrough
