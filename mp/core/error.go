@@ -11,7 +11,10 @@ const (
 	ErrCodeAccessTokenExpired = 42001 // access_token 过期错误码(maybe!!!)
 )
 
-var errorType = reflect.TypeOf(Error{})
+var (
+	errorType      = reflect.TypeOf(Error{})
+	errorZeroValue = reflect.Zero(errorType)
+)
 
 const (
 	errorErrCodeIndex = 0
