@@ -54,7 +54,7 @@ type DefaultTicketServer struct {
 // 创建一个新的 DefaultTicketServer.
 func NewDefaultTicketServer(clt *core.Client) (srv *DefaultTicketServer) {
 	if clt == nil {
-		panic("nil mp.Client")
+		panic("nil core.Client")
 	}
 
 	srv = &DefaultTicketServer{

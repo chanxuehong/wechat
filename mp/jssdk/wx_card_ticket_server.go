@@ -36,7 +36,7 @@ type WxCardTicketServer struct {
 // 创建一个新的 WxCardTicketServer.
 func NewWxCardTicketServer(clt *core.Client) (srv *WxCardTicketServer) {
 	if clt == nil {
-		panic("nil mp.Client")
+		panic("nil core.Client")
 	}
 
 	srv = &WxCardTicketServer{
