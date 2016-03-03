@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	EventTypeMassSendJobFinish = "MASSSENDJOBFINISH"
+	EventTypeMassSendJobFinish core.EventType = "MASSSENDJOBFINISH"
 )
 
 // 高级群发消息, 事件推送群发结果
@@ -13,7 +13,7 @@ type MassSendJobFinishEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
 
-	Event string `xml:"Event" json:"Event"` // 事件信息, 此处为 MASSSENDJOBFINISH
+	Event core.EventType `xml:"Event" json:"Event"` // 事件信息, 此处为 MASSSENDJOBFINISH
 
 	MsgId int64 `xml:"MsgId" json:"MsgId"` // 群发的消息ID, 64位整型
 

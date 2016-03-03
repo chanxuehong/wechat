@@ -9,13 +9,13 @@ import (
 )
 
 const (
-	MsgTypeText                    = "text"                      // 文本消息
-	MsgTypeImage                   = "image"                     // 图片消息
-	MsgTypeVoice                   = "voice"                     // 语音消息
-	MsgTypeVideo                   = "video"                     // 视频消息
-	MsgTypeMusic                   = "music"                     // 音乐消息
-	MsgTypeNews                    = "news"                      // 图文消息
-	MsgTypeTransferCustomerService = "transfer_customer_service" // 将消息转发到多客服
+	MsgTypeText                    core.MsgType = "text"                      // 文本消息
+	MsgTypeImage                   core.MsgType = "image"                     // 图片消息
+	MsgTypeVoice                   core.MsgType = "voice"                     // 语音消息
+	MsgTypeVideo                   core.MsgType = "video"                     // 视频消息
+	MsgTypeMusic                   core.MsgType = "music"                     // 音乐消息
+	MsgTypeNews                    core.MsgType = "news"                      // 图文消息
+	MsgTypeTransferCustomerService core.MsgType = "transfer_customer_service" // 将消息转发到多客服
 )
 
 // 文本消息

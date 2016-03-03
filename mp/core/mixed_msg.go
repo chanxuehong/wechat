@@ -1,11 +1,16 @@
 package core
 
+type (
+	MsgType   string
+	EventType string
+)
+
 // 微信服务器推送过来的消息(事件)的通用消息头.
 type MsgHeader struct {
-	ToUserName   string `xml:"ToUserName"   json:"ToUserName"`
-	FromUserName string `xml:"FromUserName" json:"FromUserName"`
-	CreateTime   int64  `xml:"CreateTime"   json:"CreateTime"`
-	MsgType      string `xml:"MsgType"      json:"MsgType"`
+	ToUserName   string  `xml:"ToUserName"   json:"ToUserName"`
+	FromUserName string  `xml:"FromUserName" json:"FromUserName"`
+	CreateTime   int64   `xml:"CreateTime"   json:"CreateTime"`
+	MsgType      MsgType `xml:"MsgType"      json:"MsgType"`
 }
 
 // 微信服务器推送过来的消息(事件)的合集.
@@ -30,8 +35,8 @@ type MixedMsg struct {
 	Description  string  `xml:"Description"  json:"Description"`
 	URL          string  `xml:"Url"          json:"Url"`
 
-	Event    string `xml:"Event"    json:"Event"`
-	EventKey string `xml:"EventKey" json:"EventKey"`
+	Event    EventType `xml:"Event"    json:"Event"`
+	EventKey string    `xml:"EventKey" json:"EventKey"`
 
 	ScanCodeInfo struct {
 		ScanType   string `xml:"ScanType"   json:"ScanType"`

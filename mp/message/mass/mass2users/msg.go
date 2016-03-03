@@ -4,22 +4,24 @@ package mass2users
 import (
 	"errors"
 	"fmt"
+
+	"github.com/chanxuehong/wechat/mp/core"
 )
 
 const (
-	MsgTypeText   = "text"
-	MsgTypeImage  = "image"
-	MsgTypeVoice  = "voice"
-	MsgTypeVideo  = "mpvideo"
-	MsgTypeNews   = "mpnews"
-	MsgTypeWxCard = "wxcard"
+	MsgTypeText   core.MsgType = "text"
+	MsgTypeImage  core.MsgType = "image"
+	MsgTypeVoice  core.MsgType = "voice"
+	MsgTypeVideo  core.MsgType = "mpvideo"
+	MsgTypeNews   core.MsgType = "mpnews"
+	MsgTypeWxCard core.MsgType = "wxcard"
 )
 
 const ToUserCountLimit = 10000
 
 type MsgHeader struct {
-	ToUser  []string `json:"touser,omitempty"` // 长度不能超过 ToUserCountLimit
-	MsgType string   `json:"msgtype"`
+	ToUser  []string     `json:"touser,omitempty"` // 长度不能超过 ToUserCountLimit
+	MsgType core.MsgType `json:"msgtype"`
 }
 
 func (header *MsgHeader) CheckValid() (err error) {

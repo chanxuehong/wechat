@@ -6,14 +6,14 @@ import (
 
 const (
 	// 推送到公众号URL上的事件类型
-	EventTypeWifiConnected = "WifiConnected" // Wi-Fi连网成功事件
+	EventTypeWifiConnected core.EventType = "WifiConnected" // Wi-Fi连网成功事件
 )
 
 type WifiConnectedEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
 
-	Event string `xml:"Event" json:"Event"` // 事件类型，WifiConnected (Wi-Fi连网成功)
+	Event core.EventType `xml:"Event" json:"Event"` // 事件类型，WifiConnected (Wi-Fi连网成功)
 
 	ConnectTime int64  `xml:"ConnectTime" json:"ConnectTime"` // 连网时间（整型）
 	ExpireTime  int64  `xml:"ExpireTime"  json:"ExpireTime"`  // 系统保留字段，固定值

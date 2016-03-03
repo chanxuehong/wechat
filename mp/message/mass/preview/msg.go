@@ -1,19 +1,23 @@
 // 预览接口的消息数据结构.
 package preview
 
+import (
+	"github.com/chanxuehong/wechat/mp/core"
+)
+
 const (
-	MsgTypeText   = "text"
-	MsgTypeImage  = "image"
-	MsgTypeVoice  = "voice"
-	MsgTypeVideo  = "mpvideo"
-	MsgTypeNews   = "mpnews"
-	MsgTypeWxCard = "wxcard"
+	MsgTypeText   core.MsgType = "text"
+	MsgTypeImage  core.MsgType = "image"
+	MsgTypeVoice  core.MsgType = "voice"
+	MsgTypeVideo  core.MsgType = "mpvideo"
+	MsgTypeNews   core.MsgType = "mpnews"
+	MsgTypeWxCard core.MsgType = "wxcard"
 )
 
 type MsgHeader struct {
-	ToWxName string `json:"towxname,omitempty"`
-	ToUser   string `json:"touser,omitempty"`
-	MsgType  string `json:"msgtype"`
+	ToWxName string       `json:"towxname,omitempty"`
+	ToUser   string       `json:"touser,omitempty"`
+	MsgType  core.MsgType `json:"msgtype"`
 }
 
 type Text struct {

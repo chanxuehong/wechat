@@ -3,21 +3,23 @@ package custom
 import (
 	"errors"
 	"fmt"
+
+	"github.com/chanxuehong/wechat/mp/core"
 )
 
 const (
-	MsgTypeText   = "text"   // 文本消息
-	MsgTypeImage  = "image"  // 图片消息
-	MsgTypeVoice  = "voice"  // 语音消息
-	MsgTypeVideo  = "video"  // 视频消息
-	MsgTypeMusic  = "music"  // 音乐消息
-	MsgTypeNews   = "news"   // 图文消息
-	MsgTypeWxCard = "wxcard" // 卡卷消息
+	MsgTypeText   core.MsgType = "text"   // 文本消息
+	MsgTypeImage  core.MsgType = "image"  // 图片消息
+	MsgTypeVoice  core.MsgType = "voice"  // 语音消息
+	MsgTypeVideo  core.MsgType = "video"  // 视频消息
+	MsgTypeMusic  core.MsgType = "music"  // 音乐消息
+	MsgTypeNews   core.MsgType = "news"   // 图文消息
+	MsgTypeWxCard core.MsgType = "wxcard" // 卡卷消息
 )
 
 type MsgHeader struct {
-	ToUser  string `json:"touser"` // 接收方 OpenID
-	MsgType string `json:"msgtype"`
+	ToUser  string       `json:"touser"` // 接收方 OpenID
+	MsgType core.MsgType `json:"msgtype"`
 }
 
 // 如果需要以某个客服帐号来发消息(在微信6.0.2及以上版本中显示自定义头像),

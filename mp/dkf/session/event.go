@@ -5,17 +5,17 @@ import (
 )
 
 const (
-	EventTypeKfCreateSession = "kf_create_session" // 接入会话
-	EventTypeKfCloseSession  = "kf_close_session"  // 关闭会话
-	EventTypeKfSwitchSession = "kf_switch_session" // 转接会话
+	EventTypeKfCreateSession core.EventType = "kf_create_session" // 接入会话
+	EventTypeKfCloseSession  core.EventType = "kf_close_session"  // 关闭会话
+	EventTypeKfSwitchSession core.EventType = "kf_switch_session" // 转接会话
 )
 
 type KfCreateSessionEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
 
-	Event     string `xml:"Event"     json:"Event"`
-	KfAccount string `xml:"KfAccount" json:"KfAccount"`
+	Event     core.EventType `xml:"Event"     json:"Event"`
+	KfAccount string         `xml:"KfAccount" json:"KfAccount"`
 }
 
 func GetKfCreateSessionEvent(msg *core.MixedMsg) *KfCreateSessionEvent {
@@ -30,8 +30,8 @@ type KfCloseSessionEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
 
-	Event     string `xml:"Event"     json:"Event"`
-	KfAccount string `xml:"KfAccount" json:"KfAccount"`
+	Event     core.EventType `xml:"Event"     json:"Event"`
+	KfAccount string         `xml:"KfAccount" json:"KfAccount"`
 }
 
 func GetKfCloseSessionEvent(msg *core.MixedMsg) *KfCloseSessionEvent {
@@ -46,9 +46,9 @@ type KfSwitchSessionEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
 
-	Event         string `xml:"Event"         json:"Event"`
-	FromKfAccount string `xml:"FromKfAccount" json:"FromKfAccount"`
-	ToKfAccount   string `xml:"ToKfAccount"   json:"ToKfAccount"`
+	Event         core.EventType `xml:"Event"         json:"Event"`
+	FromKfAccount string         `xml:"FromKfAccount" json:"FromKfAccount"`
+	ToKfAccount   string         `xml:"ToKfAccount"   json:"ToKfAccount"`
 }
 
 func GetKfSwitchSessionEvent(msg *core.MixedMsg) *KfSwitchSessionEvent {

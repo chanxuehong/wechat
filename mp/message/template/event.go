@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	EventTypeTemplateSendJobFinish = "TEMPLATESENDJOBFINISH"
+	EventTypeTemplateSendJobFinish core.EventType = "TEMPLATESENDJOBFINISH"
 )
 
 const (
@@ -19,9 +19,9 @@ type TemplateSendJobFinishEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
 
-	Event  string `xml:"Event"  json:"Event"` // 事件信息, 此处为 TEMPLATESENDJOBFINISH
-	MsgId  int64  `xml:"MsgId"  json:"MsgId"` // 模板消息ID
-	Status string `xml:"Status" json:"Status"`
+	Event  core.EventType `xml:"Event"  json:"Event"` // 事件信息, 此处为 TEMPLATESENDJOBFINISH
+	MsgId  int64          `xml:"MsgId"  json:"MsgId"` // 模板消息ID
+	Status string         `xml:"Status" json:"Status"`
 }
 
 func GetTemplateSendJobFinishEvent(msg *core.MixedMsg) *TemplateSendJobFinishEvent {

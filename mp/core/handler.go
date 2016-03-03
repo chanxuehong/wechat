@@ -31,14 +31,14 @@ type ServeMux struct {
 	defaultMsgHandlerChain   HandlerChain
 	defaultEventHandlerChain HandlerChain
 
-	msgHandlerChainMap   map[string]HandlerChain // map[MsgType]HandlerChain
-	eventHandlerChainMap map[string]HandlerChain // map[EventType]HandlerChain
+	msgHandlerChainMap   map[MsgType]HandlerChain
+	eventHandlerChainMap map[EventType]HandlerChain
 }
 
 func NewServeMux() *ServeMux {
 	return &ServeMux{
-		msgHandlerChainMap:   make(map[string]HandlerChain),
-		eventHandlerChainMap: make(map[string]HandlerChain),
+		msgHandlerChainMap:   make(map[MsgType]HandlerChain),
+		eventHandlerChainMap: make(map[EventType]HandlerChain),
 	}
 }
 
@@ -63,7 +63,7 @@ func (mux *ServeMux) ServeMsg(ctx *Context) {
 }
 
 // getMsgHandlerChain 获取 HandlerChain 以处理消息类型为 MsgType 的消息, 如果没有找到返回 nil.
-func (mux *ServeMux) getMsgHandlerChain(MsgType string) (handlers HandlerChain) {
+func (mux *ServeMux) getMsgHandlerChain(MsgType MsgType) (handlers HandlerChain) {
 	if m := mux.msgHandlerChainMap; len(m) > 0 {
 		handlers = m[MsgType]
 		if len(handlers) == 0 {
@@ -76,7 +76,7 @@ func (mux *ServeMux) getMsgHandlerChain(MsgType string) (handlers HandlerChain) 
 }
 
 // getEventHandlerChain 获取 HandlerChain 以处理事件类型为 EventType 的事件, 如果没有找到返回 nil.
-func (mux *ServeMux) getEventHandlerChain(EventType string) (handlers HandlerChain) {
+func (mux *ServeMux) getEventHandlerChain(EventType EventType) (handlers HandlerChain) {
 	if m := mux.eventHandlerChainMap; len(m) > 0 {
 		handlers = m[EventType]
 		if len(handlers) == 0 {
@@ -267,7 +267,7 @@ func (mux *ServeMux) DefaultEventHandleFunc(handlers ...func(*Context)) {
 }
 
 // MsgHandle 设置 handlers 以处理特定类型的消息.
-func (mux *ServeMux) MsgHandle(MsgType string, handlers ...Handler) {
+func (mux *ServeMux) MsgHandle(MsgType MsgType, handlers ...Handler) {
 	mux.startedChecker.check()
 	if len(handlers) == 0 {
 		return
@@ -281,7 +281,7 @@ func (mux *ServeMux) MsgHandle(MsgType string, handlers ...Handler) {
 }
 
 // MsgHandleFunc 设置 handlers 以处理特定类型的消息.
-func (mux *ServeMux) MsgHandleFunc(MsgType string, handlers ...func(*Context)) {
+func (mux *ServeMux) MsgHandleFunc(MsgType MsgType, handlers ...func(*Context)) {
 	mux.startedChecker.check()
 	if len(handlers) == 0 {
 		return
@@ -299,7 +299,7 @@ func (mux *ServeMux) MsgHandleFunc(MsgType string, handlers ...func(*Context)) {
 }
 
 // EventHandle 设置 handlers 以处理特定类型的事件.
-func (mux *ServeMux) EventHandle(EventType string, handlers ...Handler) {
+func (mux *ServeMux) EventHandle(EventType EventType, handlers ...Handler) {
 	mux.startedChecker.check()
 	if len(handlers) == 0 {
 		return
@@ -313,7 +313,7 @@ func (mux *ServeMux) EventHandle(EventType string, handlers ...Handler) {
 }
 
 // EventHandleFunc 设置 handlers 以处理特定类型的事件.
-func (mux *ServeMux) EventHandleFunc(EventType string, handlers ...func(*Context)) {
+func (mux *ServeMux) EventHandleFunc(EventType EventType, handlers ...func(*Context)) {
 	mux.startedChecker.check()
 	if len(handlers) == 0 {
 		return
