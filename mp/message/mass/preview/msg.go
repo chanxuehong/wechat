@@ -1,4 +1,3 @@
-// 预览接口的消息数据结构.
 package preview
 
 import (
@@ -164,6 +163,7 @@ func NewWxCard(toUser, cardId, cardExt string) *WxCard {
 }
 
 // 新建卡券, 特别注意: 目前该接口仅支持填入非自定义code的卡券和预存模式的自定义code卡券.
+//  cardExt 可以为空
 func NewWxCard2(towxname, cardId, cardExt string) *WxCard {
 	var msg WxCard
 	msg.MsgType = MsgTypeWxCard

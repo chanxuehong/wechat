@@ -1,10 +1,6 @@
-// 群发给用户列表的消息数据结构.
 package mass2users
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
@@ -17,22 +13,9 @@ const (
 	MsgTypeWxCard core.MsgType = "wxcard"
 )
 
-const ToUserCountLimit = 10000
-
 type MsgHeader struct {
-	ToUser  []string     `json:"touser,omitempty"` // 长度不能超过 ToUserCountLimit
+	ToUser  []string     `json:"touser,omitempty"`
 	MsgType core.MsgType `json:"msgtype"`
-}
-
-func (header *MsgHeader) CheckValid() (err error) {
-	n := len(header.ToUser)
-	if n <= 0 {
-		return errors.New("用户列表是空的")
-	}
-	if n > ToUserCountLimit {
-		return fmt.Errorf("用户列表的长度不能超过 %d, 现在为 %d", ToUserCountLimit, n)
-	}
-	return
 }
 
 type Text struct {
@@ -119,15 +102,18 @@ func NewNews(toUser []string, mediaId string) *News {
 type WxCard struct {
 	MsgHeader
 	WxCard struct {
-		CardId string `json:"card_id"`
+		CardId  string `json:"card_id"`
+		CardExt string `json:"card_ext,omitempty"`
 	} `json:"wxcard"`
 }
 
 // 新建卡券, 特别注意: 目前该接口仅支持填入非自定义code的卡券和预存模式的自定义code卡券.
-func NewWxCard(toUser []string, cardId string) *WxCard {
+//  cardExt 可以为空
+func NewWxCard(toUser []string, cardId, cardExt string) *WxCard {
 	var msg WxCard
 	msg.MsgType = MsgTypeWxCard
 	msg.ToUser = toUser
 	msg.WxCard.CardId = cardId
+	msg.WxCard.CardExt = cardExt
 	return &msg
 }

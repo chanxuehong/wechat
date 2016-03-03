@@ -14,14 +14,12 @@ const (
 	TemplateSendStatusFailedSystemFailed = "failed: system failed" // 送达由于其他原因失败
 )
 
-// 在模版消息发送任务完成后, 微信服务器会将是否送达成功作为通知, 发送到开发者中心中填写的服务器配置地址中.
 type TemplateSendJobFinishEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-
-	Event  core.EventType `xml:"Event"  json:"Event"` // 事件信息, 此处为 TEMPLATESENDJOBFINISH
-	MsgId  int64          `xml:"MsgId"  json:"MsgId"` // 模板消息ID
-	Status string         `xml:"Status" json:"Status"`
+	Event  core.EventType `xml:"Event"  json:"Event"`  // 此处为 TEMPLATESENDJOBFINISH
+	MsgId  int64          `xml:"MsgId"  json:"MsgId"`  // 模板消息ID
+	Status string         `xml:"Status" json:"Status"` // 发送状态
 }
 
 func GetTemplateSendJobFinishEvent(msg *core.MixedMsg) *TemplateSendJobFinishEvent {

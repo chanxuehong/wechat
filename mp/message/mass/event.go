@@ -8,14 +8,12 @@ const (
 	EventTypeMassSendJobFinish core.EventType = "MASSSENDJOBFINISH"
 )
 
-// 高级群发消息, 事件推送群发结果
+// 事件推送群发结果
 type MassSendJobFinishEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-
 	Event core.EventType `xml:"Event" json:"Event"` // 事件信息, 此处为 MASSSENDJOBFINISH
-
-	MsgId int64 `xml:"MsgId" json:"MsgId"` // 群发的消息ID, 64位整型
+	MsgId int64          `xml:"MsgId" json:"MsgId"` // 群发的消息ID, 64位整型
 
 	// 群发的结构, 为 "send success" 或 "send fail" 或 "err(num)".
 	// 但 send success 时, 也有可能因用户拒收公众号的消息, 系统错误等原因造成少量用户接收失败.
@@ -29,10 +27,8 @@ type MassSendJobFinishEvent struct {
 	// err(20013), //涉嫌版权
 	// err(22000), //涉嫌互推(互相宣传)
 	// err(21000), //涉嫌其他
-	Status string `xml:"Status" json:"Status"`
-
-	TotalCount int `xml:"TotalCount" json:"TotalCount"` // group_id 下粉丝数, 或者 openid_list 中的粉丝数
-
+	Status     string `xml:"Status"     json:"Status"`
+	TotalCount int    `xml:"TotalCount" json:"TotalCount"` // group_id 下粉丝数, 或者 openid_list 中的粉丝数
 	// 过滤(过滤是指特定地区, 性别的过滤, 用户设置拒收的过滤; 用户接收已超4条的过滤)后,
 	// 准备发送的粉丝数, 原则上, FilterCount = SentCount + ErrorCount
 	FilterCount int `xml:"FilterCount" json:"FilterCount"`

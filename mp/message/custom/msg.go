@@ -1,9 +1,6 @@
 package custom
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
@@ -14,6 +11,7 @@ const (
 	MsgTypeVideo  core.MsgType = "video"  // 视频消息
 	MsgTypeMusic  core.MsgType = "music"  // 音乐消息
 	MsgTypeNews   core.MsgType = "news"   // 图文消息
+	MsgTypeMPNews core.MsgType = "mpnews" // 图文消息, 发送已经创建好的图文
 	MsgTypeWxCard core.MsgType = "wxcard" // 卡卷消息
 )
 
@@ -22,8 +20,6 @@ type MsgHeader struct {
 	MsgType core.MsgType `json:"msgtype"`
 }
 
-// 如果需要以某个客服帐号来发消息(在微信6.0.2及以上版本中显示自定义头像),
-// 则需在JSON数据包的后半部分加入 customservice 参数
 type CustomService struct {
 	KfAccount string `json:"kf_account"`
 }
@@ -31,12 +27,10 @@ type CustomService struct {
 // 文本消息
 type Text struct {
 	MsgHeader
-
 	Text struct {
 		Content string `json:"content"` // 支持换行符
 	} `json:"text"`
-
-	*CustomService `json:"customservice,omitempty"`
+	CustomService *CustomService `json:"customservice,omitempty"`
 }
 
 // 新建文本消息.
@@ -61,12 +55,10 @@ func NewText(toUser, content, kfAccount string) (text *Text) {
 // 图片消息
 type Image struct {
 	MsgHeader
-
 	Image struct {
 		MediaId string `json:"media_id"` // 通过素材管理接口上传多媒体文件得到 MediaId
 	} `json:"image"`
-
-	*CustomService `json:"customservice,omitempty"`
+	CustomService *CustomService `json:"customservice,omitempty"`
 }
 
 // 新建图片消息.
@@ -91,12 +83,10 @@ func NewImage(toUser, mediaId, kfAccount string) (image *Image) {
 // 语音消息
 type Voice struct {
 	MsgHeader
-
 	Voice struct {
 		MediaId string `json:"media_id"` // 通过素材管理接口上传多媒体文件得到 MediaId
 	} `json:"voice"`
-
-	*CustomService `json:"customservice,omitempty"`
+	CustomService *CustomService `json:"customservice,omitempty"`
 }
 
 // 新建语音消息.
@@ -121,15 +111,13 @@ func NewVoice(toUser, mediaId, kfAccount string) (voice *Voice) {
 // 视频消息
 type Video struct {
 	MsgHeader
-
 	Video struct {
 		MediaId      string `json:"media_id"`              // 通过素材管理接口上传多媒体文件得到 MediaId
 		ThumbMediaId string `json:"thumb_media_id"`        // 通过素材管理接口上传多媒体文件得到 ThumbMediaId
 		Title        string `json:"title,omitempty"`       // 视频消息的标题, 可以为 ""
 		Description  string `json:"description,omitempty"` // 视频消息的描述, 可以为 ""
 	} `json:"video"`
-
-	*CustomService `json:"customservice,omitempty"`
+	CustomService *CustomService `json:"customservice,omitempty"`
 }
 
 // 新建视频消息.
@@ -157,7 +145,6 @@ func NewVideo(toUser, mediaId, thumbMediaId, title, description, kfAccount strin
 // 音乐消息
 type Music struct {
 	MsgHeader
-
 	Music struct {
 		Title        string `json:"title,omitempty"`       // 音乐标题, 可以为 ""
 		Description  string `json:"description,omitempty"` // 音乐描述, 可以为 ""
@@ -165,15 +152,12 @@ type Music struct {
 		HQMusicURL   string `json:"hqmusicurl"`            // 高质量音乐链接, WIFI环境优先使用该链接播放音乐
 		ThumbMediaId string `json:"thumb_media_id"`        // 通过素材管理接口上传多媒体文件得到 ThumbMediaId
 	} `json:"music"`
-
-	*CustomService `json:"customservice,omitempty"`
+	CustomService *CustomService `json:"customservice,omitempty"`
 }
 
 // 新建音乐消息.
 //  如果不指定客服则 kfAccount 留空.
-func NewMusic(toUser, thumbMediaId, musicURL, HQMusicURL, title, description,
-	kfAccount string) (music *Music) {
-
+func NewMusic(toUser, thumbMediaId, musicURL, HQMusicURL, title, description, kfAccount string) (music *Music) {
 	music = &Music{
 		MsgHeader: MsgHeader{
 			ToUser:  toUser,
@@ -202,33 +186,13 @@ type Article struct {
 	PicURL      string `json:"picurl,omitempty"`      // 图文消息的图片链接, 支持JPG, PNG格式, 较好的效果为大图640*320, 小图80*80
 }
 
-const (
-	NewsArticleCountLimit = 10
-)
-
 // 图文消息
 type News struct {
 	MsgHeader
-
 	News struct {
-		Articles []Article `json:"articles,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过10, 则将会无响应
+		Articles []Article `json:"articles,omitempty"` // 多条图文消息信息, 默认第一个item为大图, 注意, 如果图文数超过8, 则将会无响应
 	} `json:"news"`
-
-	*CustomService `json:"customservice,omitempty"`
-}
-
-// 检查 News 是否有效, 有效返回 nil, 否则返回错误信息.
-func (this *News) CheckValid() (err error) {
-	n := len(this.News.Articles)
-	if n <= 0 {
-		err = errors.New("没有有效的图文消息")
-		return
-	}
-	if n > NewsArticleCountLimit {
-		err = fmt.Errorf("图文消息的文章个数不能超过 %d, 现在为 %d", NewsArticleCountLimit, n)
-		return
-	}
-	return
+	CustomService *CustomService `json:"customservice,omitempty"`
 }
 
 // 新建图文消息.
@@ -250,16 +214,41 @@ func NewNews(toUser string, articles []Article, kfAccount string) (news *News) {
 	return
 }
 
+type MPNews struct {
+	MsgHeader
+	MPNews struct {
+		MediaId string `json:"media_id"` // 通过素材管理接口上传多媒体文件得到 MediaId
+	} `json:"mpnews"`
+	CustomService *CustomService `json:"customservice,omitempty"`
+}
+
+// 新建图文消息.
+//  如果不指定客服则 kfAccount 留空.
+func NewMPNews(toUser, mediaId, kfAccount string) (mpnews *MPNews) {
+	mpnews = &MPNews{
+		MsgHeader: MsgHeader{
+			ToUser:  toUser,
+			MsgType: MsgTypeMPNews,
+		},
+	}
+	mpnews.MPNews.MediaId = mediaId
+
+	if kfAccount != "" {
+		mpnews.CustomService = &CustomService{
+			KfAccount: kfAccount,
+		}
+	}
+	return
+}
+
 // 卡券消息, 特别注意客服消息接口投放卡券仅支持非自定义Code码的卡券
 type WxCard struct {
 	MsgHeader
-
 	WxCard struct {
 		CardId  string `json:"card_id"`
 		CardExt string `json:"card_ext,omitempty"`
 	} `json:"wxcard"`
-
-	*CustomService `json:"customservice,omitempty"`
+	CustomService *CustomService `json:"customservice,omitempty"`
 }
 
 // 新建卡券消息.

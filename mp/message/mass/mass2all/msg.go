@@ -1,4 +1,3 @@
-// 群发给所有用户的消息数据结构.
 package mass2all
 
 import (
@@ -105,15 +104,18 @@ func NewNews(mediaId string) *News {
 type WxCard struct {
 	MsgHeader
 	WxCard struct {
-		CardId string `json:"card_id"`
+		CardId  string `json:"card_id"`
+		CardExt string `json:"card_ext,omitempty"`
 	} `json:"wxcard"`
 }
 
 // 新建卡券, 特别注意: 目前该接口仅支持填入非自定义code的卡券和预存模式的自定义code卡券.
-func NewWxCard(cardId string) *WxCard {
+//  cardExt 可以为空
+func NewWxCard(cardId, cardExt string) *WxCard {
 	var msg WxCard
 	msg.MsgType = MsgTypeWxCard
 	msg.Filter.IsToAll = true
 	msg.WxCard.CardId = cardId
+	msg.WxCard.CardExt = cardExt
 	return &msg
 }

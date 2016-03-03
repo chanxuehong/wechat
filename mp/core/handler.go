@@ -1,5 +1,9 @@
 package core
 
+import (
+	"io"
+)
+
 const maxHandlerChainSize = 64
 
 type HandlerChain []Handler
@@ -48,14 +52,16 @@ func (mux *ServeMux) ServeMsg(ctx *Context) {
 	if MsgType := ctx.MixedMsg.MsgType; MsgType != "event" {
 		handlers := mux.getMsgHandlerChain(MsgType)
 		if len(handlers) == 0 {
-			return // 返回空串, 符合微信协议
+			io.WriteString(ctx.ResponseWriter, "success")
+			return
 		}
 		ctx.handlers = handlers
 		ctx.Next()
 	} else {
 		handlers := mux.getEventHandlerChain(ctx.MixedMsg.Event)
 		if len(handlers) == 0 {
-			return // 返回空串, 符合微信协议
+			io.WriteString(ctx.ResponseWriter, "success")
+			return
 		}
 		ctx.handlers = handlers
 		ctx.Next()
