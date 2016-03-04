@@ -2,6 +2,7 @@ package menu
 
 import (
 	"encoding/json"
+
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
