@@ -22,7 +22,10 @@ func AuthCodeURL(appId, redirectURI, scope, state string) string {
 		"#wechat_redirect"
 }
 
-// 检验授权凭证 access_token 是否有效, httpClient 如果没有指定则默认为 http.DefaultClient.
+// 检验授权凭证 access_token 是否有效.
+//  accessToken: 网页授权接口调用凭证
+//  openId:      用户的唯一标识
+//  httpClient:  如果不指定则默认为 http.DefaultClient
 func Auth(accessToken, openId string, httpClient *http.Client) (valid bool, err error) {
 	if httpClient == nil {
 		httpClient = http.DefaultClient

@@ -38,8 +38,10 @@ type UserInfo struct {
 }
 
 // 获取用户信息(需 scope 为 snsapi_userinfo).
-//  lang 可能的取值是 zh_CN, zh_TW, en, 如果留空 "" 则默认为 zh_CN
-//  httpClient 如果不指定则默认为 http.DefaultClient
+//  accessToken: 网页授权接口调用凭证
+//  openId:      用户的唯一标识
+//  lang:        返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语, 如果留空 "" 则默认为 zh_CN
+//  httpClient:  如果不指定则默认为 http.DefaultClient
 func GetUserInfo(accessToken, openId, lang string, httpClient *http.Client) (info *UserInfo, err error) {
 	switch lang {
 	case "":

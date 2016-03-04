@@ -10,7 +10,7 @@ import (
 )
 
 // Exchange 通过 code 换取网页授权 access_token.
-// NOTE: 返回的 token == clt.Token
+//  NOTE: 返回的 token == clt.Token
 func (clt *Client) Exchange(code string) (token *Token, err error) {
 	if clt.Config == nil {
 		err = errors.New("nil Client.Config")
@@ -42,9 +42,9 @@ func (clt *Client) Exchange(code string) (token *Token, err error) {
 }
 
 // TokenRefresh 刷新 access_token.
-// NOTE:
-// 1. 返回的 token == clt.Token
-// 2. refreshToken 可以为空.
+//  NOTE:
+//  1. 返回的 token == clt.Token
+//  2. refreshToken 可以为空.
 func (clt *Client) TokenRefresh(refreshToken string) (token *Token, err error) {
 	if clt.Config == nil {
 		err = errors.New("nil Client.Config")

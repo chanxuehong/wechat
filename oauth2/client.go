@@ -22,6 +22,7 @@ func (clt *Client) httpClient() *http.Client {
 	return http.DefaultClient
 }
 
+// GetToken 获取 Token, autoRefresh 为 true 时如果 Token 过期则自动刷新.
 func (clt *Client) GetToken(autoRefresh bool) (tk *Token, err error) {
 	if clt.TokenStorage != nil {
 		if tk, err = clt.TokenStorage.Get(); err != nil {

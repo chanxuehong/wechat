@@ -8,6 +8,7 @@ import (
 
 var _ oauth2.Config = (*Config)(nil)
 
+// Config 实现了 github.com/chanxuehong/wechat/oauth2.Config 接口.
 type Config struct {
 	AppId     string
 	AppSecret string
