@@ -20,13 +20,13 @@ func Create(clt *core.Client, menu Menu) (err error) {
 }
 
 // 查询自定义菜单.
-func Get(clt *core.Client) (menu Menu, conditionalMenu []Menu, err error) {
+func Get(clt *core.Client) (menu Menu, conditionalMenus []Menu, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/menu/get?access_token="
 
 	var result struct {
 		core.Error
-		Menu            Menu   `json:"menu"`
-		ConditionalMenu []Menu `json:"conditionalmenu"`
+		Menu             Menu   `json:"menu"`
+		ConditionalMenus []Menu `json:"conditionalmenu"`
 	}
 	if err = clt.GetJSON(incompleteURL, &result); err != nil {
 		return
@@ -36,7 +36,7 @@ func Get(clt *core.Client) (menu Menu, conditionalMenu []Menu, err error) {
 		return
 	}
 	menu = result.Menu
-	conditionalMenu = result.ConditionalMenu
+	conditionalMenus = result.ConditionalMenus
 	return
 }
 

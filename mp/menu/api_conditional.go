@@ -7,7 +7,7 @@ import (
 )
 
 // 创建个性化菜单.
-func AddConditional(clt *core.Client, menu Menu) (menuId json.Number, err error) {
+func AddConditionalMenu(clt *core.Client, menu Menu) (menuId json.Number, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/menu/addconditional?access_token="
 
 	var result struct {
@@ -26,7 +26,7 @@ func AddConditional(clt *core.Client, menu Menu) (menuId json.Number, err error)
 }
 
 // 删除个性化菜单.
-func DeleteConditional(clt *core.Client, menuId json.Number) (err error) {
+func DeleteConditionalMenu(clt *core.Client, menuId json.Number) (err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/menu/delconditional?access_token="
 
 	var request = struct {
