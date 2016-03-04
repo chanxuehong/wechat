@@ -10,9 +10,9 @@ import (
 )
 
 const (
-	Language_zh_CN = "zh_CN" // 简体中文
-	Language_zh_TW = "zh_TW" // 繁体中文
-	Language_en    = "en"    // 英文
+	LanguageZhCN = "zh_CN" // 简体中文
+	LanguageZhTW = "zh_TW" // 繁体中文
+	LanguageEN   = "en"    // 英文
 )
 
 const (
@@ -43,10 +43,10 @@ type UserInfo struct {
 func GetUserInfo(accessToken, openId, lang string, httpClient *http.Client) (info *UserInfo, err error) {
 	switch lang {
 	case "":
-		lang = Language_zh_CN
-	case Language_zh_CN, Language_zh_TW, Language_en:
+		lang = LanguageZhCN
+	case LanguageZhCN, LanguageZhTW, LanguageEN:
 	default:
-		lang = Language_zh_CN
+		lang = LanguageZhCN
 	}
 
 	if httpClient == nil {
