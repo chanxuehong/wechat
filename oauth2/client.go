@@ -40,7 +40,7 @@ func (clt *Client) GetToken(autoRefresh bool) (tk *Token, err error) {
 			return
 		}
 	}
-	if tk.Expired() && autoRefresh {
+	if autoRefresh && tk.Expired() {
 		return clt.TokenRefresh(tk.RefreshToken)
 	}
 	return

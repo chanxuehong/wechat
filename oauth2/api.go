@@ -111,7 +111,7 @@ func (clt *Client) updateToken(tk *Token, url string) (err error) {
 		return errors.New("expires_in too small: " + strconv.FormatInt(result.ExpiresIn, 10))
 	}
 
-	result.Token.CreateAt = time.Now().Unix()
+	result.Token.CreatedAt = time.Now().Unix()
 	*tk = result.Token
 	return
 }
