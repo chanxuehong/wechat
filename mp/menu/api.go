@@ -5,14 +5,13 @@ import (
 )
 
 // 创建自定义菜单.
-func CreateMenu(clt *core.Client, menu Menu) (err error) {
-	var result core.Error
+func Create(clt *core.Client, menu Menu) (err error) {
+	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token="
 
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/create?access_token="
+	var result core.Error
 	if err = clt.PostJSON(incompleteURL, &menu, &result); err != nil {
 		return
 	}
-
 	if result.ErrCode != core.ErrCodeOK {
 		err = &result
 		return
@@ -20,62 +19,38 @@ func CreateMenu(clt *core.Client, menu Menu) (err error) {
 	return
 }
 
-// 删除自定义菜单
-func DeleteMenu(clt *core.Client) (err error) {
-	var result core.Error
+// 查询自定义菜单.
+func Get(clt *core.Client) (menu Menu, conditionalMenu []Menu, err error) {
+	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/menu/get?access_token="
 
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
-		return
-	}
-
-	if result.ErrCode != core.ErrCodeOK {
-		err = &result
-		return
-	}
-	return
-}
-
-// 获取自定义菜单
-func GetMenu(clt *core.Client) (menu Menu, err error) {
 	var result struct {
 		core.Error
-		Menu Menu `json:"menu"`
+		Menu            Menu   `json:"menu"`
+		ConditionalMenu []Menu `json:"conditionalmenu"`
 	}
-
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/get?access_token="
 	if err = clt.GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
-
 	if result.ErrCode != core.ErrCodeOK {
 		err = &result.Error
 		return
 	}
 	menu = result.Menu
+	conditionalMenu = result.ConditionalMenu
 	return
 }
 
-// 获取自定义菜单配置接口
-func GetMenuInfo(clt *core.Client) (info MenuInfo, isMenuOpen bool, err error) {
-	var result struct {
-		core.Error
-		IsMenuOpen int      `json:"is_menu_open"`
-		MenuInfo   MenuInfo `json:"selfmenu_info"`
-	}
+// 删除自定义菜单.
+func Delete(clt *core.Client) (err error) {
+	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token="
 
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/get_current_selfmenu_info?access_token="
+	var result core.Error
 	if err = clt.GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
-
 	if result.ErrCode != core.ErrCodeOK {
-		err = &result.Error
+		err = &result
 		return
-	}
-	info = result.MenuInfo
-	if result.IsMenuOpen == 1 {
-		isMenuOpen = true
 	}
 	return
 }

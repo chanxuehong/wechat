@@ -1,5 +1,9 @@
 package core
 
+import (
+	"encoding/json"
+)
+
 type (
 	MsgType   string
 	EventType string
@@ -35,8 +39,9 @@ type MixedMsg struct {
 	Description  string  `xml:"Description"  json:"Description"`
 	URL          string  `xml:"Url"          json:"Url"`
 
-	Event    EventType `xml:"Event"    json:"Event"`
-	EventKey string    `xml:"EventKey" json:"EventKey"`
+	Event    EventType   `xml:"Event"    json:"Event"`
+	EventKey string      `xml:"EventKey" json:"EventKey"`
+	MenuId   json.Number `xml:"MenuId"   json:"MenuId"`
 
 	ScanCodeInfo struct {
 		ScanType   string `xml:"ScanType"   json:"ScanType"`
@@ -46,7 +51,7 @@ type MixedMsg struct {
 	SendPicsInfo struct {
 		Count   int `xml:"Count" json:"Count"`
 		PicList []struct {
-			PicMD5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"`
+			PicMd5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"`
 		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"`
 	} `xml:"SendPicsInfo" json:"SendPicsInfo"`
 

@@ -1,6 +1,7 @@
 package menu
 
 import (
+	"encoding/json"
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
@@ -10,19 +11,18 @@ const (
 
 	// 请注意, 下面的事件仅支持微信iPhone5.4.1以上版本, 和Android5.4以上版本的微信用户,
 	// 旧版本微信用户点击后将没有回应, 开发者也不能正常接收到事件推送.
-	EventTypeScanCodePush    core.EventType = "scancode_push"      // scancode_push: 扫码推事件的事件推送
-	EventTypeScanCodeWaitMsg core.EventType = "scancode_waitmsg"   // scancode_waitmsg: 扫码推事件且弹出"消息接收中"提示框的事件推送
-	EventTypePicSysPhoto     core.EventType = "pic_sysphoto"       // pic_sysphoto: 弹出系统拍照发图的事件推送
-	EventTypePicPhotoOrAlbum core.EventType = "pic_photo_or_album" // pic_photo_or_album: 弹出拍照或者相册发图的事件推送
-	EventTypePicWeixin       core.EventType = "pic_weixin"         // pic_weixin: 弹出微信相册发图器的事件推送
-	EventTypeLocationSelect  core.EventType = "location_select"    // location_select: 弹出地理位置选择器的事件推送
+	EventTypeScanCodePush    core.EventType = "scancode_push"      // 扫码推事件的事件推送
+	EventTypeScanCodeWaitMsg core.EventType = "scancode_waitmsg"   // 扫码推事件且弹出"消息接收中"提示框的事件推送
+	EventTypePicSysPhoto     core.EventType = "pic_sysphoto"       // 弹出系统拍照发图的事件推送
+	EventTypePicPhotoOrAlbum core.EventType = "pic_photo_or_album" // 弹出拍照或者相册发图的事件推送
+	EventTypePicWeixin       core.EventType = "pic_weixin"         // 弹出微信相册发图器的事件推送
+	EventTypeLocationSelect  core.EventType = "location_select"    // 弹出地理位置选择器的事件推送
 )
 
-// 点击菜单拉取消息时的事件推送
+// CLICK: 点击菜单拉取消息时的事件推送
 type ClickEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-
 	Event    core.EventType `xml:"Event"    json:"Event"`    // 事件类型, CLICK
 	EventKey string         `xml:"EventKey" json:"EventKey"` // 事件KEY值, 与自定义菜单接口中KEY值对应
 }
@@ -35,13 +35,13 @@ func GetClickEvent(msg *core.MixedMsg) *ClickEvent {
 	}
 }
 
-// 点击菜单跳转链接时的事件推送
+// VIEW: 点击菜单跳转链接时的事件推送
 type ViewEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-
-	Event    core.EventType `xml:"Event"    json:"Event"`    // 事件类型, VIEW
-	EventKey string         `xml:"EventKey" json:"EventKey"` // 事件KEY值, 设置的跳转URL
+	Event    core.EventType `xml:"Event"            json:"Event"`            // 事件类型, VIEW
+	EventKey string         `xml:"EventKey"         json:"EventKey"`         // 事件KEY值, 设置的跳转URL
+	MenuId   json.Number    `xml:"MenuId,omitempty" json:"MenuId,omitempty"` // 菜单ID，如果是个性化菜单，则可以通过这个字段，知道是哪个规则的菜单被点击了。
 }
 
 func GetViewEvent(msg *core.MixedMsg) *ViewEvent {
@@ -49,6 +49,7 @@ func GetViewEvent(msg *core.MixedMsg) *ViewEvent {
 		MsgHeader: msg.MsgHeader,
 		Event:     msg.Event,
 		EventKey:  msg.EventKey,
+		MenuId:    msg.MenuId,
 	}
 }
 
@@ -56,7 +57,6 @@ func GetViewEvent(msg *core.MixedMsg) *ViewEvent {
 type ScanCodePushEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-
 	Event    core.EventType `xml:"Event"    json:"Event"`    // 事件类型, scancode_push
 	EventKey string         `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
 
@@ -79,7 +79,6 @@ func GetScanCodePushEvent(msg *core.MixedMsg) *ScanCodePushEvent {
 type ScanCodeWaitMsgEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-
 	Event    core.EventType `xml:"Event"    json:"Event"`    // 事件类型, scancode_waitmsg
 	EventKey string         `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
 
@@ -102,16 +101,15 @@ func GetScanCodeWaitMsgEvent(msg *core.MixedMsg) *ScanCodeWaitMsgEvent {
 type PicSysPhotoEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-
 	Event    core.EventType `xml:"Event"    json:"Event"`    // 事件类型, pic_sysphoto
 	EventKey string         `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
 
 	SendPicsInfo struct {
-		Count   int `xml:"Count" json:"Count"` // 发送的图片数量
+		Count   int `xml:"Count" json:"Count"`
 		PicList []struct {
-			PicMD5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"` // 图片的MD5值, 开发者若需要, 可用于验证接收到图片
-		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"` // 图片列表
-	} `xml:"SendPicsInfo" json:"SendPicsInfo"` // 发送的图片信息
+			PicMd5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"`
+		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"`
+	} `xml:"SendPicsInfo" json:"SendPicsInfo"`
 }
 
 func GetPicSysPhotoEvent(msg *core.MixedMsg) *PicSysPhotoEvent {
@@ -127,16 +125,15 @@ func GetPicSysPhotoEvent(msg *core.MixedMsg) *PicSysPhotoEvent {
 type PicPhotoOrAlbumEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-
 	Event    core.EventType `xml:"Event"    json:"Event"`    // 事件类型, pic_photo_or_album
 	EventKey string         `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
 
 	SendPicsInfo struct {
-		Count   int `xml:"Count" json:"Count"` // 发送的图片数量
+		Count   int `xml:"Count" json:"Count"`
 		PicList []struct {
-			PicMD5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"` // 图片的MD5值, 开发者若需要, 可用于验证接收到图片
-		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"` // 图片列表
-	} `xml:"SendPicsInfo" json:"SendPicsInfo"` // 发送的图片信息
+			PicMd5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"`
+		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"`
+	} `xml:"SendPicsInfo" json:"SendPicsInfo"`
 }
 
 func GetPicPhotoOrAlbumEvent(msg *core.MixedMsg) *PicPhotoOrAlbumEvent {
@@ -152,16 +149,15 @@ func GetPicPhotoOrAlbumEvent(msg *core.MixedMsg) *PicPhotoOrAlbumEvent {
 type PicWeixinEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-
 	Event    core.EventType `xml:"Event"    json:"Event"`    // 事件类型, pic_weixin
 	EventKey string         `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
 
 	SendPicsInfo struct {
-		Count   int `xml:"Count" json:"Count"` // 发送的图片数量
+		Count   int `xml:"Count" json:"Count"`
 		PicList []struct {
-			PicMD5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"` // 图片的MD5值, 开发者若需要, 可用于验证接收到图片
-		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"` // 图片列表
-	} `xml:"SendPicsInfo" json:"SendPicsInfo"` // 发送的图片信息
+			PicMd5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"`
+		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"`
+	} `xml:"SendPicsInfo" json:"SendPicsInfo"`
 }
 
 func GetPicWeixinEvent(msg *core.MixedMsg) *PicWeixinEvent {
@@ -177,7 +173,6 @@ func GetPicWeixinEvent(msg *core.MixedMsg) *PicWeixinEvent {
 type LocationSelectEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-
 	Event    core.EventType `xml:"Event"    json:"Event"`    // 事件类型, location_select
 	EventKey string         `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
 
@@ -187,7 +182,7 @@ type LocationSelectEvent struct {
 		Scale     int     `xml:"Scale"      json:"Scale"`      // 精度, 可理解为精度或者比例尺, 越精细的话 scale越高
 		Label     string  `xml:"Label"      json:"Label"`      // 地理位置的字符串信息
 		PoiName   string  `xml:"Poiname"    json:"Poiname"`    // 朋友圈POI的名字, 可能为空
-	} `xml:"SendLocationInfo" json:"SendLocationInfo"` // 发送的位置信息
+	} `xml:"SendLocationInfo" json:"SendLocationInfo"`
 }
 
 func GetLocationSelectEvent(msg *core.MixedMsg) *LocationSelectEvent {
