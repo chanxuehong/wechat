@@ -54,7 +54,7 @@ func GetIndustry(clt *core.Client) (primaryIndustry, secondaryIndustry Industry,
 
 // 从行业模板库选择模板添加到账号后台, 并返回模板id.
 //  templateIdShort: 模板库中模板的编号, 有"TM**"和"OPENTMTM**"等形式.
-func AddTemplate(clt *core.Client, templateIdShort string) (templateId string, err error) {
+func AddPrivateTemplate(clt *core.Client, templateIdShort string) (templateId string, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/template/api_add_template?access_token="
 
 	var request = struct {

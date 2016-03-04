@@ -14,8 +14,8 @@ type TemplateMessage struct {
 	Data       json.RawMessage `json:"data"`               // 必须, JSON 格式的 []byte, 满足特定的模板需求
 }
 
-// 发送模板消息
-func Send(clt *core.Client, msg *TemplateMessage) (msgid int64, err error) {
+// 发送模板消息, msg 是经过 encoding/json.Marshal 得到的结果符合微信消息格式的任何数据结构, 一般为 *TemplateMessage 类型.
+func Send(clt *core.Client, msg interface{}) (msgid int64, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="
 
 	var result struct {
