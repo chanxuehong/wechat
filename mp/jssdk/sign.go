@@ -3,15 +3,16 @@ package jssdk
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"io"
+	"sort"
 )
 
-// 微信 js-sdk wx.config 的参数签名.
+// JS-SDK wx.config 的参数签名.
 func WXConfigSign(jsapiTicket, nonceStr, timestamp, url string) (signature string) {
 	n := len("jsapi_ticket=") + len(jsapiTicket) +
 		len("&noncestr=") + len(nonceStr) +
 		len("&timestamp=") + len(timestamp) +
 		len("&url=") + len(url)
-
 	buf := make([]byte, 0, n)
 
 	buf = append(buf, "jsapi_ticket="...)
@@ -25,4 +26,15 @@ func WXConfigSign(jsapiTicket, nonceStr, timestamp, url string) (signature strin
 
 	hashsum := sha1.Sum(buf)
 	return hex.EncodeToString(hashsum[:])
+}
+
+// JS-SDK 卡券 API 参数签名.
+func CardSign(strs []string) (signature string) {
+	sort.Strings(strs)
+
+	h := sha1.New()
+	for _, str := range strs {
+		io.WriteString(h, str)
+	}
+	return hex.EncodeToString(h.Sum(nil))
 }

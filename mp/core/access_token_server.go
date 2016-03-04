@@ -36,8 +36,8 @@ type DefaultAccessTokenServer struct {
 
 	tokenGet struct {
 		sync.Mutex
-		lastAccessToken accessToken // 最近一次成功更新 access_token 的数据信息
-		lastTimestamp   time.Time   // 最近一次成功更新 access_token 的时间戳
+		lastToken     accessToken // 最近一次成功更新 access_token 的数据信息
+		lastTimestamp time.Time   // 最近一次成功更新 access_token 的时间戳
 	}
 
 	tokenCache struct {
@@ -136,7 +136,7 @@ func (srv *DefaultAccessTokenServer) tokenRefresh() (token accessToken, cached b
 	// 实际上我们没有必要也不能让这些操作都去微信服务器获取新的 access_token, 而只用返回同一个 access_token 即可.
 	// 因为 access_token 缓存在内存里, 所以收敛周期为2个http周期, 我们这里设定为2秒.
 	if d := timeNow.Sub(srv.tokenGet.lastTimestamp); 0 <= d && d < time.Second*2 {
-		token = srv.tokenGet.lastAccessToken
+		token = srv.tokenGet.lastToken
 		cached = true
 		return
 	}
@@ -204,7 +204,7 @@ func (srv *DefaultAccessTokenServer) tokenRefresh() (token accessToken, cached b
 	}
 
 	// 更新 tokenGet
-	srv.tokenGet.lastAccessToken = result.accessToken
+	srv.tokenGet.lastToken = result.accessToken
 	srv.tokenGet.lastTimestamp = timeNow
 
 	// 更新 tokenCache

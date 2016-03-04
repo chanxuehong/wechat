@@ -1,0 +1,133 @@
+package jssdk
+
+import (
+	"crypto/sha1"
+	"encoding/hex"
+	"io"
+	"testing"
+)
+
+func TestWXConfigSign(t *testing.T) {
+	jsapiTicket := "sM4AOVdWfPE4DxkXGEs8VMCPGGVi4C3VM0P37wVUCFvkVAy_90u5h9nbSlYy3-Sl-HhTdfl2fzFy1AOcHKP7qg"
+	nonceStr := "Wm3WZYTPz0wzccnW"
+	timestamp := "1414587457"
+	url := "http://mp.weixin.qq.com?params=value"
+
+	wantSignature := "0f9de62fce790f9a083d5c99e95740ceb90c27ed"
+
+	haveSignature := WXConfigSign(jsapiTicket, nonceStr, timestamp, url)
+	if haveSignature != wantSignature {
+		t.Errorf("test WXConfigSign failed,\r\nhave: %s\r\nwant: %s", haveSignature, wantSignature)
+		return
+	}
+
+	haveSignature2 := WXConfigSign2(jsapiTicket, nonceStr, timestamp, url)
+	if haveSignature2 != wantSignature {
+		t.Errorf("test WXConfigSign2 failed,\r\nhave: %s\r\nwant: %s", haveSignature2, wantSignature)
+		return
+	}
+
+	haveSignature3 := WXConfigSign3(jsapiTicket, nonceStr, timestamp, url)
+	if haveSignature3 != wantSignature {
+		t.Errorf("test WXConfigSign3 failed,\r\nhave: %s\r\nwant: %s", haveSignature3, wantSignature)
+		return
+	}
+}
+
+func TestCardSign(t *testing.T) {
+	api_ticket := "aaaa"
+	timestamp := "bbbb"
+	nonce_str := "cccc"
+	card_id := "dddd"
+	code := "eeee"
+	open_id := "ffff"
+
+	wantSignature := "89a0e60888a9471f75dc5eb0ee86431ddbec1fd9"
+
+	haveSignature := CardSign([]string{open_id, code, timestamp, card_id, api_ticket, nonce_str})
+	if haveSignature != wantSignature {
+		t.Errorf("test CardSign failed,\r\nhave: %s\r\nwant: %s", haveSignature, wantSignature)
+		return
+	}
+}
+
+func BenchmarkWXConfigSign(b *testing.B) {
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	jsapiTicket := "sM4AOVdWfPE4DxkXGEs8VMCPGGVi4C3VM0P37wVUCFvkVAy_90u5h9nbSlYy3-Sl-HhTdfl2fzFy1AOcHKP7qg"
+	nonceStr := "Wm3WZYTPz0wzccnW"
+	timestamp := "1414587457"
+	url := "http://mp.weixin.qq.com?params=value"
+
+	for i := 0; i < b.N; i++ {
+		WXConfigSign(jsapiTicket, nonceStr, timestamp, url)
+	}
+}
+
+func BenchmarkWXConfigSign2(b *testing.B) {
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	jsapiTicket := "sM4AOVdWfPE4DxkXGEs8VMCPGGVi4C3VM0P37wVUCFvkVAy_90u5h9nbSlYy3-Sl-HhTdfl2fzFy1AOcHKP7qg"
+	nonceStr := "Wm3WZYTPz0wzccnW"
+	timestamp := "1414587457"
+	url := "http://mp.weixin.qq.com?params=value"
+
+	for i := 0; i < b.N; i++ {
+		WXConfigSign2(jsapiTicket, nonceStr, timestamp, url)
+	}
+}
+
+func BenchmarkWXConfigSign3(b *testing.B) {
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	jsapiTicket := "sM4AOVdWfPE4DxkXGEs8VMCPGGVi4C3VM0P37wVUCFvkVAy_90u5h9nbSlYy3-Sl-HhTdfl2fzFy1AOcHKP7qg"
+	nonceStr := "Wm3WZYTPz0wzccnW"
+	timestamp := "1414587457"
+	url := "http://mp.weixin.qq.com?params=value"
+
+	for i := 0; i < b.N; i++ {
+		WXConfigSign3(jsapiTicket, nonceStr, timestamp, url)
+	}
+}
+
+func WXConfigSign2(jsapiTicket, nonceStr, timestamp, url string) (signature string) {
+	h := sha1.New()
+
+	io.WriteString(h, "jsapi_ticket=")
+	io.WriteString(h, jsapiTicket)
+	io.WriteString(h, "&noncestr=")
+	io.WriteString(h, nonceStr)
+	io.WriteString(h, "&timestamp=")
+	io.WriteString(h, timestamp)
+	io.WriteString(h, "&url=")
+	io.WriteString(h, url)
+
+	hashsum := h.Sum(nil)
+	return hex.EncodeToString(hashsum)
+}
+
+var (
+	jsapiTicketKey = []byte("jsapi_ticket=")
+	nonceStrKey    = []byte("&noncestr=")
+	timestampKey   = []byte("&timestamp=")
+	urlKey         = []byte("&url=")
+)
+
+func WXConfigSign3(jsapiTicket, nonceStr, timestamp, url string) (signature string) {
+	h := sha1.New()
+
+	h.Write(jsapiTicketKey)
+	h.Write([]byte(jsapiTicket))
+	h.Write(nonceStrKey)
+	h.Write([]byte(nonceStr))
+	h.Write(timestampKey)
+	h.Write([]byte(timestamp))
+	h.Write(urlKey)
+	h.Write([]byte(url))
+
+	hashsum := h.Sum(nil)
+	return hex.EncodeToString(hashsum)
+}
