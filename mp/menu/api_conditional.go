@@ -7,14 +7,14 @@ import (
 )
 
 // 创建个性化菜单.
-func AddConditionalMenu(clt *core.Client, menu Menu) (menuId json.Number, err error) {
+func AddConditionalMenu(clt *core.Client, menu *Menu) (menuId json.Number, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/menu/addconditional?access_token="
 
 	var result struct {
 		core.Error
 		MenuId json.Number `json:"menuId"`
 	}
-	if err = clt.PostJSON(incompleteURL, &menu, &result); err != nil {
+	if err = clt.PostJSON(incompleteURL, menu, &result); err != nil {
 		return
 	}
 	if result.ErrCode != core.ErrCodeOK {
@@ -47,7 +47,7 @@ func DeleteConditionalMenu(clt *core.Client, menuId json.Number) (err error) {
 
 // 测试个性化菜单匹配结果.
 //  userId 可以是粉丝的 OpenID, 也可以是粉丝的微信号
-func TryMatch(clt *core.Client, userId string) (menu Menu, err error) {
+func TryMatch(clt *core.Client, userId string) (menu *Menu, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/menu/trymatch?access_token="
 
 	var request = struct {
@@ -66,6 +66,6 @@ func TryMatch(clt *core.Client, userId string) (menu Menu, err error) {
 		err = &result.Error
 		return
 	}
-	menu = result.Menu
+	menu = &result.Menu
 	return
 }

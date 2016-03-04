@@ -5,11 +5,11 @@ import (
 )
 
 // 创建自定义菜单.
-func Create(clt *core.Client, menu Menu) (err error) {
+func Create(clt *core.Client, menu *Menu) (err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token="
 
 	var result core.Error
-	if err = clt.PostJSON(incompleteURL, &menu, &result); err != nil {
+	if err = clt.PostJSON(incompleteURL, menu, &result); err != nil {
 		return
 	}
 	if result.ErrCode != core.ErrCodeOK {
@@ -20,7 +20,7 @@ func Create(clt *core.Client, menu Menu) (err error) {
 }
 
 // 查询自定义菜单.
-func Get(clt *core.Client) (menu Menu, conditionalMenus []Menu, err error) {
+func Get(clt *core.Client) (menu *Menu, conditionalMenus []Menu, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/menu/get?access_token="
 
 	var result struct {
@@ -35,7 +35,7 @@ func Get(clt *core.Client) (menu Menu, conditionalMenus []Menu, err error) {
 		err = &result.Error
 		return
 	}
-	menu = result.Menu
+	menu = &result.Menu
 	conditionalMenus = result.ConditionalMenus
 	return
 }
