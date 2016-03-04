@@ -1,12 +1,12 @@
 package oauth2
 
 import (
-	"errors"
+	"encoding/json"
 	"fmt"
-	"strconv"
-	"strings"
+	"net/http"
+	"net/url"
 
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/chanxuehong/wechat/oauth2"
 )
 
 const (
@@ -29,55 +29,18 @@ type UserInfo struct {
 	Province string `json:"province"` // 用户个人资料填写的省份
 	Country  string `json:"country"`  // 国家, 如中国为CN
 
-	// 用户头像, 最后一个数值代表正方形头像大小(有0, 46, 64, 96, 132数值可选, 0代表640*640正方形头像),
-	// 用户没有头像时该项为空
+	// 用户头像，最后一个数值代表正方形头像大小（有0、46、64、96、132数值可选，0代表640*640正方形头像），
+	// 用户没有头像时该项为空。若用户更换头像，原有头像URL将失效。
 	HeadImageURL string `json:"headimgurl"`
 
-	// 用户特权信息, json 数组, 如微信沃卡用户为(chinaunicom)
-	Privilege []string `json:"privilege"`
-
-	// 用户统一标识. 针对一个微信开放平台帐号下的应用, 同一用户的unionid是唯一的.
-	UnionId string `json:"unionid"`
+	Privilege []string `json:"privilege"`         // 用户特权信息，json 数组，如微信沃卡用户为（chinaunicom）
+	UnionId   string   `json:"unionid,omitempty"` // 只有在用户将公众号绑定到微信开放平台帐号后，才会出现该字段。
 }
 
-var ErrNoHeadImage = errors.New("没有头像")
-
-// 获取用户图像的大小, 如果用户没有图像则返回 ErrNoHeadImage 错误.
-func (info *UserInfo) HeadImageSize() (size int, err error) {
-	HeadImageURL := info.HeadImageURL
-	if HeadImageURL == "" {
-		err = ErrNoHeadImage
-		return
-	}
-
-	lastSlashIndex := strings.LastIndex(HeadImageURL, "/")
-	if lastSlashIndex == -1 {
-		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
-		return
-	}
-	HeadImageIndex := lastSlashIndex + 1
-	if HeadImageIndex == len(HeadImageURL) {
-		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
-		return
-	}
-
-	sizeStr := HeadImageURL[HeadImageIndex:]
-
-	size, err = strconv.Atoi(sizeStr)
-	if err != nil {
-		err = fmt.Errorf("invalid HeadImageURL: %s", HeadImageURL)
-		return
-	}
-
-	if size == 0 {
-		size = 640
-	}
-	return
-}
-
-// 获取用户信息(需scope为 snsapi_userinfo).
-//  lang 可能的取值是 zh_CN, zh_TW, en, 如果留空 "" 则默认为 zh_CN.
-func (clt *Client) UserInfo(lang string) (info *UserInfo, err error) {
+// 获取用户信息(需 scope 为 snsapi_userinfo).
+//  lang 可能的取值是 zh_CN, zh_TW, en, 如果留空 "" 则默认为 zh_CN
+//  httpClient 如果不指定则默认为 http.DefaultClient
+func GetUserInfo(accessToken, openId, lang string, httpClient *http.Client) (info *UserInfo, err error) {
 	switch lang {
 	case "":
 		lang = Language_zh_CN
@@ -86,32 +49,33 @@ func (clt *Client) UserInfo(lang string) (info *UserInfo, err error) {
 		lang = Language_zh_CN
 	}
 
-	if clt.Config == nil {
-		err = errors.New("nil Config")
-		return
+	if httpClient == nil {
+		httpClient = http.DefaultClient
 	}
 
-	tk, err := clt.getToken()
+	_url := "https://api.weixin.qq.com/sns/userinfo?access_token=" + url.QueryEscape(accessToken) +
+		"&openid=" + url.QueryEscape(openId) +
+		"&lang=" + lang
+	httpResp, err := httpClient.Get(_url)
 	if err != nil {
 		return
 	}
+	defer httpResp.Body.Close()
 
-	// 过期自动刷新 Token
-	if tk.AccessTokenExpired() {
-		if tk, err = clt.tokenRefresh(tk); err != nil {
-			return
-		}
-	}
-
-	var result struct {
-		core.Error
-		UserInfo
-	}
-	if err = clt.getJSON(clt.Config.UserInfoURL(tk.AccessToken, tk.OpenId, lang), &result); err != nil {
+	if httpResp.StatusCode != http.StatusOK {
+		err = fmt.Errorf("http.Status: %s", httpResp.Status)
 		return
 	}
 
-	if result.ErrCode != core.ErrCodeOK {
+	var result struct {
+		oauth2.Error
+		UserInfo
+	}
+	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
+		return
+	}
+
+	if result.ErrCode != oauth2.ErrCodeOK {
 		err = &result.Error
 		return
 	}
