@@ -96,7 +96,7 @@ type Video struct {
 }
 
 // 新建视频消息
-//  NOTE: 对于临时素材, mediaId 应该通过 media.Client.CreateVideo 得到
+//  NOTE: 对于临时素材, mediaId 应该通过 media.UploadVideo2 得到
 func NewVideo(touser, mediaId string) *Video {
 	var msg Video
 	msg.MsgType = MsgTypeVideo
@@ -106,7 +106,7 @@ func NewVideo(touser, mediaId string) *Video {
 }
 
 // 新建视频消息
-//  NOTE: 对于临时素材, mediaId 应该通过 media.Client.CreateVideo 得到
+//  NOTE: 对于临时素材, mediaId 应该通过 media.UploadVideo2 得到
 func NewVideo2(towxname, mediaId string) *Video {
 	var msg Video
 	msg.MsgType = MsgTypeVideo
@@ -124,7 +124,7 @@ type News struct {
 }
 
 // 新建图文消息
-//  NOTE: 对于临时素材, mediaId 应该通过 media.Client.CreateNews 得到
+//  NOTE: 对于临时素材, mediaId 应该通过 media.UploadNews 得到
 func NewNews(touser, mediaId string) *News {
 	var msg News
 	msg.MsgType = MsgTypeNews
@@ -134,7 +134,7 @@ func NewNews(touser, mediaId string) *News {
 }
 
 // 新建图文消息
-//  NOTE: 对于临时素材, mediaId 应该通过 media.Client.CreateNews 得到
+//  NOTE: 对于临时素材, mediaId 应该通过 media.UploadNews 得到
 func NewNews2(towxname, mediaId string) *News {
 	var msg News
 	msg.MsgType = MsgTypeNews
