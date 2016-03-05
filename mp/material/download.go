@@ -3,7 +3,6 @@ package material
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,9 +12,9 @@ import (
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
-// 下载多媒体到文件.
-//  对于视频素材, 先通过 Client.GetVideo 得到 VideoInfo, 然后通过 VideoInfo.DownURL 来下载
-func DownloadMaterial(clt *core.Client, mediaId, filepath string) (written int64, err error) {
+// Download 下载多媒体到文件.
+//  对于视频素材, 先通过 GetVideo 得到 VideoInfo, 然后通过 VideoInfo.DownURL 来下载
+func Download(clt *core.Client, mediaId, filepath string) (written int64, err error) {
 	file, err := os.Create(filepath)
 	if err != nil {
 		return
@@ -27,17 +26,7 @@ func DownloadMaterial(clt *core.Client, mediaId, filepath string) (written int64
 		}
 	}()
 
-	return downloadMaterialToWriter(clt, mediaId, file)
-}
-
-// 下载多媒体到 io.Writer.
-//  对于视频素材, 先通过 Client.GetVideo 得到 VideoInfo, 然后通过 VideoInfo.DownURL 来下载
-func DownloadMaterialToWriter(clt *core.Client, mediaId string, writer io.Writer) (written int64, err error) {
-	if writer == nil {
-		err = errors.New("nil writer")
-		return
-	}
-	return downloadMaterialToWriter(clt, mediaId, writer)
+	return DownloadToWriter(clt, mediaId, file)
 }
 
 var (
@@ -45,8 +34,9 @@ var (
 	errRespBeginMsg  = []byte(`{"errmsg":"`)
 )
 
-// 下载多媒体到 io.Writer.
-func downloadMaterialToWriter(clt *core.Client, mediaId string, writer io.Writer) (written int64, err error) {
+// DownloadToWriter 下载多媒体到 io.Writer.
+//  对于视频素材, 先通过 GetVideo 得到 VideoInfo, 然后通过 VideoInfo.DownURL 来下载
+func DownloadToWriter(clt *core.Client, mediaId string, writer io.Writer) (written int64, err error) {
 	var request = struct {
 		MediaId string `json:"media_id"`
 	}{
