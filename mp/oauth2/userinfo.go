@@ -33,8 +33,8 @@ type UserInfo struct {
 	// 用户没有头像时该项为空。若用户更换头像，原有头像URL将失效。
 	HeadImageURL string `json:"headimgurl"`
 
-	Privilege []string `json:"privilege"`         // 用户特权信息，json 数组，如微信沃卡用户为（chinaunicom）
-	UnionId   string   `json:"unionid,omitempty"` // 只有在用户将公众号绑定到微信开放平台帐号后，才会出现该字段。
+	Privilege []string `json:"privilege,omitempty"` // 用户特权信息，json 数组，如微信沃卡用户为（chinaunicom）
+	UnionId   string   `json:"unionid,omitempty"`   // 只有在用户将公众号绑定到微信开放平台帐号后，才会出现该字段。
 }
 
 // 获取用户信息(需 scope 为 snsapi_userinfo).

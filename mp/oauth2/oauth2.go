@@ -9,11 +9,11 @@ import (
 	"github.com/chanxuehong/wechat/oauth2"
 )
 
-// AuthCodeURL 生成网页授权url地址.
-//  appId: 公众号的唯一标识
+// AuthCodeURL 生成网页授权地址.
+//  appId:       公众号的唯一标识
 //  redirectURI: 授权后重定向的回调链接地址
-//  scope: 应用授权作用域
-//  state: 重定向后会带上 state 参数, 开发者可以填写 a-zA-Z0-9 的参数值, 最多128字节
+//  scope:       应用授权作用域
+//  state:       重定向后会带上 state 参数, 开发者可以填写 a-zA-Z0-9 的参数值, 最多128字节
 func AuthCodeURL(appId, redirectURI, scope, state string) string {
 	return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + url.QueryEscape(appId) +
 		"&redirect_uri=" + url.QueryEscape(redirectURI) +
@@ -53,7 +53,7 @@ func Auth(accessToken, openId string, httpClient *http.Client) (valid bool, err 
 	case oauth2.ErrCodeOK:
 		valid = true
 		return
-	case 40001:
+	case 42001, 40001:
 		valid = false
 		return
 	default:
