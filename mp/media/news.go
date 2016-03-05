@@ -14,20 +14,19 @@ type Article struct {
 	ShowCoverPic     int    `json:"show_cover_pic"`               // 可选; 是否显示封面, 1为显示, 0为不显示, 默认为不显示
 }
 
+type News struct {
+	Articles []Article `json:"articles,omitempty"`
+}
+
 // UploadNews 创建图文消息素材, 返回的素材一般用于群发消息.
-func UploadNews(clt *core.Client, articles []Article) (info *MediaInfo, err error) {
+func UploadNews(clt *core.Client, news *News) (info *MediaInfo, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/media/uploadnews?access_token="
 
-	var request = struct {
-		Articles []Article `json:"articles,omitempty"`
-	}{
-		Articles: articles,
-	}
 	var result struct {
 		core.Error
 		MediaInfo
 	}
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = clt.PostJSON(incompleteURL, news, &result); err != nil {
 		return
 	}
 	if result.ErrCode != core.ErrCodeOK {
