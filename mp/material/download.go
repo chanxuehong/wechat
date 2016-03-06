@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"unicode"
 
 	"github.com/chanxuehong/wechat/mp/core"
 )
@@ -78,7 +79,7 @@ RETRY:
 			return 0, fmt.Errorf("http.Status: %s", httpResp.Status)
 		}
 
-		buf2 := buf
+		buf2 := buf // 保存预先读取的少量头部信息
 		switch n, err := io.ReadFull(httpResp.Body, buf2); err {
 		case nil:
 			break
@@ -98,15 +99,14 @@ RETRY:
 			httpRespBody = io.MultiReader(bytes.NewReader(buf2), httpResp.Body)
 		}
 
-		if begin := bytes.IndexByte(buf2, '{'); begin >= 0 {
-			if end := begin + len(errRespBeginWithCode); end <= len(buf2) {
-				buf3 := buf2[begin:end]
-				if bytes.Equal(buf3, errRespBeginWithCode) || bytes.Equal(buf3, errRespBeginWithMsg) {
-					return 0, json.NewDecoder(httpRespBody).Decode(&result) // 返回的是错误信息
-				}
-			}
+		buf3 := trimLeft(buf2)
+		if bytes.HasPrefix(buf3, errRespBeginWithCode) || bytes.HasPrefix(buf3, errRespBeginWithMsg) {
+			// 返回的是错误信息
+			return 0, json.NewDecoder(httpRespBody).Decode(&result)
+		} else {
+			// 返回的是媒体流
+			return io.Copy(writer, httpRespBody)
 		}
-		return io.Copy(writer, httpRespBody) // 返回的是媒体流
 	}()
 	if err != nil {
 		return
@@ -132,4 +132,21 @@ RETRY:
 		err = &result
 		return
 	}
+}
+
+func trimLeft(s []byte) []byte {
+	for i := 0; i < len(s); i++ {
+		if isSpace(s[i]) {
+			continue
+		}
+		return s[i:]
+	}
+	return s
+}
+
+func isSpace(b byte) bool {
+	if b > unicode.MaxASCII {
+		return false
+	}
+	return unicode.IsSpace(rune(b))
 }
