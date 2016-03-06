@@ -1,5 +1,8 @@
 # wechat SDK for golang
 
+## 鸡蛋，需要的联系我，30个58元（江浙沪包邮）
+[点击查看详细信息](https://github.com/chanxuehong/wechat/blob/v2/egg.md)
+
 ## 简介
 | 模块  | 描述                     |
 |-----:|:-------------------------|
