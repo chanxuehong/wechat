@@ -4,34 +4,32 @@ import (
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
-type VideoInfo struct {
+type Video struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
-	DownURL     string `json:"down_url"`
+	DownloadURL string `json:"down_url"`
 }
 
-// 获取视频消息素材.
-func GetVideo(clt *core.Client, mediaId string) (info *VideoInfo, err error) {
+// 获取视频消息素材信息.
+func GetVideo(clt *core.Client, mediaId string) (info *Video, err error) {
+	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/material/get_material?access_token="
+
 	var request = struct {
 		MediaId string `json:"media_id"`
 	}{
 		MediaId: mediaId,
 	}
-
 	var result struct {
 		core.Error
-		VideoInfo
+		Video
 	}
-
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/get_material?access_token="
 	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
-
 	if result.ErrCode != core.ErrCodeOK {
 		err = &result.Error
 		return
 	}
-	info = &result.VideoInfo
+	info = &result.Video
 	return
 }

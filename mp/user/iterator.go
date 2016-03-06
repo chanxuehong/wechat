@@ -10,7 +10,7 @@ const (
 
 // UserIterator
 //
-//  iter, err := Client.UserIterator("NextOpenId")
+//  iter, err := NewUserIterator(clt, "NextOpenId")
 //  if err != nil {
 //      // TODO: 增加你的代码
 //  }
@@ -103,7 +103,7 @@ func (iter *UserIterator) NextPage() (OpenIdList []string, err error) {
 
 // 获取用户遍历器, 从 NextOpenId 开始遍历, 如果 NextOpenId == "" 则表示从头遍历.
 //  NOTE: 目前微信是从 NextOpenId 下一个用户开始遍历的, 和微信文档描述不一样!!!
-func CreateUserIterator(clt *core.Client, NextOpenId string) (iter *UserIterator, err error) {
+func NewUserIterator(clt *core.Client, NextOpenId string) (iter *UserIterator, err error) {
 	// 逻辑上相当于第一次调用 UserIterator.NextPage, 因为第一次调用 UserIterator.HasNext 需要数据支撑, 所以提前获取了数据
 
 	data, err := UserList(clt, NextOpenId)

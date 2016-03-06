@@ -7,20 +7,18 @@ import (
 )
 
 // 删除永久素材.
-func DeleteMaterial(clt *core.Client, mediaId string) (err error) {
+func Delete(clt *core.Client, mediaId string) (err error) {
+	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/material/del_material?access_token="
+
 	var request = struct {
 		MediaId string `json:"media_id"`
 	}{
 		MediaId: mediaId,
 	}
-
 	var result core.Error
-
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/del_material?access_token="
 	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
-
 	if result.ErrCode != core.ErrCodeOK {
 		err = &result
 		return
@@ -36,24 +34,29 @@ type MaterialCountInfo struct {
 	NewsCount  int `json:"news_count"`
 }
 
-// 获取素材总数.
+// 获取素材总数数据.
 func GetMaterialCount(clt *core.Client) (info *MaterialCountInfo, err error) {
+	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/material/get_materialcount?access_token="
+
 	var result struct {
 		core.Error
 		MaterialCountInfo
 	}
-
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/get_materialcount?access_token="
 	if err = clt.GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
-
 	if result.ErrCode != core.ErrCodeOK {
 		err = &result.Error
 		return
 	}
 	info = &result.MaterialCountInfo
 	return
+}
+
+type BatchGetResult struct {
+	TotalCount int            `json:"total_count"` // 该类型的素材的总数
+	ItemCount  int            `json:"item_count"`  // 本次调用获取的素材的数量
+	Items      []MaterialInfo `json:"item"`        // 本次调用获取的素材列表
 }
 
 type MaterialInfo struct {
@@ -63,22 +66,17 @@ type MaterialInfo struct {
 	URL        string `json:"url"`         // 当获取的列表是图片素材列表时, 该字段是图片的URL
 }
 
-type BatchGetMaterialResult struct {
-	TotalCount int            `json:"total_count"` // 该类型的素材的总数
-	ItemCount  int            `json:"item_count"`  // 本次调用获取的素材的数量
-	Items      []MaterialInfo `json:"item"`        // 本次调用获取的素材列表
-}
-
 // 获取素材列表.
-//
-//  MaterialType: 素材的类型, 图片(image), 视频(video), 语音 (voice)
+//  materialType: 素材的类型, 图片(image), 视频(video), 语音 (voice)
 //  offset:       从全部素材的该偏移位置开始返回, 0表示从第一个素材
 //  count:        返回素材的数量, 取值在1到20之间
-func BatchGetMaterial(clt *core.Client, MaterialType string, offset, count int) (rslt *BatchGetMaterialResult, err error) {
-	switch MaterialType {
+func BatchGet(clt *core.Client, materialType string, offset, count int) (rslt *BatchGetResult, err error) {
+	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token="
+
+	switch materialType {
 	case MaterialTypeImage, MaterialTypeVideo, MaterialTypeVoice:
 	default:
-		err = fmt.Errorf("Incorrect MaterialType: %s", MaterialType)
+		err = fmt.Errorf("Incorrect materialType: %s", materialType)
 		return
 	}
 
@@ -96,33 +94,30 @@ func BatchGetMaterial(clt *core.Client, MaterialType string, offset, count int) 
 		Offset       int    `json:"offset"`
 		Count        int    `json:"count"`
 	}{
-		MaterialType: MaterialType,
+		MaterialType: materialType,
 		Offset:       offset,
 		Count:        count,
 	}
-
 	var result struct {
 		core.Error
-		BatchGetMaterialResult
+		BatchGetResult
 	}
-
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token="
 	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
-
 	if result.ErrCode != core.ErrCodeOK {
 		err = &result.Error
 		return
 	}
-
-	rslt = &result.BatchGetMaterialResult
+	rslt = &result.BatchGetResult
 	return
 }
 
+// =====================================================================================================================
+
 // MaterialIterator
 //
-//  iter, err := Client.MaterialIterator(MaterialTypeImage, 0, 10)
+//  iter, err := NewMaterialIterator(clt, MaterialTypeImage, 0, 10)
 //  if err != nil {
 //      // TODO: 增加你的代码
 //  }
@@ -135,53 +130,50 @@ func BatchGetMaterial(clt *core.Client, MaterialType string, offset, count int) 
 //      // TODO: 增加你的代码
 //  }
 type MaterialIterator struct {
-	clt *core.Client // 关联的微信 Client
+	clt *core.Client
 
-	materialType string // image, video, voice
-	nextOffset   int    // 下一次获取数据时的 offset
-	count        int    // 步长
+	materialType string
+	nextOffset   int
+	count        int
 
-	lastBatchGetMaterialResult *BatchGetMaterialResult // 最近一次获取的数据
-	nextPageHasCalled          bool                    // NextPage() 是否调用过
+	lastBatchGetResult *BatchGetResult
+	nextPageHasCalled  bool
 }
 
 func (iter *MaterialIterator) TotalCount() int {
-	return iter.lastBatchGetMaterialResult.TotalCount
+	return iter.lastBatchGetResult.TotalCount
 }
 
 func (iter *MaterialIterator) HasNext() bool {
-	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
-		return iter.lastBatchGetMaterialResult.ItemCount > 0 ||
-			iter.nextOffset < iter.lastBatchGetMaterialResult.TotalCount
+	if !iter.nextPageHasCalled {
+		return iter.lastBatchGetResult.ItemCount > 0 || iter.nextOffset < iter.lastBatchGetResult.TotalCount
 	}
-
-	return iter.nextOffset < iter.lastBatchGetMaterialResult.TotalCount
+	return iter.nextOffset < iter.lastBatchGetResult.TotalCount
 }
 
 func (iter *MaterialIterator) NextPage() (items []MaterialInfo, err error) {
-	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+	if !iter.nextPageHasCalled {
 		iter.nextPageHasCalled = true
-
-		items = iter.lastBatchGetMaterialResult.Items
+		items = iter.lastBatchGetResult.Items
 		return
 	}
 
-	rslt, err := BatchGetMaterial(iter.clt, iter.materialType, iter.nextOffset, iter.count)
+	rslt, err := BatchGet(iter.clt, iter.materialType, iter.nextOffset, iter.count)
 	if err != nil {
 		return
 	}
 
+	iter.lastBatchGetResult = rslt
 	iter.nextOffset += rslt.ItemCount
-	iter.lastBatchGetMaterialResult = rslt
 
 	items = rslt.Items
 	return
 }
 
-func CreateMaterialIterator(clt *core.Client, MaterialType string, offset, count int) (iter *MaterialIterator, err error) {
-	// 逻辑上相当于第一次调用 MaterialIterator.NextPage, 因为第一次调用 MaterialIterator.HasNext 需要数据支撑, 所以提前获取了数据
-
-	rslt, err := BatchGetMaterial(clt, MaterialType, offset, count)
+func NewMaterialIterator(clt *core.Client, materialType string, offset, count int) (iter *MaterialIterator, err error) {
+	// 逻辑上相当于第一次调用 MaterialIterator.NextPage,
+	// 因为第一次调用 MaterialIterator.HasNext 需要数据支撑, 所以提前获取了数据
+	rslt, err := BatchGet(clt, materialType, offset, count)
 	if err != nil {
 		return
 	}
@@ -189,12 +181,12 @@ func CreateMaterialIterator(clt *core.Client, MaterialType string, offset, count
 	iter = &MaterialIterator{
 		clt: clt,
 
-		materialType: MaterialType,
+		materialType: materialType,
 		nextOffset:   offset + rslt.ItemCount,
 		count:        count,
 
-		lastBatchGetMaterialResult: rslt,
-		nextPageHasCalled:          false,
+		lastBatchGetResult: rslt,
+		nextPageHasCalled:  false,
 	}
 	return
 }

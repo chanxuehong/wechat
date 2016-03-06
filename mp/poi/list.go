@@ -55,7 +55,7 @@ func PoiList(clt *core.Client, begin, limit int) (rslt *PoiListResult, err error
 
 // PoiIterator
 //
-//  iter, err := Client.PoiIterator(0, 10)
+//  iter, err := NewPoiIterator(clt, 0, 10)
 //  if err != nil {
 //      // TODO: 增加你的代码
 //  }
@@ -110,7 +110,7 @@ func (iter *PoiIterator) NextPage() (poiList []Poi, err error) {
 	return
 }
 
-func CreatePoiIterator(clt *core.Client, begin, limit int) (iter *PoiIterator, err error) {
+func NewPoiIterator(clt *core.Client, begin, limit int) (iter *PoiIterator, err error) {
 	// 逻辑上相当于第一次调用 PoiIterator.NextPage, 因为第一次调用 PoiIterator.HasNext 需要数据支撑, 所以提前获取了数据
 
 	rslt, err := PoiList(clt, begin, limit)
