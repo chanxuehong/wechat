@@ -73,7 +73,7 @@ type PageStatisticsIterator struct {
 	nextPageIndex int
 
 	lastPageListResult *PageListResult // 最近一次获取的数据
-	nextPageHasCalled  bool            // NextPage() 是否调用过
+	nextPageCalled     bool            // NextPage() 是否调用过
 }
 
 func (iter *PageStatisticsIterator) TotalCount() int {
@@ -81,7 +81,7 @@ func (iter *PageStatisticsIterator) TotalCount() int {
 }
 
 func (iter *PageStatisticsIterator) HasNext() bool {
-	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
 		return iter.lastPageListResult.ItemCount > 0
 	}
 
@@ -89,8 +89,8 @@ func (iter *PageStatisticsIterator) HasNext() bool {
 }
 
 func (iter *PageStatisticsIterator) NextPage() (statisticsList []PageStatistics, err error) {
-	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
-		iter.nextPageHasCalled = true
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
+		iter.nextPageCalled = true
 
 		statisticsList = iter.lastPageListResult.Data.PageStatisticsList
 		return
@@ -123,7 +123,7 @@ func NewPageStatisticsIterator(clt *core.Client, date int64, pageIndex int) (ite
 		nextPageIndex: pageIndex + 1,
 
 		lastPageListResult: rslt,
-		nextPageHasCalled:  false,
+		nextPageCalled:     false,
 	}
 	return
 }

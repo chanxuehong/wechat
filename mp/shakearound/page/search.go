@@ -85,8 +85,8 @@ type PageIterator struct {
 
 	nextQuery *SearchQuery // 下一次查询参数
 
-	lastSearchResult  *SearchResult // 最近一次获取的数据
-	nextPageHasCalled bool          // NextPage() 是否调用过
+	lastSearchResult *SearchResult // 最近一次获取的数据
+	nextPageCalled   bool          // NextPage() 是否调用过
 }
 
 func (iter *PageIterator) TotalCount() int {
@@ -94,7 +94,7 @@ func (iter *PageIterator) TotalCount() int {
 }
 
 func (iter *PageIterator) HasNext() bool {
-	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
 		return iter.lastSearchResult.ItemCount > 0 ||
 			*iter.nextQuery.Begin < iter.lastSearchResult.TotalCount
 	}
@@ -103,8 +103,8 @@ func (iter *PageIterator) HasNext() bool {
 }
 
 func (iter *PageIterator) NextPage() (pages []Page, err error) {
-	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
-		iter.nextPageHasCalled = true
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
+		iter.nextPageCalled = true
 
 		pages = iter.lastSearchResult.Pages
 		return
@@ -142,8 +142,8 @@ func NewPageIterator(clt *core.Client, query *SearchQuery) (iter *PageIterator, 
 
 		nextQuery: query,
 
-		lastSearchResult:  rslt,
-		nextPageHasCalled: false,
+		lastSearchResult: rslt,
+		nextPageCalled:   false,
 	}
 	return
 }

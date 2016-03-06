@@ -1,146 +1,25 @@
 package user
 
 import (
-	"errors"
-
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
-const GroupCountLimit = 100 // 一个公众账号, 最多支持创建100个分组
+// GroupId 查询用户所在分组.
+func GroupId(clt *core.Client, openId string) (groupId int64, err error) {
+	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/groups/getid?access_token="
 
-type Group struct {
-	Id        int64  `json:"id"`    // 分组id, 由微信分配
-	Name      string `json:"name"`  // 分组名字, UTF8编码
-	UserCount int    `json:"count"` // 分组内用户数量
-}
-
-// 创建分组.
-//  name: 分组名字(30个字符以内)
-func GroupCreate(clt *core.Client, name string) (group *Group, err error) {
-	if name == "" {
-		err = errors.New("empty name")
-		return
-	}
-
-	var request struct {
-		Group struct {
-			Name string `json:"name"`
-		} `json:"group"`
-	}
-	request.Group.Name = name
-
-	var result struct {
-		core.Error
-		Group `json:"group"`
-	}
-
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/groups/create?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
-		return
-	}
-
-	if result.ErrCode != core.ErrCodeOK {
-		err = &result.Error
-		return
-	}
-	result.Group.UserCount = 0 //
-	group = &result.Group
-	return
-}
-
-// 删除分组.
-//  注意本接口是删除一个用户分组, 删除分组后, 所有该分组内的用户自动进入默认分组
-func GroupDelete(clt *core.Client, groupId int64) (err error) {
-	var request struct {
-		Group struct {
-			Id int64 `json:"id"`
-		} `json:"group"`
-	}
-	request.Group.Id = groupId
-
-	var result core.Error
-
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/groups/delete?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
-		return
-	}
-
-	if result.ErrCode != core.ErrCodeOK {
-		err = &result
-		return
-	}
-	return
-}
-
-// 修改分组名.
-//  name: 分组名字(30个字符以内).
-func GroupUpdate(clt *core.Client, groupId int64, newName string) (err error) {
-	if newName == "" {
-		err = errors.New("empty newName")
-		return
-	}
-
-	var request struct {
-		Group struct {
-			Id   int64  `json:"id"`
-			Name string `json:"name"`
-		} `json:"group"`
-	}
-	request.Group.Id = groupId
-	request.Group.Name = newName
-
-	var result core.Error
-
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/groups/update?access_token="
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
-		return
-	}
-
-	if result.ErrCode != core.ErrCodeOK {
-		err = &result
-		return
-	}
-	return
-}
-
-// 查询所有分组.
-func GroupList(clt *core.Client) (groups []Group, err error) {
-	var result struct {
-		core.Error
-		Groups []Group `json:"groups"`
-	}
-
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/groups/get?access_token="
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
-		return
-	}
-
-	if result.ErrCode != core.ErrCodeOK {
-		err = &result.Error
-		return
-	}
-	groups = result.Groups
-	return
-}
-
-// 查询用户所在分组.
-func UserInWhichGroup(clt *core.Client, openId string) (groupId int64, err error) {
 	var request = struct {
 		OpenId string `json:"openid"`
 	}{
 		OpenId: openId,
 	}
-
 	var result struct {
 		core.Error
 		GroupId int64 `json:"groupid"`
 	}
-
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/groups/getid?access_token="
 	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
-
 	if result.ErrCode != core.ErrCodeOK {
 		err = &result.Error
 		return
@@ -149,8 +28,10 @@ func UserInWhichGroup(clt *core.Client, openId string) (groupId int64, err error
 	return
 }
 
-// 移动用户分组.
-func MoveUserToGroup(clt *core.Client, openId string, toGroupId int64) (err error) {
+// MoveToGroup 移动用户分组.
+func MoveToGroup(clt *core.Client, openId string, toGroupId int64) (err error) {
+	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/groups/members/update?access_token="
+
 	var request = struct {
 		OpenId    string `json:"openid"`
 		ToGroupId int64  `json:"to_groupid"`
@@ -158,14 +39,10 @@ func MoveUserToGroup(clt *core.Client, openId string, toGroupId int64) (err erro
 		OpenId:    openId,
 		ToGroupId: toGroupId,
 	}
-
 	var result core.Error
-
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/groups/members/update?access_token="
 	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
-
 	if result.ErrCode != core.ErrCodeOK {
 		err = &result
 		return
@@ -173,8 +50,10 @@ func MoveUserToGroup(clt *core.Client, openId string, toGroupId int64) (err erro
 	return
 }
 
-// 批量移动用户分组.
-func BatchMoveUserToGroup(clt *core.Client, openIdList []string, toGroupId int64) (err error) {
+// BatchMoveToGroup 批量移动用户分组.
+func BatchMoveToGroup(clt *core.Client, openIdList []string, toGroupId int64) (err error) {
+	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/groups/members/batchupdate?access_token="
+
 	if len(openIdList) <= 0 {
 		return
 	}
@@ -186,14 +65,10 @@ func BatchMoveUserToGroup(clt *core.Client, openIdList []string, toGroupId int64
 		OpenIdList: openIdList,
 		ToGroupId:  toGroupId,
 	}
-
 	var result core.Error
-
-	incompleteURL := "https://api.weixin.qq.com/cgi-bin/groups/members/batchupdate?access_token="
 	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
-
 	if result.ErrCode != core.ErrCodeOK {
 		err = &result
 		return

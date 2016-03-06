@@ -24,11 +24,11 @@ type RecordIterator struct {
 	nextGetRecordRequest *GetRecordRequest // 上一次查询的 request
 
 	lastGetRecordResult []Record // 上一次查询的 result
-	nextPageHasCalled   bool     // NextPage() 是否调用过
+	nextPageCalled      bool     // NextPage() 是否调用过
 }
 
 func (iter *RecordIterator) HasNext() bool {
-	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
 		return len(iter.lastGetRecordResult) > 0
 	}
 
@@ -37,8 +37,8 @@ func (iter *RecordIterator) HasNext() bool {
 }
 
 func (iter *RecordIterator) NextPage() (records []Record, err error) {
-	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
-		iter.nextPageHasCalled = true
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
+		iter.nextPageCalled = true
 
 		records = iter.lastGetRecordResult
 		return
@@ -69,7 +69,7 @@ func NewRecordIterator(clt *core.Client, request *GetRecordRequest) (iter *Recor
 		clt:                  clt,
 		nextGetRecordRequest: request,
 		lastGetRecordResult:  records,
-		nextPageHasCalled:    false,
+		nextPageCalled:       false,
 	}
 	return
 }

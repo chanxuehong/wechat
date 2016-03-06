@@ -137,7 +137,7 @@ type MaterialIterator struct {
 	count        int
 
 	lastBatchGetResult *BatchGetResult
-	nextPageHasCalled  bool
+	nextPageCalled     bool
 }
 
 func (iter *MaterialIterator) TotalCount() int {
@@ -145,15 +145,15 @@ func (iter *MaterialIterator) TotalCount() int {
 }
 
 func (iter *MaterialIterator) HasNext() bool {
-	if !iter.nextPageHasCalled {
+	if !iter.nextPageCalled {
 		return iter.lastBatchGetResult.ItemCount > 0 || iter.nextOffset < iter.lastBatchGetResult.TotalCount
 	}
 	return iter.nextOffset < iter.lastBatchGetResult.TotalCount
 }
 
 func (iter *MaterialIterator) NextPage() (items []MaterialInfo, err error) {
-	if !iter.nextPageHasCalled {
-		iter.nextPageHasCalled = true
+	if !iter.nextPageCalled {
+		iter.nextPageCalled = true
 		items = iter.lastBatchGetResult.Items
 		return
 	}
@@ -186,7 +186,7 @@ func NewMaterialIterator(clt *core.Client, materialType string, offset, count in
 		count:        count,
 
 		lastBatchGetResult: rslt,
-		nextPageHasCalled:  false,
+		nextPageCalled:     false,
 	}
 	return
 }

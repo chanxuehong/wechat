@@ -74,7 +74,7 @@ type PoiIterator struct {
 	count      int // 步长
 
 	lastPoiListResult *PoiListResult // 最近一次获取的数据
-	nextPageHasCalled bool           // NextPage() 是否调用过
+	nextPageCalled    bool           // NextPage() 是否调用过
 }
 
 func (iter *PoiIterator) TotalCount() int {
@@ -82,7 +82,7 @@ func (iter *PoiIterator) TotalCount() int {
 }
 
 func (iter *PoiIterator) HasNext() bool {
-	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
 		return iter.lastPoiListResult.ItemCount > 0 ||
 			iter.nextOffset < iter.lastPoiListResult.TotalCount
 	}
@@ -91,8 +91,8 @@ func (iter *PoiIterator) HasNext() bool {
 }
 
 func (iter *PoiIterator) NextPage() (poiList []Poi, err error) {
-	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
-		iter.nextPageHasCalled = true
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
+		iter.nextPageCalled = true
 
 		poiList = iter.lastPoiListResult.PoiList
 		return
@@ -125,7 +125,7 @@ func NewPoiIterator(clt *core.Client, begin, limit int) (iter *PoiIterator, err 
 		count:      limit,
 
 		lastPoiListResult: rslt,
-		nextPageHasCalled: false,
+		nextPageCalled:    false,
 	}
 	return
 }

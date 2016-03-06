@@ -93,8 +93,8 @@ type RelationIterator struct {
 
 	nextQuery *SearchQuery // 下一次查询参数
 
-	lastSearchResult  *SearchResult // 最近一次获取的数据
-	nextPageHasCalled bool          // NextPage() 是否调用过
+	lastSearchResult *SearchResult // 最近一次获取的数据
+	nextPageCalled   bool          // NextPage() 是否调用过
 }
 
 func (iter *RelationIterator) TotalCount() int {
@@ -102,7 +102,7 @@ func (iter *RelationIterator) TotalCount() int {
 }
 
 func (iter *RelationIterator) HasNext() bool {
-	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
 		return iter.lastSearchResult.ItemCount > 0 ||
 			*iter.nextQuery.Begin < iter.lastSearchResult.TotalCount
 	}
@@ -111,8 +111,8 @@ func (iter *RelationIterator) HasNext() bool {
 }
 
 func (iter *RelationIterator) NextPage() (relations []Relation, err error) {
-	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
-		iter.nextPageHasCalled = true
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
+		iter.nextPageCalled = true
 
 		relations = iter.lastSearchResult.Relations
 		return
@@ -154,8 +154,8 @@ func NewRelationIterator(clt *core.Client, query *SearchQuery) (iter *RelationIt
 
 		nextQuery: query,
 
-		lastSearchResult:  rslt,
-		nextPageHasCalled: false,
+		lastSearchResult: rslt,
+		nextPageCalled:   false,
 	}
 	return
 }

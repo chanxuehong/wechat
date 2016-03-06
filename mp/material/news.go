@@ -166,7 +166,7 @@ type NewsIterator struct {
 	count      int
 
 	lastBatchGetNewsResult *BatchGetNewsResult
-	nextPageHasCalled      bool
+	nextPageCalled         bool
 }
 
 func (iter *NewsIterator) TotalCount() int {
@@ -174,15 +174,15 @@ func (iter *NewsIterator) TotalCount() int {
 }
 
 func (iter *NewsIterator) HasNext() bool {
-	if !iter.nextPageHasCalled {
+	if !iter.nextPageCalled {
 		return iter.lastBatchGetNewsResult.ItemCount > 0 || iter.nextOffset < iter.lastBatchGetNewsResult.TotalCount
 	}
 	return iter.nextOffset < iter.lastBatchGetNewsResult.TotalCount
 }
 
 func (iter *NewsIterator) NextPage() (items []NewsInfo, err error) {
-	if !iter.nextPageHasCalled {
-		iter.nextPageHasCalled = true
+	if !iter.nextPageCalled {
+		iter.nextPageCalled = true
 		items = iter.lastBatchGetNewsResult.Items
 		return
 	}
@@ -214,7 +214,7 @@ func NewNewsIterator(clt *core.Client, offset, count int) (iter *NewsIterator, e
 		count:      count,
 
 		lastBatchGetNewsResult: rslt,
-		nextPageHasCalled:      false,
+		nextPageCalled:         false,
 	}
 	return
 }

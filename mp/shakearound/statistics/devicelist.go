@@ -73,7 +73,7 @@ type DeviceStatisticsIterator struct {
 	nextPageIndex int
 
 	lastDeviceListResult *DeviceListResult // 最近一次获取的数据
-	nextPageHasCalled    bool              // NextPage() 是否调用过
+	nextPageCalled       bool              // NextPage() 是否调用过
 }
 
 func (iter *DeviceStatisticsIterator) TotalCount() int {
@@ -81,7 +81,7 @@ func (iter *DeviceStatisticsIterator) TotalCount() int {
 }
 
 func (iter *DeviceStatisticsIterator) HasNext() bool {
-	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
 		return iter.lastDeviceListResult.ItemCount > 0
 	}
 
@@ -89,8 +89,8 @@ func (iter *DeviceStatisticsIterator) HasNext() bool {
 }
 
 func (iter *DeviceStatisticsIterator) NextPage() (statisticsList []DeviceStatistics, err error) {
-	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
-		iter.nextPageHasCalled = true
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
+		iter.nextPageCalled = true
 
 		statisticsList = iter.lastDeviceListResult.Data.DeviceStatisticsList
 		return
@@ -123,7 +123,7 @@ func NewDeviceStatisticsIterator(clt *core.Client, date int64, pageIndex int) (i
 		nextPageIndex: pageIndex + 1,
 
 		lastDeviceListResult: rslt,
-		nextPageHasCalled:    false,
+		nextPageCalled:       false,
 	}
 	return
 }

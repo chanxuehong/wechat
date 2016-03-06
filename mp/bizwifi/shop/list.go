@@ -84,8 +84,8 @@ type ShopIterator struct {
 	pageSize      int
 	nextPageIndex int
 
-	lastListResult    *ListResult // 最近一次获取的数据
-	nextPageHasCalled bool        // NextPage() 是否调用过
+	lastListResult *ListResult // 最近一次获取的数据
+	nextPageCalled bool        // NextPage() 是否调用过
 }
 
 func (iter *ShopIterator) TotalCount() int {
@@ -93,7 +93,7 @@ func (iter *ShopIterator) TotalCount() int {
 }
 
 func (iter *ShopIterator) HasNext() bool {
-	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
 		return iter.lastListResult.ItemCount > 0 ||
 			iter.nextPageIndex <= iter.lastListResult.PageCount
 	}
@@ -102,8 +102,8 @@ func (iter *ShopIterator) HasNext() bool {
 }
 
 func (iter *ShopIterator) NextPage() (records []Shop, err error) {
-	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
-		iter.nextPageHasCalled = true
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
+		iter.nextPageCalled = true
 
 		records = iter.lastListResult.Records
 		return
@@ -135,8 +135,8 @@ func NewShopIterator(clt *core.Client, pageIndex, pageSize int) (iter *ShopItera
 		pageSize:      pageSize,
 		nextPageIndex: pageIndex + 1,
 
-		lastListResult:    rslt,
-		nextPageHasCalled: false,
+		lastListResult: rslt,
+		nextPageCalled: false,
 	}
 	return
 }
