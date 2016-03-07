@@ -4,9 +4,9 @@ const (
 	// 卡券Code展示类型
 	CodeTypeText        = "CODE_TYPE_TEXT"         // 文本
 	CodeTypeBarCode     = "CODE_TYPE_BARCODE"      // 一维码
-	CodeTypeQRCode      = "CODE_TYPE_QRCODE"       // 二维码
+	CodeTypeQrcode      = "CODE_TYPE_QRCODE"       // 二维码
 	CodeTypeOnlyBarCode = "CODE_TYPE_ONLY_BARCODE" // 一维码无code显示
-	CodeTypeOnlyQRCode  = "CODE_TYPE_ONLY_QRCODE"  // 二维码无code显示
+	CodeTypeOnlyQrcode  = "CODE_TYPE_ONLY_QRCODE"  // 二维码无code显示
 )
 
 const (

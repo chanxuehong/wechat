@@ -43,6 +43,10 @@ type MixedMsg struct {
 	EventKey string      `xml:"EventKey" json:"EventKey"`
 	MenuId   json.Number `xml:"MenuId"   json:"MenuId"`
 
+	ExpiredTime int64  `xml:"ExpiredTime" json:"ExpiredTime"`
+	FailTime    int64  `xml:"FailTime"    json:"FailTime"`
+	FailReason  string `xml:"FailReason"  json:"FailReason"`
+
 	ScanCodeInfo struct {
 		ScanType   string `xml:"ScanType"   json:"ScanType"`
 		ScanResult string `xml:"ScanResult" json:"ScanResult"`

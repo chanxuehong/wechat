@@ -21,7 +21,7 @@ func Get(clt *core.Client, shopId int64, imgId int) (qrcodeURL string, err error
 	var result struct {
 		core.Error
 		Data struct {
-			QRCodeURL string `json:"qrcode_url"`
+			QrcodeURL string `json:"qrcode_url"`
 		} `json:"data"`
 	}
 
@@ -35,6 +35,6 @@ func Get(clt *core.Client, shopId int64, imgId int) (qrcodeURL string, err error
 		return
 	}
 
-	qrcodeURL = result.Data.QRCodeURL
+	qrcodeURL = result.Data.QrcodeURL
 	return
 }
