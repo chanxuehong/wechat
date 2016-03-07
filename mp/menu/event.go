@@ -1,8 +1,6 @@
 package menu
 
 import (
-	"encoding/json"
-
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
@@ -42,7 +40,7 @@ type ViewEvent struct {
 	core.MsgHeader
 	Event    core.EventType `xml:"Event"            json:"Event"`            // 事件类型, VIEW
 	EventKey string         `xml:"EventKey"         json:"EventKey"`         // 事件KEY值, 设置的跳转URL
-	MenuId   json.Number    `xml:"MenuId,omitempty" json:"MenuId,omitempty"` // 菜单ID，如果是个性化菜单，则可以通过这个字段，知道是哪个规则的菜单被点击了。
+	MenuId   int64          `xml:"MenuId,omitempty" json:"MenuId,omitempty"` // 菜单ID，如果是个性化菜单，则可以通过这个字段，知道是哪个规则的菜单被点击了。
 }
 
 func GetViewEvent(msg *core.MixedMsg) *ViewEvent {

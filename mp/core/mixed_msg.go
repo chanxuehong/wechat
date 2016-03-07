@@ -1,9 +1,5 @@
 package core
 
-import (
-	"encoding/json"
-)
-
 type (
 	MsgType   string
 	EventType string
@@ -39,9 +35,9 @@ type MixedMsg struct {
 	Description  string  `xml:"Description"  json:"Description"`
 	URL          string  `xml:"Url"          json:"Url"`
 
-	Event    EventType   `xml:"Event"    json:"Event"`
-	EventKey string      `xml:"EventKey" json:"EventKey"`
-	MenuId   json.Number `xml:"MenuId"   json:"MenuId"`
+	Event    EventType `xml:"Event"    json:"Event"`
+	EventKey string    `xml:"EventKey" json:"EventKey"`
+	MenuId   int64     `xml:"MenuId"   json:"MenuId"`
 
 	ExpiredTime int64  `xml:"ExpiredTime" json:"ExpiredTime"`
 	FailTime    int64  `xml:"FailTime"    json:"FailTime"`

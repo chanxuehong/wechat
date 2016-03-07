@@ -1,18 +1,16 @@
 package menu
 
 import (
-	"encoding/json"
-
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
 // 创建个性化菜单.
-func AddConditionalMenu(clt *core.Client, menu *Menu) (menuId json.Number, err error) {
+func AddConditionalMenu(clt *core.Client, menu *Menu) (menuId int64, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/menu/addconditional?access_token="
 
 	var result struct {
 		core.Error
-		MenuId json.Number `json:"menuId"`
+		MenuId int64 `json:"menuId"`
 	}
 	if err = clt.PostJSON(incompleteURL, menu, &result); err != nil {
 		return
@@ -26,11 +24,11 @@ func AddConditionalMenu(clt *core.Client, menu *Menu) (menuId json.Number, err e
 }
 
 // 删除个性化菜单.
-func DeleteConditionalMenu(clt *core.Client, menuId json.Number) (err error) {
+func DeleteConditionalMenu(clt *core.Client, menuId int64) (err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/menu/delconditional?access_token="
 
 	var request = struct {
-		MenuId json.Number `json:"menuid"`
+		MenuId int64 `json:"menuid"`
 	}{
 		MenuId: menuId,
 	}

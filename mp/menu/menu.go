@@ -33,19 +33,19 @@ const (
 )
 
 type Menu struct {
-	Buttons   []Button    `json:"button,omitempty"`
-	MatchRule *MatchRule  `json:"matchrule,omitempty"`
-	MenuId    json.Number `json:"menuid,omitempty"` // 有个性化菜单时查询接口返回值包含这个字段
+	Buttons   []Button   `json:"button,omitempty"`
+	MatchRule *MatchRule `json:"matchrule,omitempty"`
+	MenuId    int64      `json:"menuid,omitempty"` // 有个性化菜单时查询接口返回值包含这个字段
 }
 
 type MatchRule struct {
-	GroupId            *int64 `json:"group_id,omitempty"`
-	Sex                *int   `json:"sex,omitempty"`
-	Country            string `json:"country,omitempty"`
-	Province           string `json:"province,omitempty"`
-	City               string `json:"city,omitempty"`
-	ClientPlatformType *int   `json:"client_platform_type,omitempty"`
-	Language           string `json:"language,omitempty"`
+	GroupId            json.Number `json:"group_id,omitempty"`
+	Sex                json.Number `json:"sex,omitempty"`
+	Country            string      `json:"country,omitempty"`
+	Province           string      `json:"province,omitempty"`
+	City               string      `json:"city,omitempty"`
+	ClientPlatformType json.Number `json:"client_platform_type,omitempty"`
+	Language           string      `json:"language,omitempty"`
 }
 
 type Button struct {
