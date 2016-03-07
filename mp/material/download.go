@@ -10,6 +10,7 @@ import (
 	"os"
 	"unicode"
 
+	"github.com/chanxuehong/wechat/internal"
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
@@ -69,6 +70,7 @@ RETRY:
 	finalURL := "https://api.weixin.qq.com/cgi-bin/material/get_material?access_token=" + url.QueryEscape(token)
 
 	written, err = func() (int64, error) {
+		internal.DebugPrintPostJSONRequest(finalURL, requestBytes)
 		httpResp, err := httpClient.Post(finalURL, "application/json; charset=utf-8", bytes.NewReader(requestBytes))
 		if err != nil {
 			return 0, err
@@ -102,7 +104,7 @@ RETRY:
 		buf3 := trimLeft(buf2)
 		if bytes.HasPrefix(buf3, errRespBeginWithCode) || bytes.HasPrefix(buf3, errRespBeginWithMsg) {
 			// 返回的是错误信息
-			return 0, json.NewDecoder(httpRespBody).Decode(&result)
+			return 0, internal.JsonHttpResponseUnmarshal(httpRespBody, &result)
 		} else {
 			// 返回的是媒体流
 			return io.Copy(writer, httpRespBody)
@@ -119,14 +121,17 @@ RETRY:
 	case core.ErrCodeOK:
 		return // 基本不会出现
 	case core.ErrCodeInvalidCredential, core.ErrCodeAccessTokenExpired:
+		internal.DebugPrintRetryError(result.ErrCode, result.ErrMsg, token)
 		if !hasRetried {
 			hasRetried = true
 			result = core.Error{}
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
+			internal.DebugPrintRetryNewToken(token)
 			goto RETRY
 		}
+		internal.DebugPrintRetryFallthrough(token)
 		fallthrough
 	default:
 		err = &result

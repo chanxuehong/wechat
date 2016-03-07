@@ -1,11 +1,11 @@
 package oauth2
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 
+	"github.com/chanxuehong/wechat/internal"
 	"github.com/chanxuehong/wechat/oauth2"
 )
 
@@ -33,6 +33,7 @@ func Auth(accessToken, openId string, httpClient *http.Client) (valid bool, err 
 
 	_url := "https://api.weixin.qq.com/sns/auth?access_token=" + url.QueryEscape(accessToken) +
 		"&openid=" + url.QueryEscape(openId)
+	internal.DebugPrintGetRequest(_url)
 	httpResp, err := httpClient.Get(_url)
 	if err != nil {
 		return
@@ -45,7 +46,7 @@ func Auth(accessToken, openId string, httpClient *http.Client) (valid bool, err 
 	}
 
 	var result oauth2.Error
-	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
+	if err = internal.JsonHttpResponseUnmarshal(httpResp.Body, &result); err != nil {
 		return
 	}
 

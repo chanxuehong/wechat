@@ -2,12 +2,13 @@ package core
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"net/url"
+
+	"github.com/chanxuehong/wechat/internal"
 )
 
 type MultipartFormField struct {
@@ -87,6 +88,7 @@ RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
 
 	err = func() error {
+		internal.DebugPrintPostMultipartRequest(finalURL, requestBodyBytes)
 		httpResp, err := httpClient.Post(finalURL, requestBodyType, bytes.NewReader(requestBodyBytes))
 		if err != nil {
 			return err
@@ -96,7 +98,7 @@ RETRY:
 		if httpResp.StatusCode != http.StatusOK {
 			return fmt.Errorf("http.Status: %s", httpResp.Status)
 		}
-		return json.NewDecoder(httpResp.Body).Decode(response)
+		return internal.JsonHttpResponseUnmarshal(httpResp.Body, response)
 	}()
 	if err != nil {
 		return
@@ -106,14 +108,18 @@ RETRY:
 	case ErrCodeOK:
 		return
 	case ErrCodeInvalidCredential, ErrCodeAccessTokenExpired:
+		errMsg := ErrorStructValue.Field(errorErrMsgIndex).String()
+		internal.DebugPrintRetryError(errCode, errMsg, token)
 		if !hasRetried {
 			hasRetried = true
 			ErrorStructValue.Set(errorZeroValue)
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
+			internal.DebugPrintRetryNewToken(token)
 			goto RETRY
 		}
+		internal.DebugPrintRetryFallthrough(token)
 		fallthrough
 	default:
 		return

@@ -1,11 +1,11 @@
 package oauth2
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 
+	"github.com/chanxuehong/wechat/internal"
 	"github.com/chanxuehong/wechat/oauth2"
 )
 
@@ -58,6 +58,7 @@ func GetUserInfo(accessToken, openId, lang string, httpClient *http.Client) (inf
 	_url := "https://api.weixin.qq.com/sns/userinfo?access_token=" + url.QueryEscape(accessToken) +
 		"&openid=" + url.QueryEscape(openId) +
 		"&lang=" + lang
+	internal.DebugPrintGetRequest(_url)
 	httpResp, err := httpClient.Get(_url)
 	if err != nil {
 		return
@@ -73,7 +74,7 @@ func GetUserInfo(accessToken, openId, lang string, httpClient *http.Client) (inf
 		oauth2.Error
 		UserInfo
 	}
-	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
+	if err = internal.JsonHttpResponseUnmarshal(httpResp.Body, &result); err != nil {
 		return
 	}
 

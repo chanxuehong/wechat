@@ -1,7 +1,6 @@
 package core
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -10,6 +9,8 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/chanxuehong/wechat/internal"
 )
 
 // access_token 中控服务器接口.
@@ -141,9 +142,10 @@ func (srv *DefaultAccessTokenServer) tokenRefresh() (token accessToken, cached b
 		return
 	}
 
-	_url := "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + srv.appId +
+	url := "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + srv.appId +
 		"&secret=" + srv.appSecret
-	httpResp, err := srv.httpClient.Get(_url)
+	internal.DebugPrintGetRequest(url)
+	httpResp, err := srv.httpClient.Get(url)
 	if err != nil {
 		srv.tokenCache.Lock()
 		srv.tokenCache.token = ""
@@ -164,7 +166,7 @@ func (srv *DefaultAccessTokenServer) tokenRefresh() (token accessToken, cached b
 		Error
 		accessToken
 	}
-	if err = json.NewDecoder(httpResp.Body).Decode(&result); err != nil {
+	if err = internal.JsonHttpResponseUnmarshal(httpResp.Body, &result); err != nil {
 		srv.tokenCache.Lock()
 		srv.tokenCache.token = ""
 		srv.tokenCache.Unlock()
