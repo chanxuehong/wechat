@@ -8,7 +8,8 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/chanxuehong/wechat/internal"
+	"github.com/chanxuehong/wechat/internal/api"
+	"github.com/chanxuehong/wechat/internal/retry"
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
@@ -50,7 +51,7 @@ RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
 
 	written, err = func() (int64, error) {
-		internal.DebugPrintGetRequest(finalURL)
+		api.DebugPrintGetRequest(finalURL)
 		httpResp, err := httpClient.Get(finalURL)
 		if err != nil {
 			return 0, err
@@ -68,7 +69,7 @@ RETRY:
 			return io.Copy(writer, httpResp.Body)
 		} else {
 			// 返回的是错误信息
-			return 0, internal.JsonHttpResponseUnmarshal(httpResp.Body, &result)
+			return 0, api.JsonHttpResponseUnmarshal(httpResp.Body, &result)
 		}
 	}()
 	if err != nil {
@@ -82,17 +83,17 @@ RETRY:
 	case core.ErrCodeOK:
 		return // 基本不会出现
 	case core.ErrCodeInvalidCredential, core.ErrCodeAccessTokenExpired:
-		internal.DebugPrintRetryError(result.ErrCode, result.ErrMsg, token)
+		retry.DebugPrintError(result.ErrCode, result.ErrMsg, token)
 		if !hasRetried {
 			hasRetried = true
 			result = core.Error{}
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
-			internal.DebugPrintRetryNewToken(token)
+			retry.DebugPrintNewToken(token)
 			goto RETRY
 		}
-		internal.DebugPrintRetryFallthrough(token)
+		retry.DebugPrintFallthrough(token)
 		fallthrough
 	default:
 		err = &result

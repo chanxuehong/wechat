@@ -8,7 +8,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/chanxuehong/wechat/internal"
+	"github.com/chanxuehong/wechat/internal/api"
+	"github.com/chanxuehong/wechat/internal/retry"
 )
 
 type MultipartFormField struct {
@@ -88,7 +89,7 @@ RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
 
 	err = func() error {
-		internal.DebugPrintPostMultipartRequest(finalURL, requestBodyBytes)
+		api.DebugPrintPostMultipartRequest(finalURL, requestBodyBytes)
 		httpResp, err := httpClient.Post(finalURL, requestBodyType, bytes.NewReader(requestBodyBytes))
 		if err != nil {
 			return err
@@ -98,7 +99,7 @@ RETRY:
 		if httpResp.StatusCode != http.StatusOK {
 			return fmt.Errorf("http.Status: %s", httpResp.Status)
 		}
-		return internal.JsonHttpResponseUnmarshal(httpResp.Body, response)
+		return api.JsonHttpResponseUnmarshal(httpResp.Body, response)
 	}()
 	if err != nil {
 		return
@@ -109,17 +110,17 @@ RETRY:
 		return
 	case ErrCodeInvalidCredential, ErrCodeAccessTokenExpired:
 		errMsg := ErrorStructValue.Field(errorErrMsgIndex).String()
-		internal.DebugPrintRetryError(errCode, errMsg, token)
+		retry.DebugPrintError(errCode, errMsg, token)
 		if !hasRetried {
 			hasRetried = true
 			ErrorStructValue.Set(errorZeroValue)
 			if token, err = clt.TokenRefresh(); err != nil {
 				return
 			}
-			internal.DebugPrintRetryNewToken(token)
+			retry.DebugPrintNewToken(token)
 			goto RETRY
 		}
-		internal.DebugPrintRetryFallthrough(token)
+		retry.DebugPrintFallthrough(token)
 		fallthrough
 	default:
 		return

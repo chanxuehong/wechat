@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/chanxuehong/wechat/internal"
+	"github.com/chanxuehong/wechat/internal/api"
 )
 
 func Download(url, filepath string, httpClient *http.Client) (written int64, err error) {
@@ -42,7 +42,7 @@ func DownloadToWriter(url string, w io.Writer, httpClient *http.Client) (written
 }
 
 func downloadToWriter(url string, w io.Writer, httpClient *http.Client) (written int64, err error) {
-	internal.DebugPrintGetRequest(url)
+	api.DebugPrintGetRequest(url)
 	httpResp, err := httpClient.Get(url)
 	if err != nil {
 		return

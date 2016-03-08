@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/chanxuehong/wechat/internal"
+	"github.com/chanxuehong/wechat/internal/api"
 )
 
 // Exchange 通过 code 换取网页授权 access_token.
@@ -73,7 +73,7 @@ func (clt *Client) TokenRefresh(refreshToken string) (token *Token, err error) {
 }
 
 func (clt *Client) updateToken(tk *Token, url string) (err error) {
-	internal.DebugPrintGetRequest(url)
+	api.DebugPrintGetRequest(url)
 	httpResp, err := clt.httpClient().Get(url)
 	if err != nil {
 		return
@@ -88,7 +88,7 @@ func (clt *Client) updateToken(tk *Token, url string) (err error) {
 		Error
 		Token
 	}
-	if err = internal.JsonHttpResponseUnmarshal(httpResp.Body, &result); err != nil {
+	if err = api.JsonHttpResponseUnmarshal(httpResp.Body, &result); err != nil {
 		return
 	}
 	if result.ErrCode != ErrCodeOK {
