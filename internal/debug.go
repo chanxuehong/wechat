@@ -4,9 +4,11 @@ package internal
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 )
 
 func DebugPrintGetRequest(url string) {
@@ -15,7 +17,7 @@ func DebugPrintGetRequest(url string) {
 
 func DebugPrintPostJSONRequest(url string, body []byte) {
 	log.Println("[WECHAT_DEBUG] POST:", url)
-	log.Println("[WECHAT_DEBUG] request body:", string(body))
+	log.Println("[WECHAT_DEBUG] request body:\n", string(body))
 }
 
 func DebugPrintPostMultipartRequest(url string, body []byte) {
@@ -27,7 +29,7 @@ func JsonHttpResponseUnmarshal(r io.Reader, v interface{}) error {
 	if err != nil {
 		return err
 	}
-	log.Println("[WECHAT_DEBUG] response body:", string(body))
+	log.Println("[WECHAT_DEBUG] response body:\n", string(body))
 
 	return json.Unmarshal(body, v)
 }
@@ -48,4 +50,24 @@ func DebugPrintRetryNewToken(token string) {
 // access_token 过期重试失败打印对应的 access_token
 func DebugPrintRetryFallthrough(token string) {
 	log.Println("[WECHAT_RETRY] fallthrough, current token:", token)
+}
+
+// callback ============================================================================================================
+
+func DebugPrintCallbackRequest(r *http.Request) {
+	log.Println("[WECHAT_DEBUG] [CALLBACK]", r.Method, r.RequestURI)
+}
+
+func CallbackAesXmlRequestBodyUnmarshal(r io.Reader, v interface{}) error {
+	body, err := ioutil.ReadAll(r)
+	if err != nil {
+		return err
+	}
+	log.Println("[WECHAT_DEBUG] [CALLBACK] http body:\n", string(body))
+
+	return xml.Unmarshal(body, v)
+}
+
+func DebugPrintCallbackPlainMessage(msg []byte) {
+	log.Println("[WECHAT_DEBUG] [CALLBACK] plain message:\n", string(msg))
 }

@@ -15,6 +15,7 @@ import (
 
 	"github.com/chanxuehong/util/security"
 
+	"github.com/chanxuehong/wechat/internal"
 	"github.com/chanxuehong/wechat/util"
 )
 
@@ -114,6 +115,7 @@ func (srv *Server) SetAESKey(base64AESKey string) (err error) {
 
 // ServeHTTP 处理微信服务器的回调请求, queryParams 参数可以为 nil.
 func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams url.Values) {
+	internal.DebugPrintCallbackRequest(r)
 	if queryParams == nil {
 		queryParams = r.URL.Query()
 	}
@@ -162,7 +164,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				ToUserName         string   `xml:"ToUserName"`
 				Base64EncryptedMsg []byte   `xml:"Encrypt"`
 			}
-			if err = xml.NewDecoder(r.Body).Decode(&requestHttpBody); err != nil {
+			if err = internal.CallbackAesXmlRequestBodyUnmarshal(r.Body, &requestHttpBody); err != nil {
 				errorHandler.ServeError(w, r, err)
 				return
 			}
@@ -211,6 +213,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 					return
 				}
 			}
+			internal.DebugPrintCallbackPlainMessage(msgPlaintext)
 			haveAppId := string(haveAppIdBytes)
 			wantAppId := srv.appId
 			if wantAppId != "" && !security.SecureCompareString(haveAppId, wantAppId) {
@@ -290,6 +293,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				errorHandler.ServeError(w, r, err)
 				return
 			}
+			internal.DebugPrintCallbackPlainMessage(msgPlaintext)
 
 			var mixedMsg MixedMsg
 			if err = xml.Unmarshal(msgPlaintext, &mixedMsg); err != nil {

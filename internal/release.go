@@ -4,7 +4,9 @@ package internal
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"io"
+	"net/http"
 )
 
 func DebugPrintGetRequest(url string) {}
@@ -27,3 +29,13 @@ func DebugPrintRetryNewToken(token string) {}
 
 // access_token 过期重试失败打印对应的 access_token
 func DebugPrintRetryFallthrough(token string) {}
+
+// callback ============================================================================================================
+
+func DebugPrintCallbackRequest(r *http.Request) {}
+
+func CallbackAesXmlRequestBodyUnmarshal(r io.Reader, v interface{}) error {
+	return xml.NewDecoder(r).Decode(v)
+}
+
+func DebugPrintCallbackPlainMessage(msg []byte) {}
