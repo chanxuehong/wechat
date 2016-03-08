@@ -1,8 +1,8 @@
+// 客服聊天记录接口
 package record
 
 import (
-	"errors"
-
+	"fmt"
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
@@ -14,11 +14,7 @@ type Record struct {
 	Text      string `json:"text"`     // 聊天记录
 }
 
-const (
-	RecordPageSizeLimit = 50
-)
-
-type GetRecordRequest struct {
+type GetRequest struct {
 	StartTime int64  `json:"starttime"`        // 查询开始时间, UNIX时间戳
 	EndTime   int64  `json:"endtime"`          // 查询结束时间, UNIX时间戳, 每次查询不能跨日查询
 	PageIndex int    `json:"pageindex"`        // 查询第几页, 从1开始
@@ -26,10 +22,16 @@ type GetRecordRequest struct {
 	OpenId    string `json:"openid,omitempty"` // 普通用户的标识, 对当前公众号唯一
 }
 
-// 获取客服聊天记录
-func GetRecord(clt *core.Client, request *GetRecordRequest) (recordList []Record, err error) {
-	if request == nil {
-		err = errors.New("nil GetRecordRequest")
+// Get 获取客服聊天记录
+func Get(clt *core.Client, request *GetRequest) (list []Record, err error) {
+	const incompleteURL = "https://api.weixin.qq.com/customservice/msgrecord/getrecord?access_token="
+
+	if request.PageIndex < 1 {
+		err = fmt.Errorf("Incorrect request.PageIndex: %d", request.PageIndex)
+		return
+	}
+	if request.PageSize <= 0 {
+		err = fmt.Errorf("Incorrect request.PageSize: %d", request.PageSize)
 		return
 	}
 
@@ -37,16 +39,13 @@ func GetRecord(clt *core.Client, request *GetRecordRequest) (recordList []Record
 		core.Error
 		RecordList []Record `json:"recordlist"`
 	}
-
-	incompleteURL := "https://api.weixin.qq.com/customservice/msgrecord/getrecord?access_token="
 	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
-
 	if result.ErrCode != core.ErrCodeOK {
 		err = &result.Error
 		return
 	}
-	recordList = result.RecordList
+	list = result.RecordList
 	return
 }
