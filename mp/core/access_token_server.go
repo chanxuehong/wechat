@@ -166,7 +166,7 @@ func (srv *DefaultAccessTokenServer) tokenRefresh() (token accessToken, cached b
 		Error
 		accessToken
 	}
-	if err = api.JsonHttpResponseUnmarshal(httpResp.Body, &result); err != nil {
+	if err = api.JsonHttpResponseBodyUnmarshal(httpResp.Body, &result); err != nil {
 		srv.tokenCache.Lock()
 		srv.tokenCache.token = ""
 		srv.tokenCache.Unlock()

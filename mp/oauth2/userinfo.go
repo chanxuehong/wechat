@@ -74,7 +74,7 @@ func GetUserInfo(accessToken, openId, lang string, httpClient *http.Client) (inf
 		oauth2.Error
 		UserInfo
 	}
-	if err = api.JsonHttpResponseUnmarshal(httpResp.Body, &result); err != nil {
+	if err = api.JsonHttpResponseBodyUnmarshal(httpResp.Body, &result); err != nil {
 		return
 	}
 

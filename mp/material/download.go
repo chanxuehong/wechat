@@ -105,7 +105,7 @@ RETRY:
 		buf3 := trimLeft(buf2)
 		if bytes.HasPrefix(buf3, errRespBeginWithCode) || bytes.HasPrefix(buf3, errRespBeginWithMsg) {
 			// 返回的是错误信息
-			return 0, api.JsonHttpResponseUnmarshal(httpRespBody, &result)
+			return 0, api.JsonHttpResponseBodyUnmarshal(httpRespBody, &result)
 		} else {
 			// 返回的是媒体流
 			return io.Copy(writer, httpRespBody)

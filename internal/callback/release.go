@@ -10,7 +10,7 @@ import (
 
 func DebugPrintRequest(r *http.Request) {}
 
-func AesXmlRequestBodyUnmarshal(r io.Reader, v interface{}) error {
+func XmlHttpRequestBodyUnmarshal(r io.Reader, v interface{}) error {
 	return xml.NewDecoder(r).Decode(v)
 }
 

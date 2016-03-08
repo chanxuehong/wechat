@@ -14,7 +14,7 @@ func DebugPrintRequest(r *http.Request) {
 	log.Println("[WECHAT_DEBUG] [CALLBACK]", r.Method, r.RequestURI)
 }
 
-func AesXmlRequestBodyUnmarshal(r io.Reader, v interface{}) error {
+func XmlHttpRequestBodyUnmarshal(r io.Reader, v interface{}) error {
 	body, err := ioutil.ReadAll(r)
 	if err != nil {
 		return err

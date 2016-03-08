@@ -69,7 +69,7 @@ RETRY:
 			return io.Copy(writer, httpResp.Body)
 		} else {
 			// 返回的是错误信息
-			return 0, api.JsonHttpResponseUnmarshal(httpResp.Body, &result)
+			return 0, api.JsonHttpResponseBodyUnmarshal(httpResp.Body, &result)
 		}
 	}()
 	if err != nil {

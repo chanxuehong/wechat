@@ -15,19 +15,19 @@ func DebugPrintGetRequest(url string) {
 
 func DebugPrintPostJSONRequest(url string, body []byte) {
 	log.Println("[WECHAT_DEBUG] [API] POST", url)
-	log.Printf("[WECHAT_DEBUG] [API] request body:\n%s\n", body)
+	log.Printf("[WECHAT_DEBUG] [API] http request body:\n%s\n", body)
 }
 
 func DebugPrintPostMultipartRequest(url string, body []byte) {
 	log.Println("[WECHAT_DEBUG] [API] multipart/form-data POST", url)
 }
 
-func JsonHttpResponseUnmarshal(r io.Reader, v interface{}) error {
+func JsonHttpResponseBodyUnmarshal(r io.Reader, v interface{}) error {
 	body, err := ioutil.ReadAll(r)
 	if err != nil {
 		return err
 	}
-	log.Printf("[WECHAT_DEBUG] [API] response body:\n%s\n", body)
+	log.Printf("[WECHAT_DEBUG] [API] http response body:\n%s\n", body)
 
 	return json.Unmarshal(body, v)
 }

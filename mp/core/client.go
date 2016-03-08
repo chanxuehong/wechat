@@ -70,7 +70,7 @@ RETRY:
 		if httpResp.StatusCode != http.StatusOK {
 			return fmt.Errorf("http.Status: %s", httpResp.Status)
 		}
-		return api.JsonHttpResponseUnmarshal(httpResp.Body, response)
+		return api.JsonHttpResponseBodyUnmarshal(httpResp.Body, response)
 	}()
 	if err != nil {
 		return
@@ -147,7 +147,7 @@ RETRY:
 		if httpResp.StatusCode != http.StatusOK {
 			return fmt.Errorf("http.Status: %s", httpResp.Status)
 		}
-		return api.JsonHttpResponseUnmarshal(httpResp.Body, response)
+		return api.JsonHttpResponseBodyUnmarshal(httpResp.Body, response)
 	}()
 	if err != nil {
 		return
