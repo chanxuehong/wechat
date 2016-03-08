@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/chanxuehong/wechat/internal"
+	"github.com/chanxuehong/wechat/internal/api"
 )
 
 // 二维码图片的URL, 可以通过此URL下载二维码 或者 在线显示此二维码.
@@ -40,7 +40,7 @@ func DownloadToWriter(ticket string, writer io.Writer, clt *http.Client) (writte
 	}
 
 	url := QrcodePicURL(ticket)
-	internal.DebugPrintGetRequest(url)
+	api.DebugPrintGetRequest(url)
 	httpResp, err := clt.Get(url)
 	if err != nil {
 		return
