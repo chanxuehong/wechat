@@ -1,7 +1,7 @@
 package core
 
 import (
-	"strings"
+	"github.com/chanxuehong/wechat/util"
 )
 
 const maxHandlerChainSize = 64
@@ -73,7 +73,7 @@ func (mux *ServeMux) ServeMsg(ctx *Context) {
 // getMsgHandlerChain 获取 HandlerChain 以处理消息类型为 MsgType 的消息, 如果没有找到返回 nil.
 func (mux *ServeMux) getMsgHandlerChain(msgType MsgType) (handlers HandlerChain) {
 	if m := mux.msgHandlerChainMap; len(m) > 0 {
-		handlers = m[MsgType(strings.ToLower(string(msgType)))]
+		handlers = m[MsgType(util.ToLower(string(msgType)))]
 		if len(handlers) == 0 {
 			handlers = mux.defaultMsgHandlerChain
 		}
@@ -86,7 +86,7 @@ func (mux *ServeMux) getMsgHandlerChain(msgType MsgType) (handlers HandlerChain)
 // getEventHandlerChain 获取 HandlerChain 以处理事件类型为 EventType 的事件, 如果没有找到返回 nil.
 func (mux *ServeMux) getEventHandlerChain(eventType EventType) (handlers HandlerChain) {
 	if m := mux.eventHandlerChainMap; len(m) > 0 {
-		handlers = m[EventType(strings.ToLower(string(eventType)))]
+		handlers = m[EventType(util.ToLower(string(eventType)))]
 		if len(handlers) == 0 {
 			handlers = mux.defaultEventHandlerChain
 		}
@@ -285,7 +285,7 @@ func (mux *ServeMux) MsgHandle(msgType MsgType, handlers ...Handler) {
 			panic("handler can not be nil")
 		}
 	}
-	mux.msgHandlerChainMap[MsgType(strings.ToLower(string(msgType)))] = combineHandlerChain(mux.msgMiddlewares, handlers)
+	mux.msgHandlerChainMap[MsgType(util.ToLower(string(msgType)))] = combineHandlerChain(mux.msgMiddlewares, handlers)
 }
 
 // MsgHandleFunc 设置 handlers 以处理特定类型的消息.
@@ -303,7 +303,7 @@ func (mux *ServeMux) MsgHandleFunc(msgType MsgType, handlers ...func(*Context)) 
 	for i := 0; i < len(handlers); i++ {
 		handlers2[i] = HandlerFunc(handlers[i])
 	}
-	mux.msgHandlerChainMap[MsgType(strings.ToLower(string(msgType)))] = combineHandlerChain(mux.msgMiddlewares, handlers2)
+	mux.msgHandlerChainMap[MsgType(util.ToLower(string(msgType)))] = combineHandlerChain(mux.msgMiddlewares, handlers2)
 }
 
 // EventHandle 设置 handlers 以处理特定类型的事件.
@@ -317,7 +317,7 @@ func (mux *ServeMux) EventHandle(eventType EventType, handlers ...Handler) {
 			panic("handler can not be nil")
 		}
 	}
-	mux.eventHandlerChainMap[EventType(strings.ToLower(string(eventType)))] = combineHandlerChain(mux.eventMiddlewares, handlers)
+	mux.eventHandlerChainMap[EventType(util.ToLower(string(eventType)))] = combineHandlerChain(mux.eventMiddlewares, handlers)
 }
 
 // EventHandleFunc 设置 handlers 以处理特定类型的事件.
@@ -335,7 +335,7 @@ func (mux *ServeMux) EventHandleFunc(eventType EventType, handlers ...func(*Cont
 	for i := 0; i < len(handlers); i++ {
 		handlers2[i] = HandlerFunc(handlers[i])
 	}
-	mux.eventHandlerChainMap[EventType(strings.ToLower(string(eventType)))] = combineHandlerChain(mux.eventMiddlewares, handlers2)
+	mux.eventHandlerChainMap[EventType(util.ToLower(string(eventType)))] = combineHandlerChain(mux.eventMiddlewares, handlers2)
 }
 
 func combineHandlerChain(middlewares, handlers HandlerChain) HandlerChain {
