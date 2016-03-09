@@ -108,10 +108,21 @@ func (ctx *Context) MustGet(key string) interface{} {
 
 // Context:response ====================================================================================================
 
+// RawResponse 表示没有消息回复给微信服务器.
+func (ctx *Context) NoneResponse() (err error) {
+	_, err = ctx.ResponseWriter.Write(successResponseBytes)
+	return
+}
+
 // RawResponse 回复明文消息给微信服务器.
 //  msg: 经过 encoding/xml.Marshal 得到的结果符合微信消息格式的任何数据结构
 func (ctx *Context) RawResponse(msg interface{}) (err error) {
 	return xml.NewEncoder(ctx.ResponseWriter).Encode(msg)
+}
+
+type writer interface {
+	io.Writer
+	WriteString(s string) (n int, err error) // same as io.stringWriter.WriteString
 }
 
 // AESResponse 回复aes加密的消息给微信服务器.
@@ -139,30 +150,59 @@ func (ctx *Context) AESResponse(msg interface{}, timestamp int64, nonce string, 
 	timestampString := strconv.FormatInt(timestamp, 10)
 	msgSignature := util.MsgSign(ctx.Token, timestampString, nonce, base64EncryptedMsg)
 
-	if _, err = io.WriteString(ctx.ResponseWriter, "<xml><Encrypt>"); err != nil {
+	if w, ok := ctx.ResponseWriter.(writer); ok {
+		if _, err = w.WriteString("<xml><Encrypt>"); err != nil {
+			return
+		}
+		if _, err = w.WriteString(base64EncryptedMsg); err != nil {
+			return
+		}
+		if _, err = w.WriteString("</Encrypt><MsgSignature>"); err != nil {
+			return
+		}
+		if _, err = w.WriteString(msgSignature); err != nil {
+			return
+		}
+		if _, err = w.WriteString("</MsgSignature><TimeStamp>"); err != nil {
+			return
+		}
+		if _, err = w.WriteString(timestampString); err != nil {
+			return
+		}
+		if _, err = w.WriteString("</TimeStamp><Nonce>"); err != nil {
+			return
+		}
+		if err = xml.EscapeText(ctx.ResponseWriter, []byte(nonce)); err != nil {
+			return
+		}
+		_, err = w.WriteString("</Nonce></xml>")
+		return
+	} else { // 正常情况下不会进入这个分支, 除非标准库改变了实现, 比如 io.stringWriter 重新定义了
+		if _, err = io.WriteString(ctx.ResponseWriter, "<xml><Encrypt>"); err != nil {
+			return
+		}
+		if _, err = io.WriteString(ctx.ResponseWriter, base64EncryptedMsg); err != nil {
+			return
+		}
+		if _, err = io.WriteString(ctx.ResponseWriter, "</Encrypt><MsgSignature>"); err != nil {
+			return
+		}
+		if _, err = io.WriteString(ctx.ResponseWriter, msgSignature); err != nil {
+			return
+		}
+		if _, err = io.WriteString(ctx.ResponseWriter, "</MsgSignature><TimeStamp>"); err != nil {
+			return
+		}
+		if _, err = io.WriteString(ctx.ResponseWriter, timestampString); err != nil {
+			return
+		}
+		if _, err = io.WriteString(ctx.ResponseWriter, "</TimeStamp><Nonce>"); err != nil {
+			return
+		}
+		if err = xml.EscapeText(ctx.ResponseWriter, []byte(nonce)); err != nil {
+			return
+		}
+		_, err = io.WriteString(ctx.ResponseWriter, "</Nonce></xml>")
 		return
 	}
-	if _, err = io.WriteString(ctx.ResponseWriter, base64EncryptedMsg); err != nil {
-		return
-	}
-	if _, err = io.WriteString(ctx.ResponseWriter, "</Encrypt><MsgSignature>"); err != nil {
-		return
-	}
-	if _, err = io.WriteString(ctx.ResponseWriter, msgSignature); err != nil {
-		return
-	}
-	if _, err = io.WriteString(ctx.ResponseWriter, "</MsgSignature><TimeStamp>"); err != nil {
-		return
-	}
-	if _, err = io.WriteString(ctx.ResponseWriter, timestampString); err != nil {
-		return
-	}
-	if _, err = io.WriteString(ctx.ResponseWriter, "</TimeStamp><Nonce>"); err != nil {
-		return
-	}
-	if err = xml.EscapeText(ctx.ResponseWriter, []byte(nonce)); err != nil {
-		return
-	}
-	_, err = io.WriteString(ctx.ResponseWriter, "</Nonce></xml>")
-	return
 }

@@ -1,9 +1,5 @@
 package core
 
-import (
-	"io"
-)
-
 const maxHandlerChainSize = 64
 
 type HandlerChain []Handler
@@ -46,13 +42,15 @@ func NewServeMux() *ServeMux {
 	}
 }
 
+var successResponseBytes = []byte("success")
+
 // ServeMsg 实现 Handler 接口.
 func (mux *ServeMux) ServeMsg(ctx *Context) {
 	mux.startedChecker.start()
 	if MsgType := ctx.MixedMsg.MsgType; MsgType != "event" {
 		handlers := mux.getMsgHandlerChain(MsgType)
 		if len(handlers) == 0 {
-			io.WriteString(ctx.ResponseWriter, "success")
+			ctx.ResponseWriter.Write(successResponseBytes)
 			return
 		}
 		ctx.handlers = handlers
@@ -60,7 +58,7 @@ func (mux *ServeMux) ServeMsg(ctx *Context) {
 	} else {
 		handlers := mux.getEventHandlerChain(ctx.MixedMsg.Event)
 		if len(handlers) == 0 {
-			io.WriteString(ctx.ResponseWriter, "success")
+			ctx.ResponseWriter.Write(successResponseBytes)
 			return
 		}
 		ctx.handlers = handlers
