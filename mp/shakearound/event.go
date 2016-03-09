@@ -15,7 +15,7 @@ type UserShakeEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
 
-	Event core.EventType `xml:"Event" json:"Event"` // 事件类型，ShakearoundUserShake
+	EventType core.EventType `xml:"Event" json:"Event"` // 事件类型，ShakearoundUserShake
 
 	ChosenBeacon  ChosenBeacon   `xml:"ChosenBeacon"                         json:"ChosenBeacon"`
 	AroundBeacons []AroundBeacon `xml:"AroundBeacons>AroundBeacon,omitempty" json:"AroundBeacons,omitempty"`
@@ -40,7 +40,7 @@ type AroundBeacon struct {
 func GetUserShakeEvent(msg *core.MixedMsg) *UserShakeEvent {
 	return &UserShakeEvent{
 		MsgHeader:     msg.MsgHeader,
-		Event:         msg.Event,
+		EventType:     msg.EventType,
 		ChosenBeacon:  ChosenBeacon(msg.ChosenBeacon),
 		AroundBeacons: *(*[]AroundBeacon)(unsafe.Pointer(&msg.AroundBeacons)),
 	}

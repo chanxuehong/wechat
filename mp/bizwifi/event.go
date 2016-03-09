@@ -13,7 +13,7 @@ type WifiConnectedEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
 
-	Event core.EventType `xml:"Event" json:"Event"` // 事件类型，WifiConnected (Wi-Fi连网成功)
+	EventType core.EventType `xml:"Event" json:"Event"` // 事件类型，WifiConnected (Wi-Fi连网成功)
 
 	ConnectTime int64  `xml:"ConnectTime" json:"ConnectTime"` // 连网时间（整型）
 	ExpireTime  int64  `xml:"ExpireTime"  json:"ExpireTime"`  // 系统保留字段，固定值
@@ -25,7 +25,7 @@ type WifiConnectedEvent struct {
 func GetWifiConnectedEvent(msg *core.MixedMsg) *WifiConnectedEvent {
 	return &WifiConnectedEvent{
 		MsgHeader:   msg.MsgHeader,
-		Event:       msg.Event,
+		EventType:   msg.EventType,
 		ConnectTime: msg.ConnectTime,
 		ExpireTime:  msg.ExpireTime,
 		VendorId:    msg.VendorId,

@@ -56,7 +56,7 @@ func (mux *ServeMux) ServeMsg(ctx *Context) {
 		ctx.handlers = handlers
 		ctx.Next()
 	} else {
-		handlers := mux.getEventHandlerChain(ctx.MixedMsg.Event)
+		handlers := mux.getEventHandlerChain(ctx.MixedMsg.EventType)
 		if len(handlers) == 0 {
 			ctx.ResponseWriter.Write(successResponseBytes)
 			return

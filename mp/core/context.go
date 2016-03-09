@@ -120,9 +120,10 @@ func (ctx *Context) RawResponse(msg interface{}) (err error) {
 	return xml.NewEncoder(ctx.ResponseWriter).Encode(msg)
 }
 
-type writer interface {
-	io.Writer
-	WriteString(s string) (n int, err error) // same as io.stringWriter.WriteString
+// stringWriter is the interface that wraps the WriteString method.
+// same as io.stringWriter.
+type stringWriter interface {
+	WriteString(s string) (n int, err error)
 }
 
 // AESResponse 回复aes加密的消息给微信服务器.
@@ -150,7 +151,7 @@ func (ctx *Context) AESResponse(msg interface{}, timestamp int64, nonce string, 
 	timestampString := strconv.FormatInt(timestamp, 10)
 	msgSignature := util.MsgSign(ctx.Token, timestampString, nonce, base64EncryptedMsg)
 
-	if w, ok := ctx.ResponseWriter.(writer); ok {
+	if w, ok := ctx.ResponseWriter.(stringWriter); ok {
 		if _, err = w.WriteString("<xml><Encrypt>"); err != nil {
 			return
 		}

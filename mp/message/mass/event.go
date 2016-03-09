@@ -12,8 +12,8 @@ const (
 type MassSendJobFinishEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-	Event core.EventType `xml:"Event" json:"Event"` // 事件信息, 此处为 MASSSENDJOBFINISH
-	MsgId int64          `xml:"MsgId" json:"MsgId"` // 群发的消息ID, 64位整型
+	EventType core.EventType `xml:"Event" json:"Event"` // 事件信息, 此处为 MASSSENDJOBFINISH
+	MsgId     int64          `xml:"MsgId" json:"MsgId"` // 群发的消息ID, 64位整型
 
 	// 群发的结构, 为 "send success" 或 "send fail" 或 "err(num)".
 	// 但 send success 时, 也有可能因用户拒收公众号的消息, 系统错误等原因造成少量用户接收失败.
@@ -39,7 +39,7 @@ type MassSendJobFinishEvent struct {
 func GetMassSendJobFinishEvent(msg *core.MixedMsg) *MassSendJobFinishEvent {
 	return &MassSendJobFinishEvent{
 		MsgHeader:   msg.MsgHeader,
-		Event:       msg.Event,
+		EventType:   msg.EventType,
 		MsgId:       msg.MsgID, // NOTE
 		Status:      msg.Status,
 		TotalCount:  msg.TotalCount,

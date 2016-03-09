@@ -20,14 +20,14 @@ type CardPassCheckEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
 
-	Event  core.EventType `xml:"Event"  json:"Event"`  // 事件类型, card_pass_check
-	CardId string         `xml:"CardId" json:"CardId"` // 卡券ID
+	EventType core.EventType `xml:"Event"  json:"Event"`  // 事件类型, card_pass_check
+	CardId    string         `xml:"CardId" json:"CardId"` // 卡券ID
 }
 
 func GetCardPassCheckEvent(msg *core.MixedMsg) *CardPassCheckEvent {
 	return &CardPassCheckEvent{
 		MsgHeader: msg.MsgHeader,
-		Event:     msg.Event,
+		EventType: msg.EventType,
 		CardId:    msg.CardId,
 	}
 }
@@ -37,14 +37,14 @@ type CardNotPassCheckEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
 
-	Event  core.EventType `xml:"Event"  json:"Event"`  // 事件类型, card_not_pass_check
-	CardId string         `xml:"CardId" json:"CardId"` // 卡券ID
+	EventType core.EventType `xml:"Event"  json:"Event"`  // 事件类型, card_not_pass_check
+	CardId    string         `xml:"CardId" json:"CardId"` // 卡券ID
 }
 
 func GetCardNotPassCheckEvent(msg *core.MixedMsg) *CardNotPassCheckEvent {
 	return &CardNotPassCheckEvent{
 		MsgHeader: msg.MsgHeader,
-		Event:     msg.Event,
+		EventType: msg.EventType,
 		CardId:    msg.CardId,
 	}
 }
@@ -54,7 +54,7 @@ type UserGetCardEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
 
-	Event           core.EventType `xml:"Event"           json:"Event"`           // 事件类型, user_get_card
+	EventType       core.EventType `xml:"Event"           json:"Event"`           // 事件类型, user_get_card
 	CardId          string         `xml:"CardId"          json:"CardId"`          // 卡券ID
 	IsGiveByFriend  int            `xml:"IsGiveByFriend"  json:"IsGiveByFriend"`  // 是否为转赠, 1 代表是, 0 代表否.
 	FriendUserName  string         `xml:"FriendUserName"  json:"FriendUserName"`  // 赠送方账号(一个OpenID), "IsGiveByFriend"为1 时填写该参数.
@@ -66,7 +66,7 @@ type UserGetCardEvent struct {
 func GetUserGetCardEvent(msg *core.MixedMsg) *UserGetCardEvent {
 	return &UserGetCardEvent{
 		MsgHeader:       msg.MsgHeader,
-		Event:           msg.Event,
+		EventType:       msg.EventType,
 		CardId:          msg.CardId,
 		IsGiveByFriend:  msg.IsGiveByFriend,
 		FriendUserName:  msg.FriendUserName,
@@ -81,7 +81,7 @@ type UserDelCardEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
 
-	Event        core.EventType `xml:"Event"        json:"Event"`        // 事件类型, user_del_card
+	EventType    core.EventType `xml:"Event"        json:"Event"`        // 事件类型, user_del_card
 	CardId       string         `xml:"CardId"       json:"CardId"`       // 卡券ID
 	UserCardCode string         `xml:"UserCardCode" json:"UserCardCode"` // 商户自定义code 值. 非自定code 推送为空串
 }
@@ -89,7 +89,7 @@ type UserDelCardEvent struct {
 func GetUserDelCardEvent(msg *core.MixedMsg) *UserDelCardEvent {
 	return &UserDelCardEvent{
 		MsgHeader:    msg.MsgHeader,
-		Event:        msg.Event,
+		EventType:    msg.EventType,
 		CardId:       msg.CardId,
 		UserCardCode: msg.UserCardCode,
 	}
@@ -100,7 +100,7 @@ type UserConsumeCardEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
 
-	Event         core.EventType `xml:"Event"        json:"Event"`          // 事件类型, user_consume_card
+	EventType     core.EventType `xml:"Event"        json:"Event"`          // 事件类型, user_consume_card
 	CardId        string         `xml:"CardId"       json:"CardId"`         // 卡券ID
 	UserCardCode  string         `xml:"UserCardCode" json:"UserCardCode"`   // 商户自定义code 值. 非自定code 推送为空串
 	ConsumeSource string         `xml:"ConsumeSource" json:"ConsumeSource"` // 核销来源。支持开发者统计API核销（FROM_API）、公众平台核销（FROM_MP）、卡券商户助手核销（FROM_MOBILE_HELPER）（核销员微信号）
@@ -109,7 +109,7 @@ type UserConsumeCardEvent struct {
 func GetUserConsumeCardEvent(msg *core.MixedMsg) *UserConsumeCardEvent {
 	return &UserConsumeCardEvent{
 		MsgHeader:     msg.MsgHeader,
-		Event:         msg.Event,
+		EventType:     msg.EventType,
 		CardId:        msg.CardId,
 		UserCardCode:  msg.UserCardCode,
 		ConsumeSource: msg.ConsumeSource,
@@ -121,7 +121,7 @@ type UserViewCardEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
 
-	Event        core.EventType `xml:"Event"        json:"Event"`        // 事件类型, user_view_card
+	EventType    core.EventType `xml:"Event"        json:"Event"`        // 事件类型, user_view_card
 	CardId       string         `xml:"CardId"       json:"CardId"`       // 卡券ID
 	UserCardCode string         `xml:"UserCardCode" json:"UserCardCode"` // 商户自定义code 值. 非自定code 推送为空串
 }
@@ -129,7 +129,7 @@ type UserViewCardEvent struct {
 func GetUserViewCardEvent(msg *core.MixedMsg) *UserViewCardEvent {
 	return &UserViewCardEvent{
 		MsgHeader:    msg.MsgHeader,
-		Event:        msg.Event,
+		EventType:    msg.EventType,
 		CardId:       msg.CardId,
 		UserCardCode: msg.UserCardCode,
 	}
@@ -140,7 +140,7 @@ type UserEnterSessionFromCardEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
 
-	Event        core.EventType `xml:"Event"        json:"Event"`        // 事件类型, user_view_card
+	EventType    core.EventType `xml:"Event"        json:"Event"`        // 事件类型, user_view_card
 	CardId       string         `xml:"CardId"       json:"CardId"`       // 卡券ID
 	UserCardCode string         `xml:"UserCardCode" json:"UserCardCode"` // 商户自定义code 值. 非自定code 推送为空串
 }
@@ -148,7 +148,7 @@ type UserEnterSessionFromCardEvent struct {
 func GetUserEnterSessionFromCardEvent(msg *core.MixedMsg) *UserEnterSessionFromCardEvent {
 	return &UserEnterSessionFromCardEvent{
 		MsgHeader:    msg.MsgHeader,
-		Event:        msg.Event,
+		EventType:    msg.EventType,
 		CardId:       msg.CardId,
 		UserCardCode: msg.UserCardCode,
 	}

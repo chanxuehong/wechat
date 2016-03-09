@@ -17,15 +17,15 @@ const (
 type TemplateSendJobFinishEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-	Event  core.EventType `xml:"Event"  json:"Event"`  // 此处为 TEMPLATESENDJOBFINISH
-	MsgId  int64          `xml:"MsgId"  json:"MsgId"`  // 模板消息ID
-	Status string         `xml:"Status" json:"Status"` // 发送状态
+	EventType core.EventType `xml:"Event"  json:"Event"`  // 此处为 TEMPLATESENDJOBFINISH
+	MsgId     int64          `xml:"MsgId"  json:"MsgId"`  // 模板消息ID
+	Status    string         `xml:"Status" json:"Status"` // 发送状态
 }
 
 func GetTemplateSendJobFinishEvent(msg *core.MixedMsg) *TemplateSendJobFinishEvent {
 	return &TemplateSendJobFinishEvent{
 		MsgHeader: msg.MsgHeader,
-		Event:     msg.Event,
+		EventType: msg.EventType,
 		MsgId:     msg.MsgID, // NOTE
 		Status:    msg.Status,
 	}

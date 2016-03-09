@@ -17,14 +17,14 @@ const (
 type QualificationVerifySuccessEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-	Event       core.EventType `xml:"Event"       json:"Event"`
+	EventType   core.EventType `xml:"Event"       json:"Event"`
 	ExpiredTime int64          `xml:"ExpiredTime" json:"ExpiredTime"` // 有效期 (整形)，指的是时间戳，将于该时间戳认证过期
 }
 
 func GetQualificationVerifySuccessEvent(msg *core.MixedMsg) *QualificationVerifySuccessEvent {
 	return &QualificationVerifySuccessEvent{
 		MsgHeader:   msg.MsgHeader,
-		Event:       msg.Event,
+		EventType:   msg.EventType,
 		ExpiredTime: msg.ExpiredTime,
 	}
 }
@@ -33,7 +33,7 @@ func GetQualificationVerifySuccessEvent(msg *core.MixedMsg) *QualificationVerify
 type QualificationVerifyFailEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-	Event      core.EventType `xml:"Event"      json:"Event"`
+	EventType  core.EventType `xml:"Event"      json:"Event"`
 	FailTime   int64          `xml:"FailTime"   json:"FailTime"`   // 失败发生时间 (整形)，时间戳
 	FailReason string         `xml:"FailReason" json:"FailReason"` // 认证失败的原因
 }
@@ -41,7 +41,7 @@ type QualificationVerifyFailEvent struct {
 func GetQualificationVerifyFailEvent(msg *core.MixedMsg) *QualificationVerifyFailEvent {
 	return &QualificationVerifyFailEvent{
 		MsgHeader:  msg.MsgHeader,
-		Event:      msg.Event,
+		EventType:  msg.EventType,
 		FailTime:   msg.FailTime,
 		FailReason: msg.FailReason,
 	}
@@ -51,14 +51,14 @@ func GetQualificationVerifyFailEvent(msg *core.MixedMsg) *QualificationVerifyFai
 type NamingVerifySuccessEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-	Event       core.EventType `xml:"Event"       json:"Event"`
+	EventType   core.EventType `xml:"Event"       json:"Event"`
 	ExpiredTime int64          `xml:"ExpiredTime" json:"ExpiredTime"` // 有效期 (整形)，指的是时间戳，将于该时间戳认证过期
 }
 
 func GetNamingVerifySuccessEvent(msg *core.MixedMsg) *NamingVerifySuccessEvent {
 	return &NamingVerifySuccessEvent{
 		MsgHeader:   msg.MsgHeader,
-		Event:       msg.Event,
+		EventType:   msg.EventType,
 		ExpiredTime: msg.ExpiredTime,
 	}
 }
@@ -67,7 +67,7 @@ func GetNamingVerifySuccessEvent(msg *core.MixedMsg) *NamingVerifySuccessEvent {
 type NamingVerifyFailEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-	Event      core.EventType `xml:"Event"      json:"Event"`
+	EventType  core.EventType `xml:"Event"      json:"Event"`
 	FailTime   int64          `xml:"FailTime"   json:"FailTime"`   // 失败发生时间 (整形)，时间戳
 	FailReason string         `xml:"FailReason" json:"FailReason"` // 认证失败的原因
 }
@@ -75,7 +75,7 @@ type NamingVerifyFailEvent struct {
 func GetNamingVerifyFailEvent(msg *core.MixedMsg) *NamingVerifyFailEvent {
 	return &NamingVerifyFailEvent{
 		MsgHeader:  msg.MsgHeader,
-		Event:      msg.Event,
+		EventType:  msg.EventType,
 		FailTime:   msg.FailTime,
 		FailReason: msg.FailReason,
 	}
@@ -85,14 +85,14 @@ func GetNamingVerifyFailEvent(msg *core.MixedMsg) *NamingVerifyFailEvent {
 type AnnualRenewEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-	Event       core.EventType `xml:"Event"       json:"Event"`
+	EventType   core.EventType `xml:"Event"       json:"Event"`
 	ExpiredTime int64          `xml:"ExpiredTime" json:"ExpiredTime"` // 有效期 (整形)，指的是时间戳，将于该时间戳认证过期，需尽快年审
 }
 
 func GetAnnualRenewEvent(msg *core.MixedMsg) *AnnualRenewEvent {
 	return &AnnualRenewEvent{
 		MsgHeader:   msg.MsgHeader,
-		Event:       msg.Event,
+		EventType:   msg.EventType,
 		ExpiredTime: msg.ExpiredTime,
 	}
 }
@@ -101,14 +101,14 @@ func GetAnnualRenewEvent(msg *core.MixedMsg) *AnnualRenewEvent {
 type VerifyExpiredEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	core.MsgHeader
-	Event       core.EventType `xml:"Event"       json:"Event"`
+	EventType   core.EventType `xml:"Event"       json:"Event"`
 	ExpiredTime int64          `xml:"ExpiredTime" json:"ExpiredTime"` // 有效期 (整形)，指的是时间戳，表示已于该时间戳认证过期，需要重新发起微信认证
 }
 
 func GetVerifyExpiredEvent(msg *core.MixedMsg) *VerifyExpiredEvent {
 	return &VerifyExpiredEvent{
 		MsgHeader:   msg.MsgHeader,
-		Event:       msg.Event,
+		EventType:   msg.EventType,
 		ExpiredTime: msg.ExpiredTime,
 	}
 }
