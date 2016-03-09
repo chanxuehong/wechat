@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/base64"
 	"encoding/xml"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -125,7 +126,7 @@ func (ctx *Context) AESResponse(msg interface{}, timestamp int64, nonce string, 
 	if nonce == "" {
 		nonce = ctx.Nonce
 	}
-	if random == nil {
+	if len(random) == 0 {
 		random = ctx.Random
 	}
 
@@ -133,22 +134,35 @@ func (ctx *Context) AESResponse(msg interface{}, timestamp int64, nonce string, 
 	if err != nil {
 		return
 	}
-
 	encryptedMsg := util.AESEncryptMsg(random, msgPlaintext, ctx.AppId, ctx.AESKey)
 	base64EncryptedMsg := base64.StdEncoding.EncodeToString(encryptedMsg)
-
 	timestampString := strconv.FormatInt(timestamp, 10)
-	responseHttpBody := struct {
-		XMLName            struct{} `xml:"xml"`
-		Base64EncryptedMsg string   `xml:"Encrypt"`
-		MsgSignature       string   `xml:"MsgSignature"`
-		Timestamp          string   `xml:"TimeStamp"`
-		Nonce              string   `xml:"Nonce"`
-	}{
-		Base64EncryptedMsg: base64EncryptedMsg,
-		MsgSignature:       util.MsgSign(ctx.Token, timestampString, nonce, base64EncryptedMsg),
-		Timestamp:          timestampString,
-		Nonce:              nonce,
+	msgSignature := util.MsgSign(ctx.Token, timestampString, nonce, base64EncryptedMsg)
+
+	if _, err = io.WriteString(ctx.ResponseWriter, "<xml><Encrypt>"); err != nil {
+		return
 	}
-	return xml.NewEncoder(ctx.ResponseWriter).Encode(&responseHttpBody)
+	if _, err = io.WriteString(ctx.ResponseWriter, base64EncryptedMsg); err != nil {
+		return
+	}
+	if _, err = io.WriteString(ctx.ResponseWriter, "</Encrypt><MsgSignature>"); err != nil {
+		return
+	}
+	if _, err = io.WriteString(ctx.ResponseWriter, msgSignature); err != nil {
+		return
+	}
+	if _, err = io.WriteString(ctx.ResponseWriter, "</MsgSignature><TimeStamp>"); err != nil {
+		return
+	}
+	if _, err = io.WriteString(ctx.ResponseWriter, timestampString); err != nil {
+		return
+	}
+	if _, err = io.WriteString(ctx.ResponseWriter, "</TimeStamp><Nonce>"); err != nil {
+		return
+	}
+	if err = xml.EscapeText(ctx.ResponseWriter, []byte(nonce)); err != nil {
+		return
+	}
+	_, err = io.WriteString(ctx.ResponseWriter, "</Nonce></xml>")
+	return
 }
