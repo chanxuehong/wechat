@@ -84,8 +84,8 @@ type MixedMsg struct {
 }
 
 type mass struct {
-	//MsgID       int64  `xml:"MsgID"  json:"MsgID"`
-	//Status      string `xml:"Status" json:"Status"`
+	//MsgID       int64  `xml:"MsgID"       json:"MsgID"`
+	//Status      string `xml:"Status"      json:"Status"`
 	TotalCount  int `xml:"TotalCount"  json:"TotalCount"`
 	FilterCount int `xml:"FilterCount" json:"FilterCount"`
 	SentCount   int `xml:"SentCount"   json:"SentCount"`
