@@ -120,7 +120,9 @@ func (clt *Client) PostJSON(incompleteURL string, request interface{}, response 
 		return
 	}
 	requestBodyBytes := bodyBuf.Bytes()
-	const requestBodyType = "application/json; charset=utf-8"
+	if i := len(requestBodyBytes) - 1; i >= 0 && requestBodyBytes[i] == '\n' {
+		requestBodyBytes = requestBodyBytes[:i] // 去掉最后的 '\n', 这样能统一log格式, 不然可能多一个空白行
+	}
 
 	httpClient := clt.HttpClient
 	if httpClient == nil {
@@ -138,7 +140,7 @@ RETRY:
 
 	err = func() error {
 		api.DebugPrintPostJSONRequest(finalURL, requestBodyBytes)
-		httpResp, err := httpClient.Post(finalURL, requestBodyType, bytes.NewReader(requestBodyBytes))
+		httpResp, err := httpClient.Post(finalURL, "application/json; charset=utf-8", bytes.NewReader(requestBodyBytes))
 		if err != nil {
 			return err
 		}
