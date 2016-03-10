@@ -59,10 +59,10 @@ type ScanCodePushEvent struct {
 	EventType core.EventType `xml:"Event"    json:"Event"`    // 事件类型, scancode_push
 	EventKey  string         `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
 
-	ScanCodeInfo struct {
+	ScanCodeInfo *struct {
 		ScanType   string `xml:"ScanType"   json:"ScanType"`   // 扫描类型, 一般是qrcode
 		ScanResult string `xml:"ScanResult" json:"ScanResult"` // 扫描结果, 即二维码对应的字符串信息
-	} `xml:"ScanCodeInfo" json:"ScanCodeInfo"`
+	} `xml:"ScanCodeInfo,omitempty" json:"ScanCodeInfo,omitempty"`
 }
 
 func GetScanCodePushEvent(msg *core.MixedMsg) *ScanCodePushEvent {
@@ -81,10 +81,10 @@ type ScanCodeWaitMsgEvent struct {
 	EventType core.EventType `xml:"Event"    json:"Event"`    // 事件类型, scancode_waitmsg
 	EventKey  string         `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
 
-	ScanCodeInfo struct {
+	ScanCodeInfo *struct {
 		ScanType   string `xml:"ScanType"   json:"ScanType"`   // 扫描类型, 一般是qrcode
 		ScanResult string `xml:"ScanResult" json:"ScanResult"` // 扫描结果, 即二维码对应的字符串信息
-	} `xml:"ScanCodeInfo" json:"ScanCodeInfo"`
+	} `xml:"ScanCodeInfo,omitempty" json:"ScanCodeInfo,omitempty"`
 }
 
 func GetScanCodeWaitMsgEvent(msg *core.MixedMsg) *ScanCodeWaitMsgEvent {
@@ -103,12 +103,12 @@ type PicSysPhotoEvent struct {
 	EventType core.EventType `xml:"Event"    json:"Event"`    // 事件类型, pic_sysphoto
 	EventKey  string         `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
 
-	SendPicsInfo struct {
+	SendPicsInfo *struct {
 		Count   int `xml:"Count" json:"Count"`
 		PicList []struct {
 			PicMd5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"`
 		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"`
-	} `xml:"SendPicsInfo" json:"SendPicsInfo"`
+	} `xml:"SendPicsInfo,omitempty" json:"SendPicsInfo,omitempty"`
 }
 
 func GetPicSysPhotoEvent(msg *core.MixedMsg) *PicSysPhotoEvent {
@@ -127,12 +127,12 @@ type PicPhotoOrAlbumEvent struct {
 	EventType core.EventType `xml:"Event"    json:"Event"`    // 事件类型, pic_photo_or_album
 	EventKey  string         `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
 
-	SendPicsInfo struct {
+	SendPicsInfo *struct {
 		Count   int `xml:"Count" json:"Count"`
 		PicList []struct {
 			PicMd5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"`
 		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"`
-	} `xml:"SendPicsInfo" json:"SendPicsInfo"`
+	} `xml:"SendPicsInfo,omitempty" json:"SendPicsInfo,omitempty"`
 }
 
 func GetPicPhotoOrAlbumEvent(msg *core.MixedMsg) *PicPhotoOrAlbumEvent {
@@ -151,12 +151,12 @@ type PicWeixinEvent struct {
 	EventType core.EventType `xml:"Event"    json:"Event"`    // 事件类型, pic_weixin
 	EventKey  string         `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
 
-	SendPicsInfo struct {
+	SendPicsInfo *struct {
 		Count   int `xml:"Count" json:"Count"`
 		PicList []struct {
 			PicMd5Sum string `xml:"PicMd5Sum" json:"PicMd5Sum"`
 		} `xml:"PicList>item,omitempty" json:"PicList,omitempty"`
-	} `xml:"SendPicsInfo" json:"SendPicsInfo"`
+	} `xml:"SendPicsInfo,omitempty" json:"SendPicsInfo,omitempty"`
 }
 
 func GetPicWeixinEvent(msg *core.MixedMsg) *PicWeixinEvent {
@@ -175,13 +175,13 @@ type LocationSelectEvent struct {
 	EventType core.EventType `xml:"Event"    json:"Event"`    // 事件类型, location_select
 	EventKey  string         `xml:"EventKey" json:"EventKey"` // 事件KEY值, 由开发者在创建菜单时设定
 
-	SendLocationInfo struct {
+	SendLocationInfo *struct {
 		LocationX float64 `xml:"Location_X" json:"Location_X"` // 地理位置纬度
 		LocationY float64 `xml:"Location_Y" json:"Location_Y"` // 地理位置经度
 		Scale     int     `xml:"Scale"      json:"Scale"`      // 精度, 可理解为精度或者比例尺, 越精细的话 scale越高
 		Label     string  `xml:"Label"      json:"Label"`      // 地理位置的字符串信息
 		PoiName   string  `xml:"Poiname"    json:"Poiname"`    // 朋友圈POI的名字, 可能为空
-	} `xml:"SendLocationInfo" json:"SendLocationInfo"`
+	} `xml:"SendLocationInfo,omitempty" json:"SendLocationInfo,omitempty"`
 }
 
 func GetLocationSelectEvent(msg *core.MixedMsg) *LocationSelectEvent {
