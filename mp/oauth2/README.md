@@ -19,10 +19,10 @@ import (
 )
 
 const (
-	wxAppId           = "appid"        // 填上自己的参数
-	wxAppSecret       = "app_secret"   // 填上自己的参数
-	oauth2RedirectURI = "redirect_uri" // 填上自己的参数
-	oauth2Scope       = "scope"        // 填上自己的参数
+	wxAppId           = "APPID"                           // 填上自己的参数
+	wxAppSecret       = "APPSECRET"                       // 填上自己的参数
+	oauth2RedirectURI = "http://192.168.1.129:8080/page2" // 填上自己的参数
+	oauth2Scope       = "snsapi_userinfo"                 // 填上自己的参数
 )
 
 var (
@@ -134,15 +134,14 @@ func main() {
 
 #### 上面的程序基本上会打印下面的内容
 ```
-2016/03/11 13:49:56 AuthCodeURL: https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx7aa843bc1a414ca4&redirect_uri=http%3A%2F%2F192.168.1.129%3A8080%2Fpage2&response_type=code&scope=snsapi_userinfo&state=6172a4d8fc646efebb0589a8425e24ad#wechat_redirect
-2016/03/11 13:50:05 AuthCodeURL: https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx7aa843bc1a414ca4&redirect_uri=http%3A%2F%2F192.168.1.129%3A8080%2Fpage2&response_type=code&scope=snsapi_userinfo&state=25a2520bb45194e219baa75c518fdd4c#wechat_redirect
-2016/03/11 13:50:08 /page2?code=011e84a8d7d5cbf8f92cb0a7d3ac74eH&state=25a2520bb45194e219baa75c518fdd4c
-2016/03/11 13:50:08 [WECHAT_DEBUG] [API] GET https://api.weixin.qq.com/sns/oauth2/access_token?appid=wx7aa843bc1a414ca4&secret=03a8ffc8fec1fa6a3d810d7f2c60c133&code=011e84a8d7d5cbf8f92cb0a7d3ac74eH&grant_type=authorization_code
-2016/03/11 13:50:08 [WECHAT_DEBUG] [API] http response body:
-{"access_token":"OezXcEiiBSKSxW0eoylIeBXr5MlyOHqjC6Db82eo0Txphdi2X9hT8lI2PqjpL0rC_ZstDSrFZQfXzElMr7hXecvs5dy1kf2JdbvTMimOkt16K2yr2F7VtvCP1zcpDUXglDF6M6Wg6SRlZgo2mfv7pw","expires_in":7200,"refresh_token":"OezXcEiiBSKSxW0eoylIeBXr5MlyOHqjC6Db82eo0Txphdi2X9hT8lI2PqjpL0rCgJ9YKeHtmxFMbXmnxm_Vo3PrjEWso7DOtvBxtvQYq6K7l9Mrk59JgqGGYpwCSUYbkn76JJCGvL0JjH5pywINug","openid":"os-IKuHd9pJ6xsn4mS7GyL4HxqI4","scope":"snsapi_userinfo"}
-2016/03/11 13:50:08 token: &{AccessToken:OezXcEiiBSKSxW0eoylIeBXr5MlyOHqjC6Db82eo0Txphdi2X9hT8lI2PqjpL0rC_ZstDSrFZQfXzElMr7hXecvs5dy1kf2JdbvTMimOkt16K2yr2F7VtvCP1zcpDUXglDF6M6Wg6SRlZgo2mfv7pw CreatedAt:1457675408 ExpiresIn:6000 RefreshToken:OezXcEiiBSKSxW0eoylIeBXr5MlyOHqjC6Db82eo0Txphdi2X9hT8lI2PqjpL0rCgJ9YKeHtmxFMbXmnxm_Vo3PrjEWso7DOtvBxtvQYq6K7l9Mrk59JgqGGYpwCSUYbkn76JJCGvL0JjH5pywINug OpenId:os-IKuHd9pJ6xsn4mS7GyL4HxqI4 UnionId: Scope:snsapi_userinfo}
-2016/03/11 13:50:08 [WECHAT_DEBUG] [API] GET https://api.weixin.qq.com/sns/userinfo?access_token=OezXcEiiBSKSxW0eoylIeBXr5MlyOHqjC6Db82eo0Txphdi2X9hT8lI2PqjpL0rC_ZstDSrFZQfXzElMr7hXecvs5dy1kf2JdbvTMimOkt16K2yr2F7VtvCP1zcpDUXglDF6M6Wg6SRlZgo2mfv7pw&openid=os-IKuHd9pJ6xsn4mS7GyL4HxqI4&lang=zh_CN
-2016/03/11 13:50:08 [WECHAT_DEBUG] [API] http response body:
+2016/03/11 14:44:10 AuthCodeURL: https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&redirect_uri=http%3A%2F%2F192.168.1.129%3A8080%2Fpage2&response_type=code&scope=snsapi_userinfo&state=12fa275bac6998ba8f89a5baf13f93a0#wechat_redirect
+2016/03/11 14:44:12 /page2?code=001e44d3e2972606638027b31e61a8dH&state=12fa275bac6998ba8f89a5baf13f93a0
+2016/03/11 14:44:12 [WECHAT_DEBUG] [API] GET https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&secret=APPSECRET&code=001e44d3e2972606638027b31e61a8dH&grant_type=authorization_code
+2016/03/11 14:44:13 [WECHAT_DEBUG] [API] http response body:
+{"access_token":"OezXcEiiBSKSxW0eoylIeBXr5MlyOHqjC6Db82eo0Txphdi2X9hT8lI2PqjpL0rCFVQjLdSs4v2GQXE8BcLRz1hCQHL6wWXl9013zYMOAvE1UGCV4q-xAIlRVuDa85Mqnqw9himuhlgFUP2Kn0qcFg","expires_in":7200,"refresh_token":"OezXcEiiBSKSxW0eoylIeBXr5MlyOHqjC6Db82eo0Txphdi2X9hT8lI2PqjpL0rCZP99UMCpbrq8v2TWR7uxK5fb0ekmVFl9L1kUOsh1mjQy6rhQG5sGqFBKrkzPr9KQbjTxrvFtscFPmCOMuKi9EQ","openid":"os-IKuHd9pJ6xsn4mS7GyL4HxqI4","scope":"snsapi_userinfo"}
+2016/03/11 14:44:13 token: &{AccessToken:OezXcEiiBSKSxW0eoylIeBXr5MlyOHqjC6Db82eo0Txphdi2X9hT8lI2PqjpL0rCFVQjLdSs4v2GQXE8BcLRz1hCQHL6wWXl9013zYMOAvE1UGCV4q-xAIlRVuDa85Mqnqw9himuhlgFUP2Kn0qcFg CreatedAt:1457678653 ExpiresIn:6000 RefreshToken:OezXcEiiBSKSxW0eoylIeBXr5MlyOHqjC6Db82eo0Txphdi2X9hT8lI2PqjpL0rCZP99UMCpbrq8v2TWR7uxK5fb0ekmVFl9L1kUOsh1mjQy6rhQG5sGqFBKrkzPr9KQbjTxrvFtscFPmCOMuKi9EQ OpenId:os-IKuHd9pJ6xsn4mS7GyL4HxqI4 UnionId: Scope:snsapi_userinfo}
+2016/03/11 14:44:13 [WECHAT_DEBUG] [API] GET https://api.weixin.qq.com/sns/userinfo?access_token=OezXcEiiBSKSxW0eoylIeBXr5MlyOHqjC6Db82eo0Txphdi2X9hT8lI2PqjpL0rCFVQjLdSs4v2GQXE8BcLRz1hCQHL6wWXl9013zYMOAvE1UGCV4q-xAIlRVuDa85Mqnqw9himuhlgFUP2Kn0qcFg&openid=os-IKuHd9pJ6xsn4mS7GyL4HxqI4&lang=zh_CN
+2016/03/11 14:44:13 [WECHAT_DEBUG] [API] http response body:
 {"openid":"os-IKuHd9pJ6xsn4mS7GyL4HxqI4","nickname":"产学红","sex":1,"language":"zh_CN","city":"安庆","province":"安徽","country":"中国","headimgurl":"http:\/\/wx.qlogo.cn\/mmopen\/O1HUibMqqHXduhNiagwbE0m4zgJU2YbFkyZPG6VoH8IP2wEdFuWcnjUtrXHNl1OmCsoffYBBnkC0cy1yfsOibcenaAn2SeRNKYw\/0","privilege":[]}
-2016/03/11 13:50:08 userinfo: &{OpenId:os-IKuHd9pJ6xsn4mS7GyL4HxqI4 Nickname:产学红 Sex:1 City:安庆 Province:安徽 Country:中国 HeadImageURL:http://wx.qlogo.cn/mmopen/O1HUibMqqHXduhNiagwbE0m4zgJU2YbFkyZPG6VoH8IP2wEdFuWcnjUtrXHNl1OmCsoffYBBnkC0cy1yfsOibcenaAn2SeRNKYw/0 Privilege:[] UnionId:}
+2016/03/11 14:44:13 userinfo: &{OpenId:os-IKuHd9pJ6xsn4mS7GyL4HxqI4 Nickname:产学红 Sex:1 City:安庆 Province:安徽 Country:中国 HeadImageURL:http://wx.qlogo.cn/mmopen/O1HUibMqqHXduhNiagwbE0m4zgJU2YbFkyZPG6VoH8IP2wEdFuWcnjUtrXHNl1OmCsoffYBBnkC0cy1yfsOibcenaAn2SeRNKYw/0 Privilege:[] UnionId:}
 ```
