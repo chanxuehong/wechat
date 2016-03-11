@@ -10,17 +10,17 @@ import (
 	"github.com/chanxuehong/wechat/internal/api"
 )
 
-// Exchange 通过 code 换取网页授权 access_token.
+// ExchangeToken 通过 code 换取网页授权 access_token.
 //  NOTE: 返回的 token == clt.Token
-func (clt *Client) Exchange(code string) (token *Token, err error) {
-	if clt.Config == nil {
-		err = errors.New("nil Client.Config")
+func (clt *Client) ExchangeToken(code string) (token *Token, err error) {
+	if clt.Endpoint == nil {
+		err = errors.New("nil Client.Endpoint")
 		return
 	}
 
 	var tk *Token
 	if clt.TokenStorage != nil {
-		if tk, _ = clt.TokenStorage.Get(); tk == nil {
+		if tk, _ = clt.TokenStorage.Token(); tk == nil {
 			tk = clt.Token
 		} else {
 			clt.Token = tk // update local
@@ -32,7 +32,7 @@ func (clt *Client) Exchange(code string) (token *Token, err error) {
 		tk = new(Token)
 	}
 
-	if err = clt.updateToken(tk, clt.Config.ExchangeTokenURL(code)); err != nil {
+	if err = clt.updateToken(tk, clt.Endpoint.ExchangeTokenURL(code)); err != nil {
 		return
 	}
 	if err = clt.putToken(tk); err != nil {
@@ -42,13 +42,13 @@ func (clt *Client) Exchange(code string) (token *Token, err error) {
 	return
 }
 
-// TokenRefresh 刷新 access_token.
+// RefreshToken 刷新 access_token.
 //  NOTE:
-//  1. 返回的 token == clt.Token
-//  2. refreshToken 可以为空.
-func (clt *Client) TokenRefresh(refreshToken string) (token *Token, err error) {
-	if clt.Config == nil {
-		err = errors.New("nil Client.Config")
+//  1. refreshToken 可以为空.
+//  2. 返回的 token == clt.Token
+func (clt *Client) RefreshToken(refreshToken string) (token *Token, err error) {
+	if clt.Endpoint == nil {
+		err = errors.New("nil Client.Endpoint")
 		return
 	}
 
@@ -62,7 +62,7 @@ func (clt *Client) TokenRefresh(refreshToken string) (token *Token, err error) {
 		tk = new(Token)
 	}
 
-	if err = clt.updateToken(tk, clt.Config.RefreshTokenURL(refreshToken)); err != nil {
+	if err = clt.updateToken(tk, clt.Endpoint.RefreshTokenURL(refreshToken)); err != nil {
 		return
 	}
 	if err = clt.putToken(tk); err != nil {
@@ -113,7 +113,20 @@ func (clt *Client) updateToken(tk *Token, url string) (err error) {
 		return errors.New("expires_in too small: " + strconv.FormatInt(result.ExpiresIn, 10))
 	}
 
-	result.Token.CreatedAt = time.Now().Unix()
-	*tk = result.Token
+	tk.AccessToken = result.AccessToken
+	tk.CreatedAt = time.Now().Unix()
+	tk.ExpiresIn = result.ExpiresIn
+	if result.RefreshToken != "" {
+		tk.RefreshToken = result.RefreshToken
+	}
+	if result.OpenId != "" {
+		tk.OpenId = result.OpenId
+	}
+	if result.UnionId != "" {
+		tk.UnionId = result.UnionId
+	}
+	if result.Scope != "" {
+		tk.Scope = result.Scope
+	}
 	return
 }

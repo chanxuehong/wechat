@@ -6,9 +6,9 @@ import (
 )
 
 type Client struct {
-	Config Config
+	Endpoint Endpoint
 
-	// TokenStorage, Token 两个字段正常情况下只用指定一个, 如果两个同时被指定了, 优先使用 TokenStorage;
+	// TokenStorage 和 Token 两个字段正常情况下只用指定一个, 如果两个同时被指定了, 优先使用 TokenStorage
 	TokenStorage TokenStorage
 	Token        *Token // Client 自动将最新的 Token 更新到此字段, 不管 Token 字段一开始是否被指定!!!
 
@@ -25,11 +25,11 @@ func (clt *Client) httpClient() *http.Client {
 // GetToken 获取 Token, autoRefresh 为 true 时如果 Token 过期则自动刷新.
 func (clt *Client) GetToken(autoRefresh bool) (tk *Token, err error) {
 	if clt.TokenStorage != nil {
-		if tk, err = clt.TokenStorage.Get(); err != nil {
+		if tk, err = clt.TokenStorage.Token(); err != nil {
 			return
 		}
 		if tk == nil {
-			err = errors.New("incorrect TokenStorage.Get implementation")
+			err = errors.New("incorrect TokenStorage.Token implementation")
 			return
 		}
 		clt.Token = tk // update local
@@ -41,14 +41,14 @@ func (clt *Client) GetToken(autoRefresh bool) (tk *Token, err error) {
 		}
 	}
 	if autoRefresh && tk.Expired() {
-		return clt.TokenRefresh(tk.RefreshToken)
+		return clt.RefreshToken(tk.RefreshToken)
 	}
 	return
 }
 
 func (clt *Client) putToken(tk *Token) (err error) {
 	if clt.TokenStorage != nil {
-		if err = clt.TokenStorage.Put(tk); err != nil {
+		if err = clt.TokenStorage.PutToken(tk); err != nil {
 			return
 		}
 	}
