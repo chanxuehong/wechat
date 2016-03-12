@@ -14,4 +14,12 @@ func XmlHttpRequestBodyUnmarshal(r io.Reader, v interface{}) error {
 	return xml.NewDecoder(r).Decode(v)
 }
 
-func DebugPrintPlainMessage(msg []byte) {}
+func DebugPrintPlainRequestMessage(msg []byte) {}
+
+func XmlRawResponse(w io.Writer, msg interface{}) (err error) {
+	return xml.NewEncoder(w).Encode(msg)
+}
+
+func DebugPrintPlainResponseMessage(msg []byte) {}
+
+func DebugPrintCipherResponseMessage(msg, msgSignature, timestamp, nonce string) {}

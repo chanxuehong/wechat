@@ -213,7 +213,8 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 					return
 				}
 			}
-			callback.DebugPrintPlainMessage(msgPlaintext)
+			callback.DebugPrintPlainRequestMessage(msgPlaintext)
+
 			haveAppId := string(haveAppIdBytes)
 			wantAppId := srv.appId
 			if wantAppId != "" && !security.SecureCompareString(haveAppId, wantAppId) {
@@ -293,7 +294,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				errorHandler.ServeError(w, r, err)
 				return
 			}
-			callback.DebugPrintPlainMessage(msgPlaintext)
+			callback.DebugPrintPlainRequestMessage(msgPlaintext)
 
 			var mixedMsg MixedMsg
 			if err = xml.Unmarshal(msgPlaintext, &mixedMsg); err != nil {

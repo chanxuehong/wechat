@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/chanxuehong/wechat/internal/callback"
 	"github.com/chanxuehong/wechat/util"
 )
 
@@ -117,7 +118,7 @@ func (ctx *Context) NoneResponse() (err error) {
 // RawResponse 回复明文消息给微信服务器.
 //  msg: 经过 encoding/xml.Marshal 得到的结果符合微信消息格式的任何数据结构
 func (ctx *Context) RawResponse(msg interface{}) (err error) {
-	return xml.NewEncoder(ctx.ResponseWriter).Encode(msg)
+	return callback.XmlRawResponse(ctx.ResponseWriter, msg)
 }
 
 // stringWriter is the interface that wraps the WriteString method.
@@ -146,10 +147,14 @@ func (ctx *Context) AESResponse(msg interface{}, timestamp int64, nonce string, 
 	if err != nil {
 		return
 	}
+	callback.DebugPrintPlainResponseMessage(msgPlaintext)
+
 	encryptedMsg := util.AESEncryptMsg(random, msgPlaintext, ctx.AppId, ctx.AESKey)
 	base64EncryptedMsg := base64.StdEncoding.EncodeToString(encryptedMsg)
 	timestampString := strconv.FormatInt(timestamp, 10)
 	msgSignature := util.MsgSign(ctx.Token, timestampString, nonce, base64EncryptedMsg)
+
+	callback.DebugPrintCipherResponseMessage(base64EncryptedMsg, msgSignature, timestampString, nonce)
 
 	if w, ok := ctx.ResponseWriter.(stringWriter); ok {
 		if _, err = w.WriteString("<xml><Encrypt>"); err != nil {

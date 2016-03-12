@@ -3,6 +3,7 @@
 package callback
 
 import (
+	"bytes"
 	"encoding/xml"
 	"io"
 	"io/ioutil"
@@ -19,11 +20,36 @@ func XmlHttpRequestBodyUnmarshal(r io.Reader, v interface{}) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("[WECHAT_DEBUG] [CALLBACK] http request body:\n%s\n", body)
+	log.Printf("[WECHAT_DEBUG] [CALLBACK] cipher request message:\n%s\n", body)
 
 	return xml.Unmarshal(body, v)
 }
 
-func DebugPrintPlainMessage(msg []byte) {
-	log.Printf("[WECHAT_DEBUG] [CALLBACK] plain message:\n%s\n", msg)
+func DebugPrintPlainRequestMessage(msg []byte) {
+	log.Printf("[WECHAT_DEBUG] [CALLBACK] plain request message:\n%s\n", msg)
+}
+
+func XmlRawResponse(w io.Writer, msg interface{}) (err error) {
+	body, err := xml.Marshal(msg)
+	if err != nil {
+		return
+	}
+	log.Printf("[WECHAT_DEBUG] [CALLBACK] plain response message:\n%s\n", body)
+
+	_, err = w.Write(body)
+	return
+}
+
+func DebugPrintPlainResponseMessage(msg []byte) {
+	log.Printf("[WECHAT_DEBUG] [CALLBACK] plain response message:\n%s\n", msg)
+}
+
+func DebugPrintCipherResponseMessage(msg, msgSignature, timestamp, nonce string) {
+	var buf bytes.Buffer
+	xml.EscapeText(&buf, []byte(nonce))
+	nonce = buf.String()
+
+	ciphertext := "<xml><Encrypt>" + msg + "</Encrypt><MsgSignature>" + msgSignature + "</MsgSignature><TimeStamp>" +
+		timestamp + "</TimeStamp><Nonce>" + nonce + "</Nonce></xml>"
+	log.Printf("[WECHAT_DEBUG] [CALLBACK] cipher response message:\n%s\n", ciphertext)
 }
