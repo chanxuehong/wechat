@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/chanxuehong/wechat/internal/api"
-	"github.com/chanxuehong/wechat/internal/retry"
+	"github.com/chanxuehong/wechat/internal/debug/api"
+	"github.com/chanxuehong/wechat/internal/debug/retry"
 	"github.com/chanxuehong/wechat/mp/core"
 )
 

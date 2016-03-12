@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/chanxuehong/wechat/internal/api"
+	"github.com/chanxuehong/wechat/internal/debug/api"
 )
 
 // access_token 中控服务器接口.

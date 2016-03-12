@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/chanxuehong/wechat/internal/api"
+	"github.com/chanxuehong/wechat/internal/debug/api"
 )
 
 // ExchangeToken 通过 code 换取网页授权 access_token.
