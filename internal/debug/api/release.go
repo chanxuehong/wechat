@@ -13,6 +13,6 @@ func DebugPrintPostJSONRequest(url string, body []byte) {}
 
 func DebugPrintPostMultipartRequest(url string, body []byte) {}
 
-func JsonHttpResponseBodyUnmarshal(r io.Reader, v interface{}) error {
+func UnmarshalJSONHttpResponse(r io.Reader, v interface{}) error {
 	return json.NewDecoder(r).Decode(v)
 }

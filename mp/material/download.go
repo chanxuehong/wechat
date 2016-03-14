@@ -11,7 +11,7 @@ import (
 	"unicode"
 
 	"github.com/chanxuehong/wechat/internal/debug/api"
-	"github.com/chanxuehong/wechat/internal/debug/retry"
+	"github.com/chanxuehong/wechat/internal/debug/api/retry"
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
@@ -105,7 +105,7 @@ RETRY:
 		buf3 := trimLeft(buf2)
 		if bytes.HasPrefix(buf3, errRespBeginWithCode) || bytes.HasPrefix(buf3, errRespBeginWithMsg) {
 			// 返回的是错误信息
-			return 0, api.JsonHttpResponseBodyUnmarshal(httpRespBody, &result)
+			return 0, api.UnmarshalJSONHttpResponse(httpRespBody, &result)
 		} else {
 			// 返回的是媒体流
 			return io.Copy(writer, httpRespBody)

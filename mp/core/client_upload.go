@@ -9,7 +9,7 @@ import (
 	"net/url"
 
 	"github.com/chanxuehong/wechat/internal/debug/api"
-	"github.com/chanxuehong/wechat/internal/debug/retry"
+	"github.com/chanxuehong/wechat/internal/debug/api/retry"
 )
 
 type MultipartFormField struct {
@@ -99,7 +99,7 @@ RETRY:
 		if httpResp.StatusCode != http.StatusOK {
 			return fmt.Errorf("http.Status: %s", httpResp.Status)
 		}
-		return api.JsonHttpResponseBodyUnmarshal(httpResp.Body, response)
+		return api.UnmarshalJSONHttpResponse(httpResp.Body, response)
 	}()
 	if err != nil {
 		return

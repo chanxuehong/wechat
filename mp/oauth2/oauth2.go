@@ -46,7 +46,7 @@ func Auth(accessToken, openId string, httpClient *http.Client) (valid bool, err 
 	}
 
 	var result oauth2.Error
-	if err = api.JsonHttpResponseBodyUnmarshal(httpResp.Body, &result); err != nil {
+	if err = api.UnmarshalJSONHttpResponse(httpResp.Body, &result); err != nil {
 		return
 	}
 

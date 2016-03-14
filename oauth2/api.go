@@ -88,7 +88,7 @@ func (clt *Client) updateToken(tk *Token, url string) (err error) {
 		Error
 		Token
 	}
-	if err = api.JsonHttpResponseBodyUnmarshal(httpResp.Body, &result); err != nil {
+	if err = api.UnmarshalJSONHttpResponse(httpResp.Body, &result); err != nil {
 		return
 	}
 	if result.ErrCode != ErrCodeOK {

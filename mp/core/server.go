@@ -164,7 +164,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				ToUserName         string   `xml:"ToUserName"`
 				Base64EncryptedMsg []byte   `xml:"Encrypt"`
 			}
-			if err = callback.XmlHttpRequestBodyUnmarshal(r.Body, &requestHttpBody); err != nil {
+			if err = xml.NewDecoder(r.Body).Decode(&requestHttpBody); err != nil {
 				errorHandler.ServeError(w, r, err)
 				return
 			}

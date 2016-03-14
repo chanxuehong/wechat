@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/chanxuehong/wechat/internal/debug/api"
-	"github.com/chanxuehong/wechat/internal/debug/retry"
+	"github.com/chanxuehong/wechat/internal/debug/api/retry"
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
@@ -69,7 +69,7 @@ RETRY:
 			return io.Copy(writer, httpResp.Body)
 		} else {
 			// 返回的是错误信息
-			return 0, api.JsonHttpResponseBodyUnmarshal(httpResp.Body, &result)
+			return 0, api.UnmarshalJSONHttpResponse(httpResp.Body, &result)
 		}
 	}()
 	if err != nil {

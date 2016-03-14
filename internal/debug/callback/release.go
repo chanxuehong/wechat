@@ -10,16 +10,12 @@ import (
 
 func DebugPrintRequest(r *http.Request) {}
 
-func XmlHttpRequestBodyUnmarshal(r io.Reader, v interface{}) error {
-	return xml.NewDecoder(r).Decode(v)
-}
-
 func DebugPrintPlainRequestMessage(msg []byte) {}
 
-func XmlRawResponse(w io.Writer, msg interface{}) (err error) {
-	return xml.NewEncoder(w).Encode(msg)
+func XmlMarshalResponseMessage(msg interface{}) ([]byte, error) {
+	return xml.Marshal(msg)
 }
 
-func DebugPrintPlainResponseMessage(msg []byte) {}
-
-func DebugPrintCipherResponseMessage(msg, msgSignature, timestamp, nonce string) {}
+func XmlEncodeResponseMessage(w io.Writer, msg interface{}) error {
+	return xml.NewEncoder(w).Encode(msg)
+}
