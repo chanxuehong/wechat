@@ -52,7 +52,7 @@ func (pxy *Proxy) PostXML(url string, req map[string]string) (resp map[string]st
 	bodyBuf.Reset()
 	defer textBufferPool.Put(bodyBuf)
 
-	if err = util.FormatMapToXML(bodyBuf, req); err != nil {
+	if err = util.EncodeXMLFromMap(bodyBuf, req, "xml"); err != nil {
 		return
 	}
 
@@ -67,7 +67,7 @@ func (pxy *Proxy) PostXML(url string, req map[string]string) (resp map[string]st
 		return
 	}
 
-	if resp, err = util.ParseXMLToMap(httpResp.Body); err != nil {
+	if resp, err = util.DecodeXMLToMap(httpResp.Body); err != nil {
 		return
 	}
 

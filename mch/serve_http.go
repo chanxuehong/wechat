@@ -27,7 +27,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, s
 			return
 		}
 
-		msg, err := util.ParseXMLToMap(bytes.NewReader(RawMsgXML))
+		msg, err := util.DecodeXMLToMap(bytes.NewReader(RawMsgXML))
 		if err != nil {
 			errHandler.ServeError(w, r, err)
 			return

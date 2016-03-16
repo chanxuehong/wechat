@@ -94,7 +94,7 @@ func downloadBillToWriter(writer io.Writer, req map[string]string, httpClient *h
 	buf := make([]byte, 32*1024) // 与 io.copyBuffer 里的默认大小一致
 
 	reqBuf := bytes.NewBuffer(buf[:0])
-	if err = util.FormatMapToXML(reqBuf, req); err != nil {
+	if err = util.EncodeXMLFromMap(reqBuf, req, "xml"); err != nil {
 		return
 	}
 
