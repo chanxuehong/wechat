@@ -1,9 +1,9 @@
 package jssdk
 
 import (
+	"bufio"
 	"crypto/sha1"
 	"encoding/hex"
-	"io"
 	"sort"
 )
 
@@ -28,13 +28,26 @@ func WXConfigSign(jsapiTicket, nonceStr, timestamp, url string) (signature strin
 	return hex.EncodeToString(hashsum[:])
 }
 
+// stringWriter is the interface that wraps the WriteString method.
+type stringWriter interface {
+	WriteString(s string) (n int, err error)
+}
+
 // JS-SDK 卡券 API 参数签名.
 func CardSign(strs []string) (signature string) {
 	sort.Strings(strs)
 
 	h := sha1.New()
-	for _, str := range strs {
-		io.WriteString(h, str)
+	if sw, ok := h.(stringWriter); ok {
+		for _, str := range strs {
+			sw.WriteString(str)
+		}
+	} else {
+		bufw := bufio.NewWriterSize(h, 256)
+		for _, str := range strs {
+			bufw.WriteString(str)
+		}
+		bufw.Flush()
 	}
 	return hex.EncodeToString(h.Sum(nil))
 }

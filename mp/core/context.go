@@ -1,9 +1,9 @@
 package core
 
 import (
+	"bufio"
 	"encoding/base64"
 	"encoding/xml"
-	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -122,7 +122,6 @@ func (ctx *Context) RawResponse(msg interface{}) (err error) {
 }
 
 // stringWriter is the interface that wraps the WriteString method.
-// same as io.stringWriter.
 type stringWriter interface {
 	WriteString(s string) (n int, err error)
 }
@@ -153,59 +152,62 @@ func (ctx *Context) AESResponse(msg interface{}, timestamp int64, nonce string, 
 	timestampString := strconv.FormatInt(timestamp, 10)
 	msgSignature := util.MsgSign(ctx.Token, timestampString, nonce, base64EncryptedMsg)
 
-	if w, ok := ctx.ResponseWriter.(stringWriter); ok {
-		if _, err = w.WriteString("<xml><Encrypt>"); err != nil {
+	if sw, ok := ctx.ResponseWriter.(stringWriter); ok {
+		if _, err = sw.WriteString("<xml><Encrypt>"); err != nil {
 			return
 		}
-		if _, err = w.WriteString(base64EncryptedMsg); err != nil {
+		if _, err = sw.WriteString(base64EncryptedMsg); err != nil {
 			return
 		}
-		if _, err = w.WriteString("</Encrypt><MsgSignature>"); err != nil {
+		if _, err = sw.WriteString("</Encrypt><MsgSignature>"); err != nil {
 			return
 		}
-		if _, err = w.WriteString(msgSignature); err != nil {
+		if _, err = sw.WriteString(msgSignature); err != nil {
 			return
 		}
-		if _, err = w.WriteString("</MsgSignature><TimeStamp>"); err != nil {
+		if _, err = sw.WriteString("</MsgSignature><TimeStamp>"); err != nil {
 			return
 		}
-		if _, err = w.WriteString(timestampString); err != nil {
+		if _, err = sw.WriteString(timestampString); err != nil {
 			return
 		}
-		if _, err = w.WriteString("</TimeStamp><Nonce>"); err != nil {
-			return
-		}
-		if err = xml.EscapeText(ctx.ResponseWriter, []byte(nonce)); err != nil {
-			return
-		}
-		_, err = w.WriteString("</Nonce></xml>")
-		return
-	} else { // 正常情况下不会进入这个分支, 除非标准库改变了实现, 比如 io.stringWriter 重新定义了
-		if _, err = io.WriteString(ctx.ResponseWriter, "<xml><Encrypt>"); err != nil {
-			return
-		}
-		if _, err = io.WriteString(ctx.ResponseWriter, base64EncryptedMsg); err != nil {
-			return
-		}
-		if _, err = io.WriteString(ctx.ResponseWriter, "</Encrypt><MsgSignature>"); err != nil {
-			return
-		}
-		if _, err = io.WriteString(ctx.ResponseWriter, msgSignature); err != nil {
-			return
-		}
-		if _, err = io.WriteString(ctx.ResponseWriter, "</MsgSignature><TimeStamp>"); err != nil {
-			return
-		}
-		if _, err = io.WriteString(ctx.ResponseWriter, timestampString); err != nil {
-			return
-		}
-		if _, err = io.WriteString(ctx.ResponseWriter, "</TimeStamp><Nonce>"); err != nil {
+		if _, err = sw.WriteString("</TimeStamp><Nonce>"); err != nil {
 			return
 		}
 		if err = xml.EscapeText(ctx.ResponseWriter, []byte(nonce)); err != nil {
 			return
 		}
-		_, err = io.WriteString(ctx.ResponseWriter, "</Nonce></xml>")
+		_, err = sw.WriteString("</Nonce></xml>")
 		return
+	} else {
+		bufw := bufio.NewWriterSize(ctx.ResponseWriter, 256)
+		if _, err = bufw.WriteString("<xml><Encrypt>"); err != nil {
+			return
+		}
+		if _, err = bufw.WriteString(base64EncryptedMsg); err != nil {
+			return
+		}
+		if _, err = bufw.WriteString("</Encrypt><MsgSignature>"); err != nil {
+			return
+		}
+		if _, err = bufw.WriteString(msgSignature); err != nil {
+			return
+		}
+		if _, err = bufw.WriteString("</MsgSignature><TimeStamp>"); err != nil {
+			return
+		}
+		if _, err = bufw.WriteString(timestampString); err != nil {
+			return
+		}
+		if _, err = bufw.WriteString("</TimeStamp><Nonce>"); err != nil {
+			return
+		}
+		if err = xml.EscapeText(bufw, []byte(nonce)); err != nil {
+			return
+		}
+		if _, err = bufw.WriteString("</Nonce></xml>"); err != nil {
+			return
+		}
+		return bufw.Flush()
 	}
 }

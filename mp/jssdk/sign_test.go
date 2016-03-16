@@ -1,9 +1,9 @@
 package jssdk
 
 import (
+	"bufio"
 	"crypto/sha1"
 	"encoding/hex"
-	"io"
 	"testing"
 )
 
@@ -96,14 +96,16 @@ func BenchmarkWXConfigSign3(b *testing.B) {
 func WXConfigSign2(jsapiTicket, nonceStr, timestamp, url string) (signature string) {
 	h := sha1.New()
 
-	io.WriteString(h, "jsapi_ticket=")
-	io.WriteString(h, jsapiTicket)
-	io.WriteString(h, "&noncestr=")
-	io.WriteString(h, nonceStr)
-	io.WriteString(h, "&timestamp=")
-	io.WriteString(h, timestamp)
-	io.WriteString(h, "&url=")
-	io.WriteString(h, url)
+	bufw := bufio.NewWriterSize(h, 256)
+	bufw.WriteString("jsapi_ticket=")
+	bufw.WriteString(jsapiTicket)
+	bufw.WriteString("&noncestr=")
+	bufw.WriteString(nonceStr)
+	bufw.WriteString("&timestamp=")
+	bufw.WriteString(timestamp)
+	bufw.WriteString("&url=")
+	bufw.WriteString(url)
+	bufw.Flush()
 
 	hashsum := h.Sum(nil)
 	return hex.EncodeToString(hashsum)
