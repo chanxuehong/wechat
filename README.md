@@ -1,9 +1,11 @@
 # wechat SDK for golang
 
-## 鸡蛋 [点击查看详细信息](https://github.com/chanxuehong/wechat/blob/v2/egg.md)
-需要的联系我，30个58元（江浙沪皖包邮）  
+## 鸡蛋和鸡蛋糕，需要的联系我
+* 鸡蛋，30个58元（江浙沪皖包邮） [点击查看详细信息](https://github.com/chanxuehong/wechat/blob/v2/egg.md)  
+* 鸡蛋糕，20元一斤 [点击查看详细信息](https://github.com/chanxuehong/wechat/blob/v2/egg2.md)  
+
 ![个人微信号](https://github.com/chanxuehong/wechat/blob/v2/weixin_qrcode.png)
-![微信群](https://github.com/chanxuehong/wechat/blob/v2/mmqrcode1457581125129.png)
+![微信群](https://github.com/chanxuehong/wechat/blob/v2/mmqrcode1458271864973.png)
 
 ## 简介
 | 模块  | 描述                     |
