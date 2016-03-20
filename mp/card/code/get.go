@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
@@ -13,6 +14,18 @@ import (
 func Get(clt *mp.Client, id *CardItemIdentifier) (info *CardItem, err error) {
 	var result struct {
 		mp.Error
+=======
+package code
+
+import (
+	"github.com/chanxuehong/wechat/mp/core"
+)
+
+// 查询code.
+func Get(clt *core.Client, id *CardItemIdentifier) (info *CardItem, err error) {
+	var result struct {
+		core.Error
+>>>>>>> github/v2
 		CardItem
 	}
 
@@ -21,7 +34,11 @@ func Get(clt *mp.Client, id *CardItemIdentifier) (info *CardItem, err error) {
 		return
 	}
 
+<<<<<<< HEAD
 	if result.ErrCode != mp.ErrCodeOK {
+=======
+	if result.ErrCode != core.ErrCodeOK {
+>>>>>>> github/v2
 		err = &result.Error
 		return
 	}

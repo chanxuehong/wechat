@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
@@ -130,11 +131,24 @@ func (clt *Client) GroupList() (groups []Group, err error) {
 
 // 查询用户所在分组.
 func (clt *Client) UserInWhichGroup(openId string) (groupId int64, err error) {
+=======
+package user
+
+import (
+	"github.com/chanxuehong/wechat/mp/core"
+)
+
+// GroupId 查询用户所在分组.
+func GroupId(clt *core.Client, openId string) (groupId int64, err error) {
+	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/groups/getid?access_token="
+
+>>>>>>> github/v2
 	var request = struct {
 		OpenId string `json:"openid"`
 	}{
 		OpenId: openId,
 	}
+<<<<<<< HEAD
 
 	var result struct {
 		mp.Error
@@ -147,6 +161,16 @@ func (clt *Client) UserInWhichGroup(openId string) (groupId int64, err error) {
 	}
 
 	if result.ErrCode != mp.ErrCodeOK {
+=======
+	var result struct {
+		core.Error
+		GroupId int64 `json:"groupid"`
+	}
+	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+		return
+	}
+	if result.ErrCode != core.ErrCodeOK {
+>>>>>>> github/v2
 		err = &result.Error
 		return
 	}
@@ -154,8 +178,15 @@ func (clt *Client) UserInWhichGroup(openId string) (groupId int64, err error) {
 	return
 }
 
+<<<<<<< HEAD
 // 移动用户分组.
 func (clt *Client) MoveUserToGroup(openId string, toGroupId int64) (err error) {
+=======
+// MoveToGroup 移动用户分组.
+func MoveToGroup(clt *core.Client, openId string, toGroupId int64) (err error) {
+	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/groups/members/update?access_token="
+
+>>>>>>> github/v2
 	var request = struct {
 		OpenId    string `json:"openid"`
 		ToGroupId int64  `json:"to_groupid"`
@@ -163,6 +194,7 @@ func (clt *Client) MoveUserToGroup(openId string, toGroupId int64) (err error) {
 		OpenId:    openId,
 		ToGroupId: toGroupId,
 	}
+<<<<<<< HEAD
 
 	var result mp.Error
 
@@ -172,14 +204,28 @@ func (clt *Client) MoveUserToGroup(openId string, toGroupId int64) (err error) {
 	}
 
 	if result.ErrCode != mp.ErrCodeOK {
+=======
+	var result core.Error
+	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+		return
+	}
+	if result.ErrCode != core.ErrCodeOK {
+>>>>>>> github/v2
 		err = &result
 		return
 	}
 	return
 }
 
+<<<<<<< HEAD
 // 批量移动用户分组.
 func (clt *Client) BatchMoveUserToGroup(openIdList []string, toGroupId int64) (err error) {
+=======
+// BatchMoveToGroup 批量移动用户分组.
+func BatchMoveToGroup(clt *core.Client, openIdList []string, toGroupId int64) (err error) {
+	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/groups/members/batchupdate?access_token="
+
+>>>>>>> github/v2
 	if len(openIdList) <= 0 {
 		return
 	}
@@ -191,6 +237,7 @@ func (clt *Client) BatchMoveUserToGroup(openIdList []string, toGroupId int64) (e
 		OpenIdList: openIdList,
 		ToGroupId:  toGroupId,
 	}
+<<<<<<< HEAD
 
 	var result mp.Error
 
@@ -200,6 +247,13 @@ func (clt *Client) BatchMoveUserToGroup(openIdList []string, toGroupId int64) (e
 	}
 
 	if result.ErrCode != mp.ErrCodeOK {
+=======
+	var result core.Error
+	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+		return
+	}
+	if result.ErrCode != core.ErrCodeOK {
+>>>>>>> github/v2
 		err = &result
 		return
 	}

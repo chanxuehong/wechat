@@ -1,17 +1,26 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
+=======
+>>>>>>> github/v2
 package card
 
 const (
 	// 卡券Code展示类型
 	CodeTypeText        = "CODE_TYPE_TEXT"         // 文本
 	CodeTypeBarCode     = "CODE_TYPE_BARCODE"      // 一维码
+<<<<<<< HEAD
 	CodeTypeQRCode      = "CODE_TYPE_QRCODE"       // 二维码
 	CodeTypeOnlyBarCode = "CODE_TYPE_ONLY_BARCODE" // 一维码无code显示
 	CodeTypeOnlyQRCode  = "CODE_TYPE_ONLY_QRCODE"  // 二维码无code显示
+=======
+	CodeTypeQrcode      = "CODE_TYPE_QRCODE"       // 二维码
+	CodeTypeOnlyBarCode = "CODE_TYPE_ONLY_BARCODE" // 一维码无code显示
+	CodeTypeOnlyQrcode  = "CODE_TYPE_ONLY_QRCODE"  // 二维码无code显示
+>>>>>>> github/v2
 )
 
 const (

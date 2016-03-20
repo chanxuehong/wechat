@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
@@ -7,6 +8,12 @@ package card
 
 import (
 	"github.com/chanxuehong/wechat/mp"
+=======
+package card
+
+import (
+	"github.com/chanxuehong/wechat/mp/core"
+>>>>>>> github/v2
 )
 
 // 卡券概况数据
@@ -25,9 +32,15 @@ type BizUinData struct {
 }
 
 // 拉取卡券概况数据接口
+<<<<<<< HEAD
 func GetBizUinInfo(clt *mp.Client, req *Request) (list []BizUinData, err error) {
 	var result struct {
 		mp.Error
+=======
+func GetBizUinInfo(clt *core.Client, req *Request) (list []BizUinData, err error) {
+	var result struct {
+		core.Error
+>>>>>>> github/v2
 		List []BizUinData `json:"list"`
 	}
 
@@ -36,7 +49,11 @@ func GetBizUinInfo(clt *mp.Client, req *Request) (list []BizUinData, err error) 
 		return
 	}
 
+<<<<<<< HEAD
 	if result.ErrCode != mp.ErrCodeOK {
+=======
+	if result.ErrCode != core.ErrCodeOK {
+>>>>>>> github/v2
 		err = &result.Error
 		return
 	}

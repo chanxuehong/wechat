@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
@@ -7,6 +8,12 @@ package statistics
 
 import (
 	"github.com/chanxuehong/wechat/mp"
+=======
+package statistics
+
+import (
+	"github.com/chanxuehong/wechat/mp/core"
+>>>>>>> github/v2
 )
 
 type Statistics struct {
@@ -22,7 +29,11 @@ type Statistics struct {
 //  shopId     按门店ID搜索，-1为总统计
 //  beginDate: 起始日期时间，格式yyyy-mm-dd，最长时间跨度为30天
 //  endDate:   结束日期时间戳，格式yyyy-mm-dd，最长时间跨度为30天
+<<<<<<< HEAD
 func List(clt *mp.Client, shopId int64, beginDate, endDate string) (data []Statistics, err error) {
+=======
+func List(clt *core.Client, shopId int64, beginDate, endDate string) (data []Statistics, err error) {
+>>>>>>> github/v2
 	request := struct {
 		ShopId    int64  `json:"shop_id"`
 		BeginDate string `json:"begin_date"`
@@ -34,7 +45,11 @@ func List(clt *mp.Client, shopId int64, beginDate, endDate string) (data []Stati
 	}
 
 	var result struct {
+<<<<<<< HEAD
 		mp.Error
+=======
+		core.Error
+>>>>>>> github/v2
 		Data []Statistics `json:"data"`
 	}
 
@@ -43,7 +58,11 @@ func List(clt *mp.Client, shopId int64, beginDate, endDate string) (data []Stati
 		return
 	}
 
+<<<<<<< HEAD
 	if result.ErrCode != mp.ErrCodeOK {
+=======
+	if result.ErrCode != core.ErrCodeOK {
+>>>>>>> github/v2
 		err = &result.Error
 		return
 	}

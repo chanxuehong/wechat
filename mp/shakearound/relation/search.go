@@ -1,16 +1,25 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com), magicshui(shuiyuzhe@gmail.com), Harry Rong(harrykobe@gmail.com)
 
+=======
+>>>>>>> github/v2
 package relation
 
 import (
 	"errors"
 
+<<<<<<< HEAD
 	"github.com/chanxuehong/wechat/mp"
 	"github.com/chanxuehong/wechat/mp/shakearound/device"
 	"github.com/chanxuehong/wechat/util"
+=======
+	"github.com/chanxuehong/wechat/internal/util"
+	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/chanxuehong/wechat/mp/shakearound/device"
+>>>>>>> github/v2
 )
 
 type SearchQuery struct {
@@ -58,9 +67,15 @@ type Relation struct {
 }
 
 // 查询设备与页面的关联关系.
+<<<<<<< HEAD
 func Search(clt *mp.Client, query *SearchQuery) (rslt *SearchResult, err error) {
 	var result struct {
 		mp.Error
+=======
+func Search(clt *core.Client, query *SearchQuery) (rslt *SearchResult, err error) {
+	var result struct {
+		core.Error
+>>>>>>> github/v2
 		SearchResult `json:"data"`
 	}
 
@@ -69,7 +84,11 @@ func Search(clt *mp.Client, query *SearchQuery) (rslt *SearchResult, err error) 
 		return
 	}
 
+<<<<<<< HEAD
 	if result.ErrCode != mp.ErrCodeOK {
+=======
+	if result.ErrCode != core.ErrCodeOK {
+>>>>>>> github/v2
 		err = &result.Error
 		return
 	}
@@ -81,7 +100,11 @@ func Search(clt *mp.Client, query *SearchQuery) (rslt *SearchResult, err error) 
 
 // RelationIterator
 //
+<<<<<<< HEAD
 //  iter, err := NewRelationIterator(*mp.Client, *SearchQuery)
+=======
+//  iter, err := NewRelationIterator(*core.Client, *SearchQuery)
+>>>>>>> github/v2
 //  if err != nil {
 //      // TODO: 增加你的代码
 //  }
@@ -94,12 +117,21 @@ func Search(clt *mp.Client, query *SearchQuery) (rslt *SearchResult, err error) 
 //      // TODO: 增加你的代码
 //  }
 type RelationIterator struct {
+<<<<<<< HEAD
 	clt *mp.Client
 
 	nextQuery *SearchQuery // 下一次查询参数
 
 	lastSearchResult  *SearchResult // 最近一次获取的数据
 	nextPageHasCalled bool          // NextPage() 是否调用过
+=======
+	clt *core.Client
+
+	nextQuery *SearchQuery // 下一次查询参数
+
+	lastSearchResult *SearchResult // 最近一次获取的数据
+	nextPageCalled   bool          // NextPage() 是否调用过
+>>>>>>> github/v2
 }
 
 func (iter *RelationIterator) TotalCount() int {
@@ -107,7 +139,11 @@ func (iter *RelationIterator) TotalCount() int {
 }
 
 func (iter *RelationIterator) HasNext() bool {
+<<<<<<< HEAD
 	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+=======
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
+>>>>>>> github/v2
 		return iter.lastSearchResult.ItemCount > 0 ||
 			*iter.nextQuery.Begin < iter.lastSearchResult.TotalCount
 	}
@@ -116,8 +152,13 @@ func (iter *RelationIterator) HasNext() bool {
 }
 
 func (iter *RelationIterator) NextPage() (relations []Relation, err error) {
+<<<<<<< HEAD
 	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
 		iter.nextPageHasCalled = true
+=======
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
+		iter.nextPageCalled = true
+>>>>>>> github/v2
 
 		relations = iter.lastSearchResult.Relations
 		return
@@ -135,7 +176,11 @@ func (iter *RelationIterator) NextPage() (relations []Relation, err error) {
 	return
 }
 
+<<<<<<< HEAD
 func NewRelationIterator(clt *mp.Client, query *SearchQuery) (iter *RelationIterator, err error) {
+=======
+func NewRelationIterator(clt *core.Client, query *SearchQuery) (iter *RelationIterator, err error) {
+>>>>>>> github/v2
 	if query.Begin == nil {
 		err = errors.New("nil SearchQuery.Begin")
 		return
@@ -159,8 +204,13 @@ func NewRelationIterator(clt *mp.Client, query *SearchQuery) (iter *RelationIter
 
 		nextQuery: query,
 
+<<<<<<< HEAD
 		lastSearchResult:  rslt,
 		nextPageHasCalled: false,
+=======
+		lastSearchResult: rslt,
+		nextPageCalled:   false,
+>>>>>>> github/v2
 	}
 	return
 }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
@@ -12,16 +13,27 @@ import (
 	"strings"
 
 	"github.com/chanxuehong/wechat/mp"
+=======
+package dkf
+
+import (
+	"github.com/chanxuehong/wechat/mp/core"
+>>>>>>> github/v2
 )
 
 // 客服基本信息
 type KfInfo struct {
 	Id           string `json:"kf_id"`         // 客服工号
+<<<<<<< HEAD
 	Account      string `json:"kf_account"`    // 完整客服账号, 格式为: 账号前缀@公众号微信号
+=======
+	Account      string `json:"kf_account"`    // 完整客服账号，格式为：账号前缀@公众号微信号
+>>>>>>> github/v2
 	Nickname     string `json:"kf_nick"`       // 客服昵称
 	HeadImageURL string `json:"kf_headimgurl"` // 客服头像
 }
 
+<<<<<<< HEAD
 var ErrNoHeadImage = errors.New("没有头像")
 
 // 获取客服图像的大小, 如果客服没有图像则返回 ErrNoHeadImage 错误.
@@ -74,6 +86,24 @@ func KfList(clt *mp.Client) (kfList []KfInfo, err error) {
 		return
 	}
 	kfList = result.KfList
+=======
+// KfList 获取客服基本信息.
+func KfList(clt *core.Client) (list []KfInfo, err error) {
+	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/customservice/getkflist?access_token="
+
+	var result struct {
+		core.Error
+		KfList []KfInfo `json:"kf_list"`
+	}
+	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+		return
+	}
+	if result.ErrCode != core.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	list = result.KfList
+>>>>>>> github/v2
 	return
 }
 
@@ -85,6 +115,7 @@ const (
 
 // 在线客服接待信息
 type OnlineKfInfo struct {
+<<<<<<< HEAD
 	Id                  string `json:"kf_id"`         // 客服工号
 	Account             string `json:"kf_account"`    // 完整客服账号, 格式为: 账号前缀@公众号微信号
 	Status              int    `json:"status"`        // 客服在线状态 1: pc在线, 2: 手机在线. 若pc和手机同时在线则为 1+2=3
@@ -109,5 +140,30 @@ func OnlineKfList(clt *mp.Client) (kfList []OnlineKfInfo, err error) {
 		return
 	}
 	kfList = result.OnlineKfInfoList
+=======
+	Id               string `json:"kf_id"`         // 客服工号
+	Account          string `json:"kf_account"`    // 完整客服账号，格式为：账号前缀@公众号微信号
+	Status           int    `json:"status"`        // 客服在线状态 1：pc在线，2：手机在线。若pc和手机同时在线则为 1+2=3
+	AutoAcceptNumber int    `json:"auto_accept"`   // 客服设置的最大自动接入数
+	AcceptingNumber  int    `json:"accepted_case"` // 客服当前正在接待的会话数
+}
+
+// OnlineKfList 获取在线客服接待信息.
+func OnlineKfList(clt *core.Client) (list []OnlineKfInfo, err error) {
+	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/customservice/getonlinekflist?access_token="
+
+	var result struct {
+		core.Error
+		OnlineKfInfoList []OnlineKfInfo `json:"kf_online_list"`
+	}
+	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+		return
+	}
+	if result.ErrCode != core.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	list = result.OnlineKfInfoList
+>>>>>>> github/v2
 	return
 }

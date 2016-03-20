@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
@@ -7,6 +8,12 @@ package membercard
 
 import (
 	"github.com/chanxuehong/wechat/mp"
+=======
+package membercard
+
+import (
+	"github.com/chanxuehong/wechat/mp/core"
+>>>>>>> github/v2
 )
 
 type ActivateParameters struct {
@@ -27,15 +34,24 @@ type ActivateParameters struct {
 }
 
 // 激活/绑定会员卡
+<<<<<<< HEAD
 func Activate(clt *mp.Client, para *ActivateParameters) (err error) {
 	var result mp.Error
+=======
+func Activate(clt *core.Client, para *ActivateParameters) (err error) {
+	var result core.Error
+>>>>>>> github/v2
 
 	incompleteURL := "https://api.weixin.qq.com/card/membercard/activate?access_token="
 	if err = clt.PostJSON(incompleteURL, para, &result); err != nil {
 		return
 	}
 
+<<<<<<< HEAD
 	if result.ErrCode != mp.ErrCodeOK {
+=======
+	if result.ErrCode != core.ErrCodeOK {
+>>>>>>> github/v2
 		err = &result
 		return
 	}

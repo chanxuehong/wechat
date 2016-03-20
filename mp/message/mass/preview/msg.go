@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
@@ -23,6 +24,31 @@ type MessageHeader struct {
 
 type Text struct {
 	MessageHeader
+=======
+package preview
+
+import (
+	"github.com/chanxuehong/wechat/mp/core"
+)
+
+const (
+	MsgTypeText   core.MsgType = "text"
+	MsgTypeImage  core.MsgType = "image"
+	MsgTypeVoice  core.MsgType = "voice"
+	MsgTypeVideo  core.MsgType = "mpvideo"
+	MsgTypeNews   core.MsgType = "mpnews"
+	MsgTypeWxCard core.MsgType = "wxcard"
+)
+
+type MsgHeader struct {
+	ToWxName string       `json:"towxname,omitempty"`
+	ToUser   string       `json:"touser,omitempty"`
+	MsgType  core.MsgType `json:"msgtype"`
+}
+
+type Text struct {
+	MsgHeader
+>>>>>>> github/v2
 	Text struct {
 		Content string `json:"content"`
 	} `json:"text"`
@@ -45,7 +71,11 @@ func NewText2(towxname, content string) *Text {
 }
 
 type Image struct {
+<<<<<<< HEAD
 	MessageHeader
+=======
+	MsgHeader
+>>>>>>> github/v2
 	Image struct {
 		MediaId string `json:"media_id"`
 	} `json:"image"`
@@ -68,7 +98,11 @@ func NewImage2(towxname, mediaId string) *Image {
 }
 
 type Voice struct {
+<<<<<<< HEAD
 	MessageHeader
+=======
+	MsgHeader
+>>>>>>> github/v2
 	Voice struct {
 		MediaId string `json:"media_id"`
 	} `json:"voice"`
@@ -91,14 +125,22 @@ func NewVoice2(towxname, mediaId string) *Voice {
 }
 
 type Video struct {
+<<<<<<< HEAD
 	MessageHeader
+=======
+	MsgHeader
+>>>>>>> github/v2
 	Video struct {
 		MediaId string `json:"media_id"`
 	} `json:"mpvideo"`
 }
 
 // 新建视频消息
+<<<<<<< HEAD
 //  NOTE: 对于临时素材, mediaId 应该通过 media.Client.CreateVideo 得到
+=======
+//  NOTE: 对于临时素材, mediaId 应该通过 media.UploadVideo2 得到
+>>>>>>> github/v2
 func NewVideo(touser, mediaId string) *Video {
 	var msg Video
 	msg.MsgType = MsgTypeVideo
@@ -108,7 +150,11 @@ func NewVideo(touser, mediaId string) *Video {
 }
 
 // 新建视频消息
+<<<<<<< HEAD
 //  NOTE: 对于临时素材, mediaId 应该通过 media.Client.CreateVideo 得到
+=======
+//  NOTE: 对于临时素材, mediaId 应该通过 media.UploadVideo2 得到
+>>>>>>> github/v2
 func NewVideo2(towxname, mediaId string) *Video {
 	var msg Video
 	msg.MsgType = MsgTypeVideo
@@ -119,14 +165,22 @@ func NewVideo2(towxname, mediaId string) *Video {
 
 // 图文消息
 type News struct {
+<<<<<<< HEAD
 	MessageHeader
+=======
+	MsgHeader
+>>>>>>> github/v2
 	News struct {
 		MediaId string `json:"media_id"`
 	} `json:"mpnews"`
 }
 
 // 新建图文消息
+<<<<<<< HEAD
 //  NOTE: 对于临时素材, mediaId 应该通过 media.Client.CreateNews 得到
+=======
+//  NOTE: 对于临时素材, mediaId 应该通过 media.UploadNews 得到
+>>>>>>> github/v2
 func NewNews(touser, mediaId string) *News {
 	var msg News
 	msg.MsgType = MsgTypeNews
@@ -136,7 +190,11 @@ func NewNews(touser, mediaId string) *News {
 }
 
 // 新建图文消息
+<<<<<<< HEAD
 //  NOTE: 对于临时素材, mediaId 应该通过 media.Client.CreateNews 得到
+=======
+//  NOTE: 对于临时素材, mediaId 应该通过 media.UploadNews 得到
+>>>>>>> github/v2
 func NewNews2(towxname, mediaId string) *News {
 	var msg News
 	msg.MsgType = MsgTypeNews
@@ -147,7 +205,11 @@ func NewNews2(towxname, mediaId string) *News {
 
 // 卡券消息
 type WxCard struct {
+<<<<<<< HEAD
 	MessageHeader
+=======
+	MsgHeader
+>>>>>>> github/v2
 	WxCard struct {
 		CardId  string `json:"card_id"`
 		CardExt string `json:"card_ext,omitempty"`
@@ -165,6 +227,10 @@ func NewWxCard(toUser, cardId, cardExt string) *WxCard {
 }
 
 // 新建卡券, 特别注意: 目前该接口仅支持填入非自定义code的卡券和预存模式的自定义code卡券.
+<<<<<<< HEAD
+=======
+//  cardExt 可以为空
+>>>>>>> github/v2
 func NewWxCard2(towxname, cardId, cardExt string) *WxCard {
 	var msg WxCard
 	msg.MsgType = MsgTypeWxCard

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
@@ -7,6 +8,12 @@ package account
 
 import (
 	"github.com/chanxuehong/wechat/mp"
+=======
+package account
+
+import (
+	"github.com/chanxuehong/wechat/mp/core"
+>>>>>>> github/v2
 )
 
 type RegisterParameters struct {
@@ -19,15 +26,24 @@ type RegisterParameters struct {
 }
 
 // 申请开通功能
+<<<<<<< HEAD
 func Register(clt *mp.Client, para *RegisterParameters) (err error) {
 	var result mp.Error
+=======
+func Register(clt *core.Client, para *RegisterParameters) (err error) {
+	var result core.Error
+>>>>>>> github/v2
 
 	incompleteURL := "https://api.weixin.qq.com/shakearound/account/register?access_token="
 	if err = clt.PostJSON(incompleteURL, para, &result); err != nil {
 		return
 	}
 
+<<<<<<< HEAD
 	if result.ErrCode != mp.ErrCodeOK {
+=======
+	if result.ErrCode != core.ErrCodeOK {
+>>>>>>> github/v2
 		err = &result
 		return
 	}
@@ -42,9 +58,15 @@ type AuditStatus struct {
 }
 
 // 查询审核状态
+<<<<<<< HEAD
 func GetAuditStatus(clt *mp.Client) (status *AuditStatus, err error) {
 	var result struct {
 		mp.Error
+=======
+func GetAuditStatus(clt *core.Client) (status *AuditStatus, err error) {
+	var result struct {
+		core.Error
+>>>>>>> github/v2
 		AuditStatus `json:"data"`
 	}
 
@@ -53,7 +75,11 @@ func GetAuditStatus(clt *mp.Client) (status *AuditStatus, err error) {
 		return
 	}
 
+<<<<<<< HEAD
 	if result.ErrCode != mp.ErrCodeOK {
+=======
+	if result.ErrCode != core.ErrCodeOK {
+>>>>>>> github/v2
 		err = &result.Error
 		return
 	}
