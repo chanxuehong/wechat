@@ -20,7 +20,7 @@ import (
 
 	"github.com/chanxuehong/util/security"
 
-	"github.com/chanxuehong/wechat/util"
+	"github.com/chanxuehong/wechat/internal/util"
 )
 
 // 安全模式, 微信服务器推送过来的 http body

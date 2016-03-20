@@ -8,6 +8,8 @@ package mp
 import (
 	"net/http"
 	"sync"
+
+	"github.com/chanxuehong/wechat/internal/util"
 )
 
 var _ MessageHandler = (*MessageServeMux)(nil)
@@ -41,7 +43,7 @@ func (mux *MessageServeMux) MessageHandle(msgType string, handler MessageHandler
 	if mux.messageHandlerMap == nil {
 		mux.messageHandlerMap = make(map[string]MessageHandler)
 	}
-	mux.messageHandlerMap[msgType] = handler
+	mux.messageHandlerMap[util.ToLower(msgType)] = handler
 	mux.rwmutex.Unlock()
 }
 
@@ -79,7 +81,7 @@ func (mux *MessageServeMux) EventHandle(eventType string, handler MessageHandler
 	if mux.eventHandlerMap == nil {
 		mux.eventHandlerMap = make(map[string]MessageHandler)
 	}
-	mux.eventHandlerMap[eventType] = handler
+	mux.eventHandlerMap[util.ToLower(eventType)] = handler
 	mux.rwmutex.Unlock()
 }
 
@@ -111,7 +113,7 @@ func (mux *MessageServeMux) getMessageHandler(msgType string) (handler MessageHa
 	}
 
 	mux.rwmutex.RLock()
-	handler = mux.messageHandlerMap[msgType]
+	handler = mux.messageHandlerMap[util.ToLower(msgType)]
 	if handler == nil {
 		handler = mux.defaultMessageHandler
 	}
@@ -126,7 +128,7 @@ func (mux *MessageServeMux) getEventHandler(eventType string) (handler MessageHa
 	}
 
 	mux.rwmutex.RLock()
-	handler = mux.eventHandlerMap[eventType]
+	handler = mux.eventHandlerMap[util.ToLower(eventType)]
 	if handler == nil {
 		handler = mux.defaultEventHandler
 	}
