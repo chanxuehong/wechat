@@ -14,27 +14,42 @@ import (
 
 const (
 	// 微信服务器推送过来的事件类型
-	EventTypeSubscribe   = "subscribe"   // 订阅, 包括点击订阅和扫描二维码(公众号二维码和公众号带参数二维码)订阅
-	EventTypeUnsubscribe = "unsubscribe" // 取消订阅
-	EventTypeScan        = "SCAN"        // 已经订阅的用户扫描带参数二维码事件
+	EventTypeSubscribe   = "subscribe"   // 关注事件, 包括点击关注和扫描二维码(公众号二维码和公众号带参数二维码)关注
+	EventTypeUnsubscribe = "unsubscribe" // 取消关注
+	EventTypeScan        = "SCAN"        // 已经关注的用户扫描带参数二维码事件
 	EventTypeLocation    = "LOCATION"    // 上报地理位置事件
 )
 
-// 关注事件.
-// 普通关注, 扫描公众号二维码(不是带参数二维码)关注
+// 关注
 type SubscribeEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	mp.MessageHeader
 
-	Event    string `xml:"Event"              json:"Event"`              // subscribe(订阅)
-	EventKey string `xml:"EventKey,omitempty" json:"EventKey,omitempty"` // 事件KEY值, 为空值
+	Event string `xml:"Event" json:"Event"` // subscribe
+
+	// 下面两个字段只有在扫描带参数二维码进行关注时才有值, 否则为空值!
+	EventKey string `xml:"EventKey,omitempty" json:"EventKey,omitempty"` // 事件KEY值, 格式为: qrscene_二维码的参数值
+	Ticket   string `xml:"Ticket,omitempty"   json:"Ticket,omitempty"`   // 二维码的ticket, 可用来换取二维码图片
 }
 
 func GetSubscribeEvent(msg *mp.MixedMessage) *SubscribeEvent {
 	return &SubscribeEvent{
 		MessageHeader: msg.MessageHeader,
 		Event:         msg.Event,
+		EventKey:      msg.EventKey,
+		Ticket:        msg.Ticket,
 	}
+}
+
+// 获取二维码参数
+func (event *SubscribeEvent) Scene() (scene string, err error) {
+	const prefix = "qrscene_"
+	if !strings.HasPrefix(event.EventKey, prefix) {
+		err = fmt.Errorf("EventKey 应该以 %s 为前缀: %s", prefix, event.EventKey)
+		return
+	}
+	scene = event.EventKey[len(prefix):]
+	return
 }
 
 // 取消关注
@@ -42,7 +57,7 @@ type UnsubscribeEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	mp.MessageHeader
 
-	Event    string `xml:"Event"              json:"Event"`              // unsubscribe(取消订阅)
+	Event    string `xml:"Event"              json:"Event"`              // unsubscribe(取消关注)
 	EventKey string `xml:"EventKey,omitempty" json:"EventKey,omitempty"` // 事件KEY值, 为空值
 }
 
@@ -50,36 +65,6 @@ func GetUnsubscribeEvent(msg *mp.MixedMessage) *UnsubscribeEvent {
 	return &UnsubscribeEvent{
 		MessageHeader: msg.MessageHeader,
 		Event:         msg.Event,
-	}
-}
-
-// 用户未关注时, 扫描带参数二维码进行关注后的事件
-type SubscribeByScanEvent struct {
-	XMLName struct{} `xml:"xml" json:"-"`
-	mp.MessageHeader
-
-	Event    string `xml:"Event"    json:"Event"`    // subscribe
-	EventKey string `xml:"EventKey" json:"EventKey"` // 事件KEY值, qrscene_为前缀, 后面为二维码的参数值(scene_id, scene_str)
-	Ticket   string `xml:"Ticket"   json:"Ticket"`   // 二维码的ticket, 可用来换取二维码图片
-}
-
-// 获取二维码参数
-func (event *SubscribeByScanEvent) Scene() (scene string, err error) {
-	const prefix = "qrscene_"
-	if !strings.HasPrefix(event.EventKey, prefix) {
-		err = fmt.Errorf("EventKey 应该以 %q 为前缀: %q", prefix, event.EventKey)
-		return
-	}
-	scene = event.EventKey[len(prefix):]
-	return
-}
-
-func GetSubscribeByScanEvent(msg *mp.MixedMessage) *SubscribeByScanEvent {
-	return &SubscribeByScanEvent{
-		MessageHeader: msg.MessageHeader,
-		Event:         msg.Event,
-		EventKey:      msg.EventKey,
-		Ticket:        msg.Ticket,
 	}
 }
 
