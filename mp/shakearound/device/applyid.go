@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
@@ -7,6 +8,12 @@ package device
 
 import (
 	"github.com/chanxuehong/wechat/mp"
+=======
+package device
+
+import (
+	"github.com/chanxuehong/wechat/mp/core"
+>>>>>>> github/v2
 )
 
 type ApplyIdParameters struct {
@@ -23,9 +30,15 @@ type ApplyIdResult struct {
 }
 
 // 申请设备ID
+<<<<<<< HEAD
 func ApplyId(clt *mp.Client, para *ApplyIdParameters) (rslt *ApplyIdResult, err error) {
 	var result struct {
 		mp.Error
+=======
+func ApplyId(clt *core.Client, para *ApplyIdParameters) (rslt *ApplyIdResult, err error) {
+	var result struct {
+		core.Error
+>>>>>>> github/v2
 		ApplyIdResult `json:"data"`
 	}
 
@@ -34,7 +47,11 @@ func ApplyId(clt *mp.Client, para *ApplyIdParameters) (rslt *ApplyIdResult, err 
 		return
 	}
 
+<<<<<<< HEAD
 	if result.ErrCode != mp.ErrCodeOK {
+=======
+	if result.ErrCode != core.ErrCodeOK {
+>>>>>>> github/v2
 		err = &result.Error
 		return
 	}

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
@@ -8,12 +9,23 @@ package user
 import (
 	"github.com/chanxuehong/wechat/mp"
 	"github.com/chanxuehong/wechat/mp/card/code"
+=======
+package user
+
+import (
+	"github.com/chanxuehong/wechat/mp/card/code"
+	"github.com/chanxuehong/wechat/mp/core"
+>>>>>>> github/v2
 )
 
 // 获取用户已领取卡券接口
 //  openid: 需要查询的用户openid
 //  cardid: 卡券ID。不填写时默认查询当前appid下的卡券。
+<<<<<<< HEAD
 func GetCardList(clt *mp.Client, openid, cardid string) (list []code.CardItemIdentifier, err error) {
+=======
+func GetCardList(clt *core.Client, openid, cardid string) (list []code.CardItemIdentifier, err error) {
+>>>>>>> github/v2
 	request := struct {
 		OpenId string `json:"openid"`
 		CardId string `json:"card_id,omitempty"`
@@ -23,7 +35,11 @@ func GetCardList(clt *mp.Client, openid, cardid string) (list []code.CardItemIde
 	}
 
 	var result struct {
+<<<<<<< HEAD
 		mp.Error
+=======
+		core.Error
+>>>>>>> github/v2
 		CardList []code.CardItemIdentifier `json:"card_list"`
 	}
 
@@ -32,7 +48,11 @@ func GetCardList(clt *mp.Client, openid, cardid string) (list []code.CardItemIde
 		return
 	}
 
+<<<<<<< HEAD
 	if result.ErrCode != mp.ErrCodeOK {
+=======
+	if result.ErrCode != core.ErrCodeOK {
+>>>>>>> github/v2
 		err = &result.Error
 		return
 	}

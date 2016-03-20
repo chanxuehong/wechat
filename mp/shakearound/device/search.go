@@ -1,15 +1,23 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com), magicshui(shuiyuzhe@gmail.com), Harry Rong(harrykobe@gmail.com)
 
+=======
+>>>>>>> github/v2
 package device
 
 import (
 	"errors"
 
+<<<<<<< HEAD
 	"github.com/chanxuehong/wechat/mp"
 	"github.com/chanxuehong/wechat/util"
+=======
+	"github.com/chanxuehong/wechat/internal/util"
+	"github.com/chanxuehong/wechat/mp/core"
+>>>>>>> github/v2
 )
 
 type SearchQuery struct {
@@ -66,9 +74,15 @@ type Device struct {
 }
 
 // 查询设备列表.
+<<<<<<< HEAD
 func Search(clt *mp.Client, query *SearchQuery) (rslt *SearchResult, err error) {
 	var result struct {
 		mp.Error
+=======
+func Search(clt *core.Client, query *SearchQuery) (rslt *SearchResult, err error) {
+	var result struct {
+		core.Error
+>>>>>>> github/v2
 		SearchResult `json:"data"`
 	}
 
@@ -77,7 +91,11 @@ func Search(clt *mp.Client, query *SearchQuery) (rslt *SearchResult, err error) 
 		return
 	}
 
+<<<<<<< HEAD
 	if result.ErrCode != mp.ErrCodeOK {
+=======
+	if result.ErrCode != core.ErrCodeOK {
+>>>>>>> github/v2
 		err = &result.Error
 		return
 	}
@@ -89,7 +107,11 @@ func Search(clt *mp.Client, query *SearchQuery) (rslt *SearchResult, err error) 
 
 // DeviceIterator
 //
+<<<<<<< HEAD
 //  iter, err := NewDeviceIterator(*mp.Client, *SearchQuery)
+=======
+//  iter, err := NewDeviceIterator(*core.Client, *SearchQuery)
+>>>>>>> github/v2
 //  if err != nil {
 //      // TODO: 增加你的代码
 //  }
@@ -102,12 +124,21 @@ func Search(clt *mp.Client, query *SearchQuery) (rslt *SearchResult, err error) 
 //      // TODO: 增加你的代码
 //  }
 type DeviceIterator struct {
+<<<<<<< HEAD
 	clt *mp.Client
 
 	nextQuery *SearchQuery // 下一次查询参数
 
 	lastSearchResult  *SearchResult // 最近一次获取的数据
 	nextPageHasCalled bool          // NextPage() 是否调用过
+=======
+	clt *core.Client
+
+	nextQuery *SearchQuery // 下一次查询参数
+
+	lastSearchResult *SearchResult // 最近一次获取的数据
+	nextPageCalled   bool          // NextPage() 是否调用过
+>>>>>>> github/v2
 }
 
 func (iter *DeviceIterator) TotalCount() int {
@@ -115,7 +146,11 @@ func (iter *DeviceIterator) TotalCount() int {
 }
 
 func (iter *DeviceIterator) HasNext() bool {
+<<<<<<< HEAD
 	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+=======
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
+>>>>>>> github/v2
 		return iter.lastSearchResult.ItemCount > 0 ||
 			*iter.nextQuery.Begin < iter.lastSearchResult.TotalCount
 	}
@@ -124,8 +159,13 @@ func (iter *DeviceIterator) HasNext() bool {
 }
 
 func (iter *DeviceIterator) NextPage() (devices []Device, err error) {
+<<<<<<< HEAD
 	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
 		iter.nextPageHasCalled = true
+=======
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
+		iter.nextPageCalled = true
+>>>>>>> github/v2
 
 		devices = iter.lastSearchResult.Devices
 		return
@@ -143,7 +183,11 @@ func (iter *DeviceIterator) NextPage() (devices []Device, err error) {
 	return
 }
 
+<<<<<<< HEAD
 func NewDeviceIterator(clt *mp.Client, query *SearchQuery) (iter *DeviceIterator, err error) {
+=======
+func NewDeviceIterator(clt *core.Client, query *SearchQuery) (iter *DeviceIterator, err error) {
+>>>>>>> github/v2
 	if query.Type != 2 {
 		err = errors.New("Unsupported SearchQuery.Type")
 		return
@@ -163,8 +207,13 @@ func NewDeviceIterator(clt *mp.Client, query *SearchQuery) (iter *DeviceIterator
 
 		nextQuery: query,
 
+<<<<<<< HEAD
 		lastSearchResult:  rslt,
 		nextPageHasCalled: false,
+=======
+		lastSearchResult: rslt,
+		nextPageCalled:   false,
+>>>>>>> github/v2
 	}
 	return
 }

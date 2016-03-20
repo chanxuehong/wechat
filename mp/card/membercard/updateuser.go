@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
@@ -7,6 +8,12 @@ package membercard
 
 import (
 	"github.com/chanxuehong/wechat/mp"
+=======
+package membercard
+
+import (
+	"github.com/chanxuehong/wechat/mp/core"
+>>>>>>> github/v2
 )
 
 type UpdateUserParameters struct {
@@ -30,9 +37,15 @@ type UpdateUserResult struct {
 }
 
 // 更新会员信息
+<<<<<<< HEAD
 func UpdateUser(clt *mp.Client, para *UpdateUserParameters) (rslt *UpdateUserResult, err error) {
 	var result struct {
 		mp.Error
+=======
+func UpdateUser(clt *core.Client, para *UpdateUserParameters) (rslt *UpdateUserResult, err error) {
+	var result struct {
+		core.Error
+>>>>>>> github/v2
 		UpdateUserResult
 	}
 
@@ -41,7 +54,11 @@ func UpdateUser(clt *mp.Client, para *UpdateUserParameters) (rslt *UpdateUserRes
 		return
 	}
 
+<<<<<<< HEAD
 	if result.ErrCode != mp.ErrCodeOK {
+=======
+	if result.ErrCode != core.ErrCodeOK {
+>>>>>>> github/v2
 		err = &result.Error
 		return
 	}

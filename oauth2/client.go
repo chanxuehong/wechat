@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
@@ -38,12 +39,26 @@ type Client struct {
 	Config Config
 
 	// TokenStorage, Token 两个字段正常情况下只用指定一个, 如果两个同时被指定了, 优先使用 TokenStorage;
+=======
+package oauth2
+
+import (
+	"errors"
+	"net/http"
+)
+
+type Client struct {
+	Endpoint Endpoint
+
+	// TokenStorage 和 Token 两个字段正常情况下只用指定一个, 如果两个同时被指定了, 优先使用 TokenStorage
+>>>>>>> github/v2
 	TokenStorage TokenStorage
 	Token        *Token // Client 自动将最新的 Token 更新到此字段, 不管 Token 字段一开始是否被指定!!!
 
 	HttpClient *http.Client // 如果 HttpClient == nil 则默认用 http.DefaultClient
 }
 
+<<<<<<< HEAD
 func (clt *Client) getToken() (tk *Token, err error) {
 	if clt.TokenStorage != nil {
 		if tk, err = clt.TokenStorage.Get(); err != nil {
@@ -61,19 +76,53 @@ func (clt *Client) getToken() (tk *Token, err error) {
 	if tk == nil {
 		err = errors.New("nil TokenStorage and nil Token")
 		return
+=======
+func (clt *Client) httpClient() *http.Client {
+	if clt.HttpClient != nil {
+		return clt.HttpClient
+	}
+	return http.DefaultClient
+}
+
+// GetToken 获取 Token, autoRefresh 为 true 时如果 Token 过期则自动刷新.
+func (clt *Client) GetToken(autoRefresh bool) (tk *Token, err error) {
+	if clt.TokenStorage != nil {
+		if tk, err = clt.TokenStorage.Token(); err != nil {
+			return
+		}
+		if tk == nil {
+			err = errors.New("incorrect TokenStorage.Token implementation")
+			return
+		}
+		clt.Token = tk // update local
+	} else {
+		tk = clt.Token
+		if tk == nil {
+			err = errors.New("nil TokenStorage and nil Token")
+			return
+		}
+	}
+	if autoRefresh && tk.Expired() {
+		return clt.RefreshToken(tk.RefreshToken)
+>>>>>>> github/v2
 	}
 	return
 }
 
 func (clt *Client) putToken(tk *Token) (err error) {
 	if clt.TokenStorage != nil {
+<<<<<<< HEAD
 		if err = clt.TokenStorage.Put(tk); err != nil {
+=======
+		if err = clt.TokenStorage.PutToken(tk); err != nil {
+>>>>>>> github/v2
 			return
 		}
 	}
 	clt.Token = tk
 	return
 }
+<<<<<<< HEAD
 
 func (clt *Client) httpClient() *http.Client {
 	if clt.HttpClient != nil {
@@ -95,3 +144,5 @@ func (clt *Client) getJSON(url string, response interface{}) (err error) {
 
 	return json.NewDecoder(httpResp.Body).Decode(response)
 }
+=======
+>>>>>>> github/v2

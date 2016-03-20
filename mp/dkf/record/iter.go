@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
@@ -7,6 +8,12 @@ package record
 
 import (
 	"github.com/chanxuehong/wechat/mp"
+=======
+package record
+
+import (
+	"github.com/chanxuehong/wechat/mp/core"
+>>>>>>> github/v2
 )
 
 // RecordIterator
@@ -24,6 +31,7 @@ import (
 //      // TODO: 增加你的代码
 //  }
 type RecordIterator struct {
+<<<<<<< HEAD
 	clt *mp.Client // 关联的微信 Client
 
 	nextGetRecordRequest *GetRecordRequest // 上一次查询的 request
@@ -50,10 +58,36 @@ func (iter *RecordIterator) NextPage() (records []Record, err error) {
 	}
 
 	records, err = GetRecord(iter.clt, iter.nextGetRecordRequest)
+=======
+	clt *core.Client
+
+	nextGetRequest *GetRequest
+
+	lastGetRecords []Record
+	nextPageCalled bool
+}
+
+func (iter *RecordIterator) HasNext() bool {
+	if !iter.nextPageCalled {
+		return len(iter.lastGetRecords) > 0
+	}
+	return len(iter.lastGetRecords) >= iter.nextGetRequest.PageSize
+}
+
+func (iter *RecordIterator) NextPage() (records []Record, err error) {
+	if !iter.nextPageCalled {
+		iter.nextPageCalled = true
+		records = iter.lastGetRecords
+		return
+	}
+
+	records, err = Get(iter.clt, iter.nextGetRequest)
+>>>>>>> github/v2
 	if err != nil {
 		return
 	}
 
+<<<<<<< HEAD
 	iter.nextGetRecordRequest.PageIndex++
 	iter.lastGetRecordResult = records
 	return
@@ -64,6 +98,17 @@ func NewRecordIterator(clt *mp.Client, request *GetRecordRequest) (iter *RecordI
 	// 逻辑上相当于第一次调用 RecordIterator.NextPage, 因为第一次调用 RecordIterator.HasNext 需要数据支撑, 所以提前获取了数据
 
 	records, err := GetRecord(clt, request)
+=======
+	iter.lastGetRecords = records
+	iter.nextGetRequest.PageIndex++
+	return
+}
+
+func NewRecordIterator(clt *core.Client, request *GetRequest) (iter *RecordIterator, err error) {
+	// 逻辑上相当于第一次调用 RecordIterator.NextPage,
+	// 因为第一次调用 RecordIterator.HasNext 需要数据支撑, 所以提前获取了数据
+	records, err := Get(clt, request)
+>>>>>>> github/v2
 	if err != nil {
 		return
 	}
@@ -71,10 +116,17 @@ func NewRecordIterator(clt *mp.Client, request *GetRecordRequest) (iter *RecordI
 	request.PageIndex++
 
 	iter = &RecordIterator{
+<<<<<<< HEAD
 		clt:                  clt,
 		nextGetRecordRequest: request,
 		lastGetRecordResult:  records,
 		nextPageHasCalled:    false,
+=======
+		clt:            clt,
+		nextGetRequest: request,
+		lastGetRecords: records,
+		nextPageCalled: false,
+>>>>>>> github/v2
 	}
 	return
 }

@@ -1,14 +1,21 @@
+<<<<<<< HEAD
 // @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
 // @link        https://github.com/chanxuehong/wechat for the canonical source repository
 // @license     https://github.com/chanxuehong/wechat/blob/master/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
+=======
+>>>>>>> github/v2
 package shop
 
 import (
 	"errors"
 
+<<<<<<< HEAD
 	"github.com/chanxuehong/wechat/mp"
+=======
+	"github.com/chanxuehong/wechat/mp/core"
+>>>>>>> github/v2
 )
 
 type Shop struct {
@@ -31,7 +38,11 @@ type ListResult struct {
 // 获取WiFi门店列表.
 //  pageIndex: 分页下标，默认从1开始
 //  pageSize:  每页的个数，默认10个，最大20个
+<<<<<<< HEAD
 func List(clt *mp.Client, pageIndex, pageSize int) (rslt *ListResult, err error) {
+=======
+func List(clt *core.Client, pageIndex, pageSize int) (rslt *ListResult, err error) {
+>>>>>>> github/v2
 	if pageIndex < 1 {
 		err = errors.New("Incorrect pageIndex")
 		return
@@ -50,7 +61,11 @@ func List(clt *mp.Client, pageIndex, pageSize int) (rslt *ListResult, err error)
 	}
 
 	var result struct {
+<<<<<<< HEAD
 		mp.Error
+=======
+		core.Error
+>>>>>>> github/v2
 		ListResult `json:"data"`
 	}
 
@@ -59,7 +74,11 @@ func List(clt *mp.Client, pageIndex, pageSize int) (rslt *ListResult, err error)
 		return
 	}
 
+<<<<<<< HEAD
 	if result.ErrCode != mp.ErrCodeOK {
+=======
+	if result.ErrCode != core.ErrCodeOK {
+>>>>>>> github/v2
 		err = &result.Error
 		return
 	}
@@ -84,13 +103,22 @@ func List(clt *mp.Client, pageIndex, pageSize int) (rslt *ListResult, err error)
 //      // TODO: 增加你的代码
 //  }
 type ShopIterator struct {
+<<<<<<< HEAD
 	clt *mp.Client
+=======
+	clt *core.Client
+>>>>>>> github/v2
 
 	pageSize      int
 	nextPageIndex int
 
+<<<<<<< HEAD
 	lastListResult    *ListResult // 最近一次获取的数据
 	nextPageHasCalled bool        // NextPage() 是否调用过
+=======
+	lastListResult *ListResult // 最近一次获取的数据
+	nextPageCalled bool        // NextPage() 是否调用过
+>>>>>>> github/v2
 }
 
 func (iter *ShopIterator) TotalCount() int {
@@ -98,7 +126,11 @@ func (iter *ShopIterator) TotalCount() int {
 }
 
 func (iter *ShopIterator) HasNext() bool {
+<<<<<<< HEAD
 	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
+=======
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
+>>>>>>> github/v2
 		return iter.lastListResult.ItemCount > 0 ||
 			iter.nextPageIndex <= iter.lastListResult.PageCount
 	}
@@ -107,8 +139,13 @@ func (iter *ShopIterator) HasNext() bool {
 }
 
 func (iter *ShopIterator) NextPage() (records []Shop, err error) {
+<<<<<<< HEAD
 	if !iter.nextPageHasCalled { // 第一次调用需要特殊对待
 		iter.nextPageHasCalled = true
+=======
+	if !iter.nextPageCalled { // 第一次调用需要特殊对待
+		iter.nextPageCalled = true
+>>>>>>> github/v2
 
 		records = iter.lastListResult.Records
 		return
@@ -126,7 +163,11 @@ func (iter *ShopIterator) NextPage() (records []Shop, err error) {
 	return
 }
 
+<<<<<<< HEAD
 func NewShopIterator(clt *mp.Client, pageIndex, pageSize int) (iter *ShopIterator, err error) {
+=======
+func NewShopIterator(clt *core.Client, pageIndex, pageSize int) (iter *ShopIterator, err error) {
+>>>>>>> github/v2
 	// 逻辑上相当于第一次调用 ShopIterator.NextPage, 因为第一次调用 ShopIterator.HasNext 需要数据支撑, 所以提前获取了数据
 
 	rslt, err := List(clt, pageIndex, pageSize)
@@ -140,8 +181,13 @@ func NewShopIterator(clt *mp.Client, pageIndex, pageSize int) (iter *ShopIterato
 		pageSize:      pageSize,
 		nextPageIndex: pageIndex + 1,
 
+<<<<<<< HEAD
 		lastListResult:    rslt,
 		nextPageHasCalled: false,
+=======
+		lastListResult: rslt,
+		nextPageCalled: false,
+>>>>>>> github/v2
 	}
 	return
 }
