@@ -15,7 +15,7 @@ import (
 	"net/url"
 	"reflect"
 
-	wechatjson "github.com/chanxuehong/wechat/json"
+	wechatjson "github.com/chanxuehong/wechat/internal/json"
 )
 
 // 企业号"主动"请求功能的基本封装.

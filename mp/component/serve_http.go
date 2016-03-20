@@ -19,8 +19,8 @@ import (
 
 	"github.com/chanxuehong/util/security"
 
+	"github.com/chanxuehong/wechat/internal/util"
 	"github.com/chanxuehong/wechat/mp"
-	"github.com/chanxuehong/wechat/util"
 )
 
 // 微信服务器请求 http body

@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/chanxuehong/wechat/util"
+	"github.com/chanxuehong/wechat/internal/util"
 )
 
 // 明文模式下回复消息给微信服务器.

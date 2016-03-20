@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/chanxuehong/wechat/util"
+	"github.com/chanxuehong/wechat/internal/util"
 )
 
 // 回复消息的 http body

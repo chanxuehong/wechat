@@ -9,6 +9,8 @@ import (
 	"io"
 	"net/http"
 	"sync"
+
+	"github.com/chanxuehong/wechat/internal/util"
 )
 
 var _ MessageHandler = (*SuiteMessageServeMux)(nil)
@@ -39,7 +41,7 @@ func (mux *SuiteMessageServeMux) MessageHandle(msgType string, handler MessageHa
 	if mux.messageHandlerMap == nil {
 		mux.messageHandlerMap = make(map[string]MessageHandler)
 	}
-	mux.messageHandlerMap[msgType] = handler
+	mux.messageHandlerMap[util.ToLower(msgType)] = handler
 	mux.rwmutex.Unlock()
 }
 
@@ -71,7 +73,7 @@ func (mux *SuiteMessageServeMux) getMessageHandler(msgType string) (handler Mess
 	}
 
 	mux.rwmutex.RLock()
-	handler = mux.messageHandlerMap[msgType]
+	handler = mux.messageHandlerMap[util.ToLower(msgType)]
 	if handler == nil {
 		handler = mux.defaultMessageHandler
 	}
