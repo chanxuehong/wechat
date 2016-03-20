@@ -6,8 +6,9 @@
 package corp
 
 import (
-	"net/http"
 	"sync"
+	"strings"
+	"net/http"
 )
 
 var _ MessageHandler = (*MessageServeMux)(nil)
@@ -137,7 +138,11 @@ func (mux *MessageServeMux) getEventHandler(eventType string) (handler MessageHa
 // MessageServeMux 实现了 MessageHandler 接口.
 func (mux *MessageServeMux) ServeMessage(w http.ResponseWriter, r *Request) {
 	if msgType := r.MixedMsg.MsgType; msgType == "event" {
-		handler := mux.getEventHandler(r.MixedMsg.Event)
+		/*
+		 FIX: 全部小写Event
+		 */
+		//handler := mux.getEventHandler(r.MixedMsg.Event)
+		handler := mux.getEventHandler(strings.ToLower(r.MixedMsg.Event))
 		if handler == nil {
 			return // 返回空串, 符合微信协议
 		}

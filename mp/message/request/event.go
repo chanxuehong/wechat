@@ -8,7 +8,6 @@ package request
 import (
 	"fmt"
 	"strings"
-
 	"github.com/chanxuehong/wechat/mp"
 )
 
@@ -16,8 +15,15 @@ const (
 	// 微信服务器推送过来的事件类型
 	EventTypeSubscribe   = "subscribe"   // 订阅, 包括点击订阅和扫描二维码(公众号二维码和公众号带参数二维码)订阅
 	EventTypeUnsubscribe = "unsubscribe" // 取消订阅
-	EventTypeScan        = "SCAN"        // 已经订阅的用户扫描带参数二维码事件
-	EventTypeLocation    = "LOCATION"    // 上报地理位置事件
+	//EventTypeScan        = "SCAN"        // 已经订阅的用户扫描带参数二维码事件
+	//EventTypeLocation    = "LOCATION"    // 上报地理位置事件
+
+	/*
+	 修改为小写,新增了click
+	 */
+	EventTypeScan        = "scan"        // 已经订阅的用户扫描带参数二维码事件
+	EventTypeLocation    = "location"    // 上报地理位置事件
+	EventTypeClick       = "click"       // 发送点击事件
 )
 
 // 关注事件.
