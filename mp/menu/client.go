@@ -92,3 +92,37 @@ func (clt *Client) GetMenuInfo() (info MenuInfo, isMenuOpen bool, err error) {
 	}
 	return
 }
+
+// 创建个性化菜单.
+func (clt *Client) CreateConditionalMenu(menu Menu) (menuId int, err error) {
+	var result ConditionalMenuResult
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/addconditional?access_token="
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &menu, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result
+		return
+	}
+	menuId = result.MenuId
+	return
+}
+
+// 删除个性化菜单.
+func (clt *Client) DeleteConditionalMenu(menuId int) (err error) {
+	var result mp.Error
+	param := make(map[string]int)
+	param["menuid"] = menuId
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/delconditional?access_token="
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &param, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result
+		return
+	}
+	return
+}
