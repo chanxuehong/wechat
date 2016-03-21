@@ -50,10 +50,11 @@ func (clt *Client) DeleteMenu() (err error) {
 }
 
 // 获取自定义菜单
-func (clt *Client) GetMenu() (menu Menu, err error) {
+func (clt *Client) GetMenu() (menu *Menu, conditionalMenus []Menu, err error) {
 	var result struct {
 		mp.Error
-		Menu Menu `json:"menu"`
+		Menu             Menu   `json:"menu"`
+		ConditionalMenus []Menu `json:"conditionalmenu"`
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/get?access_token="
@@ -65,7 +66,8 @@ func (clt *Client) GetMenu() (menu Menu, err error) {
 		err = &result.Error
 		return
 	}
-	menu = result.Menu
+	menu = &result.Menu
+	conditionalMenus = result.ConditionalMenus
 	return
 }
 
@@ -90,5 +92,73 @@ func (clt *Client) GetMenuInfo() (info MenuInfo, isMenuOpen bool, err error) {
 	if result.IsMenuOpen == 1 {
 		isMenuOpen = true
 	}
+	return
+}
+
+// 创建个性化菜单.
+func (clt *Client) CreateConditionalMenu(menu *Menu) (menuId int64, err error) {
+	var result struct {
+		mp.Error
+		MenuId int64 `json:"menuid"`
+	}
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/addconditional?access_token="
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, menu, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	menuId = result.MenuId
+	return
+}
+
+// 删除个性化菜单.
+func (clt *Client) DeleteConditionalMenu(menuId int64) (err error) {
+	var request = struct {
+		MenuId int64 `json:"menuid"`
+	}{
+		MenuId: menuId,
+	}
+
+	var result mp.Error
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/delconditional?access_token="
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result
+		return
+	}
+	return
+}
+
+// 测试个性化菜单匹配结果.
+// userId 可以是粉丝的 OpenID, 也可以是粉丝的微信号
+func (clt *Client) TryMatch(userId string) (menu *Menu, err error) {
+	var request = struct {
+		UserId string `json:"user_id"`
+	}{
+		UserId: userId,
+	}
+	var result struct {
+		mp.Error
+		Menu Menu `json:"menu"`
+	}
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/trymatch?access_token="
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	menu = &result.Menu
 	return
 }
