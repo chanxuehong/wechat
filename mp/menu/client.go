@@ -94,8 +94,11 @@ func (clt *Client) GetMenuInfo() (info MenuInfo, isMenuOpen bool, err error) {
 }
 
 // 创建个性化菜单.
-func (clt *Client) CreateConditionalMenu(menu Menu) (menuId int, err error) {
-	var result ConditionalMenuResult
+func (clt *Client) CreateConditionalMenu(menu Menu) (menuId int64, err error) {
+	var result struct {
+		mp.Error
+		MenuId int64 `json:"menuid"`
+	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/addconditional?access_token="
 	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &menu, &result); err != nil {
@@ -103,7 +106,7 @@ func (clt *Client) CreateConditionalMenu(menu Menu) (menuId int, err error) {
 	}
 
 	if result.ErrCode != mp.ErrCodeOK {
-		err = &result
+		err = &result.Error
 		return
 	}
 	menuId = result.MenuId
@@ -111,12 +114,17 @@ func (clt *Client) CreateConditionalMenu(menu Menu) (menuId int, err error) {
 }
 
 // 删除个性化菜单.
-func (clt *Client) DeleteConditionalMenu(menuId int) (err error) {
+func (clt *Client) DeleteConditionalMenu(menuId int64) (err error) {
 	var result mp.Error
-	param := make(map[string]int)
-	param["menuid"] = menuId
+
+	var request = struct {
+		MenuId int64 `json:"menuid"`
+	}{
+		MenuId: menuId,
+	}
+
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/delconditional?access_token="
-	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &param, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
 
@@ -124,5 +132,31 @@ func (clt *Client) DeleteConditionalMenu(menuId int) (err error) {
 		err = &result
 		return
 	}
+	return
+}
+
+// 测试个性化菜单匹配结果.
+//  userId 可以是粉丝的 OpenID, 也可以是粉丝的微信号
+func (clt *Client) TryMatch(userId string) (menu *Menu, err error) {
+	var request = struct {
+		UserId string `json:"user_id"`
+	}{
+		UserId: userId,
+	}
+	var result struct {
+		mp.Error
+		Menu Menu
+	}
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/trymatch?access_token="
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	menu = &result.Menu
 	return
 }
