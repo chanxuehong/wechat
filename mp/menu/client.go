@@ -50,10 +50,11 @@ func (clt *Client) DeleteMenu() (err error) {
 }
 
 // 获取自定义菜单
-func (clt *Client) GetMenu() (menu Menu, err error) {
+func (clt *Client) GetMenu() (menu *Menu, conditionalMenus []Menu, err error) {
 	var result struct {
 		mp.Error
-		Menu Menu `json:"menu"`
+		Menu             Menu   `json:"menu"`
+		ConditionalMenus []Menu `json:"conditionalmenu"`
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/get?access_token="
@@ -65,7 +66,8 @@ func (clt *Client) GetMenu() (menu Menu, err error) {
 		err = &result.Error
 		return
 	}
-	menu = result.Menu
+	menu = &result.Menu
+	conditionalMenus = result.ConditionalMenus
 	return
 }
 
@@ -120,7 +122,7 @@ func (clt *Client) DeleteConditionalMenu(menuId int64) (err error) {
 	}{
 		MenuId: menuId,
 	}
-    
+
 	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/delconditional?access_token="
@@ -136,7 +138,7 @@ func (clt *Client) DeleteConditionalMenu(menuId int64) (err error) {
 }
 
 // 测试个性化菜单匹配结果.
-//  userId 可以是粉丝的 OpenID, 也可以是粉丝的微信号
+// userId 可以是粉丝的 OpenID, 也可以是粉丝的微信号
 func (clt *Client) TryMatch(userId string) (menu *Menu, err error) {
 	var request = struct {
 		UserId string `json:"user_id"`
@@ -145,7 +147,7 @@ func (clt *Client) TryMatch(userId string) (menu *Menu, err error) {
 	}
 	var result struct {
 		mp.Error
-		Menu Menu
+		Menu Menu `json:"menu"`
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/trymatch?access_token="

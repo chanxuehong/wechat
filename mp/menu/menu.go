@@ -55,12 +55,12 @@ type Menu struct {
 }
 
 type MatchRule struct {
-	GroupId            int    `json:"group_id,omitempty"`
-	Sex                int    `json:"sex,omitempty"`
+	GroupId            json.Number    `json:"group_id,omitempty"`
+	Sex                json.Number    `json:"sex,omitempty"`
 	Country            string `json:"country,omitempty"`
 	Province           string `json:"province,omitempty"`
 	City               string `json:"city,omitempty"`
-	ClientPlatformType int    `json:"client_platform_type,omitempty"`
+	ClientPlatformType json.Number    `json:"client_platform_type,omitempty"`
 	Language           string `json:"language,omitempty"`
 }
 
