@@ -94,14 +94,14 @@ func (clt *Client) GetMenuInfo() (info MenuInfo, isMenuOpen bool, err error) {
 }
 
 // 创建个性化菜单.
-func (clt *Client) CreateConditionalMenu(menu Menu) (menuId int64, err error) {
+func (clt *Client) CreateConditionalMenu(menu *Menu) (menuId int64, err error) {
 	var result struct {
 		mp.Error
 		MenuId int64 `json:"menuid"`
 	}
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/addconditional?access_token="
-	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &menu, &result); err != nil {
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, menu, &result); err != nil {
 		return
 	}
 
@@ -115,13 +115,13 @@ func (clt *Client) CreateConditionalMenu(menu Menu) (menuId int64, err error) {
 
 // 删除个性化菜单.
 func (clt *Client) DeleteConditionalMenu(menuId int64) (err error) {
-	var result mp.Error
-
 	var request = struct {
 		MenuId int64 `json:"menuid"`
 	}{
 		MenuId: menuId,
 	}
+    
+	var result mp.Error
 
 	incompleteURL := "https://api.weixin.qq.com/cgi-bin/menu/delconditional?access_token="
 	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
