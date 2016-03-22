@@ -5,6 +5,10 @@
 
 package menu
 
+import (
+	"encoding/json"
+)
+
 const (
 	MenuButtonCountLimit    = 3 // 一级菜单最多包含 3 个按钮
 	SubMenuButtonCountLimit = 5 // 二级菜单最多包含 5 个按钮
@@ -49,7 +53,9 @@ const (
 )
 
 type Menu struct {
-	Buttons []Button `json:"button,omitempty"` // 一级菜单数组, 个数应为1~3个
+	Buttons   []Button   `json:"button,omitempty"` // 一级菜单数组, 个数应为1~3个
+	MatchRule *MatchRule `json:"matchrule,omitempty"`
+	MenuId    int64      `json:"menuid,omitempty"` // 有个性化菜单时查询接口返回值包含这个字段
 }
 
 // 菜单的按钮
@@ -60,6 +66,16 @@ type Button struct {
 	URL        string   `json:"url,omitempty"`        // 非必须; 网页链接, 用户点击菜单可打开链接, 不超过256字节
 	MediaId    string   `json:"media_id,omitempty"`   // 非必须; 调用新增永久素材接口返回的合法media_id
 	SubButtons []Button `json:"sub_button,omitempty"` // 非必须; 二级菜单数组, 个数应为1~5个
+}
+
+type MatchRule struct {
+	GroupId            json.Number `json:"group_id,omitempty"`
+	Sex                json.Number `json:"sex,omitempty"`
+	Country            string      `json:"country,omitempty"`
+	Province           string      `json:"province,omitempty"`
+	City               string      `json:"city,omitempty"`
+	ClientPlatformType json.Number `json:"client_platform_type,omitempty"`
+	Language           string      `json:"language,omitempty"`
 }
 
 // 设置 btn 指向的 Button 为 子菜单 类型按钮

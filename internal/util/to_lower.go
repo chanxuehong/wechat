@@ -6,19 +6,21 @@ func ToLower(s string) string {
 	var b []byte
 	for i := 0; i < len(s); i++ {
 		c := s[i]
-		if 'A' <= c && c <= 'Z' {
+		if c > 'Z' || c < 'A' {
+			if b != nil {
+				b[i] = c
+			}
+		} else {
 			c += 'a' - 'A'
 			if b == nil {
 				b = make([]byte, len(s))
 				copy(b, s[:i])
 			}
-		}
-		if b != nil {
 			b[i] = c
 		}
 	}
-	if b == nil {
-		return s
+	if b != nil {
+		return string(b)
 	}
-	return string(b)
+	return s
 }
