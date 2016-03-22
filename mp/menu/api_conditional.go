@@ -55,7 +55,7 @@ func TryMatch(clt *core.Client, userId string) (menu *Menu, err error) {
 	}
 	var result struct {
 		core.Error
-		Menu
+		Menu `json:"menu"`
 	}
 	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
