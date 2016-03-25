@@ -17,19 +17,19 @@ func TestWXConfigSign(t *testing.T) {
 
 	haveSignature := WXConfigSign(jsapiTicket, nonceStr, timestamp, url)
 	if haveSignature != wantSignature {
-		t.Errorf("test WXConfigSign failed,\r\nhave: %s\r\nwant: %s", haveSignature, wantSignature)
+		t.Errorf("test WXConfigSign failed,\nhave: %s\nwant: %s\n", haveSignature, wantSignature)
 		return
 	}
 
 	haveSignature2 := WXConfigSign2(jsapiTicket, nonceStr, timestamp, url)
 	if haveSignature2 != wantSignature {
-		t.Errorf("test WXConfigSign2 failed,\r\nhave: %s\r\nwant: %s", haveSignature2, wantSignature)
+		t.Errorf("test WXConfigSign2 failed,\nhave: %s\nwant: %s\n", haveSignature2, wantSignature)
 		return
 	}
 
 	haveSignature3 := WXConfigSign3(jsapiTicket, nonceStr, timestamp, url)
 	if haveSignature3 != wantSignature {
-		t.Errorf("test WXConfigSign3 failed,\r\nhave: %s\r\nwant: %s", haveSignature3, wantSignature)
+		t.Errorf("test WXConfigSign3 failed,\nhave: %s\nwant: %s\n", haveSignature3, wantSignature)
 		return
 	}
 }
@@ -46,7 +46,7 @@ func TestCardSign(t *testing.T) {
 
 	haveSignature := CardSign([]string{open_id, code, timestamp, card_id, api_ticket, nonce_str})
 	if haveSignature != wantSignature {
-		t.Errorf("test CardSign failed,\r\nhave: %s\r\nwant: %s", haveSignature, wantSignature)
+		t.Errorf("test CardSign failed,\nhave: %s\nwant: %s\n", haveSignature, wantSignature)
 		return
 	}
 }
@@ -96,7 +96,7 @@ func BenchmarkWXConfigSign3(b *testing.B) {
 func WXConfigSign2(jsapiTicket, nonceStr, timestamp, url string) (signature string) {
 	h := sha1.New()
 
-	bufw := bufio.NewWriterSize(h, 256)
+	bufw := bufio.NewWriterSize(h, 128)
 	bufw.WriteString("jsapi_ticket=")
 	bufw.WriteString(jsapiTicket)
 	bufw.WriteString("&noncestr=")

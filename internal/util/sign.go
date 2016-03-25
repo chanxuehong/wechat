@@ -1,18 +1,18 @@
 package util
 
 import (
+	"bufio"
 	"crypto/sha1"
 	"encoding/hex"
 	"sort"
 )
 
-// 微信公众号 明文模式/URL认证 签名
+// Sign 微信公众号 url 签名.
 func Sign(token, timestamp, nonce string) (signature string) {
 	strs := sort.StringSlice{token, timestamp, nonce}
 	strs.Sort()
 
 	buf := make([]byte, 0, len(token)+len(timestamp)+len(nonce))
-
 	buf = append(buf, strs[0]...)
 	buf = append(buf, strs[1]...)
 	buf = append(buf, strs[2]...)
@@ -21,18 +21,20 @@ func Sign(token, timestamp, nonce string) (signature string) {
 	return hex.EncodeToString(hashsum[:])
 }
 
-// 微信公众号/企业号 密文模式消息签名
+// MsgSign 微信公众号/企业号 消息体签名.
 func MsgSign(token, timestamp, nonce, encryptedMsg string) (signature string) {
 	strs := sort.StringSlice{token, timestamp, nonce, encryptedMsg}
 	strs.Sort()
 
-	buf := make([]byte, 0, len(token)+len(timestamp)+len(nonce)+len(encryptedMsg))
+	h := sha1.New()
 
-	buf = append(buf, strs[0]...)
-	buf = append(buf, strs[1]...)
-	buf = append(buf, strs[2]...)
-	buf = append(buf, strs[3]...)
+	bufw := bufio.NewWriterSize(h, 128) // sha1.BlockSize 的整数倍
+	bufw.WriteString(strs[0])
+	bufw.WriteString(strs[1])
+	bufw.WriteString(strs[2])
+	bufw.WriteString(strs[3])
+	bufw.Flush()
 
-	hashsum := sha1.Sum(buf)
-	return hex.EncodeToString(hashsum[:])
+	hashsum := h.Sum(nil)
+	return hex.EncodeToString(hashsum)
 }
