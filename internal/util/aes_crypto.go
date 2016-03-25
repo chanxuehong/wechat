@@ -7,19 +7,19 @@ import (
 )
 
 // 把整数 n 格式化成 4 字节的网络字节序
-func encodeNetworkByteOrder(orderBytes []byte, n uint32) {
-	orderBytes[0] = byte(n >> 24)
-	orderBytes[1] = byte(n >> 16)
-	orderBytes[2] = byte(n >> 8)
-	orderBytes[3] = byte(n)
+func encodeNetworkByteOrder(b []byte, n uint32) {
+	b[0] = byte(n >> 24)
+	b[1] = byte(n >> 16)
+	b[2] = byte(n >> 8)
+	b[3] = byte(n)
 }
 
 // 从 4 字节的网络字节序里解析出整数
-func decodeNetworkByteOrder(orderBytes []byte) (n uint32) {
-	return uint32(orderBytes[0])<<24 |
-		uint32(orderBytes[1])<<16 |
-		uint32(orderBytes[2])<<8 |
-		uint32(orderBytes[3])
+func decodeNetworkByteOrder(b []byte) (n uint32) {
+	return uint32(b[0])<<24 |
+		uint32(b[1])<<16 |
+		uint32(b[2])<<8 |
+		uint32(b[3])
 }
 
 // ciphertext = AES_Encrypt[random(16B) + msg_len(4B) + rawXMLMsg + appId]
