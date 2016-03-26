@@ -85,12 +85,6 @@ func BatchGet(clt *core.Client, openIdList []string, lang string) (list []UserIn
 	default:
 		lang = ""
 	}	
-	
-	switch lang {
-	case LanguageZhCN, LanguageZhTW, LanguageEN:
-	default:
-		lang = LanguageZhCN
-	}
 
 	var request struct {
 		UserList []batchGetRequestItem `json:"user_list,omitempty"`
