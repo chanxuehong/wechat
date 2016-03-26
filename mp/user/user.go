@@ -42,9 +42,8 @@ type UserInfo struct {
 //  1. 需要判断返回的 UserInfo.IsSubscriber 是等于 1 还是 0
 //  2. lang 指定返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语, 默认为 zh_CN
 func Get(clt *core.Client, openId string, lang string) (info *UserInfo, err error) {
+	
 	switch lang {
-	case "":
-		lang = LanguageZhCN
 	case LanguageZhCN, LanguageZhTW, LanguageEN:
 	default:
 		lang = LanguageZhCN
@@ -82,9 +81,15 @@ func BatchGet(clt *core.Client, openIdList []string, lang string) (list []UserIn
 	}
 
 	switch lang {
-	case "", LanguageZhCN, LanguageZhTW, LanguageEN:
+	case LanguageZhCN, LanguageZhTW, LanguageEN:
 	default:
 		lang = ""
+	}	
+	
+	switch lang {
+	case LanguageZhCN, LanguageZhTW, LanguageEN:
+	default:
+		lang = LanguageZhCN
 	}
 
 	var request struct {
