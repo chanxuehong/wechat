@@ -87,21 +87,7 @@ func (clt *Client) PostMultipartForm(incompleteURL string, fields []MultipartFor
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
-
-	err = func() error {
-		api.DebugPrintPostMultipartRequest(finalURL, requestBodyBytes)
-		httpResp, err := httpClient.Post(finalURL, requestBodyType, bytes.NewReader(requestBodyBytes))
-		if err != nil {
-			return err
-		}
-		defer httpResp.Body.Close()
-
-		if httpResp.StatusCode != http.StatusOK {
-			return fmt.Errorf("http.Status: %s", httpResp.Status)
-		}
-		return api.UnmarshalJSONHttpResponse(httpResp.Body, response)
-	}()
-	if err != nil {
+	if err = httpPostMultipartForm(httpClient, finalURL, requestBodyType, requestBodyBytes, response); err != nil {
 		return
 	}
 
@@ -125,4 +111,18 @@ RETRY:
 	default:
 		return
 	}
+}
+
+func httpPostMultipartForm(clt *http.Client, url, bodyType string, body []byte, response interface{}) error {
+	api.DebugPrintPostMultipartRequest(url, body)
+	httpResp, err := clt.Post(url, bodyType, bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	defer httpResp.Body.Close()
+
+	if httpResp.StatusCode != http.StatusOK {
+		return fmt.Errorf("http.Status: %s", httpResp.Status)
+	}
+	return api.UnmarshalJSONHttpResponse(httpResp.Body, response)
 }

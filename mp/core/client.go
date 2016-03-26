@@ -58,21 +58,7 @@ func (clt *Client) GetJSON(incompleteURL string, response interface{}) (err erro
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
-
-	err = func() error {
-		api.DebugPrintGetRequest(finalURL)
-		httpResp, err := httpClient.Get(finalURL)
-		if err != nil {
-			return err
-		}
-		defer httpResp.Body.Close()
-
-		if httpResp.StatusCode != http.StatusOK {
-			return fmt.Errorf("http.Status: %s", httpResp.Status)
-		}
-		return api.UnmarshalJSONHttpResponse(httpResp.Body, response)
-	}()
-	if err != nil {
+	if err = httpGetJSON(httpClient, finalURL, response); err != nil {
 		return
 	}
 
@@ -96,6 +82,20 @@ RETRY:
 	default:
 		return
 	}
+}
+
+func httpGetJSON(clt *http.Client, url string, response interface{}) error {
+	api.DebugPrintGetRequest(url)
+	httpResp, err := clt.Get(url)
+	if err != nil {
+		return err
+	}
+	defer httpResp.Body.Close()
+
+	if httpResp.StatusCode != http.StatusOK {
+		return fmt.Errorf("http.Status: %s", httpResp.Status)
+	}
+	return api.UnmarshalJSONHttpResponse(httpResp.Body, response)
 }
 
 // PostJSON 用 encoding/json 把 request marshal 为 JSON, HTTP POST 到微信服务器,
@@ -137,21 +137,7 @@ func (clt *Client) PostJSON(incompleteURL string, request interface{}, response 
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
-
-	err = func() error {
-		api.DebugPrintPostJSONRequest(finalURL, requestBodyBytes)
-		httpResp, err := httpClient.Post(finalURL, "application/json; charset=utf-8", bytes.NewReader(requestBodyBytes))
-		if err != nil {
-			return err
-		}
-		defer httpResp.Body.Close()
-
-		if httpResp.StatusCode != http.StatusOK {
-			return fmt.Errorf("http.Status: %s", httpResp.Status)
-		}
-		return api.UnmarshalJSONHttpResponse(httpResp.Body, response)
-	}()
-	if err != nil {
+	if err = httpPostJSON(httpClient, finalURL, requestBodyBytes, response); err != nil {
 		return
 	}
 
@@ -175,6 +161,20 @@ RETRY:
 	default:
 		return
 	}
+}
+
+func httpPostJSON(clt *http.Client, url string, body []byte, response interface{}) error {
+	api.DebugPrintPostJSONRequest(url, body)
+	httpResp, err := clt.Post(url, "application/json; charset=utf-8", bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	defer httpResp.Body.Close()
+
+	if httpResp.StatusCode != http.StatusOK {
+		return fmt.Errorf("http.Status: %s", httpResp.Status)
+	}
+	return api.UnmarshalJSONHttpResponse(httpResp.Body, response)
 }
 
 // checkResponse 检查 response 参数是否满足特定的结构要求, 如果不满足要求则会 panic, 否则返回相应的 reflect.Value.
