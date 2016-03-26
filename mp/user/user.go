@@ -43,7 +43,7 @@ type UserInfo struct {
 //  2. lang 指定返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语, 默认为 zh_CN
 func Get(clt *core.Client, openId string, lang string) (info *UserInfo, err error) {
 	switch lang {
-	case LanguageZhCN, LanguageZhTW, LanguageEN:
+	case LanguageZhTW, LanguageEN:
 	default:
 		lang = LanguageZhCN
 	}
