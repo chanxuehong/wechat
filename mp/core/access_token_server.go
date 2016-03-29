@@ -16,7 +16,7 @@ import (
 // access_token 中控服务器接口.
 type AccessTokenServer interface {
 	Token() (token string, err error)        // 请求中控服务器返回缓存的 access_token
-	TokenRefresh() (token string, err error) // 请求中控服务器刷新 access_token
+	RefreshToken() (token string, err error) // 请求中控服务器刷新 access_token
 	IID01332E16DF5011E5A9D5A4DB30FED8E1()    // 接口标识, 没有实际意义
 }
 
@@ -81,11 +81,11 @@ func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
 	if token != "" {
 		return
 	}
-	return srv.TokenRefresh()
+	return srv.RefreshToken()
 }
 
-func (srv *DefaultAccessTokenServer) TokenRefresh() (token string, err error) {
-	accessToken, cached, err := srv.tokenRefresh()
+func (srv *DefaultAccessTokenServer) RefreshToken() (token string, err error) {
+	accessToken, cached, err := srv.refreshToken()
 	if err != nil {
 		return
 	}
@@ -108,7 +108,7 @@ NEW_TICK_DURATION:
 			goto NEW_TICK_DURATION
 
 		case <-srv.ticker.C:
-			accessToken, cached, err := srv.tokenRefresh()
+			accessToken, cached, err := srv.refreshToken()
 			if err != nil {
 				break
 			}
@@ -124,8 +124,8 @@ NEW_TICK_DURATION:
 	}
 }
 
-// tokenRefresh 从微信服务器获取新的 access_token 并存入缓存, 同时返回该 access_token.
-func (srv *DefaultAccessTokenServer) tokenRefresh() (token accessToken, cached bool, err error) {
+// refreshToken 从微信服务器获取新的 access_token 并存入缓存, 同时返回该 access_token.
+func (srv *DefaultAccessTokenServer) refreshToken() (token accessToken, cached bool, err error) {
 	srv.tokenGet.Lock()
 	defer srv.tokenGet.Unlock()
 

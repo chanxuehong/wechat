@@ -13,7 +13,7 @@ import (
 // 卡劵 api_ticket 中控服务器接口.
 type CardTicketServer interface {
 	Ticket() (ticket string, err error)        // 请求中控服务器返回缓存的卡劵 api_ticket
-	TicketRefresh() (ticket string, err error) // 请求中控服务器刷新卡劵 api_ticket
+	RefreshTicket() (ticket string, err error) // 请求中控服务器刷新卡劵 api_ticket
 	IIDB9BDD0A1E1DC11E5844AA4DB30FED8E1()      // 接口标识, 没有实际意义
 }
 
@@ -73,11 +73,11 @@ func (srv *DefaultCardTicketServer) Ticket() (ticket string, err error) {
 	if ticket != "" {
 		return
 	}
-	return srv.TicketRefresh()
+	return srv.RefreshTicket()
 }
 
-func (srv *DefaultCardTicketServer) TicketRefresh() (ticket string, err error) {
-	cardApiTicket, cached, err := srv.ticketRefresh()
+func (srv *DefaultCardTicketServer) RefreshTicket() (ticket string, err error) {
+	cardApiTicket, cached, err := srv.refreshTicket()
 	if err != nil {
 		return
 	}
@@ -100,7 +100,7 @@ NEW_TICK_DURATION:
 			goto NEW_TICK_DURATION
 
 		case <-srv.ticker.C:
-			cardApiTicket, cached, err := srv.ticketRefresh()
+			cardApiTicket, cached, err := srv.refreshTicket()
 			if err != nil {
 				break
 			}
@@ -116,8 +116,8 @@ NEW_TICK_DURATION:
 	}
 }
 
-// ticketRefresh 从微信服务器获取新的卡劵 api_ticket 并存入缓存, 同时返回该卡劵 api_ticket.
-func (srv *DefaultCardTicketServer) ticketRefresh() (ticket cardApiTicket, cached bool, err error) {
+// refreshTicket 从微信服务器获取新的卡劵 api_ticket 并存入缓存, 同时返回该卡劵 api_ticket.
+func (srv *DefaultCardTicketServer) refreshTicket() (ticket cardApiTicket, cached bool, err error) {
 	srv.ticketGet.Lock()
 	defer srv.ticketGet.Unlock()
 

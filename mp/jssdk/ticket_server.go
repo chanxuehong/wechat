@@ -13,7 +13,7 @@ import (
 // jsapi_ticket 中控服务器接口.
 type TicketServer interface {
 	Ticket() (ticket string, err error)        // 请求中控服务器返回缓存的 jsapi_ticket
-	TicketRefresh() (ticket string, err error) // 请求中控服务器刷新 jsapi_ticket
+	RefreshTicket() (ticket string, err error) // 请求中控服务器刷新 jsapi_ticket
 	IIDB04E44A0E1DC11E5ADCEA4DB30FED8E1()      // 接口标识, 没有实际意义
 }
 
@@ -73,11 +73,11 @@ func (srv *DefaultTicketServer) Ticket() (ticket string, err error) {
 	if ticket != "" {
 		return
 	}
-	return srv.TicketRefresh()
+	return srv.RefreshTicket()
 }
 
-func (srv *DefaultTicketServer) TicketRefresh() (ticket string, err error) {
-	jsapiTicket, cached, err := srv.ticketRefresh()
+func (srv *DefaultTicketServer) RefreshTicket() (ticket string, err error) {
+	jsapiTicket, cached, err := srv.refreshTicket()
 	if err != nil {
 		return
 	}
@@ -100,7 +100,7 @@ NEW_TICK_DURATION:
 			goto NEW_TICK_DURATION
 
 		case <-srv.ticker.C:
-			jsapiTicket, cached, err := srv.ticketRefresh()
+			jsapiTicket, cached, err := srv.refreshTicket()
 			if err != nil {
 				break
 			}
@@ -116,8 +116,8 @@ NEW_TICK_DURATION:
 	}
 }
 
-// ticketRefresh 从微信服务器获取新的 jsapi_ticket 并存入缓存, 同时返回该 jsapi_ticket.
-func (srv *DefaultTicketServer) ticketRefresh() (ticket jsapiTicket, cached bool, err error) {
+// refreshTicket 从微信服务器获取新的 jsapi_ticket 并存入缓存, 同时返回该 jsapi_ticket.
+func (srv *DefaultTicketServer) refreshTicket() (ticket jsapiTicket, cached bool, err error) {
 	srv.ticketGet.Lock()
 	defer srv.ticketGet.Unlock()
 

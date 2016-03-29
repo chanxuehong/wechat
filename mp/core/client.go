@@ -71,7 +71,7 @@ RETRY:
 		if !hasRetried {
 			hasRetried = true
 			ErrorStructValue.Set(errorZeroValue)
-			if token, err = clt.TokenRefresh(); err != nil {
+			if token, err = clt.RefreshToken(); err != nil {
 				return
 			}
 			retry.DebugPrintNewToken(token)
@@ -150,7 +150,7 @@ RETRY:
 		if !hasRetried {
 			hasRetried = true
 			ErrorStructValue.Set(errorZeroValue)
-			if token, err = clt.TokenRefresh(); err != nil {
+			if token, err = clt.RefreshToken(); err != nil {
 				return
 			}
 			retry.DebugPrintNewToken(token)

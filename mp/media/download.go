@@ -65,7 +65,7 @@ RETRY:
 		if !hasRetried {
 			hasRetried = true
 			errorResult = core.Error{}
-			if token, err = clt.TokenRefresh(); err != nil {
+			if token, err = clt.RefreshToken(); err != nil {
 				return
 			}
 			retry.DebugPrintNewToken(token)
