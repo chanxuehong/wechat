@@ -65,7 +65,7 @@ RETRY:
 		if !hasRetried {
 			hasRetried = true
 			errorResult = core.Error{}
-			if token, err = clt.RefreshToken(); err != nil {
+			if token, err = clt.RefreshToken(token); err != nil {
 				return
 			}
 			retry.DebugPrintNewToken(token)
@@ -98,6 +98,6 @@ func httpDownloadToWriter(clt *http.Client, url string, writer io.Writer, errorR
 		return io.Copy(writer, httpResp.Body)
 	} else {
 		// 返回的是错误信息
-		return 0, api.UnmarshalJSONHttpResponse(httpResp.Body, errorResult)
+		return 0, api.DecodeJSONHttpResponse(httpResp.Body, errorResult)
 	}
 }

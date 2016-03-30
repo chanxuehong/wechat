@@ -12,9 +12,9 @@ import (
 
 // 卡劵 api_ticket 中控服务器接口.
 type CardTicketServer interface {
-	Ticket() (ticket string, err error)        // 请求中控服务器返回缓存的卡劵 api_ticket
-	RefreshTicket() (ticket string, err error) // 请求中控服务器刷新卡劵 api_ticket
-	IIDB9BDD0A1E1DC11E5844AA4DB30FED8E1()      // 接口标识, 没有实际意义
+	Ticket() (ticket string, err error)                            // 请求中控服务器返回缓存的卡劵 api_ticket
+	RefreshTicket(currentTicket string) (ticket string, err error) // 请求中控服务器刷新卡劵 api_ticket
+	IIDB9BDD0A1E1DC11E5844AA4DB30FED8E1()                          // 接口标识, 没有实际意义
 }
 
 var _ CardTicketServer = (*DefaultCardTicketServer)(nil)
@@ -27,25 +27,28 @@ var _ CardTicketServer = (*DefaultCardTicketServer)(nil)
 type DefaultCardTicketServer struct {
 	coreClient *core.Client
 
-	ticker          *time.Ticker       // 用于定时更新卡劵 api_ticket
-	resetTickerChan chan time.Duration // 用于重置 ticker
+	refreshTicketRequestChan  chan string              // chan currentTicket
+	refreshTicketResponseChan chan refreshTicketResult // chan {ticket, err}
 
-	ticketGet struct {
-		sync.Mutex
-		lastTicket    cardApiTicket // 最近一次成功更新卡劵 api_ticket 的数据信息
-		lastTimestamp time.Time     // 最近一次成功更新卡劵 api_ticket 的时间戳
-	}
-
-	ticketCache struct {
-		sync.RWMutex
-		ticket string // 保存有效的卡劵 api_ticket, 当更新卡劵 api_ticket 失败时此字段置空
-	}
+	ticketCache cardApiTicketCache
 }
 
-// 微信服务器返回的卡劵 api_ticket 的数据结构.
-type cardApiTicket struct {
-	Ticket    string `json:"ticket"`
-	ExpiresIn int64  `json:"expires_in"`
+type cardApiTicketCache struct {
+	sync.RWMutex
+	ticket cardApiTicket
+}
+
+func (cache *cardApiTicketCache) getTicket() (ticket cardApiTicket) {
+	cache.RLock()
+	ticket = cache.ticket
+	cache.RUnlock()
+	return
+}
+
+func (cache *cardApiTicketCache) putTicket(ticket cardApiTicket) {
+	cache.Lock()
+	cache.ticket = ticket
+	cache.Unlock()
 }
 
 // NewDefaultCardTicketServer 创建一个新的 DefaultCardTicketServer.
@@ -54,9 +57,9 @@ func NewDefaultCardTicketServer(clt *core.Client) (srv *DefaultCardTicketServer)
 		panic("nil core.Client")
 	}
 	srv = &DefaultCardTicketServer{
-		coreClient:      clt,
-		ticker:          nil,
-		resetTickerChan: make(chan time.Duration),
+		coreClient:                clt,
+		refreshTicketRequestChan:  make(chan string),
+		refreshTicketResponseChan: make(chan refreshTicketResult),
 	}
 
 	go srv.ticketUpdateDaemon(time.Hour * 24 * time.Duration(100+rand.Int63n(200)))
@@ -66,70 +69,75 @@ func NewDefaultCardTicketServer(clt *core.Client) (srv *DefaultCardTicketServer)
 func (srv *DefaultCardTicketServer) IIDB9BDD0A1E1DC11E5844AA4DB30FED8E1() {}
 
 func (srv *DefaultCardTicketServer) Ticket() (ticket string, err error) {
-	srv.ticketCache.RLock()
-	ticket = srv.ticketCache.ticket
-	srv.ticketCache.RUnlock()
-
-	if ticket != "" {
+	if ticket = srv.ticketCache.getTicket().Ticket; ticket != "" {
 		return
 	}
-	return srv.RefreshTicket()
+	return srv.RefreshTicket("")
 }
 
-func (srv *DefaultCardTicketServer) RefreshTicket() (ticket string, err error) {
-	cardApiTicket, cached, err := srv.refreshTicket()
-	if err != nil {
-		return
-	}
-	if !cached {
-		srv.resetTickerChan <- time.Duration(cardApiTicket.ExpiresIn) * time.Second
-	}
-	ticket = cardApiTicket.Ticket
-	return
+//type refreshTicketResult struct {
+//	ticket string
+//	err    error
+//}
+
+func (srv *DefaultCardTicketServer) RefreshTicket(currentTicket string) (ticket string, err error) {
+	srv.refreshTicketRequestChan <- currentTicket
+	rslt := <-srv.refreshTicketResponseChan
+	return rslt.ticket, rslt.err
 }
 
 func (srv *DefaultCardTicketServer) ticketUpdateDaemon(initTickDuration time.Duration) {
 	tickDuration := initTickDuration
 
 NEW_TICK_DURATION:
-	srv.ticker = time.NewTicker(tickDuration)
+	ticker := time.NewTicker(tickDuration)
 	for {
 		select {
-		case tickDuration = <-srv.resetTickerChan:
-			srv.ticker.Stop()
-			goto NEW_TICK_DURATION
+		case currentTicket := <-srv.refreshTicketRequestChan:
+			cardApiTicket, cached, err := srv.updateTicket(currentTicket)
+			if err != nil {
+				srv.refreshTicketResponseChan <- refreshTicketResult{err: err}
+				break
+			}
+			srv.refreshTicketResponseChan <- refreshTicketResult{ticket: cardApiTicket.Ticket}
+			if !cached {
+				tickDuration = time.Duration(cardApiTicket.ExpiresIn) * time.Second
+				ticker.Stop()
+				goto NEW_TICK_DURATION
+			}
 
-		case <-srv.ticker.C:
-			cardApiTicket, cached, err := srv.refreshTicket()
+		case <-ticker.C:
+			cardApiTicket, _, err := srv.updateTicket("")
 			if err != nil {
 				break
 			}
-			if !cached {
-				newTickDuration := time.Duration(cardApiTicket.ExpiresIn) * time.Second
-				if tickDuration != newTickDuration {
-					tickDuration = newTickDuration
-					srv.ticker.Stop()
-					goto NEW_TICK_DURATION
-				}
+			newTickDuration := time.Duration(cardApiTicket.ExpiresIn) * time.Second
+			if abs(tickDuration-newTickDuration) > time.Second*2 {
+				tickDuration = newTickDuration
+				ticker.Stop()
+				goto NEW_TICK_DURATION
 			}
 		}
 	}
 }
 
-// refreshTicket 从微信服务器获取新的卡劵 api_ticket 并存入缓存, 同时返回该卡劵 api_ticket.
-func (srv *DefaultCardTicketServer) refreshTicket() (ticket cardApiTicket, cached bool, err error) {
-	srv.ticketGet.Lock()
-	defer srv.ticketGet.Unlock()
+//func abs(x time.Duration) time.Duration {
+//	if x >= 0 {
+//		return x
+//	}
+//	return -x
+//}
 
-	timeNow := time.Now()
+var zeroCardApiTicket cardApiTicket
 
-	// 如果在收敛周期内则直接返回最近一次获取的卡劵 api_ticket!
-	//
-	// 当卡劵 api_ticket 失效时, SDK 内部会尝试刷新卡劵 api_ticket, 这时在短时间(一个收敛周期)内可能会有多个 goroutine 同时进行刷新,
-	// 实际上我们没有必要也不能让这些操作都去微信服务器获取新的卡劵 api_ticket, 而只用返回同一个卡劵 api_ticket 即可.
-	// 因为卡劵 api_ticket 缓存在内存里, 所以收敛周期为3个http周期, 我们这里设定为3秒.
-	if d := timeNow.Sub(srv.ticketGet.lastTimestamp); 0 <= d && d < time.Second*3 {
-		ticket = srv.ticketGet.lastTicket
+type cardApiTicket struct {
+	Ticket    string `json:"ticket"`
+	ExpiresIn int64  `json:"expires_in"`
+}
+
+// updateTicket 从微信服务器获取新的卡劵 api_ticket 并存入缓存, 同时返回该卡劵 api_ticket.
+func (srv *DefaultCardTicketServer) updateTicket(currentTicket string) (ticket cardApiTicket, cached bool, err error) {
+	if ticket = srv.ticketCache.getTicket(); currentTicket != "" && ticket.Ticket != "" && currentTicket != ticket.Ticket {
 		cached = true
 		return
 	}
@@ -140,15 +148,11 @@ func (srv *DefaultCardTicketServer) refreshTicket() (ticket cardApiTicket, cache
 		cardApiTicket
 	}
 	if err = srv.coreClient.GetJSON(incompleteURL, &result); err != nil {
-		srv.ticketCache.Lock()
-		srv.ticketCache.ticket = ""
-		srv.ticketCache.Unlock()
+		srv.ticketCache.putTicket(zeroCardApiTicket)
 		return
 	}
 	if result.ErrCode != core.ErrCodeOK {
-		srv.ticketCache.Lock()
-		srv.ticketCache.ticket = ""
-		srv.ticketCache.Unlock()
+		srv.ticketCache.putTicket(zeroCardApiTicket)
 		err = &result.Error
 		return
 	}
@@ -156,9 +160,7 @@ func (srv *DefaultCardTicketServer) refreshTicket() (ticket cardApiTicket, cache
 	// 由于网络的延时, 卡劵 api_ticket 过期时间留有一个缓冲区
 	switch {
 	case result.ExpiresIn > 31556952: // 60*60*24*365.2425
-		srv.ticketCache.Lock()
-		srv.ticketCache.ticket = ""
-		srv.ticketCache.Unlock()
+		srv.ticketCache.putTicket(zeroCardApiTicket)
 		err = errors.New("expires_in too large: " + strconv.FormatInt(result.ExpiresIn, 10))
 		return
 	case result.ExpiresIn > 60*60:
@@ -170,22 +172,12 @@ func (srv *DefaultCardTicketServer) refreshTicket() (ticket cardApiTicket, cache
 	case result.ExpiresIn > 60:
 		result.ExpiresIn -= 10
 	default:
-		srv.ticketCache.Lock()
-		srv.ticketCache.ticket = ""
-		srv.ticketCache.Unlock()
+		srv.ticketCache.putTicket(zeroCardApiTicket)
 		err = errors.New("expires_in too small: " + strconv.FormatInt(result.ExpiresIn, 10))
 		return
 	}
 
-	// 更新 ticketGet
-	srv.ticketGet.lastTicket = result.cardApiTicket
-	srv.ticketGet.lastTimestamp = timeNow
-
-	// 更新 ticketCache
-	srv.ticketCache.Lock()
-	srv.ticketCache.ticket = result.Ticket
-	srv.ticketCache.Unlock()
-
+	srv.ticketCache.putTicket(result.cardApiTicket)
 	ticket = result.cardApiTicket
 	return
 }

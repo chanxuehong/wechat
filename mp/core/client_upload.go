@@ -100,7 +100,7 @@ RETRY:
 		if !hasRetried {
 			hasRetried = true
 			ErrorStructValue.Set(errorZeroValue)
-			if token, err = clt.RefreshToken(); err != nil {
+			if token, err = clt.RefreshToken(token); err != nil {
 				return
 			}
 			retry.DebugPrintNewToken(token)
@@ -124,5 +124,5 @@ func httpPostMultipartForm(clt *http.Client, url, bodyType string, body []byte, 
 	if httpResp.StatusCode != http.StatusOK {
 		return fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
-	return api.UnmarshalJSONHttpResponse(httpResp.Body, response)
+	return api.DecodeJSONHttpResponse(httpResp.Body, response)
 }

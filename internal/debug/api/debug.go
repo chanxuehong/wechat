@@ -29,7 +29,7 @@ func DebugPrintPostMultipartRequest(url string, body []byte) {
 	log.Println("[WECHAT_DEBUG] [API] multipart/form-data POST", url)
 }
 
-func UnmarshalJSONHttpResponse(r io.Reader, v interface{}) error {
+func DecodeJSONHttpResponse(r io.Reader, v interface{}) error {
 	body, err := ioutil.ReadAll(r)
 	if err != nil {
 		return err

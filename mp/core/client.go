@@ -71,7 +71,7 @@ RETRY:
 		if !hasRetried {
 			hasRetried = true
 			ErrorStructValue.Set(errorZeroValue)
-			if token, err = clt.RefreshToken(); err != nil {
+			if token, err = clt.RefreshToken(token); err != nil {
 				return
 			}
 			retry.DebugPrintNewToken(token)
@@ -95,7 +95,7 @@ func httpGetJSON(clt *http.Client, url string, response interface{}) error {
 	if httpResp.StatusCode != http.StatusOK {
 		return fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
-	return api.UnmarshalJSONHttpResponse(httpResp.Body, response)
+	return api.DecodeJSONHttpResponse(httpResp.Body, response)
 }
 
 // PostJSON 用 encoding/json 把 request marshal 为 JSON, HTTP POST 到微信服务器,
@@ -150,7 +150,7 @@ RETRY:
 		if !hasRetried {
 			hasRetried = true
 			ErrorStructValue.Set(errorZeroValue)
-			if token, err = clt.RefreshToken(); err != nil {
+			if token, err = clt.RefreshToken(token); err != nil {
 				return
 			}
 			retry.DebugPrintNewToken(token)
@@ -174,7 +174,7 @@ func httpPostJSON(clt *http.Client, url string, body []byte, response interface{
 	if httpResp.StatusCode != http.StatusOK {
 		return fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
-	return api.UnmarshalJSONHttpResponse(httpResp.Body, response)
+	return api.DecodeJSONHttpResponse(httpResp.Body, response)
 }
 
 // checkResponse 检查 response 参数是否满足特定的结构要求, 如果不满足要求则会 panic, 否则返回相应的 reflect.Value.

@@ -79,7 +79,7 @@ RETRY:
 		if !hasRetried {
 			hasRetried = true
 			errorResult = core.Error{}
-			if token, err = clt.RefreshToken(); err != nil {
+			if token, err = clt.RefreshToken(token); err != nil {
 				return
 			}
 			retry.DebugPrintNewToken(token)
@@ -134,7 +134,7 @@ func httpDownloadToWriter(clt *http.Client, url string, body []byte, buf []byte,
 	buf3 := trimLeft(buf2)
 	if bytes.HasPrefix(buf3, errRespBeginWithCode) || bytes.HasPrefix(buf3, errRespBeginWithMsg) {
 		// 返回的是错误信息
-		return 0, api.UnmarshalJSONHttpResponse(httpRespBody, errorResult)
+		return 0, api.DecodeJSONHttpResponse(httpRespBody, errorResult)
 	} else {
 		// 返回的是媒体流
 		return io.Copy(writer, httpRespBody)
