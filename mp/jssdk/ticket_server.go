@@ -112,7 +112,7 @@ NEW_TICK_DURATION:
 				break
 			}
 			newTickDuration := time.Duration(jsapiTicket.ExpiresIn) * time.Second
-			if abs(tickDuration-newTickDuration) > time.Second*2 {
+			if abs(tickDuration-newTickDuration) > time.Second*5 {
 				tickDuration = newTickDuration
 				ticker.Stop()
 				goto NEW_TICK_DURATION
