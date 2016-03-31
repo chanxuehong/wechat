@@ -4,8 +4,9 @@ import (
 	"errors"
 	"math/rand"
 	"strconv"
-	"sync"
+	"sync/atomic"
 	"time"
+	"unsafe"
 
 	"github.com/chanxuehong/wechat/mp/core"
 )
@@ -30,25 +31,7 @@ type DefaultCardTicketServer struct {
 	refreshTicketRequestChan  chan string              // chan currentTicket
 	refreshTicketResponseChan chan refreshTicketResult // chan {ticket, err}
 
-	ticketCache cardApiTicketCache
-}
-
-type cardApiTicketCache struct {
-	sync.RWMutex
-	ticket cardApiTicket
-}
-
-func (cache *cardApiTicketCache) getTicket() (ticket cardApiTicket) {
-	cache.RLock()
-	ticket = cache.ticket
-	cache.RUnlock()
-	return
-}
-
-func (cache *cardApiTicketCache) putTicket(ticket cardApiTicket) {
-	cache.Lock()
-	cache.ticket = ticket
-	cache.Unlock()
+	ticketCache unsafe.Pointer // *cardApiTicket
 }
 
 // NewDefaultCardTicketServer 创建一个新的 DefaultCardTicketServer.
@@ -69,8 +52,8 @@ func NewDefaultCardTicketServer(clt *core.Client) (srv *DefaultCardTicketServer)
 func (srv *DefaultCardTicketServer) IIDB9BDD0A1E1DC11E5844AA4DB30FED8E1() {}
 
 func (srv *DefaultCardTicketServer) Ticket() (ticket string, err error) {
-	if ticket = srv.ticketCache.getTicket().Ticket; ticket != "" {
-		return
+	if p := (*cardApiTicket)(atomic.LoadPointer(&srv.ticketCache)); p != nil {
+		return p.Ticket, nil
 	}
 	return srv.RefreshTicket("")
 }
@@ -128,18 +111,17 @@ NEW_TICK_DURATION:
 //	return -x
 //}
 
-var zeroCardApiTicket cardApiTicket
-
 type cardApiTicket struct {
 	Ticket    string `json:"ticket"`
 	ExpiresIn int64  `json:"expires_in"`
 }
 
 // updateTicket 从微信服务器获取新的卡劵 api_ticket 并存入缓存, 同时返回该卡劵 api_ticket.
-func (srv *DefaultCardTicketServer) updateTicket(currentTicket string) (ticket cardApiTicket, cached bool, err error) {
-	if ticket = srv.ticketCache.getTicket(); currentTicket != "" && ticket.Ticket != "" && currentTicket != ticket.Ticket {
-		cached = true
-		return
+func (srv *DefaultCardTicketServer) updateTicket(currentTicket string) (ticket *cardApiTicket, cached bool, err error) {
+	if currentTicket != "" {
+		if p := (*cardApiTicket)(atomic.LoadPointer(&srv.ticketCache)); p != nil && currentTicket != p.Ticket {
+			return p, true, nil // 无需更改 p.ExpiresIn 参数值, cached == true 时用不到
+		}
 	}
 
 	var incompleteURL = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=wx_card&access_token="
@@ -148,11 +130,11 @@ func (srv *DefaultCardTicketServer) updateTicket(currentTicket string) (ticket c
 		cardApiTicket
 	}
 	if err = srv.coreClient.GetJSON(incompleteURL, &result); err != nil {
-		srv.ticketCache.putTicket(zeroCardApiTicket)
+		atomic.StorePointer(&srv.ticketCache, nil)
 		return
 	}
 	if result.ErrCode != core.ErrCodeOK {
-		srv.ticketCache.putTicket(zeroCardApiTicket)
+		atomic.StorePointer(&srv.ticketCache, nil)
 		err = &result.Error
 		return
 	}
@@ -160,7 +142,7 @@ func (srv *DefaultCardTicketServer) updateTicket(currentTicket string) (ticket c
 	// 由于网络的延时, 卡劵 api_ticket 过期时间留有一个缓冲区
 	switch {
 	case result.ExpiresIn > 31556952: // 60*60*24*365.2425
-		srv.ticketCache.putTicket(zeroCardApiTicket)
+		atomic.StorePointer(&srv.ticketCache, nil)
 		err = errors.New("expires_in too large: " + strconv.FormatInt(result.ExpiresIn, 10))
 		return
 	case result.ExpiresIn > 60*60:
@@ -172,12 +154,13 @@ func (srv *DefaultCardTicketServer) updateTicket(currentTicket string) (ticket c
 	case result.ExpiresIn > 60:
 		result.ExpiresIn -= 10
 	default:
-		srv.ticketCache.putTicket(zeroCardApiTicket)
+		atomic.StorePointer(&srv.ticketCache, nil)
 		err = errors.New("expires_in too small: " + strconv.FormatInt(result.ExpiresIn, 10))
 		return
 	}
 
-	srv.ticketCache.putTicket(result.cardApiTicket)
-	ticket = result.cardApiTicket
+	ticketCopy := result.cardApiTicket
+	atomic.StorePointer(&srv.ticketCache, unsafe.Pointer(&ticketCopy))
+	ticket = &ticketCopy
 	return
 }

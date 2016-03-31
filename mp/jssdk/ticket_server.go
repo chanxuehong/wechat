@@ -4,8 +4,9 @@ import (
 	"errors"
 	"math/rand"
 	"strconv"
-	"sync"
+	"sync/atomic"
 	"time"
+	"unsafe"
 
 	"github.com/chanxuehong/wechat/mp/core"
 )
@@ -30,25 +31,7 @@ type DefaultTicketServer struct {
 	refreshTicketRequestChan  chan string              // chan currentTicket
 	refreshTicketResponseChan chan refreshTicketResult // chan {ticket, err}
 
-	ticketCache jsapiTicketCache
-}
-
-type jsapiTicketCache struct {
-	sync.RWMutex
-	ticket jsapiTicket
-}
-
-func (cache *jsapiTicketCache) getTicket() (ticket jsapiTicket) {
-	cache.RLock()
-	ticket = cache.ticket
-	cache.RUnlock()
-	return
-}
-
-func (cache *jsapiTicketCache) putTicket(ticket jsapiTicket) {
-	cache.Lock()
-	cache.ticket = ticket
-	cache.Unlock()
+	ticketCache unsafe.Pointer // *jsapiTicket
 }
 
 // NewDefaultTicketServer 创建一个新的 DefaultTicketServer.
@@ -69,8 +52,8 @@ func NewDefaultTicketServer(clt *core.Client) (srv *DefaultTicketServer) {
 func (srv *DefaultTicketServer) IIDB04E44A0E1DC11E5ADCEA4DB30FED8E1() {}
 
 func (srv *DefaultTicketServer) Ticket() (ticket string, err error) {
-	if ticket = srv.ticketCache.getTicket().Ticket; ticket != "" {
-		return
+	if p := (*jsapiTicket)(atomic.LoadPointer(&srv.ticketCache)); p != nil {
+		return p.Ticket, nil
 	}
 	return srv.RefreshTicket("")
 }
@@ -128,18 +111,17 @@ func abs(x time.Duration) time.Duration {
 	return -x
 }
 
-var zeroJsapiTicket jsapiTicket
-
 type jsapiTicket struct {
 	Ticket    string `json:"ticket"`
 	ExpiresIn int64  `json:"expires_in"`
 }
 
 // updateTicket 从微信服务器获取新的 jsapi_ticket 并存入缓存, 同时返回该 jsapi_ticket.
-func (srv *DefaultTicketServer) updateTicket(currentTicket string) (ticket jsapiTicket, cached bool, err error) {
-	if ticket = srv.ticketCache.getTicket(); currentTicket != "" && ticket.Ticket != "" && currentTicket != ticket.Ticket {
-		cached = true
-		return
+func (srv *DefaultTicketServer) updateTicket(currentTicket string) (ticket *jsapiTicket, cached bool, err error) {
+	if currentTicket != "" {
+		if p := (*jsapiTicket)(atomic.LoadPointer(&srv.ticketCache)); p != nil && currentTicket != p.Ticket {
+			return p, true, nil // 无需更改 p.ExpiresIn 参数值, cached == true 时用不到
+		}
 	}
 
 	var incompleteURL = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=jsapi&access_token="
@@ -148,11 +130,11 @@ func (srv *DefaultTicketServer) updateTicket(currentTicket string) (ticket jsapi
 		jsapiTicket
 	}
 	if err = srv.coreClient.GetJSON(incompleteURL, &result); err != nil {
-		srv.ticketCache.putTicket(zeroJsapiTicket)
+		atomic.StorePointer(&srv.ticketCache, nil)
 		return
 	}
 	if result.ErrCode != core.ErrCodeOK {
-		srv.ticketCache.putTicket(zeroJsapiTicket)
+		atomic.StorePointer(&srv.ticketCache, nil)
 		err = &result.Error
 		return
 	}
@@ -160,7 +142,7 @@ func (srv *DefaultTicketServer) updateTicket(currentTicket string) (ticket jsapi
 	// 由于网络的延时, jsapi_ticket 过期时间留有一个缓冲区
 	switch {
 	case result.ExpiresIn > 31556952: // 60*60*24*365.2425
-		srv.ticketCache.putTicket(zeroJsapiTicket)
+		atomic.StorePointer(&srv.ticketCache, nil)
 		err = errors.New("expires_in too large: " + strconv.FormatInt(result.ExpiresIn, 10))
 		return
 	case result.ExpiresIn > 60*60:
@@ -172,12 +154,13 @@ func (srv *DefaultTicketServer) updateTicket(currentTicket string) (ticket jsapi
 	case result.ExpiresIn > 60:
 		result.ExpiresIn -= 10
 	default:
-		srv.ticketCache.putTicket(zeroJsapiTicket)
+		atomic.StorePointer(&srv.ticketCache, nil)
 		err = errors.New("expires_in too small: " + strconv.FormatInt(result.ExpiresIn, 10))
 		return
 	}
 
-	srv.ticketCache.putTicket(result.jsapiTicket)
-	ticket = result.jsapiTicket
+	ticketCopy := result.jsapiTicket
+	atomic.StorePointer(&srv.ticketCache, unsafe.Pointer(&ticketCopy))
+	ticket = &ticketCopy
 	return
 }
