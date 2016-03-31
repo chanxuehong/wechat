@@ -11,9 +11,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"reflect"
+	"strings"
 
 	wechatjson "github.com/chanxuehong/wechat/internal/json"
 )
@@ -149,8 +151,30 @@ RETRY:
 		return fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
 
+	var bodyBytes []byte
+	if httpResp.Body != nil {
+		bodyBytes, _ = ioutil.ReadAll(httpResp.Body)
+	}
+	httpResp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 	if err = json.NewDecoder(httpResp.Body).Decode(response); err != nil {
-		return
+		if !strings.Contains(err.Error(), "invalid character '\\") {
+			LogInfoln("find error")
+			return
+		} else {
+			var str = string(bodyBytes)
+			b := make([]byte, len(str))
+			var bl int
+			for i := 0; i < len(str); i++ {
+				c := str[i]
+				if c >= 32 && c != 127 {
+					b[bl] = c
+					bl++
+				}
+			}
+			if err = json.Unmarshal(b[:bl], response); err != nil {
+				return
+			}
+		}
 	}
 
 	var ErrorStructValue reflect.Value // Error
