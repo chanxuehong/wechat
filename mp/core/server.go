@@ -12,6 +12,8 @@ import (
 	"net/url"
 	"strconv"
 	"sync"
+	"sync/atomic"
+	"unsafe"
 
 	"github.com/chanxuehong/util/security"
 
@@ -27,12 +29,16 @@ type Server struct {
 	appId string
 	token string
 
-	aesRWMutex    sync.RWMutex
-	currentAESKey []byte
-	lastAESKey    []byte
+	aesKeyBucketPtrMutex sync.Mutex     // used only by writers
+	aesKeyBucketPtr      unsafe.Pointer // *aesKeyBucket
 
 	handler      Handler
 	errorHandler ErrorHandler
+}
+
+type aesKeyBucket struct {
+	currentAESKey []byte
+	lastAESKey    []byte
 }
 
 // NewServer 创建一个新的 Server.
@@ -68,26 +74,19 @@ func NewServer(oriId, appId, token, base64AESKey string, handler Handler, errorH
 	}
 
 	return &Server{
-		oriId:         oriId,
-		appId:         appId,
-		token:         token,
-		currentAESKey: aesKey,
-		handler:       handler,
-		errorHandler:  errorHandler,
+		oriId:           oriId,
+		appId:           appId,
+		token:           token,
+		aesKeyBucketPtr: unsafe.Pointer(&aesKeyBucket{currentAESKey: aesKey}),
+		handler:         handler,
+		errorHandler:    errorHandler,
 	}
 }
 
-func (srv *Server) getCurrentAESKey() (key []byte) {
-	srv.aesRWMutex.RLock()
-	key = srv.currentAESKey
-	srv.aesRWMutex.RUnlock()
-	return
-}
-
-func (srv *Server) getLastAESKey() (key []byte) {
-	srv.aesRWMutex.RLock()
-	key = srv.lastAESKey
-	srv.aesRWMutex.RUnlock()
+func (srv *Server) getAESKey() (currentAESKey, lastAESKey []byte) {
+	if p := (*aesKeyBucket)(atomic.LoadPointer(&srv.aesKeyBucketPtr)); p != nil {
+		return p.currentAESKey, p.lastAESKey
+	}
 	return
 }
 
@@ -102,14 +101,19 @@ func (srv *Server) SetAESKey(base64AESKey string) (err error) {
 		return
 	}
 
-	srv.aesRWMutex.Lock()
-	defer srv.aesRWMutex.Unlock()
+	srv.aesKeyBucketPtrMutex.Lock()
+	defer srv.aesKeyBucketPtrMutex.Unlock()
 
-	if bytes.Equal(aesKey, srv.currentAESKey) {
+	currentAESKey, _ := srv.getAESKey()
+	if bytes.Equal(aesKey, currentAESKey) {
 		return
 	}
-	srv.lastAESKey = srv.currentAESKey
-	srv.currentAESKey = aesKey
+
+	bucket := aesKeyBucket{
+		currentAESKey: aesKey,
+		lastAESKey:    currentAESKey,
+	}
+	atomic.StorePointer(&srv.aesKeyBucketPtr, unsafe.Pointer(&bucket))
 	return
 }
 
@@ -193,20 +197,21 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			}
 			encryptedMsg = encryptedMsg[:encryptedMsgLen]
 
-			aesKey := srv.getCurrentAESKey()
-			if aesKey == nil {
+			var aesKey []byte
+			currentAESKey, lastAESKey := srv.getAESKey()
+			if currentAESKey == nil {
 				err = errors.New("aes key was not set for Server, see NewServer function or Server.SetAESKey method")
 				errorHandler.ServeError(w, r, err)
 				return
 			}
+			aesKey = currentAESKey
 			random, msgPlaintext, haveAppIdBytes, err := util.AESDecryptMsg(encryptedMsg, aesKey)
 			if err != nil {
-				lastAESKey := srv.getLastAESKey()
 				if lastAESKey == nil {
 					errorHandler.ServeError(w, r, err)
 					return
 				}
-				aesKey = lastAESKey // NOTE
+				aesKey = lastAESKey
 				random, msgPlaintext, haveAppIdBytes, err = util.AESDecryptMsg(encryptedMsg, aesKey)
 				if err != nil {
 					errorHandler.ServeError(w, r, err)

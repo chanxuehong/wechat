@@ -6,9 +6,11 @@ import (
 
 const (
 	startedCheckerInitialValue = uintptr(0)
-	startedCheckerStartedValue = ^startedCheckerInitialValue
+	startedCheckerStartedValue = ^uintptr(0)
 )
 
+// 对于要求不高的场景, 可以嵌入 startedChecker 到其他类型来检查是否在启动服务后设置参数.
+// 对于要求高的场景, 需要用到互斥锁.
 type startedChecker uintptr
 
 func (p *startedChecker) start() {
