@@ -158,20 +158,9 @@ RETRY:
 	httpResp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 	if err = json.NewDecoder(httpResp.Body).Decode(response); err != nil {
 		if !strings.Contains(err.Error(), "invalid character '\\") {
-			LogInfoln("find error")
 			return
 		} else {
-			var str = string(bodyBytes)
-			b := make([]byte, len(str))
-			var bl int
-			for i := 0; i < len(str); i++ {
-				c := str[i]
-				if c >= 32 && c != 127 {
-					b[bl] = c
-					bl++
-				}
-			}
-			if err = json.Unmarshal(b[:bl], response); err != nil {
+			if err = json.Unmarshal(EscapeCtrl(bodyBytes), response); err != nil {
 				return
 			}
 		}
