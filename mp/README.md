@@ -57,8 +57,11 @@ func menuClickEventHandler(ctx *core.Context) {
 
 	event := menu.GetClickEvent(ctx.MixedMsg)
 	resp := response.NewText(event.FromUserName, event.ToUserName, event.CreateTime, "收到 click 类型的事件")
-	//ctx.RawResponse(resp) // 明文回复
-	ctx.AESResponse(resp, 0, "", nil) // aes密文回复
+	 if ctx.EncryptType == "" {
+		ctx.RawResponse(resp) // 明文回复
+	} else {
+		ctx.AESResponse(resp, 0, "", nil) // aes密文回复
+	}
 }
 
 func defaultEventHandler(ctx *core.Context) {
