@@ -81,7 +81,24 @@ RETRY:
 		return fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
 
+	var bodyBytes []byte
+	if httpResp.Body != nil {
+		bodyBytes, _ = ioutil.ReadAll(httpResp.Body)
+	}
+	httpResp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+
 	if err = json.NewDecoder(httpResp.Body).Decode(response); err != nil {
+		if err = json.NewDecoder(httpResp.Body).Decode(response); err != nil {
+			if !strings.Contains(err.Error(), "invalid character '") {
+				LogInfoln("[WeChat JSON Error] ", err.Error())
+				return
+			} else {
+				if err = json.Unmarshal(EscapeCtrl(bodyBytes), response); err != nil {
+					LogInfoln("[WeChat JSON Error After EscapeCtrl] ", err.Error())
+					return
+				}
+			}
+		}
 		return
 	}
 
@@ -157,10 +174,12 @@ RETRY:
 	}
 	httpResp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 	if err = json.NewDecoder(httpResp.Body).Decode(response); err != nil {
-		if !strings.Contains(err.Error(), "invalid character '\\") {
+		if !strings.Contains(err.Error(), "invalid character '") {
+			LogInfoln("[WeChat JSON Error] ", err.Error())
 			return
 		} else {
 			if err = json.Unmarshal(EscapeCtrl(bodyBytes), response); err != nil {
+				LogInfoln("[WeChat JSON Error After EscapeCtrl] ", err.Error())
 				return
 			}
 		}
