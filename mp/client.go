@@ -89,7 +89,7 @@ RETRY:
 
 	if err = json.NewDecoder(httpResp.Body).Decode(response); err != nil {
 		if err = json.NewDecoder(httpResp.Body).Decode(response); err != nil {
-			if !strings.Contains(err.Error(), "invalid character '") {
+			if !strings.Contains(err.Error(), "invalid character '") && !strings.Contains(err.Error(), "json: cannot unmarshal") {
 				LogInfoln("[WeChat JSON Error] ", err.Error())
 				return
 			} else {
@@ -174,7 +174,7 @@ RETRY:
 	}
 	httpResp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 	if err = json.NewDecoder(httpResp.Body).Decode(response); err != nil {
-		if !strings.Contains(err.Error(), "invalid character '") {
+		if !strings.Contains(err.Error(), "invalid character '") && !strings.Contains(err.Error(), "json: cannot unmarshal") {
 			LogInfoln("[WeChat JSON Error] ", err.Error())
 			return
 		} else {
