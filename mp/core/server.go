@@ -119,14 +119,17 @@ func (srv *Server) SetToken(token string) (err error) {
 	return
 }
 
-func (srv *Server) removeLastToken() {
+func (srv *Server) removeLastToken(lastToken string) {
 	srv.tokenBucketPtrMutex.Lock()
 	defer srv.tokenBucketPtrMutex.Unlock()
 
-	currentToken, _ := srv.getToken()
+	currentToken2, lastToken2 := srv.getToken()
+	if lastToken != lastToken2 {
+		return
+	}
 
 	bucket := tokenBucket{
-		currentToken: currentToken,
+		currentToken: currentToken2,
 	}
 	atomic.StorePointer(&srv.tokenBucketPtr, unsafe.Pointer(&bucket))
 	return
@@ -166,14 +169,17 @@ func (srv *Server) SetAESKey(base64AESKey string) (err error) {
 	return
 }
 
-func (srv *Server) removeLastAESKey() {
+func (srv *Server) removeLastAESKey(lastAESKey []byte) {
 	srv.aesKeyBucketPtrMutex.Lock()
 	defer srv.aesKeyBucketPtrMutex.Unlock()
 
-	currentAESKey, _ := srv.getAESKey()
+	currentAESKey2, lastAESKey2 := srv.getAESKey()
+	if !bytes.Equal(lastAESKey, lastAESKey2) {
+		return
+	}
 
 	bucket := aesKeyBucket{
-		currentAESKey: currentAESKey,
+		currentAESKey: currentAESKey2,
 	}
 	atomic.StorePointer(&srv.aesKeyBucketPtr, unsafe.Pointer(&bucket))
 	return
@@ -242,7 +248,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				}
 			} else {
 				if lastToken != "" {
-					srv.removeLastToken()
+					srv.removeLastToken(lastToken)
 				}
 			}
 
@@ -302,7 +308,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				}
 			} else {
 				if lastAESKey != nil {
-					srv.removeLastAESKey()
+					srv.removeLastAESKey(lastAESKey)
 				}
 			}
 			callback.DebugPrintPlainRequestMessage(msgPlaintext)
@@ -398,7 +404,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				}
 			} else {
 				if lastToken != "" {
-					srv.removeLastToken()
+					srv.removeLastToken(lastToken)
 				}
 			}
 
@@ -493,7 +499,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			}
 		} else {
 			if lastToken != "" {
-				srv.removeLastToken()
+				srv.removeLastToken(lastToken)
 			}
 		}
 
