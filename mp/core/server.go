@@ -27,13 +27,20 @@ import (
 type Server struct {
 	oriId string
 	appId string
-	token string
+
+	tokenBucketPtrMutex sync.Mutex     // used only by writers
+	tokenBucketPtr      unsafe.Pointer // *tokenBucket
 
 	aesKeyBucketPtrMutex sync.Mutex     // used only by writers
 	aesKeyBucketPtr      unsafe.Pointer // *aesKeyBucket
 
 	handler      Handler
 	errorHandler ErrorHandler
+}
+
+type tokenBucket struct {
+	currentToken string
+	lastToken    string
 }
 
 type aesKeyBucket struct {
@@ -76,11 +83,53 @@ func NewServer(oriId, appId, token, base64AESKey string, handler Handler, errorH
 	return &Server{
 		oriId:           oriId,
 		appId:           appId,
-		token:           token,
+		tokenBucketPtr:  unsafe.Pointer(&tokenBucket{currentToken: token}),
 		aesKeyBucketPtr: unsafe.Pointer(&aesKeyBucket{currentAESKey: aesKey}),
 		handler:         handler,
 		errorHandler:    errorHandler,
 	}
+}
+
+func (srv *Server) getToken() (currentToken, lastToken string) {
+	if p := (*tokenBucket)(atomic.LoadPointer(&srv.tokenBucketPtr)); p != nil {
+		return p.currentToken, p.lastToken
+	}
+	return
+}
+
+// SetToken 设置签名token.
+func (srv *Server) SetToken(token string) (err error) {
+	if token == "" {
+		return errors.New("empty token")
+	}
+
+	srv.tokenBucketPtrMutex.Lock()
+	defer srv.tokenBucketPtrMutex.Unlock()
+
+	currentToken, _ := srv.getToken()
+	if token == currentToken {
+		return
+	}
+
+	bucket := tokenBucket{
+		currentToken: token,
+		lastToken:    currentToken,
+	}
+	atomic.StorePointer(&srv.tokenBucketPtr, unsafe.Pointer(&bucket))
+	return
+}
+
+func (srv *Server) removeLastToken() {
+	srv.tokenBucketPtrMutex.Lock()
+	defer srv.tokenBucketPtrMutex.Unlock()
+
+	currentToken, _ := srv.getToken()
+
+	bucket := tokenBucket{
+		currentToken: currentToken,
+	}
+	atomic.StorePointer(&srv.tokenBucketPtr, unsafe.Pointer(&bucket))
+	return
 }
 
 func (srv *Server) getAESKey() (currentAESKey, lastAESKey []byte) {
@@ -90,7 +139,7 @@ func (srv *Server) getAESKey() (currentAESKey, lastAESKey []byte) {
 	return
 }
 
-// SetAESKey 设置新的aes加密解密key.
+// SetAESKey 设置aes加密解密key.
 //  base64AESKey: aes加密解密key, 43字节长(base64编码, 去掉了尾部的'=').
 func (srv *Server) SetAESKey(base64AESKey string) (err error) {
 	if len(base64AESKey) != 43 {
@@ -112,6 +161,19 @@ func (srv *Server) SetAESKey(base64AESKey string) (err error) {
 	bucket := aesKeyBucket{
 		currentAESKey: aesKey,
 		lastAESKey:    currentAESKey,
+	}
+	atomic.StorePointer(&srv.aesKeyBucketPtr, unsafe.Pointer(&bucket))
+	return
+}
+
+func (srv *Server) removeLastAESKey() {
+	srv.aesKeyBucketPtrMutex.Lock()
+	defer srv.aesKeyBucketPtrMutex.Unlock()
+
+	currentAESKey, _ := srv.getAESKey()
+
+	bucket := aesKeyBucket{
+		currentAESKey: currentAESKey,
 	}
 	atomic.StorePointer(&srv.aesKeyBucketPtr, unsafe.Pointer(&bucket))
 	return
@@ -156,11 +218,32 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				return
 			}
 
-			wantSignature := util.Sign(srv.token, timestampString, nonce)
-			if !security.SecureCompareString(haveSignature, wantSignature) {
-				err = fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
+			var token string
+			currentToken, lastToken := srv.getToken()
+			if currentToken == "" {
+				err = errors.New("token was not set for Server, see NewServer function or Server.SetToken method")
 				errorHandler.ServeError(w, r, err)
 				return
+			}
+			token = currentToken
+			wantSignature := util.Sign(token, timestampString, nonce)
+			if !security.SecureCompareString(haveSignature, wantSignature) {
+				if lastToken == "" {
+					err = fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
+					errorHandler.ServeError(w, r, err)
+					return
+				}
+				token = lastToken
+				wantSignature = util.Sign(token, timestampString, nonce)
+				if !security.SecureCompareString(haveSignature, wantSignature) {
+					err = fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
+					errorHandler.ServeError(w, r, err)
+					return
+				}
+			} else {
+				if lastToken != "" {
+					srv.removeLastToken()
+				}
 			}
 
 			var requestHttpBody struct {
@@ -182,7 +265,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				return
 			}
 
-			wantMsgSignature := util.MsgSign(srv.token, timestampString, nonce, string(requestHttpBody.Base64EncryptedMsg))
+			wantMsgSignature := util.MsgSign(token, timestampString, nonce, string(requestHttpBody.Base64EncryptedMsg))
 			if !security.SecureCompareString(haveMsgSignature, wantMsgSignature) {
 				err = fmt.Errorf("check msg_signature failed, have: %s, want: %s", haveMsgSignature, wantMsgSignature)
 				errorHandler.ServeError(w, r, err)
@@ -216,6 +299,10 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				if err != nil {
 					errorHandler.ServeError(w, r, err)
 					return
+				}
+			} else {
+				if lastAESKey != nil {
+					srv.removeLastAESKey()
 				}
 			}
 			callback.DebugPrintPlainRequestMessage(msgPlaintext)
@@ -255,7 +342,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				MsgPlaintext:  msgPlaintext,
 				MixedMsg:      &mixedMsg,
 
-				Token:  srv.token,
+				Token:  token,
 				AESKey: aesKey,
 				Random: random,
 				AppId:  haveAppId,
@@ -287,11 +374,32 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				return
 			}
 
-			wantSignature := util.Sign(srv.token, timestampString, nonce)
-			if !security.SecureCompareString(haveSignature, wantSignature) {
-				err = fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
+			var token string
+			currentToken, lastToken := srv.getToken()
+			if currentToken == "" {
+				err = errors.New("token was not set for Server, see NewServer function or Server.SetToken method")
 				errorHandler.ServeError(w, r, err)
 				return
+			}
+			token = currentToken
+			wantSignature := util.Sign(token, timestampString, nonce)
+			if !security.SecureCompareString(haveSignature, wantSignature) {
+				if lastToken == "" {
+					err = fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
+					errorHandler.ServeError(w, r, err)
+					return
+				}
+				token = lastToken
+				wantSignature = util.Sign(token, timestampString, nonce)
+				if !security.SecureCompareString(haveSignature, wantSignature) {
+					err = fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
+					errorHandler.ServeError(w, r, err)
+					return
+				}
+			} else {
+				if lastToken != "" {
+					srv.removeLastToken()
+				}
 			}
 
 			msgPlaintext, err := ioutil.ReadAll(r.Body)
@@ -329,7 +437,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				MsgPlaintext: msgPlaintext,
 				MixedMsg:     &mixedMsg,
 
-				Token: srv.token,
+				Token: token,
 
 				handlerIndex: initHandlerIndex,
 			}
@@ -361,12 +469,34 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			return
 		}
 
-		wantSignature := util.Sign(srv.token, timestamp, nonce)
-		if !security.SecureCompareString(haveSignature, wantSignature) {
-			err := fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
+		var token string
+		currentToken, lastToken := srv.getToken()
+		if currentToken == "" {
+			err := errors.New("token was not set for Server, see NewServer function or Server.SetToken method")
 			errorHandler.ServeError(w, r, err)
 			return
 		}
+		token = currentToken
+		wantSignature := util.Sign(token, timestamp, nonce)
+		if !security.SecureCompareString(haveSignature, wantSignature) {
+			if lastToken == "" {
+				err := fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
+				errorHandler.ServeError(w, r, err)
+				return
+			}
+			token = lastToken
+			wantSignature = util.Sign(token, timestamp, nonce)
+			if !security.SecureCompareString(haveSignature, wantSignature) {
+				err := fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
+				errorHandler.ServeError(w, r, err)
+				return
+			}
+		} else {
+			if lastToken != "" {
+				srv.removeLastToken()
+			}
+		}
+
 		io.WriteString(w, echostr)
 	}
 }
