@@ -3,7 +3,7 @@ package datacube
 import (
 	"errors"
 
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/chanxuehong/wechat.v2/mp/core"
 )
 
 // 用户增减数据

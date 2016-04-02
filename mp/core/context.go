@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/chanxuehong/wechat/internal/debug/callback"
-	"github.com/chanxuehong/wechat/internal/util"
+	"github.com/chanxuehong/wechat.v2/internal/debug/callback"
+	"github.com/chanxuehong/wechat.v2/internal/util"
 )
 
 const (

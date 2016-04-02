@@ -4,8 +4,7 @@
 * 鸡蛋，30个58元（江浙沪皖包邮） [点击查看详细信息](http://7xrla0.com1.z0.glb.clouddn.com/egg.html)  
 * 鸡蛋糕，20元一斤 [点击查看详细信息](http://7xrla0.com1.z0.glb.clouddn.com/egg2.html)  
 
-![个人微信号](https://github.com/chanxuehong/wechat/blob/v2/weixin_qrcode.png)
-![微信群](https://github.com/chanxuehong/wechat/blob/v2/egg20160326.jpg)
+![个人微信号](https://github.com/chanxuehong/wechat.v2/blob/master/weixin_qrcode.png)
 
 ## 简介
 | 模块  | 描述                     |
@@ -30,11 +29,11 @@ http://localhost:8080/
 即可查看文档
 
 ## 捐助
-![微信支付](https://github.com/chanxuehong/wechat/blob/v2/weixin_pay.png)
-![支付宝](https://github.com/chanxuehong/wechat/blob/v2/alipay.png)
+![微信支付](https://github.com/chanxuehong/wechat.v2/blob/master/weixin_pay.png)
+![支付宝](https://github.com/chanxuehong/wechat.v2/blob/master/alipay.png)
 
 ## 捐助者列表
-[点击查看](https://github.com/chanxuehong/wechat/blob/v2/donors.md)
+[点击查看](https://github.com/chanxuehong/wechat.v2/blob/master/donors.md)
 
 ## 授权(LICENSE)
 [wechat is licensed under the Apache Licence, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)

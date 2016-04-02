@@ -1,7 +1,7 @@
 package custom
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/chanxuehong/wechat.v2/mp/core"
 )
 
 const (
