@@ -1,4 +1,4 @@
-// Copyright 2011 The Go Authors.  All rights reserved.
+// Copyright 2011 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -6,12 +6,13 @@ package json_test
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/chanxuehong/wechat.v2/internal/json"
 )
 
 func ExampleMarshal() {

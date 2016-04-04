@@ -9,7 +9,7 @@ import (
 
 	"github.com/chanxuehong/wechat.v2/internal/debug/api"
 	"github.com/chanxuehong/wechat.v2/internal/debug/api/retry"
-	wechatjson "github.com/chanxuehong/wechat.v2/internal/json"
+	"github.com/chanxuehong/wechat.v2/internal/json"
 )
 
 type Client struct {
@@ -116,7 +116,7 @@ func (clt *Client) PostJSON(incompleteURL string, request interface{}, response 
 	bodyBuf.Reset()
 	defer textBufferPool.Put(bodyBuf)
 
-	if err = wechatjson.NewEncoder(bodyBuf).Encode(request); err != nil {
+	if err = json.NewEncoder(bodyBuf).Encode(request); err != nil {
 		return
 	}
 	requestBodyBytes := bodyBuf.Bytes()

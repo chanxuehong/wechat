@@ -2,11 +2,11 @@ package material
 
 import (
 	"bytes"
-	"encoding/json"
 	"io"
 	"os"
 	"path/filepath"
 
+	"github.com/chanxuehong/wechat.v2/internal/json"
 	"github.com/chanxuehong/wechat.v2/mp/core"
 )
 

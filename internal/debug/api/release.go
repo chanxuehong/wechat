@@ -3,8 +3,9 @@
 package api
 
 import (
-	"encoding/json"
 	"io"
+
+	"github.com/chanxuehong/wechat.v2/internal/json"
 )
 
 func DebugPrintGetRequest(url string) {}
