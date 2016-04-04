@@ -6,13 +6,12 @@ package json_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"strings"
-
-	"github.com/chanxuehong/wechat.v2/internal/json"
 )
 
 func ExampleMarshal() {
