@@ -1,7 +1,8 @@
 package template
 
 import (
-	"github.com/chanxuehong/wechat.v2/internal/json"
+	"encoding/json"
+
 	"github.com/chanxuehong/wechat.v2/mp/core"
 )
 

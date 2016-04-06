@@ -1,7 +1,7 @@
 package menu
 
 import (
-	"github.com/chanxuehong/wechat.v2/internal/json"
+	"encoding/json"
 )
 
 const (
