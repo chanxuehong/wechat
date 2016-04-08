@@ -1,9 +1,5 @@
 package menu
 
-import (
-	"encoding/json"
-)
-
 const (
 	// 下面6个类型(包括view类型)的按钮是在公众平台官网发布的菜单按钮类型
 	ButtonTypeText  = "text"
@@ -39,13 +35,13 @@ type Menu struct {
 }
 
 type MatchRule struct {
-	GroupId            json.Number `json:"group_id,omitempty"`
-	Sex                json.Number `json:"sex,omitempty"`
-	Country            string      `json:"country,omitempty"`
-	Province           string      `json:"province,omitempty"`
-	City               string      `json:"city,omitempty"`
-	ClientPlatformType json.Number `json:"client_platform_type,omitempty"`
-	Language           string      `json:"language,omitempty"`
+	GroupId            *int64 `json:"group_id,omitempty"`
+	Sex                *int   `json:"sex,omitempty"`
+	Country            string `json:"country,omitempty"`
+	Province           string `json:"province,omitempty"`
+	City               string `json:"city,omitempty"`
+	ClientPlatformType *int   `json:"client_platform_type,omitempty"`
+	Language           string `json:"language,omitempty"`
 }
 
 type Button struct {
