@@ -56,7 +56,7 @@ func (clt *Client) GetJSON(incompleteURL string, response interface{}) (err erro
 	}
 
 	hasRetried := false
-	for !hasRetried {
+	for {
 		finalURL := incompleteURL + url.QueryEscape(token)
 		if err = httpGetJSON(httpClient, finalURL, response); err != nil {
 			return
@@ -75,9 +75,10 @@ func (clt *Client) GetJSON(incompleteURL string, response interface{}) (err erro
 					return
 				}
 				retry.DebugPrintNewToken(token)
+			} else {
+				retry.DebugPrintFallthrough(token)
+				return
 			}
-			retry.DebugPrintFallthrough(token)
-			fallthrough
 		default:
 			return
 		}
