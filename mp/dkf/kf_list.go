@@ -1,15 +1,17 @@
 package dkf
 
 import (
+	"encoding/json"
+
 	"github.com/chanxuehong/wechat.v2/mp/core"
 )
 
 // 客服基本信息
 type KfInfo struct {
-	Id           string `json:"kf_id"`         // 客服工号
-	Account      string `json:"kf_account"`    // 完整客服账号，格式为：账号前缀@公众号微信号
-	Nickname     string `json:"kf_nick"`       // 客服昵称
-	HeadImageURL string `json:"kf_headimgurl"` // 客服头像
+	Id           json.Number `json:"kf_id"`         // 客服工号
+	Account      string      `json:"kf_account"`    // 完整客服账号，格式为：账号前缀@公众号微信号
+	Nickname     string      `json:"kf_nick"`       // 客服昵称
+	HeadImageURL string      `json:"kf_headimgurl"` // 客服头像
 }
 
 // KfList 获取客服基本信息.
