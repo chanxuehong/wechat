@@ -16,7 +16,7 @@ func DebugPrintGetRequest(url string) {
 }
 
 func DebugPrintPostJSONRequest(url string, body []byte) {
-	const format = "[WECHAT_DEBUG] [API] JSON POST: %s\n" +
+	const format = "[WECHAT_DEBUG] [API] JSON POST %s\n" +
 		"http request body:\n%s\n"
 
 	buf := bytes.NewBuffer(make([]byte, 0, len(body)+1024))

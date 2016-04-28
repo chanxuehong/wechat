@@ -339,12 +339,8 @@ func (mux *ServeMux) EventHandleFunc(eventType EventType, handlers ...func(*Cont
 }
 
 func combineHandlerChain(middlewares, handlers HandlerChain) HandlerChain {
-	size := len(middlewares) + len(handlers)
-	if size > maxHandlerChainSize {
+	if len(middlewares)+len(handlers) > maxHandlerChainSize {
 		panic("too many handlers")
 	}
-	combinedHandlerChain := make(HandlerChain, size)
-	copy(combinedHandlerChain, middlewares)
-	copy(combinedHandlerChain[len(middlewares):], handlers)
-	return combinedHandlerChain
+	return append(middlewares, handlers...)
 }
