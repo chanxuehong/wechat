@@ -82,34 +82,39 @@ func JsapiSign(appId, timeStamp, nonceStr, packageStr, signType string, apiKey s
 		buf1 = buf1[:0]
 		buf1 = append(buf1, "appId="...)
 		buf1 = append(buf1, appId...)
+		buf1 = append(buf1, '&')
 		h.Write(buf1)
 	}
 	if nonceStr != "" {
 		buf1 = buf1[:0]
-		buf1 = append(buf1, "&nonceStr="...)
+		buf1 = append(buf1, "nonceStr="...)
 		buf1 = append(buf1, nonceStr...)
+		buf1 = append(buf1, '&')
 		h.Write(buf1)
 	}
 	if packageStr != "" {
 		buf1 = buf1[:0]
-		buf1 = append(buf1, "&package="...)
+		buf1 = append(buf1, "package="...)
 		buf1 = append(buf1, packageStr...)
+		buf1 = append(buf1, '&')
 		h.Write(buf1)
 	}
 	if signType != "" {
 		buf1 = buf1[:0]
-		buf1 = append(buf1, "&signType="...)
+		buf1 = append(buf1, "signType="...)
 		buf1 = append(buf1, signType...)
+		buf1 = append(buf1, '&')
 		h.Write(buf1)
 	}
 	if timeStamp != "" {
 		buf1 = buf1[:0]
-		buf1 = append(buf1, "&timeStamp="...)
+		buf1 = append(buf1, "timeStamp="...)
 		buf1 = append(buf1, timeStamp...)
+		buf1 = append(buf1, '&')
 		h.Write(buf1)
 	}
 	buf1 = buf1[:0]
-	buf1 = append(buf1, "&key="...)
+	buf1 = append(buf1, "key="...)
 	buf1 = append(buf1, apiKey...)
 	h.Write(buf1)
 
@@ -127,7 +132,7 @@ func JsapiSign(appId, timeStamp, nonceStr, packageStr, signType string, apiKey s
 func EditAddressSign(appId, url, timestamp, nonceStr, accessToken string) string {
 	var buf0 [256]byte
 
-	buf := buf0[:]
+	buf1 := buf0[:]
 	h := sha1.New()
 
 	// accesstoken
@@ -135,30 +140,30 @@ func EditAddressSign(appId, url, timestamp, nonceStr, accessToken string) string
 	// noncestr
 	// timestamp
 	// url
-	buf = buf[:0]
-	buf = append(buf, "accesstoken="...)
-	buf = append(buf, accessToken...)
-	h.Write(buf)
+	buf1 = buf1[:0]
+	buf1 = append(buf1, "accesstoken="...)
+	buf1 = append(buf1, accessToken...)
+	h.Write(buf1)
 
-	buf = buf[:0]
-	buf = append(buf, "&appid="...)
-	buf = append(buf, appId...)
-	h.Write(buf)
+	buf1 = buf1[:0]
+	buf1 = append(buf1, "&appid="...)
+	buf1 = append(buf1, appId...)
+	h.Write(buf1)
 
-	buf = buf[:0]
-	buf = append(buf, "&noncestr="...)
-	buf = append(buf, nonceStr...)
-	h.Write(buf)
+	buf1 = buf1[:0]
+	buf1 = append(buf1, "&noncestr="...)
+	buf1 = append(buf1, nonceStr...)
+	h.Write(buf1)
 
-	buf = buf[:0]
-	buf = append(buf, "&timestamp="...)
-	buf = append(buf, timestamp...)
-	h.Write(buf)
+	buf1 = buf1[:0]
+	buf1 = append(buf1, "&timestamp="...)
+	buf1 = append(buf1, timestamp...)
+	h.Write(buf1)
 
-	buf = buf[:0]
-	buf = append(buf, "&url="...)
-	buf = append(buf, url...)
-	h.Write(buf)
+	buf1 = buf1[:0]
+	buf1 = append(buf1, "&url="...)
+	buf1 = append(buf1, url...)
+	h.Write(buf1)
 
 	signature := buf0[:sha1.Size*2]
 	hex.Encode(signature, h.Sum(nil))
