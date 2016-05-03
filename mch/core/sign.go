@@ -1,6 +1,7 @@
 package core
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/md5"
 	"crypto/sha1"
@@ -17,6 +18,8 @@ func Sign(params map[string]string, apiKey string, fn func() hash.Hash) string {
 	if fn == nil {
 		fn = md5.New
 	}
+	h := fn()
+	bufw := bufio.NewWriterSize(h, 128)
 
 	keys := make([]string, 0, len(params))
 	for k := range params {
@@ -27,33 +30,21 @@ func Sign(params map[string]string, apiKey string, fn func() hash.Hash) string {
 	}
 	sort.Strings(keys)
 
-	var buf0 [256]byte
-
-	buf1 := buf0[:]
-	h := fn()
 	for _, k := range keys {
 		v := params[k]
 		if v == "" {
 			continue
 		}
-		buf1 = buf1[:0]
-		buf1 = append(buf1, k...)
-		buf1 = append(buf1, '=')
-		buf1 = append(buf1, v...)
-		buf1 = append(buf1, '&')
-		h.Write(buf1)
+		bufw.WriteString(k)
+		bufw.WriteByte('=')
+		bufw.WriteString(v)
+		bufw.WriteByte('&')
 	}
-	buf1 = buf1[:0]
-	buf1 = append(buf1, "key="...)
-	buf1 = append(buf1, apiKey...)
-	h.Write(buf1)
+	bufw.WriteString("key=")
+	bufw.WriteString(apiKey)
 
-	var signature []byte
-	if size := hex.EncodedLen(h.Size()); size > len(buf0) {
-		signature = make([]byte, size)
-	} else {
-		signature = buf0[:size]
-	}
+	bufw.Flush()
+	signature := make([]byte, hex.EncodedLen(h.Size()))
 	hex.Encode(signature, h.Sum(nil))
 	return string(bytes.ToUpper(signature))
 }
@@ -69,9 +60,7 @@ func JsapiSign(appId, timeStamp, nonceStr, packageStr, signType string, apiKey s
 	default:
 		panic("unsupported signType")
 	}
-
-	var buf0 [256]byte
-	buf1 := buf0[:]
+	bufw := bufio.NewWriterSize(h, 128)
 
 	// appId
 	// nonceStr
@@ -79,93 +68,60 @@ func JsapiSign(appId, timeStamp, nonceStr, packageStr, signType string, apiKey s
 	// signType
 	// timeStamp
 	if appId != "" {
-		buf1 = buf1[:0]
-		buf1 = append(buf1, "appId="...)
-		buf1 = append(buf1, appId...)
-		buf1 = append(buf1, '&')
-		h.Write(buf1)
+		bufw.WriteString("appId=")
+		bufw.WriteString(appId)
+		bufw.WriteByte('&')
 	}
 	if nonceStr != "" {
-		buf1 = buf1[:0]
-		buf1 = append(buf1, "nonceStr="...)
-		buf1 = append(buf1, nonceStr...)
-		buf1 = append(buf1, '&')
-		h.Write(buf1)
+		bufw.WriteString("nonceStr=")
+		bufw.WriteString(nonceStr)
+		bufw.WriteByte('&')
 	}
 	if packageStr != "" {
-		buf1 = buf1[:0]
-		buf1 = append(buf1, "package="...)
-		buf1 = append(buf1, packageStr...)
-		buf1 = append(buf1, '&')
-		h.Write(buf1)
+		bufw.WriteString("package=")
+		bufw.WriteString(packageStr)
+		bufw.WriteByte('&')
 	}
 	if signType != "" {
-		buf1 = buf1[:0]
-		buf1 = append(buf1, "signType="...)
-		buf1 = append(buf1, signType...)
-		buf1 = append(buf1, '&')
-		h.Write(buf1)
+		bufw.WriteString("signType=")
+		bufw.WriteString(signType)
+		bufw.WriteByte('&')
 	}
 	if timeStamp != "" {
-		buf1 = buf1[:0]
-		buf1 = append(buf1, "timeStamp="...)
-		buf1 = append(buf1, timeStamp...)
-		buf1 = append(buf1, '&')
-		h.Write(buf1)
+		bufw.WriteString("timeStamp=")
+		bufw.WriteString(timeStamp)
+		bufw.WriteByte('&')
 	}
-	buf1 = buf1[:0]
-	buf1 = append(buf1, "key="...)
-	buf1 = append(buf1, apiKey...)
-	h.Write(buf1)
+	bufw.WriteString("key=")
+	bufw.WriteString(apiKey)
 
-	var signature []byte
-	if size := hex.EncodedLen(h.Size()); size > len(buf0) {
-		signature = make([]byte, size)
-	} else {
-		signature = buf0[:size]
-	}
+	bufw.Flush()
+	signature := make([]byte, hex.EncodedLen(h.Size()))
 	hex.Encode(signature, h.Sum(nil))
 	return string(bytes.ToUpper(signature))
 }
 
 // EditAddressSign 收货地址共享接口签名
 func EditAddressSign(appId, url, timestamp, nonceStr, accessToken string) string {
-	var buf0 [256]byte
-
-	buf1 := buf0[:]
 	h := sha1.New()
+	bufw := bufio.NewWriterSize(h, 128)
 
 	// accesstoken
 	// appid
 	// noncestr
 	// timestamp
 	// url
-	buf1 = buf1[:0]
-	buf1 = append(buf1, "accesstoken="...)
-	buf1 = append(buf1, accessToken...)
-	h.Write(buf1)
+	bufw.WriteString("accesstoken=")
+	bufw.WriteString(accessToken)
+	bufw.WriteString("&appid=")
+	bufw.WriteString(appId)
+	bufw.WriteString("&noncestr=")
+	bufw.WriteString(nonceStr)
+	bufw.WriteString("&timestamp=")
+	bufw.WriteString(timestamp)
+	bufw.WriteString("&url=")
+	bufw.WriteString(url)
 
-	buf1 = buf1[:0]
-	buf1 = append(buf1, "&appid="...)
-	buf1 = append(buf1, appId...)
-	h.Write(buf1)
-
-	buf1 = buf1[:0]
-	buf1 = append(buf1, "&noncestr="...)
-	buf1 = append(buf1, nonceStr...)
-	h.Write(buf1)
-
-	buf1 = buf1[:0]
-	buf1 = append(buf1, "&timestamp="...)
-	buf1 = append(buf1, timestamp...)
-	h.Write(buf1)
-
-	buf1 = buf1[:0]
-	buf1 = append(buf1, "&url="...)
-	buf1 = append(buf1, url...)
-	h.Write(buf1)
-
-	signature := buf0[:sha1.Size*2]
-	hex.Encode(signature, h.Sum(nil))
-	return string(signature)
+	bufw.Flush()
+	return hex.EncodeToString(h.Sum(nil))
 }
