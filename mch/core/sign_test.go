@@ -9,44 +9,110 @@ import (
 	"testing"
 )
 
-var (
-	testSignparams = map[string]string{
-		"asjdfsadfsadfasdfasd1":  "sdfasdfasdfsadfsadfasdfasdfasd",
-		"asjdfsadfsadfasdfasd2":  "sdfasdfasdfsadfsadfasdfasdfasd",
-		"asjdfsadfsadfasdfasd3":  "sdfasdfasdfsadfsadfasdfasdfasd",
-		"asjdfsadfsadfasdfasd4":  "sdfasdfasdfsadfsadfasdfasdfasd",
-		"asjdfsadfsadfasdfasd5":  "sdfasdfasdfsadfsadfasdfasdfasd",
-		"asjdfsadfsadfasdfasd6":  "sdfasdfasdfsadfsadfasdfasdfasd",
-		"asjdfsadfsadfasdfasd7":  "sdfasdfasdfsadfsadfasdfasdfasd",
-		"asjdfsadfsadfasdfasd8":  "sdfasdfasdfsadfsadfasdfasdfasd",
-		"asjdfsadfsadfasdfasd9":  "sdfasdfasdfsadfsadfasdfasdfasd",
-		"asjdfsadfsadfasdfasd11": "sdfasdfasdfsadfsadfasdfasdfasd",
-		"asjdfsadfsadfasdfasd12": "sdfasdfasdfsadfsadfasdfasdfasd",
-		"asjdfsadfsadfasdfasd13": "sdfasdfasdfsadfsadfasdfasdfasd",
-		"asjdfsadfsadfasdfasd14": "sdfasdfasdfsadfsadfasdfasdfasd",
-		"asjdfsadfsadfasdfasd15": "sdfasdfasdfsadfsadfasdfasdfasd",
+func TestSign(t *testing.T) {
+	params := map[string]string{
+		"appid":       "wxd930ea5d5a258f4f",
+		"mch_id":      "10000100",
+		"device_info": "1000",
+		"body":        "test",
+		"nonce_str":   "ibuaiVcKdpRxkhJA",
 	}
+	apiKey := "192006250b4c09247ec02edce69f6a2d"
 
-	testAPIKey = "afadskfjaskldjflkasdjflkashdljkfhalsdjkfhl"
-)
+	haveSignature := Sign(params, apiKey, nil)
+	wantSignature := "9A0A8659F005D6984697E2CA0A9CF3B7"
+	if haveSignature != wantSignature {
+		t.Errorf("signature mismatch, have %s, want %s", haveSignature, wantSignature)
+		return
+	}
+}
+
+func TestJsapiSign(t *testing.T) {
+	appId := "appId_value"
+	timeStamp := "123456789"
+	nonceStr := "nonceStr_value"
+	packageStr := "prepay_id=asdfasdfasdf"
+	signType := "MD5"
+
+	params := map[string]string{
+		"appId":     appId,
+		"timeStamp": timeStamp,
+		"nonceStr":  nonceStr,
+		"package":   packageStr,
+		"signType":  signType,
+	}
+	apiKey := "192006250b4c09247ec02edce69f6a2d"
+
+	haveSignature := JsapiSign(appId, timeStamp, nonceStr, packageStr, signType, apiKey)
+	wantSignature := Sign(params, apiKey, nil)
+	if haveSignature != wantSignature {
+		t.Errorf("signature mismatch, have %s, want %s", haveSignature, wantSignature)
+		return
+	}
+}
 
 func BenchmarkSign(b *testing.B) {
+	b.StopTimer()
+	var (
+		params = map[string]string{
+			"asjdfsadfsadfasdfasd1":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd2":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd3":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd4":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd5":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd6":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd7":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd8":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd9":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd11": "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd12": "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd13": "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd14": "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd15": "sdfasdfasdfsadfsadfasdfasdfasd",
+		}
+		apiKey = "afadskfjaskldjflkasdjflkashdljkfhalsdjkfhl"
+	)
+	b.ReportAllocs()
+	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		Sign(testSignparams, testAPIKey, nil)
+		Sign(params, apiKey, nil)
 	}
 }
 
 func BenchmarkSign2(b *testing.B) {
+	b.StopTimer()
+	var (
+		params = map[string]string{
+			"asjdfsadfsadfasdfasd1":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd2":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd3":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd4":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd5":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd6":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd7":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd8":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd9":  "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd11": "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd12": "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd13": "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd14": "sdfasdfasdfsadfsadfasdfasdfasd",
+			"asjdfsadfsadfasdfasd15": "sdfasdfasdfsadfsadfasdfasdfasd",
+		}
+		apiKey = "afadskfjaskldjflkasdjflkashdljkfhalsdjkfhl"
+	)
+	b.ReportAllocs()
+	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		Sign2(testSignparams, testAPIKey, nil)
+		Sign2(params, apiKey, nil)
 	}
 }
 
-// 传统的签名代码, Sign 是优化后的代码, 要提高 35% 的速度
+// 传统的签名代码, Sign 是优化后的代码, 要提高 30% 的速度
 func Sign2(params map[string]string, apiKey string, fn func() hash.Hash) string {
 	if fn == nil {
 		fn = md5.New
 	}
+	h := fn()
 
 	keys := make([]string, 0, len(params))
 	for k := range params {
@@ -57,7 +123,6 @@ func Sign2(params map[string]string, apiKey string, fn func() hash.Hash) string 
 	}
 	sort.Strings(keys)
 
-	h := fn()
 	for _, k := range keys {
 		v := params[k]
 		if v == "" {
@@ -71,7 +136,7 @@ func Sign2(params map[string]string, apiKey string, fn func() hash.Hash) string 
 	h.Write([]byte("key="))
 	h.Write([]byte(apiKey))
 
-	signature := make([]byte, h.Size()*2)
+	signature := make([]byte, hex.EncodedLen(h.Size()))
 	hex.Encode(signature, h.Sum(nil))
 	return string(bytes.ToUpper(signature))
 }

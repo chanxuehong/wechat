@@ -67,32 +67,17 @@ func JsapiSign(appId, timeStamp, nonceStr, packageStr, signType string, apiKey s
 	// package
 	// signType
 	// timeStamp
-	if appId != "" {
-		bufw.WriteString("appId=")
-		bufw.WriteString(appId)
-		bufw.WriteByte('&')
-	}
-	if nonceStr != "" {
-		bufw.WriteString("nonceStr=")
-		bufw.WriteString(nonceStr)
-		bufw.WriteByte('&')
-	}
-	if packageStr != "" {
-		bufw.WriteString("package=")
-		bufw.WriteString(packageStr)
-		bufw.WriteByte('&')
-	}
-	if signType != "" {
-		bufw.WriteString("signType=")
-		bufw.WriteString(signType)
-		bufw.WriteByte('&')
-	}
-	if timeStamp != "" {
-		bufw.WriteString("timeStamp=")
-		bufw.WriteString(timeStamp)
-		bufw.WriteByte('&')
-	}
-	bufw.WriteString("key=")
+	bufw.WriteString("appId=")
+	bufw.WriteString(appId)
+	bufw.WriteString("&nonceStr=")
+	bufw.WriteString(nonceStr)
+	bufw.WriteString("&package=")
+	bufw.WriteString(packageStr)
+	bufw.WriteString("&signType=")
+	bufw.WriteString(signType)
+	bufw.WriteString("&timeStamp=")
+	bufw.WriteString(timeStamp)
+	bufw.WriteString("&key=")
 	bufw.WriteString(apiKey)
 
 	bufw.Flush()
