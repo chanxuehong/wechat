@@ -5,10 +5,15 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"sort"
+	"strings"
 )
 
 // JS-SDK wx.config 的参数签名.
 func WXConfigSign(jsapiTicket, nonceStr, timestamp, url string) (signature string) {
+	if i := strings.IndexByte(url, '#'); i >= 0 {
+		url = url[:i]
+	}
+
 	n := len("jsapi_ticket=") + len(jsapiTicket) +
 		len("&noncestr=") + len(nonceStr) +
 		len("&timestamp=") + len(timestamp) +

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"crypto/sha1"
 	"encoding/hex"
+	"strings"
 	"testing"
 )
 
@@ -11,7 +12,7 @@ func TestWXConfigSign(t *testing.T) {
 	jsapiTicket := "sM4AOVdWfPE4DxkXGEs8VMCPGGVi4C3VM0P37wVUCFvkVAy_90u5h9nbSlYy3-Sl-HhTdfl2fzFy1AOcHKP7qg"
 	nonceStr := "Wm3WZYTPz0wzccnW"
 	timestamp := "1414587457"
-	url := "http://mp.weixin.qq.com?params=value"
+	url := "http://mp.weixin.qq.com?params=value#xxxx"
 
 	wantSignature := "0f9de62fce790f9a083d5c99e95740ceb90c27ed"
 
@@ -52,48 +53,48 @@ func TestCardSign(t *testing.T) {
 }
 
 func BenchmarkWXConfigSign(b *testing.B) {
-	b.ReportAllocs()
-	b.ResetTimer()
-
 	jsapiTicket := "sM4AOVdWfPE4DxkXGEs8VMCPGGVi4C3VM0P37wVUCFvkVAy_90u5h9nbSlYy3-Sl-HhTdfl2fzFy1AOcHKP7qg"
 	nonceStr := "Wm3WZYTPz0wzccnW"
 	timestamp := "1414587457"
 	url := "http://mp.weixin.qq.com?params=value"
 
+	b.ReportAllocs()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		WXConfigSign(jsapiTicket, nonceStr, timestamp, url)
 	}
 }
 
 func BenchmarkWXConfigSign2(b *testing.B) {
-	b.ReportAllocs()
-	b.ResetTimer()
-
 	jsapiTicket := "sM4AOVdWfPE4DxkXGEs8VMCPGGVi4C3VM0P37wVUCFvkVAy_90u5h9nbSlYy3-Sl-HhTdfl2fzFy1AOcHKP7qg"
 	nonceStr := "Wm3WZYTPz0wzccnW"
 	timestamp := "1414587457"
 	url := "http://mp.weixin.qq.com?params=value"
 
+	b.ReportAllocs()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		WXConfigSign2(jsapiTicket, nonceStr, timestamp, url)
 	}
 }
 
 func BenchmarkWXConfigSign3(b *testing.B) {
-	b.ReportAllocs()
-	b.ResetTimer()
-
 	jsapiTicket := "sM4AOVdWfPE4DxkXGEs8VMCPGGVi4C3VM0P37wVUCFvkVAy_90u5h9nbSlYy3-Sl-HhTdfl2fzFy1AOcHKP7qg"
 	nonceStr := "Wm3WZYTPz0wzccnW"
 	timestamp := "1414587457"
 	url := "http://mp.weixin.qq.com?params=value"
 
+	b.ReportAllocs()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		WXConfigSign3(jsapiTicket, nonceStr, timestamp, url)
 	}
 }
 
 func WXConfigSign2(jsapiTicket, nonceStr, timestamp, url string) (signature string) {
+	if i := strings.IndexByte(url, '#'); i >= 0 {
+		url = url[:i]
+	}
 	h := sha1.New()
 
 	bufw := bufio.NewWriterSize(h, 128)
@@ -119,6 +120,9 @@ var (
 )
 
 func WXConfigSign3(jsapiTicket, nonceStr, timestamp, url string) (signature string) {
+	if i := strings.IndexByte(url, '#'); i >= 0 {
+		url = url[:i]
+	}
 	h := sha1.New()
 
 	h.Write(jsapiTicketKey)
