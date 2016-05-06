@@ -15,28 +15,28 @@ import (
 
 // 统一下单.
 func UnifiedOrder(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.core.weixin.qq.com/pay/unifiedorder", req)
+	return clt.PostXML("https://api.mch.weixin.qq.com/pay/unifiedorder", req)
 }
 
 // 查询订单.
 func OrderQuery(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.core.weixin.qq.com/pay/orderquery", req)
+	return clt.PostXML("https://api.mch.weixin.qq.com/pay/orderquery", req)
 }
 
 // 关闭订单.
 func CloseOrder(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.core.weixin.qq.com/pay/closeorder", req)
+	return clt.PostXML("https://api.mch.weixin.qq.com/pay/closeorder", req)
 }
 
 // 申请退款.
 //  NOTE: 请求需要双向证书.
 func Refund(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.core.weixin.qq.com/secapi/pay/refund", req)
+	return clt.PostXML("https://api.mch.weixin.qq.com/secapi/pay/refund", req)
 }
 
 // 查询退款.
 func RefundQuery(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.core.weixin.qq.com/pay/refundquery", req)
+	return clt.PostXML("https://api.mch.weixin.qq.com/pay/refundquery", req)
 }
 
 // 下载对账单到到文件.
@@ -93,7 +93,7 @@ func downloadBillToWriter(writer io.Writer, req map[string]string, httpClient *h
 		return
 	}
 
-	httpResp, err := httpClient.Post("https://api.core.weixin.qq.com/pay/downloadbill", "text/xml; charset=utf-8", reqBuf)
+	httpResp, err := httpClient.Post("https://api.mch.weixin.qq.com/pay/downloadbill", "text/xml; charset=utf-8", reqBuf)
 	if err != nil {
 		return
 	}
