@@ -109,7 +109,7 @@ func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResp
 
 	var (
 		n   int64
-		id  int64
+		id  int
 		str string
 	)
 	if n, err = strconv.ParseInt(m2["total_fee"], 10, 64); err != nil {
