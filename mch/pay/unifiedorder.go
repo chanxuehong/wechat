@@ -108,7 +108,6 @@ func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrd
 			ResultCode:  resultCode,
 			ErrCode:     m2["err_code"],
 			ErrCodeDesc: m2["err_code_des"],
-			DeviceInfo:  m2["device_info"],
 		}
 		return
 	}

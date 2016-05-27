@@ -18,12 +18,6 @@ func CloseOrder(clt *core.Client, req map[string]string) (resp map[string]string
 	return clt.PostXML("https://api.mch.weixin.qq.com/pay/closeorder", req)
 }
 
-// 申请退款.
-//  NOTE: 请求需要双向证书.
-func Refund(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.mch.weixin.qq.com/secapi/pay/refund", req)
-}
-
 // 查询退款.
 func RefundQuery(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
 	return clt.PostXML("https://api.mch.weixin.qq.com/pay/refundquery", req)
@@ -103,7 +97,7 @@ func downloadBillToWriter(writer io.Writer, req map[string]string, httpClient *h
 			return
 		}
 		var n2 int64
-		n2, err = CopyBuffer(writer, httpResp.Body, buf)
+		n2, err = io.CopyBuffer(writer, httpResp.Body, buf)
 		written += n2
 		return
 	case err == io.ErrUnexpectedEOF:

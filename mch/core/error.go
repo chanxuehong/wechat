@@ -37,7 +37,6 @@ type BizError struct {
 	ResultCode  string   `xml:"result_code"            json:"result_code"`
 	ErrCode     string   `xml:"err_code,omitempty"     json:"err_code,omitempty"`
 	ErrCodeDesc string   `xml:"err_code_des,omitempty" json:"err_code_des,omitempty"`
-	DeviceInfo  string   `xml:"device_info,omitempty"  json:"device_info,omitempty"` // 需要先判断是否为空, 不是都有这个字段
 }
 
 func (e *BizError) Error() string {
