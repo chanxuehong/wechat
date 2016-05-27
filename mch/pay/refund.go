@@ -111,7 +111,6 @@ func Refund2(clt *core.Client, req *RefundRequest) (resp *RefundResponse, err er
 		OutRefundNo:   m2["out_refund_no"],
 		RefundId:      m2["refund_id"],
 
-		// 下面字段都是可选返回的(详细见微信支付文档), 为空值表示没有返回, 程序逻辑里需要判断
 		DeviceInfo:    m2["device_info"],
 		RefundChannel: m2["refund_channel"],
 		FeeType:       m2["fee_type"],
