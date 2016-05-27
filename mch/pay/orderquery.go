@@ -42,7 +42,7 @@ type OrderQueryResponse struct {
 	IsSubscribe        *bool         // 用户是否关注公众账号
 	SettlementTotalFee *int64        // 应结订单金额=订单金额-非充值代金券金额，应结订单金额<=订单金额。
 	FeeType            string        // 货币类型，符合ISO 4217标准的三位字母代码，默认人民币：CNY，其他值列表详见货币类型
-	CashFeeFype        string        // 货币类型，符合ISO 4217标准的三位字母代码，默认人民币：CNY，其他值列表详见货币类型
+	CashFeeType        string        // 货币类型，符合ISO 4217标准的三位字母代码，默认人民币：CNY，其他值列表详见货币类型
 	CouponFee          *int64        // “代金券”金额<=订单金额，订单金额-“代金券”金额=现金支付金额，详见支付金额
 	CouponCount        *int          // 代金券使用数量
 	Coupons            []OrderCoupon // 代金券列表
@@ -142,7 +142,7 @@ func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResp
 		}
 	}
 	resp.FeeType = m2["fee_type"]
-	resp.CashFeeFype = m2["cash_fee_type"]
+	resp.CashFeeType = m2["cash_fee_type"]
 	if str = m2["coupon_fee"]; str != "" {
 		if n, err = strconv.ParseInt(str, 10, 64); err != nil {
 			err = fmt.Errorf("parse coupon_fee:%q to int64 failed: %s", str, err.Error())
