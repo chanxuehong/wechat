@@ -13,11 +13,6 @@ import (
 	"github.com/chanxuehong/wechat.v2/mch/core"
 )
 
-// 查询订单.
-func OrderQuery(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.mch.weixin.qq.com/pay/orderquery", req)
-}
-
 // 关闭订单.
 func CloseOrder(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
 	return clt.PostXML("https://api.mch.weixin.qq.com/pay/closeorder", req)

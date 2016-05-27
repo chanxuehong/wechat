@@ -34,10 +34,13 @@ type UnifiedOrderRequest struct {
 }
 
 type UnifiedOrderResponse struct {
+	AppId string // 微信开放平台审核通过的应用APPID
+	MchId string // 微信支付分配的商户号
+
 	TradeType string // 调用接口提交的交易类型，取值如下：JSAPI，NATIVE，APP，详细说明见参数规定
 	PrepayId  string // 微信生成的预支付回话标识，用于后续接口调用中使用，该值有效期为2小时
 
-	// 下面字段都是可选返回的, 为空值表示没有返回, 程序逻辑里需要判断
+	// 下面字段都是可选返回的(详细见微信支付文档), 为空值表示没有返回, 程序逻辑里需要判断
 	DeviceInfo string // 调用接口提交的终端设备号。
 	CodeURL    string // trade_type为NATIVE是有返回，可将该参数值生成二维码展示出来进行扫码支付
 }
@@ -111,6 +114,9 @@ func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrd
 	}
 
 	resp = &UnifiedOrderResponse{
+		AppId: m2["appid"],
+		MchId: m2["mch_id"],
+
 		TradeType:  m2["trade_type"],
 		PrepayId:   m2["prepay_id"],
 		DeviceInfo: m2["device_info"],
