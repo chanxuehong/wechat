@@ -2,7 +2,6 @@ package core
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -34,7 +33,6 @@ func NewClient(appId, mchId, apiKey string, httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
-
 	return &Client{
 		appId:      appId,
 		mchId:      mchId,
@@ -73,7 +71,7 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 	// 判断协议状态
 	returnCode, ok := resp["return_code"]
 	if !ok {
-		err = errors.New("no return_code parameter")
+		err = ErrNotFoundReturnCode
 		return
 	}
 	if returnCode != ReturnCodeSuccess {
@@ -99,7 +97,7 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 	// 验证签名
 	signature1, ok := resp["sign"]
 	if !ok {
-		err = errors.New("no sign parameter")
+		err = ErrNotFoundSign
 		return
 	}
 	signature2 := Sign(resp, clt.apiKey, nil)

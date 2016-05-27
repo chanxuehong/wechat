@@ -99,7 +99,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			// 认证签名
 			haveSignature, ok := msg["sign"]
 			if !ok {
-				err = errors.New("no sign parameter")
+				err = ErrNotFoundSign
 				errorHandler.ServeError(w, r, err)
 				return
 			}
