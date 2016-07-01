@@ -67,6 +67,7 @@ type MixedMsg struct {
 	*poi            // poi
 	*card           // card
 	*bizwifi        // bizwifi
+	*Hardware	// 微信硬件
 
 	// shakearound
 	ChosenBeacon *struct {
@@ -127,4 +128,11 @@ type bizwifi struct {
 	VendorId    string `xml:"VendorId"    json:"VendorId"`
 	PlaceId     int64  `xml:"PlaceId"     json:"PlaceId"`
 	DeviceNo    string `xml:"DeviceNo"    json:"DeviceNo"`
+}
+
+type Hardware struct {
+	DeviceType string `xml:"DeviceType"  json:"device_type"`
+	DeviceID string   `xml:"DeviceID"    json:"device_id"`
+	SessionID int64   `xml:"SessionID"   json:"session_id"`
+	OpenID string     `xml:"OpenID"      json:"open_id"`
 }
