@@ -42,7 +42,8 @@ type UnifiedOrderResponse struct {
 
 	// 下面字段都是可选返回的(详细见微信支付文档), 为空值表示没有返回, 程序逻辑里需要判断
 	DeviceInfo string // 调用接口提交的终端设备号。
-	CodeURL    string // trade_type为NATIVE是有返回，可将该参数值生成二维码展示出来进行扫码支付
+	CodeURL    string // trade_type 为 NATIVE 时有返回，可将该参数值生成二维码展示出来进行扫码支付
+	MWebURL    string // trade_type 为 MWEB 时有返回
 }
 
 func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrderResponse, err error) {
@@ -120,6 +121,7 @@ func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrd
 		PrepayId:   m2["prepay_id"],
 		DeviceInfo: m2["device_info"],
 		CodeURL:    m2["code_url"],
+		MWebURL:    m2["mweb_url"],
 	}
 	return
 }
