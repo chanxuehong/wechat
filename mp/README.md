@@ -113,7 +113,7 @@ func main() {
 ```
 
 ### 企业号demo
-```
+```Go
 package main
 
 import (
