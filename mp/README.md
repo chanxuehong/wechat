@@ -103,7 +103,7 @@ const (
 )
 
 var (
-	accessTokenServer core.AccessTokenServer = core.NewDefaultAccessTokenServer(wxAppId, wxAppSecret, nil)
+	accessTokenServer core.AccessTokenServer = core.NewDefaultAccessTokenServer(wxAppId, wxAppSecret, "public",nil)
 	wechatClient      *core.Client           = core.NewClient(accessTokenServer, nil)
 )
 

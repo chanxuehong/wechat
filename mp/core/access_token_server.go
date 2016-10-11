@@ -29,10 +29,12 @@ var _ AccessTokenServer = (*DefaultAccessTokenServer)(nil)
 //  2. 因为 DefaultAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 AccessTokenServer 接口,
 //     所以整个系统只能存在一个 DefaultAccessTokenServer 实例!
 type DefaultAccessTokenServer struct {
-	appId      string
-	appSecret  string
-	httpClient *http.Client
-
+	appId                    string
+	appSecret                string
+	corpId                   string
+	corpSecret               string
+	httpClient               *http.Client
+	idType                   string                  // 公众号：public，企业号：corp
 	refreshTokenRequestChan  chan string             // chan currentToken
 	refreshTokenResponseChan chan refreshTokenResult // chan {token, err}
 
@@ -40,17 +42,29 @@ type DefaultAccessTokenServer struct {
 }
 
 // NewDefaultAccessTokenServer 创建一个新的 DefaultAccessTokenServer, 如果 httpClient == nil 则默认使用 http.DefaultClient.
-func NewDefaultAccessTokenServer(appId, appSecret string, httpClient *http.Client) (srv *DefaultAccessTokenServer) {
+func NewDefaultAccessTokenServer(Id, Secret, idType string, httpClient *http.Client) (srv *DefaultAccessTokenServer) {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 
-	srv = &DefaultAccessTokenServer{
-		appId:                    url.QueryEscape(appId),
-		appSecret:                url.QueryEscape(appSecret),
-		httpClient:               httpClient,
-		refreshTokenRequestChan:  make(chan string),
-		refreshTokenResponseChan: make(chan refreshTokenResult),
+	if idType == "public" {
+		srv = &DefaultAccessTokenServer{
+			appId:                    url.QueryEscape(Id),
+			appSecret:                url.QueryEscape(Secret),
+			httpClient:               httpClient,
+			idType:                   idType,
+			refreshTokenRequestChan:  make(chan string),
+			refreshTokenResponseChan: make(chan refreshTokenResult),
+		}
+	} else if idType == "corp" {
+		srv = &DefaultAccessTokenServer{
+			corpId:                   url.QueryEscape(Id),
+			corpSecret:               url.QueryEscape(Secret),
+			httpClient:               httpClient,
+			idType:                   idType,
+			refreshTokenRequestChan:  make(chan string),
+			refreshTokenResponseChan: make(chan refreshTokenResult),
+		}
 	}
 
 	go srv.tokenUpdateDaemon(time.Hour * 24 * time.Duration(100+rand.Int63n(200)))
@@ -131,9 +145,13 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 			return p, true, nil // 无需更改 p.ExpiresIn 参数值, cached == true 时用不到
 		}
 	}
+	var url string
+	if srv.idType == "public" {
+		url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + srv.appId + "&secret=" + srv.appSecret
+	} else if srv.idType == "corp" {
+		url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=" + srv.corpId + "&corpsecret=" + srv.corpSecret
+	}
 
-	url := "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + srv.appId +
-		"&secret=" + srv.appSecret
 	api.DebugPrintGetRequest(url)
 	httpResp, err := srv.httpClient.Get(url)
 	if err != nil {
