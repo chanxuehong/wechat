@@ -97,7 +97,7 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 	// 验证签名
 	signature1, ok := resp["sign"]
 	if !ok {
-		err = ErrNotFoundSign
+		// err = ErrNotFoundSign // TODO 恢复这个注释, 待腾讯返回 sign 参数的时候
 		return
 	}
 	signature2 := Sign(resp, clt.apiKey, nil)
