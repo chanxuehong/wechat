@@ -112,17 +112,21 @@ func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResp
 		id  int
 		str string
 	)
-	if n, err = strconv.ParseInt(m2["total_fee"], 10, 64); err != nil {
-		err = fmt.Errorf("parse total_fee:%q to int64 failed: %s", m2["total_fee"], err.Error())
-		return
-	} else {
-		resp.TotalFee = n
+	if str = m2["total_fee"]; str != "" {
+		if n, err = strconv.ParseInt(str, 10, 64); err != nil {
+			err = fmt.Errorf("parse total_fee:%q to int64 failed: %s", str, err.Error())
+			return
+		} else {
+			resp.TotalFee = n
+		}
 	}
-	if n, err = strconv.ParseInt(m2["cash_fee"], 10, 64); err != nil {
-		err = fmt.Errorf("parse cash_fee:%q to int64 failed: %s", m2["cash_fee"], err.Error())
-		return
-	} else {
-		resp.CashFee = n
+	if str = m2["cash_fee"]; str != "" {
+		if n, err = strconv.ParseInt(str, 10, 64); err != nil {
+			err = fmt.Errorf("parse cash_fee:%q to int64 failed: %s", str, err.Error())
+			return
+		} else {
+			resp.CashFee = n
+		}
 	}
 
 	resp.DeviceInfo = m2["device_info"]
