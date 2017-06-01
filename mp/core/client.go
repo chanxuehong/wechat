@@ -56,31 +56,32 @@ func (clt *Client) GetJSON(incompleteURL string, response interface{}) (err erro
 	}
 
 	hasRetried := false
-RETRY:
-	finalURL := incompleteURL + url.QueryEscape(token)
-	if err = httpGetJSON(httpClient, finalURL, response); err != nil {
-		return
-	}
+	for {
+		finalURL := incompleteURL + url.QueryEscape(token)
+		if err = httpGetJSON(httpClient, finalURL, response); err != nil {
+			return
+		}
 
-	switch errCode := ErrorErrCodeValue.Int(); errCode {
-	case ErrCodeOK:
-		return
-	case ErrCodeInvalidCredential, ErrCodeAccessTokenExpired:
-		errMsg := ErrorStructValue.Field(errorErrMsgIndex).String()
-		retry.DebugPrintError(errCode, errMsg, token)
-		if !hasRetried {
-			hasRetried = true
-			ErrorStructValue.Set(errorZeroValue)
-			if token, err = clt.RefreshToken(token); err != nil {
+		switch errCode := ErrorErrCodeValue.Int(); errCode {
+		case ErrCodeOK:
+			return
+		case ErrCodeInvalidCredential, ErrCodeAccessTokenExpired:
+			errMsg := ErrorStructValue.Field(errorErrMsgIndex).String()
+			retry.DebugPrintError(errCode, errMsg, token)
+			if !hasRetried {
+				hasRetried = true
+				ErrorStructValue.Set(errorZeroValue)
+				if token, err = clt.RefreshToken(token); err != nil {
+					return
+				}
+				retry.DebugPrintNewToken(token)
+			} else {
+				retry.DebugPrintFallthrough(token)
 				return
 			}
-			retry.DebugPrintNewToken(token)
-			goto RETRY
+		default:
+			return
 		}
-		retry.DebugPrintFallthrough(token)
-		fallthrough
-	default:
-		return
 	}
 }
 
