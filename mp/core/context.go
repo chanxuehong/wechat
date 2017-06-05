@@ -109,7 +109,7 @@ func (ctx *Context) MustGet(key string) interface{} {
 
 // Context:response ====================================================================================================
 
-// RawResponse 表示没有消息回复给微信服务器.
+// NoneResponse 表示没有消息回复给微信服务器.
 func (ctx *Context) NoneResponse() (err error) {
 	_, err = ctx.ResponseWriter.Write(successResponseBytes)
 	return
