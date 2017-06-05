@@ -103,11 +103,87 @@ const (
 )
 
 var (
-	accessTokenServer core.AccessTokenServer = core.NewDefaultAccessTokenServer(wxAppId, wxAppSecret, nil)
+	accessTokenServer core.AccessTokenServer = core.NewDefaultAccessTokenServer(wxAppId, wxAppSecret, "public",nil)
 	wechatClient      *core.Client           = core.NewClient(accessTokenServer, nil)
 )
 
 func main() {
 	fmt.Println(base.GetCallbackIP(wechatClient))
+}
+```
+
+### 企业号demo
+```Go
+package main
+
+import (
+	"fmt"
+
+	"github.com/chanxuehong/wechat.v2/mp/core"
+)
+
+const (
+	CORPID     = "corpid"
+	CORPSECRET = "corpsecret"
+)
+
+var (
+	accessTokenServer core.AccessTokenServer = core.NewDefaultAccessTokenServer(CORPID, CORPSECRET, "corp", nil)
+	wechatClient      *core.Client           = core.NewClient(accessTokenServer, nil)
+)
+
+func main() {
+	currentToken, _ := accessTokenServer.Token()
+	fmt.Println(currentToken)
+	url := "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token="
+
+	// 发送的文本消息
+	// 	{
+	//    "touser": "@all",
+	//    "msgtype": "text",
+	//    "agentid": 2,
+	//    "text": {
+	//        "content": "Holiday Request For Pony(http://xxxxx)"
+	//    },
+	//    "safe":1
+	// }
+	type MsgText struct {
+		Content string `json:"content"`
+	}
+	type Reqjson struct {
+		Touser  string  `json:"touser"`
+		Msgtype string  `json:"msgtype"`
+		Agentid int64   `json:"agentid"`
+		Text    MsgText `json:"text"`
+		Safe    int64   `json:"safe"`
+	}
+
+	reqjson := &Reqjson{
+		Touser:  "@all",
+		Msgtype: "text",
+		Agentid: 2,
+		Text:    MsgText{Content: "aaaaaaa"},
+		Safe:    0,
+	}
+
+	// 接收消息
+	//  {
+	//    "errcode": 0,
+	//    "errmsg": "ok",
+	//    "invaliduser": "UserID1",
+	//    "invalidparty":"PartyID1",
+	//    "invalidtag":"TagID1"
+	// }
+	type msgRes struct {
+		core.Error
+		Errcode      int64  `json:"errcode"`
+		Errmsg       string `json:"errmsg"`
+		Invaliduser  string `json:"invaliduser"`
+		Invalidparty string `json:"invalidparty"`
+		Invalidtag   string `json:"invalidtag"`
+	}
+	var resjson = &msgRes{}
+	err := wechatClient.PostJSON(url, reqjson, resjson)
+	fmt.Println(resjson, err)
 }
 ```
