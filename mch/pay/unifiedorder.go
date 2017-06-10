@@ -10,7 +10,7 @@ import (
 	"github.com/chanxuehong/wechat.v2/mch/core"
 )
 
-// 统一下单.
+// UnifiedOrder 统一下单.
 func UnifiedOrder(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
 	return clt.PostXML(core.APIBaseURL()+"/pay/unifiedorder", req)
 }
@@ -47,7 +47,7 @@ type UnifiedOrderResponse struct {
 	MWebURL    string `xml:"mweb_url"`    // trade_type 为 MWEB 时有返回
 }
 
-// 统一下单.
+// UnifiedOrder2 统一下单.
 func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrderResponse, err error) {
 	m1 := make(map[string]string, 24)
 	m1["appid"] = clt.AppId()
@@ -104,7 +104,7 @@ func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrd
 
 	m2, err := UnifiedOrder(clt, m1)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	resp = &UnifiedOrderResponse{
@@ -114,5 +114,5 @@ func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrd
 		CodeURL:    m2["code_url"],
 		MWebURL:    m2["mweb_url"],
 	}
-	return
+	return resp, nil
 }
