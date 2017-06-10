@@ -13,6 +13,7 @@ import (
 	"github.com/chanxuehong/wechat.v2/internal/debug/api/retry"
 	"github.com/chanxuehong/wechat.v2/json"
 	"github.com/chanxuehong/wechat.v2/mp/core"
+	"github.com/chanxuehong/wechat.v2/util"
 )
 
 // Download 下载多媒体到文件.
@@ -37,7 +38,7 @@ func Download(clt *core.Client, mediaId, filepath string) (written int64, err er
 func DownloadToWriter(clt *core.Client, mediaId string, writer io.Writer) (written int64, err error) {
 	httpClient := clt.HttpClient
 	if httpClient == nil {
-		httpClient = http.DefaultClient
+		httpClient = util.DefaultHttpClient
 	}
 
 	var request = struct {

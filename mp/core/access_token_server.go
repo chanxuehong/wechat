@@ -12,6 +12,7 @@ import (
 	"unsafe"
 
 	"github.com/chanxuehong/wechat.v2/internal/debug/api"
+	"github.com/chanxuehong/wechat.v2/util"
 )
 
 // access_token 中控服务器接口.
@@ -39,10 +40,10 @@ type DefaultAccessTokenServer struct {
 	tokenCache unsafe.Pointer // *accessToken
 }
 
-// NewDefaultAccessTokenServer 创建一个新的 DefaultAccessTokenServer, 如果 httpClient == nil 则默认使用 http.DefaultClient.
+// NewDefaultAccessTokenServer 创建一个新的 DefaultAccessTokenServer, 如果 httpClient == nil 则默认使用 util.DefaultHttpClient.
 func NewDefaultAccessTokenServer(appId, appSecret string, httpClient *http.Client) (srv *DefaultAccessTokenServer) {
 	if httpClient == nil {
-		httpClient = http.DefaultClient
+		httpClient = util.DefaultHttpClient
 	}
 
 	srv = &DefaultAccessTokenServer{

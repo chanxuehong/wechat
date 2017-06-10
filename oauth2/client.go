@@ -3,6 +3,8 @@ package oauth2
 import (
 	"errors"
 	"net/http"
+
+	"github.com/chanxuehong/wechat.v2/util"
 )
 
 type Client struct {
@@ -12,14 +14,14 @@ type Client struct {
 	TokenStorage TokenStorage
 	Token        *Token // Client 自动将最新的 Token 更新到此字段, 不管 Token 字段一开始是否被指定!!!
 
-	HttpClient *http.Client // 如果 HttpClient == nil 则默认用 http.DefaultClient
+	HttpClient *http.Client // 如果 HttpClient == nil 则默认用 util.DefaultHttpClient
 }
 
 func (clt *Client) httpClient() *http.Client {
 	if clt.HttpClient != nil {
 		return clt.HttpClient
 	}
-	return http.DefaultClient
+	return util.DefaultHttpClient
 }
 
 // GetToken 获取 Token, autoRefresh 为 true 时如果 Token 过期则自动刷新.

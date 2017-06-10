@@ -7,6 +7,7 @@ import (
 
 	"github.com/chanxuehong/wechat.v2/internal/debug/api"
 	"github.com/chanxuehong/wechat.v2/oauth2"
+	"github.com/chanxuehong/wechat.v2/util"
 )
 
 // AuthCodeURL 生成网页授权地址.
@@ -25,10 +26,10 @@ func AuthCodeURL(appId, redirectURI, scope, state string) string {
 // Auth 检验授权凭证 access_token 是否有效.
 //  accessToken: 网页授权接口调用凭证
 //  openId:      用户的唯一标识
-//  httpClient:  如果不指定则默认为 http.DefaultClient
+//  httpClient:  如果不指定则默认为 util.DefaultHttpClient
 func Auth(accessToken, openId string, httpClient *http.Client) (valid bool, err error) {
 	if httpClient == nil {
-		httpClient = http.DefaultClient
+		httpClient = util.DefaultHttpClient
 	}
 
 	_url := "https://api.weixin.qq.com/sns/auth?access_token=" + url.QueryEscape(accessToken) +

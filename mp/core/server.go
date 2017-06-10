@@ -254,15 +254,15 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				}
 			}
 
-			requestBodyBuf := textBufferPool.Get().(*bytes.Buffer)
-			requestBodyBuf.Reset()
-			defer textBufferPool.Put(requestBodyBuf)
+			buffer := textBufferPool.Get().(*bytes.Buffer)
+			buffer.Reset()
+			defer textBufferPool.Put(buffer)
 
-			if _, err = requestBodyBuf.ReadFrom(r.Body); err != nil {
+			if _, err = buffer.ReadFrom(r.Body); err != nil {
 				errorHandler.ServeError(w, r, err)
 				return
 			}
-			requestBodyBytes := requestBodyBuf.Bytes()
+			requestBodyBytes := buffer.Bytes()
 
 			var requestHttpBody cipherRequestHttpBody
 			if err = xmlUnmarshal(requestBodyBytes, &requestHttpBody); err != nil {

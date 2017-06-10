@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/chanxuehong/rand"
+
 	"github.com/chanxuehong/wechat.v2/mch/core"
 )
 

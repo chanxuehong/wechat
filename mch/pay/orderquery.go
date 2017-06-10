@@ -8,6 +8,7 @@ import (
 
 	"github.com/chanxuehong/rand"
 	"github.com/chanxuehong/util"
+
 	"github.com/chanxuehong/wechat.v2/mch/core"
 )
 

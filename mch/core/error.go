@@ -14,7 +14,7 @@ var (
 
 var _ error = (*Error)(nil)
 
-// 协议错误, return_code 不为 SUCCESS 有返回.
+// 协议错误, return_code 不为 SUCCESS 时有返回.
 type Error struct {
 	XMLName    struct{} `xml:"xml"                  json:"-"`
 	ReturnCode string   `xml:"return_code"          json:"return_code"`
@@ -31,7 +31,7 @@ func (e *Error) Error() string {
 
 var _ error = (*BizError)(nil)
 
-// 业务错误, result_code 不为 SUCCESS 有返回.
+// 业务错误, result_code 不为 SUCCESS 时有返回.
 type BizError struct {
 	XMLName     struct{} `xml:"xml"                    json:"-"`
 	ResultCode  string   `xml:"result_code"            json:"result_code"`
@@ -42,7 +42,7 @@ type BizError struct {
 func (e *BizError) Error() string {
 	bs, err := xml.Marshal(e)
 	if err != nil {
-		return fmt.Sprintf("err_code: %q, err_code_des: %q", e.ErrCode, e.ErrCodeDesc)
+		return fmt.Sprintf("result_code: %q, err_code: %q, err_code_des: %q", e.ResultCode, e.ErrCode, e.ErrCodeDesc)
 	}
 	return string(bs)
 }

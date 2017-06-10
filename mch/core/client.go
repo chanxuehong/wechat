@@ -6,7 +6,9 @@ import (
 	"net/http"
 
 	"github.com/chanxuehong/util"
+
 	"github.com/chanxuehong/wechat.v2/internal/debug/mch/api"
+	wechatutil "github.com/chanxuehong/wechat.v2/util"
 )
 
 type Client struct {
@@ -28,10 +30,10 @@ func (clt *Client) ApiKey() string {
 }
 
 // NewClient 创建一个新的 Client.
-//  如果 httpClient == nil 则默认用 http.DefaultClient.
+//  如果 httpClient == nil 则默认用 util.DefaultHttpClient.
 func NewClient(appId, mchId, apiKey string, httpClient *http.Client) *Client {
 	if httpClient == nil {
-		httpClient = http.DefaultClient
+		httpClient = wechatutil.DefaultHttpClient
 	}
 	return &Client{
 		appId:      appId,
@@ -44,16 +46,16 @@ func NewClient(appId, mchId, apiKey string, httpClient *http.Client) *Client {
 // PostXML 是微信支付通用请求方法.
 //  err == nil 表示协议状态为 SUCCESS(return_code==SUCCESS).
 func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]string, err error) {
-	bodyBuf := textBufferPool.Get().(*bytes.Buffer)
-	bodyBuf.Reset()
-	defer textBufferPool.Put(bodyBuf)
+	buffer := textBufferPool.Get().(*bytes.Buffer)
+	buffer.Reset()
+	defer textBufferPool.Put(buffer)
 
-	if err = util.EncodeXMLFromMap(bodyBuf, req, "xml"); err != nil {
+	if err = util.EncodeXMLFromMap(buffer, req, "xml"); err != nil {
 		return
 	}
-	api.DebugPrintPostXMLRequest(url, bodyBuf.Bytes())
+	api.DebugPrintPostXMLRequest(url, buffer.Bytes())
 
-	httpResp, err := clt.httpClient.Post(url, "text/xml; charset=utf-8", bodyBuf)
+	httpResp, err := clt.httpClient.Post(url, "text/xml; charset=utf-8", buffer)
 	if err != nil {
 		return
 	}
@@ -82,7 +84,7 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 		return
 	}
 
-	// 安全考虑, 做下验证 appid 和 mch_id
+	// 验证 appid 和 mch_id
 	appId, ok := resp["appid"]
 	if ok && appId != clt.appId {
 		err = fmt.Errorf("appid mismatch, have: %s, want: %s", appId, clt.appId)
@@ -95,14 +97,33 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 	}
 
 	// 验证签名
-	signature1, ok := resp["sign"]
+	signatureHave, ok := resp["sign"]
 	if !ok {
-		// err = ErrNotFoundSign // TODO 恢复这个注释, 待腾讯返回 sign 参数的时候
-		return
+		// TODO(chanxuehong): 在适当的时候更新下面的 case
+		switch url {
+		default:
+			err = ErrNotFoundSign
+			return
+		case "https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers":
+			// do nothing
+		case "https://api2.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers":
+			// do nothing
+		}
+	} else {
+		signatureWant := Sign(resp, clt.apiKey, nil)
+		if signatureHave != signatureWant {
+			err = fmt.Errorf("sign mismatch,\nhave: %s,\nwant: %s", signatureHave, signatureWant)
+			return
+		}
 	}
-	signature2 := Sign(resp, clt.apiKey, nil)
-	if signature1 != signature2 {
-		err = fmt.Errorf("sign mismatch,\nhave: %s,\nwant: %s", signature1, signature2)
+
+	resultCode, ok := resp["result_code"]
+	if ok && resultCode != ResultCodeSuccess {
+		err = &BizError{
+			ResultCode:  resultCode,
+			ErrCode:     resp["err_code"],
+			ErrCodeDesc: resp["err_code_des"],
+		}
 		return
 	}
 	return

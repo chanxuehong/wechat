@@ -10,6 +10,7 @@ import (
 
 	"github.com/chanxuehong/wechat.v2/internal/debug/api"
 	"github.com/chanxuehong/wechat.v2/internal/debug/api/retry"
+	"github.com/chanxuehong/wechat.v2/util"
 )
 
 type MultipartFormField struct {
@@ -44,11 +45,11 @@ type MultipartFormField struct {
 func (clt *Client) PostMultipartForm(incompleteURL string, fields []MultipartFormField, response interface{}) (err error) {
 	ErrorStructValue, ErrorErrCodeValue := checkResponse(response)
 
-	bodyBuf := mediaBufferPool.Get().(*bytes.Buffer)
-	bodyBuf.Reset()
-	defer mediaBufferPool.Put(bodyBuf)
+	buffer := mediaBufferPool.Get().(*bytes.Buffer)
+	buffer.Reset()
+	defer mediaBufferPool.Put(buffer)
 
-	multipartWriter := multipart.NewWriter(bodyBuf)
+	multipartWriter := multipart.NewWriter(buffer)
 	for i := 0; i < len(fields); i++ {
 		if field := &fields[i]; field.IsFile {
 			partWriter, err3 := multipartWriter.CreateFormFile(field.Name, field.FileName)
@@ -71,12 +72,12 @@ func (clt *Client) PostMultipartForm(incompleteURL string, fields []MultipartFor
 	if err = multipartWriter.Close(); err != nil {
 		return
 	}
-	requestBodyBytes := bodyBuf.Bytes()
+	requestBodyBytes := buffer.Bytes()
 	requestBodyType := multipartWriter.FormDataContentType()
 
 	httpClient := clt.HttpClient
 	if httpClient == nil {
-		httpClient = http.DefaultClient
+		httpClient = util.DefaultHttpClient
 	}
 
 	token, err := clt.Token()

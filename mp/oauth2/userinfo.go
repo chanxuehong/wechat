@@ -7,6 +7,7 @@ import (
 
 	"github.com/chanxuehong/wechat.v2/internal/debug/api"
 	"github.com/chanxuehong/wechat.v2/oauth2"
+	"github.com/chanxuehong/wechat.v2/util"
 )
 
 const (
@@ -41,7 +42,7 @@ type UserInfo struct {
 //  accessToken: 网页授权接口调用凭证
 //  openId:      用户的唯一标识
 //  lang:        返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语, 如果留空 "" 则默认为 zh_CN
-//  httpClient:  如果不指定则默认为 http.DefaultClient
+//  httpClient:  如果不指定则默认为 util.DefaultHttpClient
 func GetUserInfo(accessToken, openId, lang string, httpClient *http.Client) (info *UserInfo, err error) {
 	switch lang {
 	case "":
@@ -52,7 +53,7 @@ func GetUserInfo(accessToken, openId, lang string, httpClient *http.Client) (inf
 	}
 
 	if httpClient == nil {
-		httpClient = http.DefaultClient
+		httpClient = util.DefaultHttpClient
 	}
 
 	_url := "https://api.weixin.qq.com/sns/userinfo?access_token=" + url.QueryEscape(accessToken) +

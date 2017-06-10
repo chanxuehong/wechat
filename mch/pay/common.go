@@ -10,7 +10,9 @@ import (
 	"os"
 
 	"github.com/chanxuehong/util"
+
 	"github.com/chanxuehong/wechat.v2/mch/core"
+	wechatutil "github.com/chanxuehong/wechat.v2/util"
 )
 
 // 关闭订单.
@@ -68,7 +70,7 @@ var (
 // 下载对账单到 io.Writer.
 func downloadBillToWriter(writer io.Writer, req map[string]string, httpClient *http.Client) (written int64, err error) {
 	if httpClient == nil {
-		httpClient = http.DefaultClient
+		httpClient = wechatutil.DefaultHttpClient
 	}
 	buf := make([]byte, 32*1024) // 与 io.copyBuffer 里的默认大小一致
 

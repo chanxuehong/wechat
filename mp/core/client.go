@@ -10,6 +10,7 @@ import (
 	"github.com/chanxuehong/wechat.v2/internal/debug/api"
 	"github.com/chanxuehong/wechat.v2/internal/debug/api/retry"
 	"github.com/chanxuehong/wechat.v2/json"
+	"github.com/chanxuehong/wechat.v2/util"
 )
 
 type Client struct {
@@ -18,13 +19,13 @@ type Client struct {
 }
 
 // NewClient 创建一个新的 Client.
-//  如果 clt == nil 则默认用 http.DefaultClient
+//  如果 clt == nil 则默认用 util.DefaultHttpClient
 func NewClient(srv AccessTokenServer, clt *http.Client) *Client {
 	if srv == nil {
 		panic("nil AccessTokenServer")
 	}
 	if clt == nil {
-		clt = http.DefaultClient
+		clt = util.DefaultHttpClient
 	}
 	return &Client{
 		AccessTokenServer: srv,
@@ -47,7 +48,7 @@ func (clt *Client) GetJSON(incompleteURL string, response interface{}) (err erro
 
 	httpClient := clt.HttpClient
 	if httpClient == nil {
-		httpClient = http.DefaultClient
+		httpClient = util.DefaultHttpClient
 	}
 
 	token, err := clt.Token()
@@ -112,21 +113,21 @@ func httpGetJSON(clt *http.Client, url string, response interface{}) error {
 func (clt *Client) PostJSON(incompleteURL string, request interface{}, response interface{}) (err error) {
 	ErrorStructValue, ErrorErrCodeValue := checkResponse(response)
 
-	bodyBuf := textBufferPool.Get().(*bytes.Buffer)
-	bodyBuf.Reset()
-	defer textBufferPool.Put(bodyBuf)
+	buffer := textBufferPool.Get().(*bytes.Buffer)
+	buffer.Reset()
+	defer textBufferPool.Put(buffer)
 
-	if err = json.NewEncoder(bodyBuf).Encode(request); err != nil {
+	if err = json.NewEncoder(buffer).Encode(request); err != nil {
 		return
 	}
-	requestBodyBytes := bodyBuf.Bytes()
+	requestBodyBytes := buffer.Bytes()
 	if i := len(requestBodyBytes) - 1; i >= 0 && requestBodyBytes[i] == '\n' {
 		requestBodyBytes = requestBodyBytes[:i] // 去掉最后的 '\n', 这样能统一log格式, 不然可能多一个空白行
 	}
 
 	httpClient := clt.HttpClient
 	if httpClient == nil {
-		httpClient = http.DefaultClient
+		httpClient = util.DefaultHttpClient
 	}
 
 	token, err := clt.Token()

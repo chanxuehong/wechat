@@ -19,7 +19,6 @@ func Sign(params map[string]string, apiKey string, fn func() hash.Hash) string {
 		fn = md5.New
 	}
 	h := fn()
-	bufw := bufio.NewWriterSize(h, 128)
 
 	keys := make([]string, 0, len(params))
 	for k := range params {
@@ -30,6 +29,7 @@ func Sign(params map[string]string, apiKey string, fn func() hash.Hash) string {
 	}
 	sort.Strings(keys)
 
+	bufw := bufio.NewWriterSize(h, 128)
 	for _, k := range keys {
 		v := params[k]
 		if v == "" {
@@ -42,8 +42,8 @@ func Sign(params map[string]string, apiKey string, fn func() hash.Hash) string {
 	}
 	bufw.WriteString("key=")
 	bufw.WriteString(apiKey)
-
 	bufw.Flush()
+
 	signature := make([]byte, hex.EncodedLen(h.Size()))
 	hex.Encode(signature, h.Sum(nil))
 	return string(bytes.ToUpper(signature))

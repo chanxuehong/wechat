@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/chanxuehong/wechat.v2/internal/debug/api"
+	"github.com/chanxuehong/wechat.v2/util"
 )
 
 // 二维码图片的URL, 可以通过此URL下载二维码 或者 在线显示此二维码.
@@ -16,7 +17,7 @@ func QrcodePicURL(ticket string) string {
 }
 
 // Download 通过ticket换取二维码, 写入到 filepath 路径的文件.
-//  如果 clt == nil 则默认用 http.DefaultClient.
+//  如果 clt == nil 则默认用 util.DefaultHttpClient.
 func Download(ticket, filepath string, clt *http.Client) (written int64, err error) {
 	file, err := os.Create(filepath)
 	if err != nil {
@@ -33,10 +34,10 @@ func Download(ticket, filepath string, clt *http.Client) (written int64, err err
 }
 
 // DownloadToWriter 通过ticket换取二维码, 写入到 writer.
-//  如果 clt == nil 则默认用 http.DefaultClient.
+//  如果 clt == nil 则默认用 util.DefaultHttpClient.
 func DownloadToWriter(ticket string, writer io.Writer, clt *http.Client) (written int64, err error) {
 	if clt == nil {
-		clt = http.DefaultClient
+		clt = util.DefaultHttpClient
 	}
 
 	url := QrcodePicURL(ticket)
