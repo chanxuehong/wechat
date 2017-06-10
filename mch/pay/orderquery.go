@@ -99,6 +99,16 @@ func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResp
 		Attach:         m2["attach"],
 	}
 
+	// 校验返回参数
+	if req.TransactionId != "" && resp.TransactionId != "" && req.TransactionId != resp.TransactionId {
+		err = fmt.Errorf("transaction_id mismatch, have: %s, want: %s", resp.TransactionId, req.TransactionId)
+		return nil, err
+	}
+	if req.OutTradeNo != "" && resp.OutTradeNo != "" && req.OutTradeNo != resp.OutTradeNo {
+		err = fmt.Errorf("out_trade_no mismatch, have: %s, want: %s", resp.OutTradeNo, req.OutTradeNo)
+		return nil, err
+	}
+
 	if str := m2["total_fee"]; str != "" {
 		if n, err := strconv.ParseInt(str, 10, 64); err != nil {
 			err = fmt.Errorf("parse total_fee:%q to int64 failed: %s", str, err.Error())
