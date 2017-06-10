@@ -60,10 +60,6 @@ func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrd
 	} else {
 		m1["nonce_str"] = string(rand.NewHex())
 	}
-	if req.SignType != "" {
-		// m1["sign_type"] = req.SignType
-		m1["sign_type"] = "MD5" // TODO(chanxuehong): 目前只支持 MD5, 后期修改
-	}
 	m1["body"] = req.Body
 	if req.Detail != "" {
 		m1["detail"] = req.Detail
@@ -99,6 +95,10 @@ func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrd
 	}
 	if req.SceneInfo != "" {
 		m1["scene_info"] = req.SceneInfo
+	}
+	if req.SignType != "" {
+		// m1["sign_type"] = req.SignType
+		m1["sign_type"] = "MD5" // TODO(chanxuehong): 目前只支持 MD5, 后期修改
 	}
 	m1["sign"] = core.Sign(m1, clt.ApiKey(), md5.New) // TODO(chanxuehong): 目前只支持 MD5, 后期修改
 
