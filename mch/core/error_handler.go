@@ -7,6 +7,7 @@ import (
 )
 
 type ErrorHandler interface {
+	// ServeError 处理回调的错误, 比如 xml 解码出错, return_code != "SUCCESS", result_code != "SUCCESS", ...
 	ServeError(http.ResponseWriter, *http.Request, error)
 }
 

@@ -44,7 +44,7 @@ func NewClient(appId, mchId, apiKey string, httpClient *http.Client) *Client {
 }
 
 // PostXML 是微信支付通用请求方法.
-//  err == nil 表示协议状态为 SUCCESS(return_code==SUCCESS).
+//  err == nil 表示 (return_code == "SUCCESS" && result_code == "SUCCESS").
 func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]string, err error) {
 	buffer := textBufferPool.Get().(*bytes.Buffer)
 	buffer.Reset()

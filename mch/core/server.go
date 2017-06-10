@@ -59,8 +59,8 @@ func (srv *Server) ApiKey() string {
 	return srv.apiKey
 }
 
-// ServeHTTP 处理微信服务器的回调请求, queryParams 参数可以为 nil.
-func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams url.Values) {
+// ServeHTTP 处理微信服务器的回调请求, query 参数可以为 nil.
+func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.Values) {
 	callback.DebugPrintRequest(r)
 	errorHandler := srv.errorHandler
 
@@ -80,36 +80,54 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 		}
 
 		returnCode, ok := msg["return_code"]
-		if returnCode == ReturnCodeSuccess || !ok {
-			haveAppId := msg["appid"]
-			wantAppId := srv.appId
-			if haveAppId != "" && wantAppId != "" && !security.SecureCompareString(haveAppId, wantAppId) {
-				err = fmt.Errorf("appid mismatch, have: %s, want: %s", haveAppId, wantAppId)
-				errorHandler.ServeError(w, r, err)
-				return
+		if ok && returnCode != ReturnCodeSuccess {
+			err = &Error{
+				ReturnCode: returnCode,
+				ReturnMsg:  msg["return_msg"],
 			}
+			errorHandler.ServeError(w, r, err)
+			return
+		}
 
-			haveMchId := msg["mch_id"]
-			wantMchId := srv.mchId
-			if haveMchId != "" && wantMchId != "" && !security.SecureCompareString(haveMchId, wantMchId) {
-				err = fmt.Errorf("mch_id mismatch, have: %s, want: %s", haveMchId, wantMchId)
-				errorHandler.ServeError(w, r, err)
-				return
-			}
+		haveAppId := msg["appid"]
+		wantAppId := srv.appId
+		if haveAppId != "" && wantAppId != "" && !security.SecureCompareString(haveAppId, wantAppId) {
+			err = fmt.Errorf("appid mismatch, have: %s, want: %s", haveAppId, wantAppId)
+			errorHandler.ServeError(w, r, err)
+			return
+		}
 
-			// 认证签名
-			haveSignature, ok := msg["sign"]
-			if !ok {
-				err = ErrNotFoundSign
-				errorHandler.ServeError(w, r, err)
-				return
+		haveMchId := msg["mch_id"]
+		wantMchId := srv.mchId
+		if haveMchId != "" && wantMchId != "" && !security.SecureCompareString(haveMchId, wantMchId) {
+			err = fmt.Errorf("mch_id mismatch, have: %s, want: %s", haveMchId, wantMchId)
+			errorHandler.ServeError(w, r, err)
+			return
+		}
+
+		// 认证签名
+		haveSignature, ok := msg["sign"]
+		if !ok {
+			err = ErrNotFoundSign
+			errorHandler.ServeError(w, r, err)
+			return
+		}
+		wantSignature := Sign(msg, srv.apiKey, nil)
+		if !security.SecureCompareString(haveSignature, wantSignature) {
+			err = fmt.Errorf("sign mismatch,\nhave: %s,\nwant: %s", haveSignature, wantSignature)
+			errorHandler.ServeError(w, r, err)
+			return
+		}
+
+		resultCode, ok := msg["result_code"]
+		if ok && resultCode != ResultCodeSuccess {
+			err = &BizError{
+				ResultCode:  resultCode,
+				ErrCode:     msg["err_code"],
+				ErrCodeDesc: msg["err_code_des"],
 			}
-			wantSignature := Sign(msg, srv.apiKey, nil)
-			if !security.SecureCompareString(haveSignature, wantSignature) {
-				err = fmt.Errorf("sign mismatch,\nhave: %s,\nwant: %s", haveSignature, wantSignature)
-				errorHandler.ServeError(w, r, err)
-				return
-			}
+			errorHandler.ServeError(w, r, err)
+			return
 		}
 
 		ctx := &Context{

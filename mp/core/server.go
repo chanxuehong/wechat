@@ -187,29 +187,29 @@ func (srv *Server) removeLastAESKey(lastAESKey []byte) {
 	return
 }
 
-// ServeHTTP 处理微信服务器的回调请求, queryParams 参数可以为 nil.
-func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams url.Values) {
+// ServeHTTP 处理微信服务器的回调请求, query 参数可以为 nil.
+func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.Values) {
 	callback.DebugPrintRequest(r)
-	if queryParams == nil {
-		queryParams = r.URL.Query()
+	if query == nil {
+		query = r.URL.Query()
 	}
 	errorHandler := srv.errorHandler
 
 	switch r.Method {
 	case "POST": // 推送消息(事件)
-		switch encryptType := queryParams.Get("encrypt_type"); encryptType {
+		switch encryptType := query.Get("encrypt_type"); encryptType {
 		case "aes":
-			haveSignature := queryParams.Get("signature")
+			haveSignature := query.Get("signature")
 			if haveSignature == "" {
 				errorHandler.ServeError(w, r, errors.New("not found signature query parameter"))
 				return
 			}
-			haveMsgSignature := queryParams.Get("msg_signature")
+			haveMsgSignature := query.Get("msg_signature")
 			if haveMsgSignature == "" {
 				errorHandler.ServeError(w, r, errors.New("not found msg_signature query parameter"))
 				return
 			}
-			timestampString := queryParams.Get("timestamp")
+			timestampString := query.Get("timestamp")
 			if timestampString == "" {
 				errorHandler.ServeError(w, r, errors.New("not found timestamp query parameter"))
 				return
@@ -220,7 +220,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				errorHandler.ServeError(w, r, err)
 				return
 			}
-			nonce := queryParams.Get("nonce")
+			nonce := query.Get("nonce")
 			if nonce == "" {
 				errorHandler.ServeError(w, r, errors.New("not found nonce query parameter"))
 				return
@@ -345,7 +345,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				ResponseWriter: w,
 				Request:        r,
 
-				QueryParams:  queryParams,
+				QueryParams:  query,
 				EncryptType:  encryptType,
 				MsgSignature: haveMsgSignature,
 				Signature:    haveSignature,
@@ -366,12 +366,12 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 			srv.handler.ServeMsg(ctx)
 
 		case "", "raw":
-			haveSignature := queryParams.Get("signature")
+			haveSignature := query.Get("signature")
 			if haveSignature == "" {
 				errorHandler.ServeError(w, r, errors.New("not found signature query parameter"))
 				return
 			}
-			timestampString := queryParams.Get("timestamp")
+			timestampString := query.Get("timestamp")
 			if timestampString == "" {
 				errorHandler.ServeError(w, r, errors.New("not found timestamp query parameter"))
 				return
@@ -382,7 +382,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				errorHandler.ServeError(w, r, err)
 				return
 			}
-			nonce := queryParams.Get("nonce")
+			nonce := query.Get("nonce")
 			if nonce == "" {
 				errorHandler.ServeError(w, r, errors.New("not found nonce query parameter"))
 				return
@@ -442,7 +442,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 				ResponseWriter: w,
 				Request:        r,
 
-				QueryParams: queryParams,
+				QueryParams: query,
 				EncryptType: encryptType,
 				Signature:   haveSignature,
 				Timestamp:   timestamp,
@@ -462,22 +462,22 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, queryParams
 		}
 
 	case "GET": // 验证回调URL是否有效
-		haveSignature := queryParams.Get("signature")
+		haveSignature := query.Get("signature")
 		if haveSignature == "" {
 			errorHandler.ServeError(w, r, errors.New("not found signature query parameter"))
 			return
 		}
-		timestamp := queryParams.Get("timestamp")
+		timestamp := query.Get("timestamp")
 		if timestamp == "" {
 			errorHandler.ServeError(w, r, errors.New("not found timestamp query parameter"))
 			return
 		}
-		nonce := queryParams.Get("nonce")
+		nonce := query.Get("nonce")
 		if nonce == "" {
 			errorHandler.ServeError(w, r, errors.New("not found nonce query parameter"))
 			return
 		}
-		echostr := queryParams.Get("echostr")
+		echostr := query.Get("echostr")
 		if echostr == "" {
 			errorHandler.ServeError(w, r, errors.New("not found echostr query parameter"))
 			return

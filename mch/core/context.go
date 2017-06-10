@@ -19,7 +19,7 @@ type Context struct {
 	Request        *http.Request
 
 	RequestBody []byte            // 回调请求的 http-body, 就是消息体的原始内容, 记录log可能需要这个信息
-	Msg         map[string]string // 请求消息
+	Msg         map[string]string // 请求消息, return_code == "SUCCESS" && result_code == "SUCCESS"
 
 	handlers     HandlerChain
 	handlerIndex int
