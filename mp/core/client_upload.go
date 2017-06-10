@@ -77,7 +77,7 @@ func (clt *Client) PostMultipartForm(incompleteURL string, fields []MultipartFor
 
 	httpClient := clt.HttpClient
 	if httpClient == nil {
-		httpClient = util.DefaultHttpClient
+		httpClient = util.DefaultMediaHttpClient
 	}
 
 	token, err := clt.Token()

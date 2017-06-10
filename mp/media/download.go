@@ -36,7 +36,7 @@ func Download(clt *core.Client, mediaId, filepath string) (written int64, err er
 func DownloadToWriter(clt *core.Client, mediaId string, writer io.Writer) (written int64, err error) {
 	httpClient := clt.HttpClient
 	if httpClient == nil {
-		httpClient = util.DefaultHttpClient
+		httpClient = util.DefaultMediaHttpClient
 	}
 
 	var incompleteURL = "https://api.weixin.qq.com/cgi-bin/media/get?media_id=" + url.QueryEscape(mediaId) + "&access_token="

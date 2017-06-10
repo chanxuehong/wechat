@@ -69,7 +69,7 @@ var (
 // 下载对账单到 io.Writer.
 func downloadBillToWriter(writer io.Writer, req *DownloadBillRequest, httpClient *http.Client) (written int64, err error) {
 	if httpClient == nil {
-		httpClient = wechatutil.DefaultHttpClient
+		httpClient = wechatutil.DefaultMediaHttpClient
 	}
 
 	m1 := make(map[string]string, 8)
