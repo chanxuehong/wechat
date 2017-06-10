@@ -15,11 +15,6 @@ import (
 	wechatutil "github.com/chanxuehong/wechat.v2/util"
 )
 
-// 查询退款.
-func RefundQuery(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML(core.APIBaseURL()+"/pay/refundquery", req)
-}
-
 // 下载对账单到到文件.
 func DownloadBill(filepath string, req map[string]string, httpClient *http.Client) (written int64, err error) {
 	if req == nil {
