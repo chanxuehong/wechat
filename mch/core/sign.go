@@ -18,7 +18,17 @@ func Sign(params map[string]string, apiKey string, fn func() hash.Hash) string {
 	if fn == nil {
 		fn = md5.New
 	}
-	h := fn()
+	return Sign2(params, apiKey, fn())
+}
+
+// Sign2 微信支付签名.
+//  params: 待签名的参数集合
+//  apiKey: api密钥
+//  h:      hash.Hash, 如果为 nil 则默认用 md5.New()
+func Sign2(params map[string]string, apiKey string, h hash.Hash) string {
+	if h == nil {
+		h = md5.New()
+	}
 
 	keys := make([]string, 0, len(params))
 	for k := range params {

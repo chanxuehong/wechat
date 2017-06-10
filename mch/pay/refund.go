@@ -1,7 +1,9 @@
 package pay
 
 import (
+	"crypto/hmac"
 	"crypto/md5"
+	"crypto/sha256"
 	"fmt"
 	"strconv"
 
@@ -74,11 +76,21 @@ func Refund2(clt *core.Client, req *RefundRequest) (resp *RefundResponse, err er
 	if req.RefundAccount != "" {
 		m1["refund_account"] = req.RefundAccount
 	}
-	if req.SignType != "" {
-		// m1["sign_type"] = req.SignType
-		m1["sign_type"] = "MD5" // TODO(chanxuehong): 目前只支持 MD5, 后期修改
+
+	// 签名
+	switch req.SignType {
+	case "":
+		m1["sign"] = core.Sign2(m1, clt.ApiKey(), md5.New())
+	case "MD5":
+		m1["sign_type"] = "MD5"
+		m1["sign"] = core.Sign2(m1, clt.ApiKey(), md5.New())
+	case "HMAC-SHA256":
+		m1["sign_type"] = "HMAC-SHA256"
+		m1["sign"] = core.Sign2(m1, clt.ApiKey(), hmac.New(sha256.New, []byte(clt.ApiKey())))
+	default:
+		err = fmt.Errorf("invalid sign_type: %s", req.SignType)
+		return nil, err
 	}
-	m1["sign"] = core.Sign(m1, clt.ApiKey(), md5.New) // TODO(chanxuehong): 目前只支持 MD5, 后期修改
 
 	m2, err := Refund(clt, m1)
 	if err != nil {

@@ -2,7 +2,9 @@ package pay
 
 import (
 	"bytes"
+	"crypto/hmac"
 	"crypto/md5"
+	"crypto/sha256"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -85,11 +87,21 @@ func downloadBillToWriter(writer io.Writer, req *DownloadBillRequest, httpClient
 	if req.TarType != "" {
 		m1["tar_type"] = req.TarType
 	}
-	if req.SignType != "" {
-		// m1["sign_type"] = req.SignType
-		m1["sign_type"] = "MD5" // TODO(chanxuehong): 目前只支持 MD5, 后期修改
+
+	// 签名
+	switch req.SignType {
+	case "":
+		m1["sign"] = core.Sign2(m1, req.ApiKey, md5.New())
+	case "MD5":
+		m1["sign_type"] = "MD5"
+		m1["sign"] = core.Sign2(m1, req.ApiKey, md5.New())
+	case "HMAC-SHA256":
+		m1["sign_type"] = "HMAC-SHA256"
+		m1["sign"] = core.Sign2(m1, req.ApiKey, hmac.New(sha256.New, []byte(req.ApiKey)))
+	default:
+		err = fmt.Errorf("invalid sign_type: %s", req.SignType)
+		return 0, err
 	}
-	m1["sign"] = core.Sign(m1, req.ApiKey, md5.New) // TODO(chanxuehong): 目前只支持 MD5, 后期修改
 
 	buffer := make([]byte, 32<<10) // 与 io.copyBuffer 里的默认大小一致
 

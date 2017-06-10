@@ -1,7 +1,10 @@
 package pay
 
 import (
+	"crypto/hmac"
 	"crypto/md5"
+	"crypto/sha256"
+	"fmt"
 
 	"github.com/chanxuehong/rand"
 
@@ -32,11 +35,21 @@ func CloseOrder2(clt *core.Client, req *CloseOrderRequest) (err error) {
 	} else {
 		m1["nonce_str"] = string(rand.NewHex())
 	}
-	if req.SignType != "" {
-		// m1["sign_type"] = req.SignType
-		m1["sign_type"] = "MD5" // TODO(chanxuehong): 目前只支持 MD5, 后期修改
+
+	// 签名
+	switch req.SignType {
+	case "":
+		m1["sign"] = core.Sign2(m1, clt.ApiKey(), md5.New())
+	case "MD5":
+		m1["sign_type"] = "MD5"
+		m1["sign"] = core.Sign2(m1, clt.ApiKey(), md5.New())
+	case "HMAC-SHA256":
+		m1["sign_type"] = "HMAC-SHA256"
+		m1["sign"] = core.Sign2(m1, clt.ApiKey(), hmac.New(sha256.New, []byte(clt.ApiKey())))
+	default:
+		err = fmt.Errorf("invalid sign_type: %s", req.SignType)
+		return err
 	}
-	m1["sign"] = core.Sign(m1, clt.ApiKey(), md5.New) // TODO(chanxuehong): 目前只支持 MD5, 后期修改
 
 	_, err = CloseOrder(clt, m1)
 	return
