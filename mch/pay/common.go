@@ -15,11 +15,6 @@ import (
 	wechatutil "github.com/chanxuehong/wechat.v2/util"
 )
 
-// 关闭订单.
-func CloseOrder(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML(core.APIBaseURL()+"/pay/closeorder", req)
-}
-
 // 查询退款.
 func RefundQuery(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
 	return clt.PostXML(core.APIBaseURL()+"/pay/refundquery", req)

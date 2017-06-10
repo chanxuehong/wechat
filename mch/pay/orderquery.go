@@ -77,9 +77,10 @@ func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResp
 	tradeState := m2["trade_state"]
 	if tradeState != "SUCCESS" {
 		resp = &OrderQueryResponse{
-			TradeState: tradeState,
-			OutTradeNo: m2["out_trade_no"],
-			Attach:     m2["attach"],
+			TradeState:     tradeState,
+			TradeStateDesc: m2["trade_state_desc"],
+			OutTradeNo:     m2["out_trade_no"],
+			Attach:         m2["attach"],
 		}
 		return resp, nil
 	}
