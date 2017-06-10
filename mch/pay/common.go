@@ -17,12 +17,12 @@ import (
 
 // 关闭订单.
 func CloseOrder(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.mch.weixin.qq.com/pay/closeorder", req)
+	return clt.PostXML(core.APIBaseURL()+"/pay/closeorder", req)
 }
 
 // 查询退款.
 func RefundQuery(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.mch.weixin.qq.com/pay/refundquery", req)
+	return clt.PostXML(core.APIBaseURL()+"/pay/refundquery", req)
 }
 
 // 下载对账单到到文件.
@@ -79,7 +79,7 @@ func downloadBillToWriter(writer io.Writer, req map[string]string, httpClient *h
 		return
 	}
 
-	httpResp, err := httpClient.Post("https://api.mch.weixin.qq.com/pay/downloadbill", "text/xml; charset=utf-8", reqBuf)
+	httpResp, err := httpClient.Post(core.APIBaseURL()+"/pay/downloadbill", "text/xml; charset=utf-8", reqBuf)
 	if err != nil {
 		return
 	}

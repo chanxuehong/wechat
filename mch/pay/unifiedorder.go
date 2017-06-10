@@ -11,7 +11,7 @@ import (
 
 // 统一下单.
 func UnifiedOrder(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.mch.weixin.qq.com/pay/unifiedorder", req)
+	return clt.PostXML(core.APIBaseURL()+"/pay/unifiedorder", req)
 }
 
 type UnifiedOrderRequest struct {

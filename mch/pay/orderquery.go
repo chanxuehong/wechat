@@ -14,7 +14,7 @@ import (
 
 // 查询订单.
 func OrderQuery(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML("https://api.mch.weixin.qq.com/pay/orderquery", req)
+	return clt.PostXML(core.APIBaseURL()+"/pay/orderquery", req)
 }
 
 type OrderQueryRequest struct {
