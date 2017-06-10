@@ -1,3 +1,5 @@
+// +build go1.8
+
 package core
 
 import (
@@ -7,7 +9,7 @@ import (
 	"time"
 )
 
-// NewTLSHttpClient 创建支持双向证书认证的 http.Client
+// NewTLSHttpClient 创建支持双向证书认证的 http.Client.
 func NewTLSHttpClient(certFile, keyFile string) (httpClient *http.Client, err error) {
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
@@ -17,18 +19,20 @@ func NewTLSHttpClient(certFile, keyFile string) (httpClient *http.Client, err er
 		Certificates: []tls.Certificate{cert},
 	}
 
-	httpClient = &http.Client{
+	return &http.Client{
 		Transport: &http.Transport{
 			Proxy: http.ProxyFromEnvironment,
-			Dial: (&net.Dialer{
-				Timeout:   30 * time.Second,
+			DialContext: (&net.Dialer{
+				Timeout:   3 * time.Second,
 				KeepAlive: 30 * time.Second,
-			}).Dial,
-			TLSHandshakeTimeout:   10 * time.Second,
+				DualStack: true,
+			}).DialContext,
+			MaxIdleConns:          100,
+			IdleConnTimeout:       90 * time.Second,
+			TLSHandshakeTimeout:   3 * time.Second,
 			ExpectContinueTimeout: 1 * time.Second,
 			TLSClientConfig:       tlsConfig,
 		},
-		Timeout: 60 * time.Second,
-	}
-	return
+		Timeout: 5 * time.Second,
+	}, nil
 }
