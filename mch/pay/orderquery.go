@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/chanxuehong/rand"
 	"github.com/chanxuehong/util"
 
 	"github.com/chanxuehong/wechat.v2/mch/core"
+	wechatutil "github.com/chanxuehong/wechat.v2/util"
 )
 
 // OrderQuery 查询订单.
@@ -62,7 +62,7 @@ func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResp
 	if req.NonceStr != "" {
 		m1["nonce_str"] = req.NonceStr
 	} else {
-		m1["nonce_str"] = string(rand.NewHex())
+		m1["nonce_str"] = wechatutil.NonceStr()
 	}
 
 	// 签名

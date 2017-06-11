@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/chanxuehong/rand"
 	"github.com/chanxuehong/util"
 
 	"github.com/chanxuehong/wechat.v2/mch/core"
+	wechatutil "github.com/chanxuehong/wechat.v2/util"
 )
 
 // RefundQuery 查询退款.
@@ -64,7 +64,7 @@ func RefundQuery2(clt *core.Client, req *RefundQueryRequest) (resp *RefundQueryR
 	if req.NonceStr != "" {
 		m1["nonce_str"] = req.NonceStr
 	} else {
-		m1["nonce_str"] = string(rand.NewHex())
+		m1["nonce_str"] = wechatutil.NonceStr()
 	}
 	if req.TransactionId != "" {
 		m1["transaction_id"] = req.TransactionId

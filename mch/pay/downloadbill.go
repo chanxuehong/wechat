@@ -11,8 +11,8 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"unicode"
 
-	"github.com/chanxuehong/rand"
 	"github.com/chanxuehong/util"
 
 	"github.com/chanxuehong/wechat.v2/mch/core"
@@ -66,6 +66,7 @@ var (
 	// </xml>
 	downloadBillErrorRootNodeStartElement       = []byte("<xml>")
 	downloadBillErrorReturnCodeNodeStartElement = []byte("<return_code>")
+	downloadBillErrorReturnMsgNodeStartElement  = []byte("<return_msg>")
 )
 
 // 下载对账单到 io.Writer.
@@ -80,7 +81,7 @@ func downloadBillToWriter(writer io.Writer, req *DownloadBillRequest, httpClient
 	if req.NonceStr != "" {
 		m1["nonce_str"] = req.NonceStr
 	} else {
-		m1["nonce_str"] = string(rand.NewHex())
+		m1["nonce_str"] = wechatutil.NonceStr()
 	}
 	m1["bill_date"] = req.BillDate
 	m1["bill_type"] = req.BillType
@@ -121,10 +122,9 @@ func downloadBillToWriter(writer io.Writer, req *DownloadBillRequest, httpClient
 		return 0, err
 	}
 
-	n, err := io.ReadFull(httpResp.Body, buffer)
-	switch {
-	case err == nil:
-		// n == len(buf), 可以认为返回的是对账单而不是xml格式的错误信息
+	switch n, err := io.ReadFull(httpResp.Body, buffer); err {
+	case nil:
+		// n == len(buffer) == 32KB, 可以认为返回的是对账单而不是xml格式的错误信息
 		written, err = bytes.NewReader(buffer).WriteTo(writer)
 		if err != nil {
 			return written, err
@@ -133,22 +133,39 @@ func downloadBillToWriter(writer io.Writer, req *DownloadBillRequest, httpClient
 		n2, err = io.CopyBuffer(writer, httpResp.Body, buffer)
 		written += n2
 		return written, err
-	case err == io.ErrUnexpectedEOF:
+	case io.ErrUnexpectedEOF:
 		content := buffer[:n]
-		if index := bytes.Index(content, downloadBillErrorRootNodeStartElement); index != -1 {
-			if bytes.Contains(content[index+len(downloadBillErrorRootNodeStartElement):], downloadBillErrorReturnCodeNodeStartElement) {
+		if bs := trimLeft(content); bytes.HasPrefix(bs, downloadBillErrorRootNodeStartElement) {
+			bs = trimLeft(bs[len(downloadBillErrorRootNodeStartElement):])
+			if bytes.HasPrefix(bs, downloadBillErrorReturnCodeNodeStartElement) || bytes.HasPrefix(bs, downloadBillErrorReturnMsgNodeStartElement) {
 				// 可以认为是错误信息了, 尝试解析xml
 				var result core.Error
 				if err = xml.Unmarshal(content, &result); err == nil {
 					return 0, &result
 				}
-				// err != nil 执行默认的动作, 写入 writer
 			}
 		}
 		return bytes.NewReader(content).WriteTo(writer)
-	case err == io.EOF: // 返回空的body
+	case io.EOF: // 返回空的body
 		return 0, nil
 	default: // 其他的错误
 		return 0, err
 	}
+}
+
+func trimLeft(s []byte) []byte {
+	for i := 0; i < len(s); i++ {
+		if isSpace(s[i]) {
+			continue
+		}
+		return s[i:]
+	}
+	return s
+}
+
+func isSpace(b byte) bool {
+	if b > unicode.MaxASCII {
+		return false
+	}
+	return unicode.IsSpace(rune(b))
 }

@@ -6,9 +6,8 @@ import (
 	"crypto/sha256"
 	"fmt"
 
-	"github.com/chanxuehong/rand"
-
 	"github.com/chanxuehong/wechat.v2/mch/core"
+	"github.com/chanxuehong/wechat.v2/util"
 )
 
 // CloseOrder 关闭订单.
@@ -33,7 +32,7 @@ func CloseOrder2(clt *core.Client, req *CloseOrderRequest) (err error) {
 	if req.NonceStr != "" {
 		m1["nonce_str"] = req.NonceStr
 	} else {
-		m1["nonce_str"] = string(rand.NewHex())
+		m1["nonce_str"] = util.NonceStr()
 	}
 
 	// 签名

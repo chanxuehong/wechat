@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/chanxuehong/rand"
 	"github.com/chanxuehong/util"
 
 	"github.com/chanxuehong/wechat.v2/mch/core"
+	wechatutil "github.com/chanxuehong/wechat.v2/util"
 )
 
 // Refund 申请退款.
@@ -59,7 +59,7 @@ func Refund2(clt *core.Client, req *RefundRequest) (resp *RefundResponse, err er
 	if req.NonceStr != "" {
 		m1["nonce_str"] = req.NonceStr
 	} else {
-		m1["nonce_str"] = string(rand.NewHex())
+		m1["nonce_str"] = wechatutil.NonceStr()
 	}
 	if req.TransactionId != "" {
 		m1["transaction_id"] = req.TransactionId

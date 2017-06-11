@@ -8,9 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/chanxuehong/rand"
-
 	"github.com/chanxuehong/wechat.v2/mch/core"
+	"github.com/chanxuehong/wechat.v2/util"
 )
 
 // UnifiedOrder 统一下单.
@@ -41,8 +40,7 @@ type UnifiedOrderRequest struct {
 }
 
 type UnifiedOrderResponse struct {
-	TradeType string `xml:"trade_type"` // 调用接口提交的交易类型，取值如下：JSAPI，NATIVE，APP，详细说明见参数规定
-	PrepayId  string `xml:"prepay_id"`  // 微信生成的预支付回话标识，用于后续接口调用中使用，该值有效期为2小时
+	PrepayId string `xml:"prepay_id"` // 微信生成的预支付回话标识，用于后续接口调用中使用，该值有效期为2小时
 
 	// 下面字段都是可选返回的(详细见微信支付文档), 为空值表示没有返回, 程序逻辑里需要判断
 	DeviceInfo string `xml:"device_info"` // 调用接口提交的终端设备号。
@@ -61,7 +59,7 @@ func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrd
 	if req.NonceStr != "" {
 		m1["nonce_str"] = req.NonceStr
 	} else {
-		m1["nonce_str"] = string(rand.NewHex())
+		m1["nonce_str"] = util.NonceStr()
 	}
 	m1["body"] = req.Body
 	if req.Detail != "" {
@@ -120,8 +118,13 @@ func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrd
 		return nil, err
 	}
 
+	// 校验 trade_type
+	if respTradeType := m2["trade_type"]; req.TradeType != respTradeType {
+		err = fmt.Errorf("trade_type mismatch, have: %s, want: %s", respTradeType, req.TradeType)
+		return nil, err
+	}
+
 	resp = &UnifiedOrderResponse{
-		TradeType:  m2["trade_type"],
 		PrepayId:   m2["prepay_id"],
 		DeviceInfo: m2["device_info"],
 		CodeURL:    m2["code_url"],
