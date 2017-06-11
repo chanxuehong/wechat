@@ -12,16 +12,22 @@ func Reverse(clt *core.Client, req map[string]string) (resp map[string]string, e
 }
 
 type ReverseRequest struct {
-	XMLName       struct{} `xml:"xml" json:"-"`
-	TransactionId string   `xml:"transaction_id"` // 微信的订单号，优先使用
-	OutTradeNo    string   `xml:"out_trade_no"`   // 商户系统内部订单号
-	NonceStr      string   `xml:"nonce_str"`      // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
-	SignType      string   `xml:"sign_type"`      // 签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
+	XMLName struct{} `xml:"xml" json:"-"`
+
+	// 必选参数，二选一
+	TransactionId string `xml:"transaction_id"` // 微信的订单号，优先使用
+	OutTradeNo    string `xml:"out_trade_no"`   // 商户系统内部订单号
+
+	// 可选参数
+	NonceStr string `xml:"nonce_str"` // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
+	SignType string `xml:"sign_type"` // 签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
 }
 
 type ReverseResponse struct {
 	XMLName struct{} `xml:"xml" json:"-"`
-	Recall  bool     `xml:"recall"` // 是否需要继续调用撤销
+
+	// 必选返回
+	Recall bool `xml:"recall"` // 是否需要继续调用撤销
 }
 
 // Reverse2 撤销订单.

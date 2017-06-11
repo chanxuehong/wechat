@@ -17,25 +17,31 @@ func OrderQuery(clt *core.Client, req map[string]string) (resp map[string]string
 }
 
 type OrderQueryRequest struct {
-	XMLName       struct{} `xml:"xml" json:"-"`
-	TransactionId string   `xml:"transaction_id"` // 微信的订单号，优先使用
-	OutTradeNo    string   `xml:"out_trade_no"`   // 商户系统内部的订单号，当没提供transaction_id时需要传这个。
-	NonceStr      string   `xml:"nonce_str"`      // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
-	SignType      string   `xml:"sign_type"`      // 签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
+	XMLName struct{} `xml:"xml" json:"-"`
+
+	// 下面这些参数至少提供一个
+	TransactionId string `xml:"transaction_id"` // 微信的订单号，优先使用
+	OutTradeNo    string `xml:"out_trade_no"`   // 商户系统内部的订单号，当没提供transaction_id时需要传这个。
+
+	// 可选参数
+	NonceStr string `xml:"nonce_str"` // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
+	SignType string `xml:"sign_type"` // 签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
 }
 
 type OrderQueryResponse struct {
-	XMLName        struct{}  `xml:"xml" json:"-"`
-	OpenId         string    `xml:"openid"`           // 用户在商户appid下的唯一标识
-	TradeType      string    `xml:"trade_type"`       // 调用接口提交的交易类型，取值如下：JSAPI，NATIVE，APP，MICROPAY，详细说明见参数规定
+	XMLName struct{} `xml:"xml" json:"-"`
+
+	// 必选返回
 	TradeState     string    `xml:"trade_state"`      // 交易状态
+	TradeStateDesc string    `xml:"trade_state_desc"` // 对当前查询订单状态的描述和下一步操作的指引
+	OpenId         string    `xml:"openid"`           // 用户在商户appid下的唯一标识
+	TransactionId  string    `xml:"transaction_id"`   // 微信支付订单号
+	OutTradeNo     string    `xml:"out_trade_no"`     // 商户系统的订单号，与请求一致。
+	TradeType      string    `xml:"trade_type"`       // 调用接口提交的交易类型，取值如下：JSAPI，NATIVE，APP，MICROPAY，详细说明见参数规定
 	BankType       string    `xml:"bank_type"`        // 银行类型，采用字符串类型的银行标识
 	TotalFee       int64     `xml:"total_fee"`        // 订单总金额，单位为分
 	CashFee        int64     `xml:"cash_fee"`         // 现金支付金额订单现金支付金额，详见支付金额
-	TransactionId  string    `xml:"transaction_id"`   // 微信支付订单号
-	OutTradeNo     string    `xml:"out_trade_no"`     // 商户系统的订单号，与请求一致。
 	TimeEnd        time.Time `xml:"time_end"`         // 订单支付时间，格式为yyyyMMddHHmmss，如2009年12月25日9点10分10秒表示为20091225091010。其他详见时间规则
-	TradeStateDesc string    `xml:"trade_state_desc"` // 对当前查询订单状态的描述和下一步操作的指引
 
 	// 下面字段都是可选返回的(详细见微信支付文档), 为空值表示没有返回, 程序逻辑里需要判断
 	DeviceInfo         string `xml:"device_info"`          // 微信支付分配的终端设备号
@@ -85,13 +91,13 @@ func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResp
 	}
 
 	resp = &OrderQueryResponse{
-		OpenId:         m2["openid"],
-		TradeType:      m2["trade_type"],
 		TradeState:     tradeState,
-		BankType:       m2["bank_type"],
+		TradeStateDesc: m2["trade_state_desc"],
+		OpenId:         m2["openid"],
 		TransactionId:  m2["transaction_id"],
 		OutTradeNo:     m2["out_trade_no"],
-		TradeStateDesc: m2["trade_state_desc"],
+		TradeType:      m2["trade_type"],
+		BankType:       m2["bank_type"],
 		DeviceInfo:     m2["device_info"],
 		FeeType:        m2["fee_type"],
 		CashFeeType:    m2["cash_fee_type"],

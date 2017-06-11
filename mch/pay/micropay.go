@@ -15,24 +15,30 @@ func MicroPay(clt *core.Client, req map[string]string) (resp map[string]string, 
 }
 
 type MicroPayRequest struct {
-	XMLName        struct{} `xml:"xml" json:"-"`
-	DeviceInfo     string   `xml:"device_info"`      // 终端设备号(门店号或收银设备ID)，注意：PC网页或公众号内支付请传"WEB"
-	NonceStr       string   `xml:"nonce_str"`        // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
-	SignType       string   `xml:"sign_type"`        // 签名类型，默认为MD5，支持HMAC-SHA256和MD5。
-	Body           string   `xml:"body"`             // 商品或支付单简要描述
-	Detail         string   `xml:"detail"`           // 商品名称明细列表
-	Attach         string   `xml:"attach"`           // 附加数据，在查询API和支付通知中原样返回，该字段主要用于商户携带订单的自定义数据
-	OutTradeNo     string   `xml:"out_trade_no"`     // 商户系统内部的订单号,32个字符内、可包含字母, 其他说明见商户订单号
-	TotalFee       int64    `xml:"total_fee"`        // 订单总金额，单位为分，详见支付金额
-	FeeType        string   `xml:"fee_type"`         // 符合ISO 4217标准的三位字母代码，默认人民币：CNY，其他值列表详见货币类型
-	SpbillCreateIP string   `xml:"spbill_create_ip"` // APP和网页支付提交用户端ip，Native支付填调用微信支付API的机器IP。
-	GoodsTag       string   `xml:"goods_tag"`        // 商品标记，代金券或立减优惠功能的参数，说明详见代金券或立减优惠
-	LimitPay       string   `xml:"limit_pay"`        // no_credit--指定不能使用信用卡支付
-	AuthCode       string   `xml:"auth_code"`        // 扫码支付授权码，设备读取用户微信中的条码或者二维码信息
+	XMLName struct{} `xml:"xml" json:"-"`
+
+	// 必选参数
+	Body           string `xml:"body"`             // 商品或支付单简要描述
+	OutTradeNo     string `xml:"out_trade_no"`     // 商户系统内部的订单号,32个字符内、可包含字母, 其他说明见商户订单号
+	TotalFee       int64  `xml:"total_fee"`        // 订单总金额，单位为分，详见支付金额
+	SpbillCreateIP string `xml:"spbill_create_ip"` // APP和网页支付提交用户端ip，Native支付填调用微信支付API的机器IP。
+	AuthCode       string `xml:"auth_code"`        // 扫码支付授权码，设备读取用户微信中的条码或者二维码信息
+
+	// 可选参数
+	DeviceInfo string `xml:"device_info"` // 终端设备号(门店号或收银设备ID)，注意：PC网页或公众号内支付请传"WEB"
+	NonceStr   string `xml:"nonce_str"`   // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
+	SignType   string `xml:"sign_type"`   // 签名类型，默认为MD5，支持HMAC-SHA256和MD5。
+	Detail     string `xml:"detail"`      // 商品名称明细列表
+	Attach     string `xml:"attach"`      // 附加数据，在查询API和支付通知中原样返回，该字段主要用于商户携带订单的自定义数据
+	FeeType    string `xml:"fee_type"`    // 符合ISO 4217标准的三位字母代码，默认人民币：CNY，其他值列表详见货币类型
+	GoodsTag   string `xml:"goods_tag"`   // 商品标记，代金券或立减优惠功能的参数，说明详见代金券或立减优惠
+	LimitPay   string `xml:"limit_pay"`   // no_credit--指定不能使用信用卡支付
 }
 
 type MicroPayResponse struct {
-	XMLName       struct{}  `xml:"xml" json:"-"`
+	XMLName struct{} `xml:"xml" json:"-"`
+
+	// 必选返回
 	OpenId        string    `xml:"openid"`         // 用户在商户appid下的唯一标识
 	IsSubscribe   bool      `xml:"is_subscribe"`   // 用户是否关注公众账号
 	TradeType     string    `xml:"trade_type"`     // 调用接口提交的交易类型，取值如下：JSAPI，NATIVE，APP，MICROPAY，详细说明见参数规定
@@ -58,6 +64,11 @@ func MicroPay2(clt *core.Client, req *MicroPayRequest) (resp *MicroPayResponse, 
 	m1 := make(map[string]string, 24)
 	m1["appid"] = clt.AppId()
 	m1["mch_id"] = clt.MchId()
+	m1["body"] = req.Body
+	m1["out_trade_no"] = req.OutTradeNo
+	m1["total_fee"] = strconv.FormatInt(req.TotalFee, 10)
+	m1["spbill_create_ip"] = req.SpbillCreateIP
+	m1["auth_code"] = req.AuthCode
 	if req.DeviceInfo != "" {
 		m1["device_info"] = req.DeviceInfo
 	}
@@ -69,26 +80,21 @@ func MicroPay2(clt *core.Client, req *MicroPayRequest) (resp *MicroPayResponse, 
 	if req.SignType != "" {
 		m1["sign_type"] = req.SignType
 	}
-	m1["body"] = req.Body
 	if req.Detail != "" {
 		m1["detail"] = req.Detail
 	}
 	if req.Attach != "" {
 		m1["attach"] = req.Attach
 	}
-	m1["out_trade_no"] = req.OutTradeNo
-	m1["total_fee"] = strconv.FormatInt(req.TotalFee, 10)
 	if req.FeeType != "" {
 		m1["fee_type"] = req.FeeType
 	}
-	m1["spbill_create_ip"] = req.SpbillCreateIP
 	if req.GoodsTag != "" {
 		m1["goods_tag"] = req.GoodsTag
 	}
 	if req.LimitPay != "" {
 		m1["limit_pay"] = req.LimitPay
 	}
-	m1["auth_code"] = req.AuthCode
 
 	m2, err := MicroPay(clt, m1)
 	if err != nil {
