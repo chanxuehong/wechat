@@ -15,6 +15,7 @@ func UnifiedOrder(clt *core.Client, req map[string]string) (resp map[string]stri
 }
 
 type UnifiedOrderRequest struct {
+	XMLName        struct{}  `xml:"xml" json:"-"`
 	DeviceInfo     string    `xml:"device_info"`      // 终端设备号(门店号或收银设备ID)，注意：PC网页或公众号内支付请传"WEB"
 	NonceStr       string    `xml:"nonce_str"`        // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
 	SignType       string    `xml:"sign_type"`        // 签名类型，默认为MD5，支持HMAC-SHA256和MD5。
@@ -37,7 +38,8 @@ type UnifiedOrderRequest struct {
 }
 
 type UnifiedOrderResponse struct {
-	PrepayId string `xml:"prepay_id"` // 微信生成的预支付回话标识，用于后续接口调用中使用，该值有效期为2小时
+	XMLName  struct{} `xml:"xml" json:"-"`
+	PrepayId string   `xml:"prepay_id"` // 微信生成的预支付回话标识，用于后续接口调用中使用，该值有效期为2小时
 
 	// 下面字段都是可选返回的(详细见微信支付文档), 为空值表示没有返回, 程序逻辑里需要判断
 	DeviceInfo string `xml:"device_info"` // 调用接口提交的终端设备号。

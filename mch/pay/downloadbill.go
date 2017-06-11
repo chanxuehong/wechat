@@ -20,14 +20,15 @@ import (
 )
 
 type DownloadBillRequest struct {
-	AppId    string `xml:"appid"`     // 公众账号ID
-	MchId    string `xml:"mch_id"`    // 微信支付分配的商户号
-	ApiKey   string `xml:"api_key"`   // 签名密钥
-	NonceStr string `xml:"nonce_str"` // 随机字符串，不长于32位。推荐随机数生成算法
-	SignType string `xml:"sign_type"` // 签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
-	BillDate string `xml:"bill_date"` // 下载对账单的日期，格式：20140603
-	BillType string `xml:"bill_type"` // 账单类型
-	TarType  string `xml:"tar_type"`  // 压缩账单
+	XMLName  struct{} `xml:"xml" json:"-"`
+	AppId    string   `xml:"appid"`     // 公众账号ID
+	MchId    string   `xml:"mch_id"`    // 微信支付分配的商户号
+	ApiKey   string   `xml:"api_key"`   // 签名密钥
+	NonceStr string   `xml:"nonce_str"` // 随机字符串，不长于32位。推荐随机数生成算法
+	SignType string   `xml:"sign_type"` // 签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
+	BillDate string   `xml:"bill_date"` // 下载对账单的日期，格式：20140603
+	BillType string   `xml:"bill_type"` // 账单类型
+	TarType  string   `xml:"tar_type"`  // 压缩账单
 }
 
 // 下载对账单到到文件.

@@ -17,13 +17,15 @@ func OrderQuery(clt *core.Client, req map[string]string) (resp map[string]string
 }
 
 type OrderQueryRequest struct {
-	TransactionId string `xml:"transaction_id"` // 微信的订单号，优先使用
-	OutTradeNo    string `xml:"out_trade_no"`   // 商户系统内部的订单号，当没提供transaction_id时需要传这个。
-	NonceStr      string `xml:"nonce_str"`      // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
-	SignType      string `xml:"sign_type"`      // 签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
+	XMLName       struct{} `xml:"xml" json:"-"`
+	TransactionId string   `xml:"transaction_id"` // 微信的订单号，优先使用
+	OutTradeNo    string   `xml:"out_trade_no"`   // 商户系统内部的订单号，当没提供transaction_id时需要传这个。
+	NonceStr      string   `xml:"nonce_str"`      // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
+	SignType      string   `xml:"sign_type"`      // 签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
 }
 
 type OrderQueryResponse struct {
+	XMLName        struct{}  `xml:"xml" json:"-"`
 	OpenId         string    `xml:"openid"`           // 用户在商户appid下的唯一标识
 	TradeType      string    `xml:"trade_type"`       // 调用接口提交的交易类型，取值如下：JSAPI，NATIVE，APP，MICROPAY，详细说明见参数规定
 	TradeState     string    `xml:"trade_state"`      // 交易状态

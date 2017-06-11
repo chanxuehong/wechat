@@ -11,9 +11,10 @@ func CloseOrder(clt *core.Client, req map[string]string) (resp map[string]string
 }
 
 type CloseOrderRequest struct {
-	OutTradeNo string `xml:"out_trade_no"` // 商户系统内部订单号
-	NonceStr   string `xml:"nonce_str"`    // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
-	SignType   string `xml:"sign_type"`    // 签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
+	XMLName    struct{} `xml:"xml" json:"-"`
+	OutTradeNo string   `xml:"out_trade_no"` // 商户系统内部订单号
+	NonceStr   string   `xml:"nonce_str"`    // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
+	SignType   string   `xml:"sign_type"`    // 签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
 }
 
 // CloseOrder2 关闭订单.

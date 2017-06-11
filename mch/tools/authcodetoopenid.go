@@ -11,13 +11,15 @@ func AuthCodeToOpenId(clt *core.Client, req map[string]string) (resp map[string]
 }
 
 type AuthCodeToOpenIdRequest struct {
-	AuthCode string `xml:"auth_code"` // 扫码支付授权码，设备读取用户微信中的条码或者二维码信息
-	NonceStr string `xml:"nonce_str"` // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
-	SignType string `xml:"sign_type"` // 签名类型，默认为MD5，支持HMAC-SHA256和MD5。
+	XMLName  struct{} `xml:"xml" json:"-"`
+	AuthCode string   `xml:"auth_code"` // 扫码支付授权码，设备读取用户微信中的条码或者二维码信息
+	NonceStr string   `xml:"nonce_str"` // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
+	SignType string   `xml:"sign_type"` // 签名类型，默认为MD5，支持HMAC-SHA256和MD5。
 }
 
 type AuthCodeToOpenIdResponse struct {
-	OpenId string `xml:"openid"` // 用户在商户appid下的唯一标识
+	XMLName struct{} `xml:"xml" json:"-"`
+	OpenId  string   `xml:"openid"` // 用户在商户appid下的唯一标识
 }
 
 // AuthCodeToOpenId2 授权码查询openid.

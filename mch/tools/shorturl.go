@@ -11,13 +11,15 @@ func ShortURL(clt *core.Client, req map[string]string) (resp map[string]string, 
 }
 
 type ShortURLRequest struct {
-	LongURL  string `xml:"long_url"`  // URL链接
-	NonceStr string `xml:"nonce_str"` // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
-	SignType string `xml:"sign_type"` // 签名类型，默认为MD5，支持HMAC-SHA256和MD5。
+	XMLName  struct{} `xml:"xml" json:"-"`
+	LongURL  string   `xml:"long_url"`  // URL链接
+	NonceStr string   `xml:"nonce_str"` // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
+	SignType string   `xml:"sign_type"` // 签名类型，默认为MD5，支持HMAC-SHA256和MD5。
 }
 
 type ShortURLResponse struct {
-	ShortURL string `xml:"short_url"` // 转换后的URL
+	XMLName  struct{} `xml:"xml" json:"-"`
+	ShortURL string   `xml:"short_url"` // 转换后的URL
 }
 
 // ShortURL2 转换短链接.

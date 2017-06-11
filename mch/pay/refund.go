@@ -17,25 +17,27 @@ func Refund(clt *core.Client, req map[string]string) (resp map[string]string, er
 }
 
 type RefundRequest struct {
-	NonceStr      string `xml:"nonce_str"`       // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
-	SignType      string `xml:"sign_type"`       // 签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
-	TransactionId string `xml:"transaction_id"`  // 微信生成的订单号，在支付通知中有返回
-	OutTradeNo    string `xml:"out_trade_no"`    // 商户侧传给微信的订单号
-	OutRefundNo   string `xml:"out_refund_no"`   // 商户系统内部的退款单号，商户系统内部唯一，同一退款单号多次请求只退一笔
-	TotalFee      int64  `xml:"total_fee"`       // 订单总金额，单位为分，只能为整数，详见支付金额
-	RefundFee     int64  `xml:"refund_fee"`      // 退款总金额，订单总金额，单位为分，只能为整数，详见支付金额
-	RefundFeeType string `xml:"refund_fee_type"` // 货币类型，符合ISO 4217标准的三位字母代码，默认人民币：CNY，其他值列表详见货币类型
-	RefundAccount string `xml:"refund_account"`  // 退款资金来源
+	XMLName       struct{} `xml:"xml" json:"-"`
+	NonceStr      string   `xml:"nonce_str"`       // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
+	SignType      string   `xml:"sign_type"`       // 签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
+	TransactionId string   `xml:"transaction_id"`  // 微信生成的订单号，在支付通知中有返回
+	OutTradeNo    string   `xml:"out_trade_no"`    // 商户侧传给微信的订单号
+	OutRefundNo   string   `xml:"out_refund_no"`   // 商户系统内部的退款单号，商户系统内部唯一，同一退款单号多次请求只退一笔
+	TotalFee      int64    `xml:"total_fee"`       // 订单总金额，单位为分，只能为整数，详见支付金额
+	RefundFee     int64    `xml:"refund_fee"`      // 退款总金额，订单总金额，单位为分，只能为整数，详见支付金额
+	RefundFeeType string   `xml:"refund_fee_type"` // 货币类型，符合ISO 4217标准的三位字母代码，默认人民币：CNY，其他值列表详见货币类型
+	RefundAccount string   `xml:"refund_account"`  // 退款资金来源
 }
 
 type RefundResponse struct {
-	TransactionId string `xml:"transaction_id"` // 微信订单号
-	OutTradeNo    string `xml:"out_trade_no"`   // 商户系统内部的订单号
-	OutRefundNo   string `xml:"out_refund_no"`  // 商户退款单号
-	RefundId      string `xml:"refund_id"`      // 微信退款单号
-	RefundFee     int64  `xml:"refund_fee"`     // 退款总金额,单位为分,可以做部分退款
-	TotalFee      int64  `xml:"total_fee"`      // 订单总金额，单位为分，只能为整数，详见支付金额
-	CashFee       int64  `xml:"cash_fee"`       // 现金支付金额，单位为分，只能为整数，详见支付金额
+	XMLName       struct{} `xml:"xml" json:"-"`
+	TransactionId string   `xml:"transaction_id"` // 微信订单号
+	OutTradeNo    string   `xml:"out_trade_no"`   // 商户系统内部的订单号
+	OutRefundNo   string   `xml:"out_refund_no"`  // 商户退款单号
+	RefundId      string   `xml:"refund_id"`      // 微信退款单号
+	RefundFee     int64    `xml:"refund_fee"`     // 退款总金额,单位为分,可以做部分退款
+	TotalFee      int64    `xml:"total_fee"`      // 订单总金额，单位为分，只能为整数，详见支付金额
+	CashFee       int64    `xml:"cash_fee"`       // 现金支付金额，单位为分，只能为整数，详见支付金额
 
 	// 下面字段都是可选返回的(详细见微信支付文档), 为空值表示没有返回, 程序逻辑里需要判断
 	FeeType             string `xml:"fee_type"`              // 订单金额货币类型，符合ISO 4217标准的三位字母代码，默认人民币：CNY，其他值列表详见货币类型
