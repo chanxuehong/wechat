@@ -8,9 +8,3 @@ import (
 func MicroPay(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
 	return clt.PostXML(core.APIBaseURL()+"/pay/micropay", req)
 }
-
-// 撤销订单.
-//  NOTE: 请求需要双向证书.
-func Reverse(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
-	return clt.PostXML(core.APIBaseURL()+"/secapi/pay/reverse", req)
-}
