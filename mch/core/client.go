@@ -49,15 +49,25 @@ func NewClient(appId, mchId, apiKey string, httpClient *http.Client) *Client {
 // PostXML 是微信支付通用请求方法.
 //  err == nil 表示 (return_code == "SUCCESS" && result_code == "SUCCESS").
 func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]string, err error) {
+	// 获取请求参数的 sign_type 并检查其有效性
+	var reqSignType string
+	switch signType := req["sign_type"]; signType {
+	case "", SignType_MD5:
+		reqSignType = SignType_MD5
+	case SignType_HMAC_SHA256:
+		reqSignType = SignType_HMAC_SHA256
+	default:
+		err = fmt.Errorf("unsupported request sign_type: %s", signType)
+		return nil, err
+	}
+
+	// 如果没有签名参数补全签名
 	if req["sign"] == "" {
-		switch signType := req["sign_type"]; signType {
-		case "", "MD5":
+		switch reqSignType {
+		case SignType_MD5:
 			req["sign"] = Sign2(req, clt.ApiKey(), md5.New())
-		case "HMAC-SHA256":
+		case SignType_HMAC_SHA256:
 			req["sign"] = Sign2(req, clt.ApiKey(), hmac.New(sha256.New, []byte(clt.ApiKey())))
-		default:
-			err = fmt.Errorf("unsupported request sign_type: %s", signType)
-			return nil, err
 		}
 	}
 
@@ -125,15 +135,27 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 			// do nothing
 		}
 	} else {
-		var signatureWant string
+		// 获取返回参数的 sign_type 并检查其有效性
+		var respSignType string
 		switch signType := resp["sign_type"]; signType {
-		case "", "MD5":
-			signatureWant = Sign2(resp, clt.apiKey, md5.New())
-		case "HMAC-SHA256":
-			signatureWant = Sign2(resp, clt.apiKey, hmac.New(sha256.New, []byte(clt.apiKey)))
+		case "":
+			respSignType = reqSignType // 默认使用请求参数里的算法, 至少目前是这样
+		case SignType_MD5:
+			respSignType = SignType_MD5
+		case SignType_HMAC_SHA256:
+			respSignType = SignType_HMAC_SHA256
 		default:
 			err = fmt.Errorf("unsupported response sign_type: %s", signType)
 			return
+		}
+
+		// 校验签名
+		var signatureWant string
+		switch respSignType {
+		case SignType_MD5:
+			signatureWant = Sign2(resp, clt.apiKey, md5.New())
+		case SignType_HMAC_SHA256:
+			signatureWant = Sign2(resp, clt.apiKey, hmac.New(sha256.New, []byte(clt.apiKey)))
 		}
 		if signatureHave != signatureWant {
 			err = fmt.Errorf("sign mismatch,\nhave: %s,\nwant: %s", signatureHave, signatureWant)

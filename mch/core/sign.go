@@ -63,9 +63,9 @@ func Sign2(params map[string]string, apiKey string, h hash.Hash) string {
 func JsapiSign(appId, timeStamp, nonceStr, packageStr, signType string, apiKey string) string {
 	var h hash.Hash
 	switch signType {
-	case "MD5":
+	case SignType_MD5:
 		h = md5.New()
-	case "SHA1":
+	case SignType_SHA1:
 		h = sha1.New()
 	default:
 		panic("unsupported signType")

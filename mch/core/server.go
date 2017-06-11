@@ -128,9 +128,9 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 		}
 		var wantSignature string
 		switch signType := msg["sign_type"]; signType {
-		case "", "MD5":
+		case "", SignType_MD5:
 			wantSignature = Sign2(msg, srv.apiKey, md5.New())
-		case "HMAC-SHA256":
+		case SignType_HMAC_SHA256:
 			wantSignature = Sign2(msg, srv.apiKey, hmac.New(sha256.New, []byte(srv.apiKey)))
 		default:
 			err = fmt.Errorf("unsupported notification sign_type: %s", signType)

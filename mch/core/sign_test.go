@@ -32,7 +32,7 @@ func TestJsapiSign(t *testing.T) {
 	timeStamp := "123456789"
 	nonceStr := "nonceStr_value"
 	packageStr := "prepay_id=asdfasdfasdf"
-	signType := "MD5"
+	signType := SignType_MD5
 
 	params := map[string]string{
 		"appId":     appId,
