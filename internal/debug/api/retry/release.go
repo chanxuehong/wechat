@@ -1,4 +1,4 @@
-// +build !wechatdebug
+// +build !wechat_debug
 
 package retry
 
