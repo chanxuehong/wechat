@@ -2,6 +2,9 @@ package core
 
 import (
 	"bytes"
+	"crypto/hmac"
+	"crypto/md5"
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -89,6 +92,17 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			return
 		}
 
+		resultCode, ok := msg["result_code"]
+		if ok && resultCode != ResultCodeSuccess {
+			err = &BizError{
+				ResultCode:  resultCode,
+				ErrCode:     msg["err_code"],
+				ErrCodeDesc: msg["err_code_des"],
+			}
+			errorHandler.ServeError(w, r, err)
+			return
+		}
+
 		haveAppId := msg["appid"]
 		wantAppId := srv.appId
 		if haveAppId != "" && wantAppId != "" && !security.SecureCompareString(haveAppId, wantAppId) {
@@ -112,20 +126,19 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			errorHandler.ServeError(w, r, err)
 			return
 		}
-		wantSignature := Sign(msg, srv.apiKey, nil)
-		if !security.SecureCompareString(haveSignature, wantSignature) {
-			err = fmt.Errorf("sign mismatch,\nhave: %s,\nwant: %s", haveSignature, wantSignature)
+		var wantSignature string
+		switch signType := msg["sign_type"]; signType {
+		case "", "MD5":
+			wantSignature = Sign2(msg, srv.apiKey, md5.New())
+		case "HMAC-SHA256":
+			wantSignature = Sign2(msg, srv.apiKey, hmac.New(sha256.New, []byte(srv.apiKey)))
+		default:
+			err = fmt.Errorf("unsupported sign_type: %s", signType)
 			errorHandler.ServeError(w, r, err)
 			return
 		}
-
-		resultCode, ok := msg["result_code"]
-		if ok && resultCode != ResultCodeSuccess {
-			err = &BizError{
-				ResultCode:  resultCode,
-				ErrCode:     msg["err_code"],
-				ErrCodeDesc: msg["err_code_des"],
-			}
+		if !security.SecureCompareString(haveSignature, wantSignature) {
+			err = fmt.Errorf("sign mismatch,\nhave: %s,\nwant: %s", haveSignature, wantSignature)
 			errorHandler.ServeError(w, r, err)
 			return
 		}

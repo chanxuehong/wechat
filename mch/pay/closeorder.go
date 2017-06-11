@@ -46,7 +46,7 @@ func CloseOrder2(clt *core.Client, req *CloseOrderRequest) (err error) {
 		m1["sign_type"] = "HMAC-SHA256"
 		m1["sign"] = core.Sign2(m1, clt.ApiKey(), hmac.New(sha256.New, []byte(clt.ApiKey())))
 	default:
-		err = fmt.Errorf("invalid sign_type: %s", req.SignType)
+		err = fmt.Errorf("unsupported sign_type: %s", req.SignType)
 		return err
 	}
 

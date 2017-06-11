@@ -2,6 +2,9 @@ package core
 
 import (
 	"bytes"
+	"crypto/hmac"
+	"crypto/md5"
+	"crypto/sha256"
 	"fmt"
 	"net/http"
 
@@ -110,7 +113,16 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 			// do nothing
 		}
 	} else {
-		signatureWant := Sign(resp, clt.apiKey, nil)
+		var signatureWant string
+		switch signType := resp["sign_type"]; signType {
+		case "", "MD5":
+			signatureWant = Sign2(resp, clt.apiKey, md5.New())
+		case "HMAC-SHA256":
+			signatureWant = Sign2(resp, clt.apiKey, hmac.New(sha256.New, []byte(clt.apiKey)))
+		default:
+			err = fmt.Errorf("unsupported sign_type: %s", signType)
+			return
+		}
 		if signatureHave != signatureWant {
 			err = fmt.Errorf("sign mismatch,\nhave: %s,\nwant: %s", signatureHave, signatureWant)
 			return

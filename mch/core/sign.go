@@ -24,7 +24,7 @@ func Sign(params map[string]string, apiKey string, fn func() hash.Hash) string {
 // Sign2 微信支付签名.
 //  params: 待签名的参数集合
 //  apiKey: api密钥
-//  h:      hash.Hash, 如果为 nil 则默认用 md5.New()
+//  h:      hash.Hash, 如果为 nil 则默认用 md5.New(), 特别注意 h 必须是 initial state.
 func Sign2(params map[string]string, apiKey string, h hash.Hash) string {
 	if h == nil {
 		h = md5.New()
