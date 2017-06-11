@@ -133,7 +133,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 		case "HMAC-SHA256":
 			wantSignature = Sign2(msg, srv.apiKey, hmac.New(sha256.New, []byte(srv.apiKey)))
 		default:
-			err = fmt.Errorf("unsupported sign_type: %s", signType)
+			err = fmt.Errorf("unsupported notification sign_type: %s", signType)
 			errorHandler.ServeError(w, r, err)
 			return
 		}

@@ -1,9 +1,6 @@
 package pay
 
 import (
-	"crypto/hmac"
-	"crypto/md5"
-	"crypto/sha256"
 	"fmt"
 	"strconv"
 	"time"
@@ -64,20 +61,8 @@ func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResp
 	} else {
 		m1["nonce_str"] = wechatutil.NonceStr()
 	}
-
-	// 签名
-	switch req.SignType {
-	case "":
-		m1["sign"] = core.Sign2(m1, clt.ApiKey(), md5.New())
-	case "MD5":
-		m1["sign_type"] = "MD5"
-		m1["sign"] = core.Sign2(m1, clt.ApiKey(), md5.New())
-	case "HMAC-SHA256":
-		m1["sign_type"] = "HMAC-SHA256"
-		m1["sign"] = core.Sign2(m1, clt.ApiKey(), hmac.New(sha256.New, []byte(clt.ApiKey())))
-	default:
-		err = fmt.Errorf("unsupported sign_type: %s", req.SignType)
-		return nil, err
+	if req.SignType != "" {
+		m1["sign_type"] = req.SignType
 	}
 
 	m2, err := OrderQuery(clt, m1)

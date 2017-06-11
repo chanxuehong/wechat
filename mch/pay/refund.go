@@ -1,9 +1,6 @@
 package pay
 
 import (
-	"crypto/hmac"
-	"crypto/md5"
-	"crypto/sha256"
 	"fmt"
 	"strconv"
 
@@ -61,6 +58,9 @@ func Refund2(clt *core.Client, req *RefundRequest) (resp *RefundResponse, err er
 	} else {
 		m1["nonce_str"] = wechatutil.NonceStr()
 	}
+	if req.SignType != "" {
+		m1["sign_type"] = req.SignType
+	}
 	if req.TransactionId != "" {
 		m1["transaction_id"] = req.TransactionId
 	}
@@ -75,21 +75,6 @@ func Refund2(clt *core.Client, req *RefundRequest) (resp *RefundResponse, err er
 	}
 	if req.RefundAccount != "" {
 		m1["refund_account"] = req.RefundAccount
-	}
-
-	// 签名
-	switch req.SignType {
-	case "":
-		m1["sign"] = core.Sign2(m1, clt.ApiKey(), md5.New())
-	case "MD5":
-		m1["sign_type"] = "MD5"
-		m1["sign"] = core.Sign2(m1, clt.ApiKey(), md5.New())
-	case "HMAC-SHA256":
-		m1["sign_type"] = "HMAC-SHA256"
-		m1["sign"] = core.Sign2(m1, clt.ApiKey(), hmac.New(sha256.New, []byte(clt.ApiKey())))
-	default:
-		err = fmt.Errorf("unsupported sign_type: %s", req.SignType)
-		return nil, err
 	}
 
 	m2, err := Refund(clt, m1)

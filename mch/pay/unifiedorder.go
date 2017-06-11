@@ -1,9 +1,6 @@
 package pay
 
 import (
-	"crypto/hmac"
-	"crypto/md5"
-	"crypto/sha256"
 	"fmt"
 	"strconv"
 	"time"
@@ -61,6 +58,9 @@ func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrd
 	} else {
 		m1["nonce_str"] = util.NonceStr()
 	}
+	if req.SignType != "" {
+		m1["sign_type"] = req.SignType
+	}
 	m1["body"] = req.Body
 	if req.Detail != "" {
 		m1["detail"] = req.Detail
@@ -96,21 +96,6 @@ func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrd
 	}
 	if req.SceneInfo != "" {
 		m1["scene_info"] = req.SceneInfo
-	}
-
-	// 签名
-	switch req.SignType {
-	case "":
-		m1["sign"] = core.Sign2(m1, clt.ApiKey(), md5.New())
-	case "MD5":
-		m1["sign_type"] = "MD5"
-		m1["sign"] = core.Sign2(m1, clt.ApiKey(), md5.New())
-	case "HMAC-SHA256":
-		m1["sign_type"] = "HMAC-SHA256"
-		m1["sign"] = core.Sign2(m1, clt.ApiKey(), hmac.New(sha256.New, []byte(clt.ApiKey())))
-	default:
-		err = fmt.Errorf("unsupported sign_type: %s", req.SignType)
-		return nil, err
 	}
 
 	m2, err := UnifiedOrder(clt, m1)

@@ -100,7 +100,7 @@ func downloadBillToWriter(writer io.Writer, req *DownloadBillRequest, httpClient
 		m1["sign_type"] = "HMAC-SHA256"
 		m1["sign"] = core.Sign2(m1, req.ApiKey, hmac.New(sha256.New, []byte(req.ApiKey)))
 	default:
-		err = fmt.Errorf("unsupported sign_type: %s", req.SignType)
+		err = fmt.Errorf("unsupported request sign_type: %s", req.SignType)
 		return 0, err
 	}
 

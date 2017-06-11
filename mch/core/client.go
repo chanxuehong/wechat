@@ -49,6 +49,18 @@ func NewClient(appId, mchId, apiKey string, httpClient *http.Client) *Client {
 // PostXML 是微信支付通用请求方法.
 //  err == nil 表示 (return_code == "SUCCESS" && result_code == "SUCCESS").
 func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]string, err error) {
+	if req["sign"] == "" {
+		switch signType := req["sign_type"]; signType {
+		case "", "MD5":
+			req["sign"] = Sign2(req, clt.ApiKey(), md5.New())
+		case "HMAC-SHA256":
+			req["sign"] = Sign2(req, clt.ApiKey(), hmac.New(sha256.New, []byte(clt.ApiKey())))
+		default:
+			err = fmt.Errorf("unsupported request sign_type: %s", signType)
+			return nil, err
+		}
+	}
+
 	buffer := textBufferPool.Get().(*bytes.Buffer)
 	buffer.Reset()
 	defer textBufferPool.Put(buffer)
@@ -120,7 +132,7 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 		case "HMAC-SHA256":
 			signatureWant = Sign2(resp, clt.apiKey, hmac.New(sha256.New, []byte(clt.apiKey)))
 		default:
-			err = fmt.Errorf("unsupported sign_type: %s", signType)
+			err = fmt.Errorf("unsupported response sign_type: %s", signType)
 			return
 		}
 		if signatureHave != signatureWant {
