@@ -81,6 +81,12 @@ func downloadBillToWriter(clt *core.Client, writer io.Writer, req *DownloadBillR
 	m1 := make(map[string]string, 8)
 	m1["appid"] = clt.AppId()
 	m1["mch_id"] = clt.MchId()
+	if subAppId := clt.SubAppId(); subAppId != "" {
+		m1["sub_appid"] = subAppId
+	}
+	if subMchId := clt.SubMchId(); subMchId != "" {
+		m1["sub_mch_id"] = subMchId
+	}
 	m1["bill_date"] = req.BillDate
 	m1["bill_type"] = req.BillType
 	if req.DeviceInfo != "" {

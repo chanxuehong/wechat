@@ -26,6 +26,9 @@ type AuthCodeToOpenIdResponse struct {
 
 	// 必选返回
 	OpenId string `xml:"openid"` // 用户在商户appid下的唯一标识
+
+	// 下面字段都是可选返回的(详细见微信支付文档), 为空值表示没有返回, 程序逻辑里需要判断
+	SubOpenId string `xml:"sub_openid"` // 用户在子商户appid下的唯一标识
 }
 
 // AuthCodeToOpenId2 授权码查询openid.
@@ -33,6 +36,12 @@ func AuthCodeToOpenId2(clt *core.Client, req *AuthCodeToOpenIdRequest) (resp *Au
 	m1 := make(map[string]string, 8)
 	m1["appid"] = clt.AppId()
 	m1["mch_id"] = clt.MchId()
+	if subAppId := clt.SubAppId(); subAppId != "" {
+		m1["sub_appid"] = subAppId
+	}
+	if subMchId := clt.SubMchId(); subMchId != "" {
+		m1["sub_mch_id"] = subMchId
+	}
 	m1["auth_code"] = req.AuthCode
 	if req.NonceStr != "" {
 		m1["nonce_str"] = req.NonceStr
@@ -49,7 +58,8 @@ func AuthCodeToOpenId2(clt *core.Client, req *AuthCodeToOpenIdRequest) (resp *Au
 	}
 
 	resp = &AuthCodeToOpenIdResponse{
-		OpenId: m2["openid"],
+		OpenId:    m2["openid"],
+		SubOpenId: m2["sub_openid"],
 	}
 	return resp, nil
 }

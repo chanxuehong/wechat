@@ -70,6 +70,12 @@ func RefundQuery2(clt *core.Client, req *RefundQueryRequest) (resp *RefundQueryR
 	m1 := make(map[string]string, 16)
 	m1["appid"] = clt.AppId()
 	m1["mch_id"] = clt.MchId()
+	if subAppId := clt.SubAppId(); subAppId != "" {
+		m1["sub_appid"] = subAppId
+	}
+	if subMchId := clt.SubMchId(); subMchId != "" {
+		m1["sub_mch_id"] = subMchId
+	}
 	if req.TransactionId != "" {
 		m1["transaction_id"] = req.TransactionId
 	}

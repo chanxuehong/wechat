@@ -51,6 +51,8 @@ type MicroPayResponse struct {
 
 	// 下面字段都是可选返回的(详细见微信支付文档), 为空值表示没有返回, 程序逻辑里需要判断
 	DeviceInfo         string `xml:"device_info"`          // 微信支付分配的终端设备号
+	SubOpenId          string `xml:"sub_openid"`           // 子商户appid下用户唯一标识，如需返回则请求时需要传sub_appid
+	SubIsSubscribe     *bool  `xml:"sub_is_subscribe"`     // 用户是否关注子公众账号，仅在公众账号类型支付有效，取值范围：Y或N;Y-关注;N-未关注
 	FeeType            string `xml:"fee_type"`             // 货币类型，符合ISO 4217标准的三位字母代码，默认人民币：CNY，其他值列表详见货币类型
 	SettlementTotalFee *int64 `xml:"settlement_total_fee"` // 应结订单金额=订单金额-非充值代金券金额，应结订单金额<=订单金额。
 	CouponFee          *int64 `xml:"coupon_fee"`           // 代金券金额
@@ -64,6 +66,12 @@ func MicroPay2(clt *core.Client, req *MicroPayRequest) (resp *MicroPayResponse, 
 	m1 := make(map[string]string, 24)
 	m1["appid"] = clt.AppId()
 	m1["mch_id"] = clt.MchId()
+	if subAppId := clt.SubAppId(); subAppId != "" {
+		m1["sub_appid"] = subAppId
+	}
+	if subMchId := clt.SubMchId(); subMchId != "" {
+		m1["sub_mch_id"] = subMchId
+	}
 	m1["body"] = req.Body
 	m1["out_trade_no"] = req.OutTradeNo
 	m1["total_fee"] = strconv.FormatInt(req.TotalFee, 10)
@@ -108,6 +116,7 @@ func MicroPay2(clt *core.Client, req *MicroPayRequest) (resp *MicroPayResponse, 
 		TransactionId:   m2["transaction_id"],
 		OutTradeNo:      m2["out_trade_no"],
 		DeviceInfo:      m2["device_info"],
+		SubOpenId:       m2["sub_openid"],
 		FeeType:         m2["fee_type"],
 		CashFeeType:     m2["cash_fee_type"],
 		Attach:          m2["attach"],
@@ -144,6 +153,13 @@ func MicroPay2(clt *core.Client, req *MicroPayRequest) (resp *MicroPayResponse, 
 		}
 	}
 
+	if str := m2["sub_is_subscribe"]; str != "" {
+		if str == "Y" || str == "y" {
+			resp.SubIsSubscribe = util.Bool(true)
+		} else {
+			resp.SubIsSubscribe = util.Bool(false)
+		}
+	}
 	if str := m2["settlement_total_fee"]; str != "" {
 		if n, err := strconv.ParseInt(str, 10, 64); err != nil {
 			err = fmt.Errorf("parse settlement_total_fee:%q to int64 failed: %s", str, err.Error())

@@ -46,9 +46,12 @@ type OrderQueryResponse struct {
 	// 下面字段都是可选返回的(详细见微信支付文档), 为空值表示没有返回, 程序逻辑里需要判断
 	DeviceInfo         string `xml:"device_info"`          // 微信支付分配的终端设备号
 	IsSubscribe        *bool  `xml:"is_subscribe"`         // 用户是否关注公众账号
+	SubOpenId          string `xml:"sub_openid"`           // 用户在子商户appid下的唯一标识
+	SubIsSubscribe     *bool  `xml:"sub_is_subscribe"`     // 用户是否关注子公众账号
 	SettlementTotalFee *int64 `xml:"settlement_total_fee"` // 应结订单金额=订单金额-非充值代金券金额，应结订单金额<=订单金额。
 	FeeType            string `xml:"fee_type"`             // 货币类型，符合ISO 4217标准的三位字母代码，默认人民币：CNY，其他值列表详见货币类型
 	CashFeeType        string `xml:"cash_fee_type"`        // 货币类型，符合ISO 4217标准的三位字母代码，默认人民币：CNY，其他值列表详见货币类型
+	Detail             string `xml:"detail"`               // 商品详情
 	Attach             string `xml:"attach"`               // 附加数据，原样返回
 }
 
@@ -58,6 +61,12 @@ func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResp
 	m1 := make(map[string]string, 8)
 	m1["appid"] = clt.AppId()
 	m1["mch_id"] = clt.MchId()
+	if subAppId := clt.SubAppId(); subAppId != "" {
+		m1["sub_appid"] = subAppId
+	}
+	if subMchId := clt.SubMchId(); subMchId != "" {
+		m1["sub_mch_id"] = subMchId
+	}
 	if req.TransactionId != "" {
 		m1["transaction_id"] = req.TransactionId
 	}
@@ -99,8 +108,10 @@ func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResp
 		TradeType:      m2["trade_type"],
 		BankType:       m2["bank_type"],
 		DeviceInfo:     m2["device_info"],
+		SubOpenId:      m2["sub_openid"],
 		FeeType:        m2["fee_type"],
 		CashFeeType:    m2["cash_fee_type"],
+		Detail:         m2["detail"],
 		Attach:         m2["attach"],
 	}
 
@@ -144,6 +155,13 @@ func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResp
 			resp.IsSubscribe = util.Bool(true)
 		} else {
 			resp.IsSubscribe = util.Bool(false)
+		}
+	}
+	if str := m2["sub_is_subscribe"]; str != "" {
+		if str == "Y" || str == "y" {
+			resp.SubIsSubscribe = util.Bool(true)
+		} else {
+			resp.SubIsSubscribe = util.Bool(false)
 		}
 	}
 	if str := m2["settlement_total_fee"]; str != "" {

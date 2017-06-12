@@ -19,6 +19,9 @@ type Client struct {
 	mchId  string
 	apiKey string
 
+	subAppId string
+	subMchId string
+
 	httpClient *http.Client
 }
 
@@ -32,8 +35,18 @@ func (clt *Client) ApiKey() string {
 	return clt.apiKey
 }
 
+func (clt *Client) SubAppId() string {
+	return clt.subAppId
+}
+func (clt *Client) SubMchId() string {
+	return clt.subMchId
+}
+
 // NewClient 创建一个新的 Client.
-//  如果 httpClient == nil 则默认用 util.DefaultHttpClient.
+//  appId:      必选; 公众号的 appid
+//  mchId:      必选; 商户号 mch_id
+//  apiKey:     必选; 商户的签名 key
+//  httpClient: 可选; 默认使用 util.DefaultHttpClient
 func NewClient(appId, mchId, apiKey string, httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = wechatutil.DefaultHttpClient
@@ -42,6 +55,27 @@ func NewClient(appId, mchId, apiKey string, httpClient *http.Client) *Client {
 		appId:      appId,
 		mchId:      mchId,
 		apiKey:     apiKey,
+		httpClient: httpClient,
+	}
+}
+
+// NewSubMchClient 创建一个新的 Client.
+//  appId:      必选; 公众号的 appid
+//  mchId:      必选; 商户号 mch_id
+//  apiKey:     必选; 商户的签名 key
+//  subAppId:   可选; 公众号的 sub_appid
+//  subMchId:   必选; 商户号 sub_mch_id
+//  httpClient: 可选; 默认使用 util.DefaultHttpClient
+func NewSubMchClient(appId, mchId, apiKey string, subAppId, subMchId string, httpClient *http.Client) *Client {
+	if httpClient == nil {
+		httpClient = wechatutil.DefaultHttpClient
+	}
+	return &Client{
+		appId:      appId,
+		mchId:      mchId,
+		apiKey:     apiKey,
+		subAppId:   subAppId,
+		subMchId:   subMchId,
 		httpClient: httpClient,
 	}
 }
@@ -96,8 +130,8 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 	}
 
 	// 判断协议状态
-	returnCode, ok := resp["return_code"]
-	if !ok {
+	returnCode := resp["return_code"]
+	if returnCode == "" {
 		err = ErrNotFoundReturnCode
 		return
 	}
@@ -110,20 +144,36 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 	}
 
 	// 验证 appid 和 mch_id
-	appId, ok := resp["appid"]
-	if ok && appId != clt.appId {
+	appId := resp["appid"]
+	if appId != "" && appId != clt.appId {
 		err = fmt.Errorf("appid mismatch, have: %s, want: %s", appId, clt.appId)
 		return
 	}
-	mchId, ok := resp["mch_id"]
-	if ok && mchId != clt.mchId {
+	mchId := resp["mch_id"]
+	if mchId != "" && mchId != clt.mchId {
 		err = fmt.Errorf("mch_id mismatch, have: %s, want: %s", mchId, clt.mchId)
 		return
 	}
 
+	// 验证 sub_appid 和 sub_mch_id
+	if clt.subAppId != "" {
+		subAppId := resp["sub_appid"]
+		if subAppId != "" && subAppId != clt.subAppId {
+			err = fmt.Errorf("sub_appid mismatch, have: %s, want: %s", subAppId, clt.subAppId)
+			return
+		}
+	}
+	if clt.subMchId != "" {
+		subMchId := resp["sub_mch_id"]
+		if subMchId != "" && subMchId != clt.subMchId {
+			err = fmt.Errorf("sub_mch_id mismatch, have: %s, want: %s", subMchId, clt.subMchId)
+			return
+		}
+	}
+
 	// 验证签名
-	signatureHave, ok := resp["sign"]
-	if !ok {
+	signatureHave := resp["sign"]
+	if signatureHave == "" {
 		// TODO(chanxuehong): 在适当的时候更新下面的 case
 		switch url {
 		default:
@@ -163,8 +213,8 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 		}
 	}
 
-	resultCode, ok := resp["result_code"]
-	if ok && resultCode != ResultCodeSuccess {
+	resultCode := resp["result_code"]
+	if resultCode != "" && resultCode != ResultCodeSuccess {
 		err = &BizError{
 			ResultCode:  resultCode,
 			ErrCode:     resp["err_code"],

@@ -38,6 +38,7 @@ type UnifiedOrderRequest struct {
 	ProductId  string    `xml:"product_id"`  // trade_type=NATIVE，此参数必传。此id为二维码中包含的商品ID，商户自行定义。
 	LimitPay   string    `xml:"limit_pay"`   // no_credit--指定不能使用信用卡支付
 	OpenId     string    `xml:"openid"`      // rade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识。
+	SubOpenId  string    `xml:"sub_openid"`  // trade_type=JSAPI，此参数必传，用户在子商户appid下的唯一标识。openid和sub_openid可以选传其中之一，如果选择传sub_openid,则必须传sub_appid。
 	SceneInfo  string    `xml:"scene_info"`  // 该字段用于上报支付的场景信息,针对H5支付有以下三种场景,请根据对应场景上报,H5支付不建议在APP端使用，针对场景1，2请接入APP支付，不然可能会出现兼容性问题
 }
 
@@ -58,6 +59,12 @@ func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrd
 	m1 := make(map[string]string, 24)
 	m1["appid"] = clt.AppId()
 	m1["mch_id"] = clt.MchId()
+	if subAppId := clt.SubAppId(); subAppId != "" {
+		m1["sub_appid"] = subAppId
+	}
+	if subMchId := clt.SubMchId(); subMchId != "" {
+		m1["sub_mch_id"] = subMchId
+	}
 	m1["body"] = req.Body
 	m1["out_trade_no"] = req.OutTradeNo
 	m1["total_fee"] = strconv.FormatInt(req.TotalFee, 10)
@@ -101,6 +108,9 @@ func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrd
 	}
 	if req.OpenId != "" {
 		m1["openid"] = req.OpenId
+	}
+	if req.SubOpenId != "" {
+		m1["sub_openid"] = req.SubOpenId
 	}
 	if req.SceneInfo != "" {
 		m1["scene_info"] = req.SceneInfo

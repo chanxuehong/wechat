@@ -33,6 +33,12 @@ func ShortURL2(clt *core.Client, req *ShortURLRequest) (resp *ShortURLResponse, 
 	m1 := make(map[string]string, 8)
 	m1["appid"] = clt.AppId()
 	m1["mch_id"] = clt.MchId()
+	if subAppId := clt.SubAppId(); subAppId != "" {
+		m1["sub_appid"] = subAppId
+	}
+	if subMchId := clt.SubMchId(); subMchId != "" {
+		m1["sub_mch_id"] = subMchId
+	}
 	m1["long_url"] = req.LongURL
 	if req.NonceStr != "" {
 		m1["nonce_str"] = req.NonceStr

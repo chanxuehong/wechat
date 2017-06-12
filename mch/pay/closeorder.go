@@ -26,6 +26,12 @@ func CloseOrder2(clt *core.Client, req *CloseOrderRequest) (err error) {
 	m1 := make(map[string]string, 8)
 	m1["appid"] = clt.AppId()
 	m1["mch_id"] = clt.MchId()
+	if subAppId := clt.SubAppId(); subAppId != "" {
+		m1["sub_appid"] = subAppId
+	}
+	if subMchId := clt.SubMchId(); subMchId != "" {
+		m1["sub_mch_id"] = subMchId
+	}
 	m1["out_trade_no"] = req.OutTradeNo
 	if req.NonceStr != "" {
 		m1["nonce_str"] = req.NonceStr
