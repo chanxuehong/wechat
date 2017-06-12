@@ -23,20 +23,18 @@ type DownloadBillRequest struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 
 	// 必选参数
-	AppId    string `xml:"appid"`     // 公众账号ID
-	MchId    string `xml:"mch_id"`    // 微信支付分配的商户号
-	ApiKey   string `xml:"api_key"`   // 签名密钥
 	BillDate string `xml:"bill_date"` // 下载对账单的日期，格式：20140603
 	BillType string `xml:"bill_type"` // 账单类型
 
 	// 可选参数
-	NonceStr string `xml:"nonce_str"` // 随机字符串，不长于32位。推荐随机数生成算法
-	SignType string `xml:"sign_type"` // 签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
-	TarType  string `xml:"tar_type"`  // 压缩账单
+	DeviceInfo string `xml:"device_info"` // 微信支付分配的终端设备号
+	NonceStr   string `xml:"nonce_str"`   // 随机字符串，不长于32位。推荐随机数生成算法
+	SignType   string `xml:"sign_type"`   // 签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
+	TarType    string `xml:"tar_type"`    // 压缩账单
 }
 
 // 下载对账单到到文件.
-func DownloadBill(filepath string, req *DownloadBillRequest, httpClient *http.Client) (written int64, err error) {
+func DownloadBill(clt *core.Client, filepath string, req *DownloadBillRequest, httpClient *http.Client) (written int64, err error) {
 	if req == nil {
 		return 0, errors.New("nil request req")
 	}
@@ -51,18 +49,18 @@ func DownloadBill(filepath string, req *DownloadBillRequest, httpClient *http.Cl
 			os.Remove(filepath)
 		}
 	}()
-	return downloadBillToWriter(file, req, httpClient)
+	return downloadBillToWriter(clt, file, req, httpClient)
 }
 
 // 下载对账单到 io.Writer.
-func DownloadBillToWriter(writer io.Writer, req *DownloadBillRequest, httpClient *http.Client) (written int64, err error) {
+func DownloadBillToWriter(clt *core.Client, writer io.Writer, req *DownloadBillRequest, httpClient *http.Client) (written int64, err error) {
 	if writer == nil {
 		return 0, errors.New("nil writer")
 	}
 	if req == nil {
 		return 0, errors.New("nil request req")
 	}
-	return downloadBillToWriter(writer, req, httpClient)
+	return downloadBillToWriter(clt, writer, req, httpClient)
 }
 
 var (
@@ -75,16 +73,19 @@ var (
 )
 
 // 下载对账单到 io.Writer.
-func downloadBillToWriter(writer io.Writer, req *DownloadBillRequest, httpClient *http.Client) (written int64, err error) {
+func downloadBillToWriter(clt *core.Client, writer io.Writer, req *DownloadBillRequest, httpClient *http.Client) (written int64, err error) {
 	if httpClient == nil {
 		httpClient = wechatutil.DefaultMediaHttpClient
 	}
 
 	m1 := make(map[string]string, 8)
-	m1["appid"] = req.AppId
-	m1["mch_id"] = req.MchId
+	m1["appid"] = clt.AppId()
+	m1["mch_id"] = clt.MchId()
 	m1["bill_date"] = req.BillDate
 	m1["bill_type"] = req.BillType
+	if req.DeviceInfo != "" {
+		m1["device_info"] = req.DeviceInfo
+	}
 	if req.NonceStr != "" {
 		m1["nonce_str"] = req.NonceStr
 	} else {
@@ -97,13 +98,13 @@ func downloadBillToWriter(writer io.Writer, req *DownloadBillRequest, httpClient
 	// 签名
 	switch req.SignType {
 	case "":
-		m1["sign"] = core.Sign2(m1, req.ApiKey, md5.New())
+		m1["sign"] = core.Sign2(m1, clt.ApiKey(), md5.New())
 	case core.SignType_MD5:
 		m1["sign_type"] = core.SignType_MD5
-		m1["sign"] = core.Sign2(m1, req.ApiKey, md5.New())
+		m1["sign"] = core.Sign2(m1, clt.ApiKey(), md5.New())
 	case core.SignType_HMAC_SHA256:
 		m1["sign_type"] = core.SignType_HMAC_SHA256
-		m1["sign"] = core.Sign2(m1, req.ApiKey, hmac.New(sha256.New, []byte(req.ApiKey)))
+		m1["sign"] = core.Sign2(m1, clt.ApiKey(), hmac.New(sha256.New, []byte(clt.ApiKey())))
 	default:
 		err = fmt.Errorf("unsupported request sign_type: %s", req.SignType)
 		return 0, err
