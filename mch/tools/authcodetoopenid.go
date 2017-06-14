@@ -34,14 +34,6 @@ type AuthCodeToOpenIdResponse struct {
 // AuthCodeToOpenId2 授权码查询openid.
 func AuthCodeToOpenId2(clt *core.Client, req *AuthCodeToOpenIdRequest) (resp *AuthCodeToOpenIdResponse, err error) {
 	m1 := make(map[string]string, 8)
-	m1["appid"] = clt.AppId()
-	m1["mch_id"] = clt.MchId()
-	if subAppId := clt.SubAppId(); subAppId != "" {
-		m1["sub_appid"] = subAppId
-	}
-	if subMchId := clt.SubMchId(); subMchId != "" {
-		m1["sub_mch_id"] = subMchId
-	}
 	m1["auth_code"] = req.AuthCode
 	if req.NonceStr != "" {
 		m1["nonce_str"] = req.NonceStr

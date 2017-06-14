@@ -59,14 +59,6 @@ type OrderQueryResponse struct {
 //  NOTE: 该函数不支持 代金券 功能, 如果有 代金券 功能请使用 OrderQuery 函数.
 func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResponse, err error) {
 	m1 := make(map[string]string, 8)
-	m1["appid"] = clt.AppId()
-	m1["mch_id"] = clt.MchId()
-	if subAppId := clt.SubAppId(); subAppId != "" {
-		m1["sub_appid"] = subAppId
-	}
-	if subMchId := clt.SubMchId(); subMchId != "" {
-		m1["sub_mch_id"] = subMchId
-	}
 	if req.TransactionId != "" {
 		m1["transaction_id"] = req.TransactionId
 	}

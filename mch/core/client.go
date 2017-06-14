@@ -83,6 +83,19 @@ func NewSubMchClient(appId, mchId, apiKey string, subAppId, subMchId string, htt
 // PostXML 是微信支付通用请求方法.
 //  err == nil 表示 (return_code == "SUCCESS" && result_code == "SUCCESS").
 func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]string, err error) {
+	if req["appid"] == "" {
+		req["appid"] = clt.appId
+	}
+	if req["mch_id"] == "" {
+		req["mch_id"] = clt.mchId
+	}
+	if clt.subAppId != "" && req["sub_appid"] == "" {
+		req["sub_appid"] = clt.subAppId
+	}
+	if clt.subMchId != "" && req["sub_mch_id"] == "" {
+		req["sub_mch_id"] = clt.subMchId
+	}
+
 	// 获取请求参数的 sign_type 并检查其有效性
 	var reqSignType string
 	switch signType := req["sign_type"]; signType {

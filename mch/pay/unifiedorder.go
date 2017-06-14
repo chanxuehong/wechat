@@ -57,14 +57,6 @@ type UnifiedOrderResponse struct {
 // UnifiedOrder2 统一下单.
 func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrderResponse, err error) {
 	m1 := make(map[string]string, 24)
-	m1["appid"] = clt.AppId()
-	m1["mch_id"] = clt.MchId()
-	if subAppId := clt.SubAppId(); subAppId != "" {
-		m1["sub_appid"] = subAppId
-	}
-	if subMchId := clt.SubMchId(); subMchId != "" {
-		m1["sub_mch_id"] = subMchId
-	}
 	m1["body"] = req.Body
 	m1["out_trade_no"] = req.OutTradeNo
 	m1["total_fee"] = strconv.FormatInt(req.TotalFee, 10)
