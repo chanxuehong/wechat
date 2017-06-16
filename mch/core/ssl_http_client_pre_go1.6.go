@@ -13,7 +13,7 @@ import (
 func NewTLSHttpClient(certFile, keyFile string) (httpClient *http.Client, err error) {
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
-		return
+		return nil, err
 	}
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{cert},

@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/chanxuehong/util"
 
@@ -104,8 +105,7 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 	case SignType_HMAC_SHA256:
 		reqSignType = SignType_HMAC_SHA256
 	default:
-		err = fmt.Errorf("unsupported request sign_type: %s", signType)
-		return nil, err
+		return nil, fmt.Errorf("unsupported request sign_type: %s", signType)
 	}
 
 	// 如果没有签名参数补全签名
@@ -123,64 +123,75 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 	defer textBufferPool.Put(buffer)
 
 	if err = util.EncodeXMLFromMap(buffer, req, "xml"); err != nil {
-		return
+		return nil, err
 	}
-	api.DebugPrintPostXMLRequest(url, buffer.Bytes())
+	body := buffer.Bytes()
 
-	httpResp, err := clt.httpClient.Post(url, "text/xml; charset=utf-8", buffer)
+	hasRetried := false
+RETRY:
+	resp, needRetry, err := clt.postXML(url, body, reqSignType)
 	if err != nil {
-		return
+		if needRetry && !hasRetried {
+			// TODO(chanxuehong): 打印错误日志
+			hasRetried = true
+			url = switchRequestURL(url)
+			goto RETRY
+		}
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (clt *Client) postXML(url string, body []byte, reqSignType string) (resp map[string]string, needRetry bool, err error) {
+	api.DebugPrintPostXMLRequest(url, body)
+	httpResp, err := clt.httpClient.Post(url, "text/xml; charset=utf-8", bytes.NewReader(body))
+	if err != nil {
+		return nil, true, err
 	}
 	defer httpResp.Body.Close()
 
 	if httpResp.StatusCode != http.StatusOK {
-		err = fmt.Errorf("http.Status: %s", httpResp.Status)
-		return
+		return nil, true, fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
 
-	if resp, err = api.DecodeXMLHttpResponse(httpResp.Body); err != nil {
-		return
+	resp, err = api.DecodeXMLHttpResponse(httpResp.Body)
+	if err != nil {
+		return nil, false, err
 	}
 
 	// 判断协议状态
 	returnCode := resp["return_code"]
 	if returnCode == "" {
-		err = ErrNotFoundReturnCode
-		return
+		return nil, false, ErrNotFoundReturnCode
 	}
 	if returnCode != ReturnCodeSuccess {
-		err = &Error{
+		return nil, false, &Error{
 			ReturnCode: returnCode,
 			ReturnMsg:  resp["return_msg"],
 		}
-		return
 	}
 
 	// 验证 appid 和 mch_id
 	appId := resp["appid"]
 	if appId != "" && appId != clt.appId {
-		err = fmt.Errorf("appid mismatch, have: %s, want: %s", appId, clt.appId)
-		return
+		return nil, false, fmt.Errorf("appid mismatch, have: %s, want: %s", appId, clt.appId)
 	}
 	mchId := resp["mch_id"]
 	if mchId != "" && mchId != clt.mchId {
-		err = fmt.Errorf("mch_id mismatch, have: %s, want: %s", mchId, clt.mchId)
-		return
+		return nil, false, fmt.Errorf("mch_id mismatch, have: %s, want: %s", mchId, clt.mchId)
 	}
 
 	// 验证 sub_appid 和 sub_mch_id
 	if clt.subAppId != "" {
 		subAppId := resp["sub_appid"]
 		if subAppId != "" && subAppId != clt.subAppId {
-			err = fmt.Errorf("sub_appid mismatch, have: %s, want: %s", subAppId, clt.subAppId)
-			return
+			return nil, false, fmt.Errorf("sub_appid mismatch, have: %s, want: %s", subAppId, clt.subAppId)
 		}
 	}
 	if clt.subMchId != "" {
 		subMchId := resp["sub_mch_id"]
 		if subMchId != "" && subMchId != clt.subMchId {
-			err = fmt.Errorf("sub_mch_id mismatch, have: %s, want: %s", subMchId, clt.subMchId)
-			return
+			return nil, false, fmt.Errorf("sub_mch_id mismatch, have: %s, want: %s", subMchId, clt.subMchId)
 		}
 	}
 
@@ -190,8 +201,7 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 		// TODO(chanxuehong): 在适当的时候更新下面的 case
 		switch url {
 		default:
-			err = ErrNotFoundSign
-			return
+			return nil, false, ErrNotFoundSign
 		case "https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers":
 			// do nothing
 		case "https://api2.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers":
@@ -209,7 +219,7 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 			respSignType = SignType_HMAC_SHA256
 		default:
 			err = fmt.Errorf("unsupported response sign_type: %s", signType)
-			return
+			return nil, false, err
 		}
 
 		// 校验签名
@@ -221,19 +231,33 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 			signatureWant = Sign2(resp, clt.apiKey, hmac.New(sha256.New, []byte(clt.apiKey)))
 		}
 		if signatureHave != signatureWant {
-			err = fmt.Errorf("sign mismatch,\nhave: %s,\nwant: %s", signatureHave, signatureWant)
-			return
+			return nil, false, fmt.Errorf("sign mismatch,\nhave: %s,\nwant: %s", signatureHave, signatureWant)
 		}
 	}
 
 	resultCode := resp["result_code"]
 	if resultCode != "" && resultCode != ResultCodeSuccess {
-		err = &BizError{
+		errCode := resp["err_code"]
+		if errCode == "SYSTEMERROR" {
+			return nil, true, &BizError{
+				ResultCode:  resultCode,
+				ErrCode:     errCode,
+				ErrCodeDesc: resp["err_code_des"],
+			}
+		}
+		return nil, false, &BizError{
 			ResultCode:  resultCode,
-			ErrCode:     resp["err_code"],
+			ErrCode:     errCode,
 			ErrCodeDesc: resp["err_code_des"],
 		}
-		return
 	}
-	return
+	return resp, false, nil
+}
+
+func switchRequestURL(url string) string {
+	if strings.HasPrefix(url, "https://api.mch.weixin.qq.com/") {
+		return "https://api2.mch.weixin.qq.com/" + url[len("https://api.mch.weixin.qq.com/"):]
+	} else {
+		return "https://api.mch.weixin.qq.com/" + url[len("https://api2.mch.weixin.qq.com/"):]
+	}
 }
