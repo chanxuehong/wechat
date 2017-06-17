@@ -5,8 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/chanxuehong/util"
-
 	"github.com/chanxuehong/wechat.v2/mch/core"
 	wechatutil "github.com/chanxuehong/wechat.v2/util"
 )
@@ -144,16 +142,16 @@ func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResp
 
 	if str := m2["is_subscribe"]; str != "" {
 		if str == "Y" || str == "y" {
-			resp.IsSubscribe = util.Bool(true)
+			resp.IsSubscribe = wechatutil.Bool(true)
 		} else {
-			resp.IsSubscribe = util.Bool(false)
+			resp.IsSubscribe = wechatutil.Bool(false)
 		}
 	}
 	if str := m2["sub_is_subscribe"]; str != "" {
 		if str == "Y" || str == "y" {
-			resp.SubIsSubscribe = util.Bool(true)
+			resp.SubIsSubscribe = wechatutil.Bool(true)
 		} else {
-			resp.SubIsSubscribe = util.Bool(false)
+			resp.SubIsSubscribe = wechatutil.Bool(false)
 		}
 	}
 	if str := m2["settlement_total_fee"]; str != "" {
@@ -161,7 +159,7 @@ func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResp
 			err = fmt.Errorf("parse settlement_total_fee:%q to int64 failed: %s", str, err.Error())
 			return nil, err
 		} else {
-			resp.SettlementTotalFee = util.Int64(n)
+			resp.SettlementTotalFee = wechatutil.Int64(n)
 		}
 	}
 	return resp, nil

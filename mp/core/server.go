@@ -40,6 +40,13 @@ type Server struct {
 	errorHandler ErrorHandler
 }
 
+func (srv *Server) OriId() string {
+	return srv.oriId
+}
+func (srv *Server) AppId() string {
+	return srv.appId
+}
+
 type tokenBucket struct {
 	currentToken string
 	lastToken    string

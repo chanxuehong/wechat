@@ -5,8 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/chanxuehong/util"
-
 	"github.com/chanxuehong/wechat.v2/mch/core"
 	wechatutil "github.com/chanxuehong/wechat.v2/util"
 )
@@ -130,7 +128,7 @@ func RefundQuery2(clt *core.Client, req *RefundQueryRequest) (resp *RefundQueryR
 			err = fmt.Errorf("parse settlement_total_fee:%q to int64 failed: %s", str, err.Error())
 			return nil, err
 		} else {
-			resp.SettlementTotalFee = util.Int64(n)
+			resp.SettlementTotalFee = wechatutil.Int64(n)
 		}
 	}
 
@@ -156,7 +154,7 @@ func RefundQuery2(clt *core.Client, req *RefundQueryRequest) (resp *RefundQueryR
 				err = fmt.Errorf("parse settlement_refund_fee_%d:%q to int64 failed: %s", i, str, err.Error())
 				return nil, err
 			} else {
-				resp.RefundList[i].SettlementRefundFee = util.Int64(n)
+				resp.RefundList[i].SettlementRefundFee = wechatutil.Int64(n)
 			}
 		}
 		if str := m2["refund_success_time_"+strconv.Itoa(i)]; str != "" {

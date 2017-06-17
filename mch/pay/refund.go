@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/chanxuehong/util"
-
 	"github.com/chanxuehong/wechat.v2/mch/core"
 	wechatutil "github.com/chanxuehong/wechat.v2/util"
 )
@@ -127,7 +125,7 @@ func Refund2(clt *core.Client, req *RefundRequest) (resp *RefundResponse, err er
 			err = fmt.Errorf("parse settlement_refund_fee:%q to int64 failed: %s", str, err.Error())
 			return nil, err
 		} else {
-			resp.SettlementRefundFee = util.Int64(n)
+			resp.SettlementRefundFee = wechatutil.Int64(n)
 		}
 	}
 	if str := m2["settlement_total_fee"]; str != "" {
@@ -135,7 +133,7 @@ func Refund2(clt *core.Client, req *RefundRequest) (resp *RefundResponse, err er
 			err = fmt.Errorf("parse settlement_total_fee:%q to int64 failed: %s", str, err.Error())
 			return nil, err
 		} else {
-			resp.SettlementTotalFee = util.Int64(n)
+			resp.SettlementTotalFee = wechatutil.Int64(n)
 		}
 	}
 	if str := m2["cash_refund_fee"]; str != "" {
@@ -143,7 +141,7 @@ func Refund2(clt *core.Client, req *RefundRequest) (resp *RefundResponse, err er
 			err = fmt.Errorf("parse cash_refund_fee:%q to int64 failed: %s", str, err.Error())
 			return nil, err
 		} else {
-			resp.CashRefundFee = util.Int64(n)
+			resp.CashRefundFee = wechatutil.Int64(n)
 		}
 	}
 
