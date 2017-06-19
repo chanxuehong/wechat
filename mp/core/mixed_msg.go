@@ -112,13 +112,26 @@ type poi struct {
 }
 
 type card struct {
-	CardId          string `xml:"CardId"          json:"CardId"`
-	IsGiveByFriend  int    `xml:"IsGiveByFriend"  json:"IsGiveByFriend"`
-	FriendUserName  string `xml:"FriendUserName"  json:"FriendUserName"`
-	UserCardCode    string `xml:"UserCardCode"    json:"UserCardCode"`
-	OldUserCardCode string `xml:"OldUserCardCode" json:"OldUserCardCode"`
-	ConsumeSource   string `xml:"ConsumeSource"   json:"ConsumeSource"`
-	OuterId         int64  `xml:"OuterId"         json:"OuterId"`
+	CardId              string `xml:"CardId"              json:"CardId"`
+	RefuseReason        string `xml:"RefuseReason"        json:"RefuseReason"`
+	IsGiveByFriend      int    `xml:"IsGiveByFriend"      json:"IsGiveByFriend"`
+	FriendUserName      string `xml:"FriendUserName"      json:"FriendUserName"`
+	UserCardCode        string `xml:"UserCardCode"        json:"UserCardCode"`
+	OldUserCardCode     string `xml:"OldUserCardCode"     json:"OldUserCardCode"`
+	ConsumeSource       string `xml:"ConsumeSource"       json:"ConsumeSource"`
+	OuterId             int64  `xml:"OuterId"             json:"OuterId"`
+	LocationName        string `xml:"LocationName"        json:"LocationName"`
+	StaffOpenId         string `xml:"StaffOpenId"         json:"StaffOpenId"`
+	VerifyCode          string `xml:"VerifyCode"          json:"VerifyCode"`
+	RemarkAmount        string `xml:"RemarkAmount"        json:"RemarkAmount"`
+	OuterStr            string `xml:"OuterStr"            json:"OuterStr"`
+	Detail              string `xml:"Detail"              json:"Detail"`
+	IsReturnBack        int    `xml:"IsReturnBack"        json:"IsReturnBack"`
+	IsChatRoom          int    `xml:"IsChatRoom"          json:"IsChatRoom"`
+	IsRestoreMemberCard int    `xml:"IsRestoreMemberCard" json:"IsRestoreMemberCard"`
+	IsRecommendByFriend int    `xml:"IsRecommendByFriend" json:"IsRecommendByFriend"`
+	PageId              string `xml:"PageId"              json:"PageId"`
+	OrderId             string `xml:"OrderId"             json:"OrderId"`
 }
 
 type bizwifi struct {
