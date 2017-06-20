@@ -255,9 +255,12 @@ func (clt *Client) postXML(url string, body []byte, reqSignType string) (resp ma
 }
 
 func switchRequestURL(url string) string {
-	if strings.HasPrefix(url, "https://api.mch.weixin.qq.com/") {
+	switch {
+	case strings.HasPrefix(url, "https://api.mch.weixin.qq.com/"):
 		return "https://api2.mch.weixin.qq.com/" + url[len("https://api.mch.weixin.qq.com/"):]
-	} else {
+	case strings.HasPrefix(url, "https://api2.mch.weixin.qq.com/"):
 		return "https://api.mch.weixin.qq.com/" + url[len("https://api2.mch.weixin.qq.com/"):]
+	default:
+		return url
 	}
 }
