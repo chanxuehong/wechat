@@ -3,6 +3,7 @@ package record
 
 import (
 	"fmt"
+
 	"github.com/chanxuehong/wechat.v2/mp/core"
 )
 
