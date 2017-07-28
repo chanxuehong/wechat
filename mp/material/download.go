@@ -2,6 +2,7 @@ package material
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/chanxuehong/wechat.v2/internal/debug/api"
 	"github.com/chanxuehong/wechat.v2/internal/debug/api/retry"
-	"github.com/chanxuehong/wechat.v2/json"
 	"github.com/chanxuehong/wechat.v2/mp/core"
 	"github.com/chanxuehong/wechat.v2/util"
 )
@@ -41,15 +41,20 @@ func DownloadToWriter(clt *core.Client, mediaId string, writer io.Writer) (writt
 		httpClient = util.DefaultMediaHttpClient
 	}
 
+	buffer := bytes.NewBuffer(make([]byte, 0, 256))
+	encoder := json.NewEncoder(buffer)
+	encoder.SetEscapeHTML(false)
+
 	var request = struct {
 		MediaId string `json:"media_id"`
 	}{
 		MediaId: mediaId,
 	}
-	requestBodyBytes, err := json.Marshal(&request)
-	if err != nil {
+	if err = encoder.Encode(&request); err != nil {
 		return
 	}
+	requestBodyBytes := buffer.Bytes()
+
 	var errorResult core.Error
 
 	// 先读取 64bytes 内容来判断返回的是不是错误信息

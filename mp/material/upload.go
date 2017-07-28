@@ -2,11 +2,11 @@ package material
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"os"
 	"path/filepath"
 
-	"github.com/chanxuehong/wechat.v2/json"
 	"github.com/chanxuehong/wechat.v2/mp/core"
 )
 
@@ -163,6 +163,10 @@ func UploadVideo(clt *core.Client, _filepath string, title, introduction string)
 func UploadVideoFromReader(clt *core.Client, filename string, reader io.Reader, title, introduction string) (mediaId string, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/material/add_material?type=video&access_token="
 
+	buffer := bytes.NewBuffer(make([]byte, 0, 256))
+	encoder := json.NewEncoder(buffer)
+	encoder.SetEscapeHTML(false)
+
 	var description = struct {
 		Title        string `json:"title"`
 		Introduction string `json:"introduction"`
@@ -170,10 +174,10 @@ func UploadVideoFromReader(clt *core.Client, filename string, reader io.Reader, 
 		Title:        title,
 		Introduction: introduction,
 	}
-	descriptionBytes, err := json.Marshal(&description)
-	if err != nil {
+	if err = encoder.Encode(&description); err != nil {
 		return
 	}
+	descriptionBytes := buffer.Bytes()
 
 	var fields = []core.MultipartFormField{
 		{

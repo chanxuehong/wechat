@@ -2,6 +2,7 @@ package core
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -9,7 +10,6 @@ import (
 
 	"github.com/chanxuehong/wechat.v2/internal/debug/api"
 	"github.com/chanxuehong/wechat.v2/internal/debug/api/retry"
-	"github.com/chanxuehong/wechat.v2/json"
 	"github.com/chanxuehong/wechat.v2/util"
 )
 
@@ -117,7 +117,9 @@ func (clt *Client) PostJSON(incompleteURL string, request interface{}, response 
 	buffer.Reset()
 	defer textBufferPool.Put(buffer)
 
-	if err = json.NewEncoder(buffer).Encode(request); err != nil {
+	encoder := json.NewEncoder(buffer)
+	encoder.SetEscapeHTML(false)
+	if err = encoder.Encode(request); err != nil {
 		return
 	}
 	requestBodyBytes := buffer.Bytes()
