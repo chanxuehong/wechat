@@ -33,6 +33,7 @@ type MicroPayRequest struct {
 	FeeType    string `xml:"fee_type"`    // 符合ISO 4217标准的三位字母代码，默认人民币：CNY，其他值列表详见货币类型
 	GoodsTag   string `xml:"goods_tag"`   // 商品标记，代金券或立减优惠功能的参数，说明详见代金券或立减优惠
 	LimitPay   string `xml:"limit_pay"`   // no_credit--指定不能使用信用卡支付
+	SceneInfo  string `xml:"scene_info"`  // 场景信息
 }
 
 type MicroPayResponse struct {
@@ -94,6 +95,9 @@ func MicroPay2(clt *core.Client, req *MicroPayRequest) (resp *MicroPayResponse, 
 	}
 	if req.LimitPay != "" {
 		m1["limit_pay"] = req.LimitPay
+	}
+	if req.SceneInfo != "" {
+		m1["scene_info"] = req.SceneInfo
 	}
 
 	m2, err := MicroPay(clt, m1)

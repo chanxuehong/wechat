@@ -88,7 +88,9 @@ func downloadBillToWriter(clt *core.Client, writer io.Writer, req *DownloadBillR
 		m1["sub_mch_id"] = subMchId
 	}
 	m1["bill_date"] = req.BillDate
-	m1["bill_type"] = req.BillType
+	if req.BillType != "" {
+		m1["bill_type"] = req.BillType
+	}
 	if req.DeviceInfo != "" {
 		m1["device_info"] = req.DeviceInfo
 	}

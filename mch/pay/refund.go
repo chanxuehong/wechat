@@ -28,6 +28,7 @@ type RefundRequest struct {
 	NonceStr      string `xml:"nonce_str"`       // 随机字符串，不长于32位。NOTE: 如果为空则系统会自动生成一个随机字符串。
 	SignType      string `xml:"sign_type"`       // 签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
 	RefundFeeType string `xml:"refund_fee_type"` // 货币类型，符合ISO 4217标准的三位字母代码，默认人民币：CNY，其他值列表详见货币类型
+	RefundDesc    string `xml:"refund_desc"`     // 若商户传入，会在下发给用户的退款消息中体现退款原因
 	RefundAccount string `xml:"refund_account"`  // 退款资金来源
 }
 
@@ -76,6 +77,9 @@ func Refund2(clt *core.Client, req *RefundRequest) (resp *RefundResponse, err er
 	}
 	if req.RefundFeeType != "" {
 		m1["refund_fee_type"] = req.RefundFeeType
+	}
+	if req.RefundDesc != "" {
+		m1["refund_desc"] = req.RefundDesc
 	}
 	if req.RefundAccount != "" {
 		m1["refund_account"] = req.RefundAccount
