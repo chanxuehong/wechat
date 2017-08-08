@@ -8,6 +8,9 @@
 | corp | 微信企业号 SDK             |
 | mch  | 微信商户平台(微信支付) SDK   |
 
+## 安装
+go get -u github.com/chanxuehong/wechat.v2/...
+
 ## 一点简单的帮助文档, 也许对你有作用
 * [微信公众号 SDK 核心 package](/mp/core/README.md)
 * [基本的 api 调用](/mp/README.md)
