@@ -74,7 +74,7 @@ func BatchGet(clt *core.Client, materialType string, offset, count int) (rslt *B
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token="
 
 	switch materialType {
-	case MaterialTypeImage, MaterialTypeVideo, MaterialTypeVoice:
+	case MaterialTypeImage, MaterialTypeVideo, MaterialTypeVoice, MaterialTypeNews:
 	default:
 		err = fmt.Errorf("Incorrect materialType: %s", materialType)
 		return
