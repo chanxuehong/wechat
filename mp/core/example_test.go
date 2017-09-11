@@ -3,7 +3,7 @@ package core_test
 import (
 	"net/http"
 
-	"github.com/chanxuehong/wechat.v2/mp/core"
+	"github.com/mingjunyang/wechat.v2/mp/core"
 )
 
 func ExampleServer_ServeHTTP() {

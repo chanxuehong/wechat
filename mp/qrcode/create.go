@@ -1,7 +1,7 @@
 package qrcode
 
 import (
-	"github.com/chanxuehong/wechat.v2/mp/core"
+	"github.com/mingjunyang/wechat.v2/mp/core"
 )
 
 type TempQrcode struct {
@@ -47,6 +47,7 @@ func CreateTempQrcode(clt *core.Client, sceneId int32, expireSeconds int) (qrcod
 	qrcode = &result.TempQrcode
 	return
 }
+
 
 // CreateStrScenePermQrcode 创建临时二维码
 //  sceneStr: 场景值ID(字符串形式的ID), 字符串类型, 长度限制为1到64

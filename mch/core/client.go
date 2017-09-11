@@ -9,10 +9,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/chanxuehong/util"
+	"github.com/mingjunyang/util"
 
-	"github.com/chanxuehong/wechat.v2/internal/debug/mch/api"
-	wechatutil "github.com/chanxuehong/wechat.v2/util"
+	"github.com/mingjunyang/wechat.v2/internal/debug/mch/api"
+	wechatutil "github.com/mingjunyang/wechat.v2/util"
 )
 
 type Client struct {
@@ -132,7 +132,7 @@ RETRY:
 	resp, needRetry, err := clt.postXML(url, body, reqSignType)
 	if err != nil {
 		if needRetry && !hasRetried {
-			// TODO(chanxuehong): 打印错误日志
+			// TODO(mingjunyang): 打印错误日志
 			hasRetried = true
 			url = switchRequestURL(url)
 			goto RETRY
@@ -198,7 +198,7 @@ func (clt *Client) postXML(url string, body []byte, reqSignType string) (resp ma
 	// 验证签名
 	signatureHave := resp["sign"]
 	if signatureHave == "" {
-		// TODO(chanxuehong): 在适当的时候更新下面的 case
+		// TODO(mingjunyang): 在适当的时候更新下面的 case
 		switch url {
 		default:
 			return nil, false, ErrNotFoundSign

@@ -5,7 +5,7 @@ package api
 import (
 	"io"
 
-	"github.com/chanxuehong/util"
+	"github.com/mingjunyang/util"
 )
 
 func DebugPrintGetRequest(url string) {}

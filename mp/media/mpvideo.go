@@ -1,7 +1,7 @@
 package media
 
 import (
-	"github.com/chanxuehong/wechat.v2/mp/core"
+	"github.com/mingjunyang/wechat.v2/mp/core"
 )
 
 // UploadVideo2 创建视频素材, 返回的素材一般用于群发消息.

@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/chanxuehong/wechat.v2/mch/core"
-	"github.com/chanxuehong/wechat.v2/util"
+	"github.com/mingjunyang/wechat.v2/mch/core"
+	"github.com/mingjunyang/wechat.v2/util"
 )
 
 // Report 交易保障.

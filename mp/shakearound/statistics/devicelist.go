@@ -1,7 +1,7 @@
 package statistics
 
 import (
-	"github.com/chanxuehong/wechat.v2/mp/core"
+	"github.com/mingjunyang/wechat.v2/mp/core"
 )
 
 const DeviceListPageSize = 50

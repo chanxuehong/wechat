@@ -1,7 +1,7 @@
 package mmpaymkttransfers
 
 import (
-	"github.com/chanxuehong/wechat.v2/mch/core"
+	"github.com/mingjunyang/wechat.v2/mch/core"
 )
 
 // 查询代金券批次信息.
