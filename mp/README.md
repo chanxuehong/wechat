@@ -6,10 +6,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/chanxuehong/wechat.v2/mp/core"
-	"github.com/chanxuehong/wechat.v2/mp/menu"
-	"github.com/chanxuehong/wechat.v2/mp/message/callback/request"
-	"github.com/chanxuehong/wechat.v2/mp/message/callback/response"
+	"github.com/mingjunyang/wechat.v2/mp/core"
+	"github.com/mingjunyang/wechat.v2/mp/menu"
+	"github.com/mingjunyang/wechat.v2/mp/message/callback/request"
+	"github.com/mingjunyang/wechat.v2/mp/message/callback/response"
 )
 
 const (
@@ -89,8 +89,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/chanxuehong/wechat.v2/mp/base"
-	"github.com/chanxuehong/wechat.v2/mp/core"
+	"github.com/mingjunyang/wechat.v2/mp/base"
+	"github.com/mingjunyang/wechat.v2/mp/core"
 )
 
 const (

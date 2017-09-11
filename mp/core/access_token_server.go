@@ -11,8 +11,8 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/chanxuehong/wechat.v2/internal/debug/api"
-	"github.com/chanxuehong/wechat.v2/util"
+	"github.com/mingjunyang/wechat.v2/internal/debug/api"
+	"github.com/mingjunyang/wechat.v2/util"
 )
 
 // access_token 中控服务器接口.
