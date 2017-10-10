@@ -10,8 +10,9 @@ const (
 
 	// 上面5个类型的按钮不能通过API设置
 
-	ButtonTypeView  = "view"  // 跳转URL
-	ButtonTypeClick = "click" // 点击推事件
+	ButtonTypeView        = "view"        // 跳转URL
+	ButtonTypeClick       = "click"       // 点击推事件
+	ButtonTypeMiniProgram = "miniprogram" // 小程序
 
 	// 下面的按钮类型仅支持微信 iPhone5.4.1 以上版本, 和 Android5.4 以上版本的微信用户,
 	// 旧版本微信用户点击后将没有回应, 开发者也不能正常接收到事件推送.
@@ -50,6 +51,8 @@ type Button struct {
 	Key        string   `json:"key,omitempty"`        // 非必须; 菜单KEY值, 用于消息接口推送
 	URL        string   `json:"url,omitempty"`        // 非必须; 网页链接, 用户点击菜单可打开链接
 	MediaId    string   `json:"media_id,omitempty"`   // 非必须; 调用新增永久素材接口返回的合法media_id
+	AppId      string   `json:"appid,omitempty"`      // 非必须; 跳转到小程序的appid
+	PagePath   string   `json:"pagepath,omitempty"`   // 非必须; 跳转到小程序的path
 	SubButtons []Button `json:"sub_button,omitempty"` // 非必须; 二级菜单数组
 }
 
@@ -172,4 +175,13 @@ func (btn *Button) SetAsViewLimitedButton(name, mediaId string) {
 	btn.Key = ""
 	btn.URL = ""
 	btn.SubButtons = nil
+}
+
+// 设置 btn 指向的 Button 为 打开小程序.
+func (btn *Button) SetAsMiniProgramButton(name, mediaId string) {
+	btn.Type = ButtonTypeMiniProgram
+	btn.Name = name
+	btn.URL = ""
+	btn.AppId = ""
+	btn.PagePath = ""
 }
