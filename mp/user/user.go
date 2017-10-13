@@ -35,6 +35,8 @@ type UserInfo struct {
 	UnionId       string `json:"unionid,omitempty"` // 只有在用户将公众号绑定到微信开放平台帐号后, 才会出现该字段.
 	Remark        string `json:"remark"`            // 公众号运营者对粉丝的备注, 公众号运营者可在微信公众平台用户管理界面对粉丝添加备注
 	GroupId       int64  `json:"groupid"`           // 用户所在的分组ID
+
+	TagIdList     []int64 `json:"tagid_list"`       // Tag List
 }
 
 // Get 获取用户基本信息.
