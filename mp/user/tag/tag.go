@@ -5,14 +5,14 @@ import (
 )
 
 type Tag struct {
-	Id        int64  `json:"id"`    // tag id
+	Id        int    `json:"id"`    // tag id
 	Name      string `json:"name"`  // tag name
 	UserCount int    `json:"count"` // Tag内用户数量
 }
 
 // 获取用户列表返回的数据结构
 type GetResult struct {
-	Count  int `json:"count"` // 拉取的OPENID个数, 最大值为10000
+	Count int `json:"count"` // 拉取的OPENID个数, 最大值为10000
 
 	Data struct {
 		OpenIdList []string `json:"openid,omitempty"`
@@ -66,12 +66,12 @@ func List(clt *core.Client) (tags []Tag, err error) {
 }
 
 // Update 修改Tag名.
-func Update(clt *core.Client, tagId int64, name string) (err error) {
+func Update(clt *core.Client, tagId int, name string) (err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/tags/update?access_token="
 
 	var request struct {
 		Tag struct {
-			Id   int64  `json:"id"`
+			Id   int    `json:"id"`
 			Name string `json:"name"`
 		} `json:"tag"`
 	}
@@ -91,14 +91,14 @@ func Update(clt *core.Client, tagId int64, name string) (err error) {
 
 // TagGet 根据TagId获取用户列表.
 //  NOTE: 每次最多能获取 10000 个用户, 可以多次指定 nextOpenId 来获取以满足需求, 如果 nextOpenId == "" 则表示从头获取
-func TagGet(clt *core.Client, tagId int64, nextOpenId string) (rslt *GetResult, err error) {
+func TagGet(clt *core.Client, tagId int, nextOpenId string) (rslt *GetResult, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/user/tag/get?access_token="
 
 	var request = struct {
-		Id     int64  `json:"tagid"`
+		Id     int    `json:"tagid"`
 		OpenId string `json:"next_openid"`
 	}{
-		Id: tagId,
+		Id:     tagId,
 		OpenId: nextOpenId,
 	}
 	var result struct {
@@ -117,12 +117,12 @@ func TagGet(clt *core.Client, tagId int64, nextOpenId string) (rslt *GetResult, 
 }
 
 // Delete 删除Tag.
-func Delete(clt *core.Client, tagId int64) (err error) {
+func Delete(clt *core.Client, tagId int) (err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/tags/delete?access_token="
 
 	var request struct {
 		Tag struct {
-			Id int64 `json:"id"`
+			Id int `json:"id"`
 		} `json:"tag"`
 	}
 	request.Tag.Id = tagId
@@ -139,7 +139,7 @@ func Delete(clt *core.Client, tagId int64) (err error) {
 }
 
 // BatchTag 批量打标签.
-func BatchTag(clt *core.Client, openIdList []string, tagId int64) (err error) {
+func BatchTag(clt *core.Client, openIdList []string, tagId int) (err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/tags/members/batchtagging?access_token="
 
 	if len(openIdList) <= 0 {
@@ -148,7 +148,7 @@ func BatchTag(clt *core.Client, openIdList []string, tagId int64) (err error) {
 
 	var request = struct {
 		OpenIdList []string `json:"openid_list,omitempty"`
-		TagId  int64    `json:"tagid"`
+		TagId      int      `json:"tagid"`
 	}{
 		OpenIdList: openIdList,
 		TagId:      tagId,
@@ -165,7 +165,7 @@ func BatchTag(clt *core.Client, openIdList []string, tagId int64) (err error) {
 }
 
 // BatchUntag 批量取消标签.
-func BatchUntag(clt *core.Client, openIdList []string, tagId int64) (err error) {
+func BatchUntag(clt *core.Client, openIdList []string, tagId int) (err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/tags/members/batchuntagging?access_token="
 
 	if len(openIdList) <= 0 {
@@ -174,7 +174,7 @@ func BatchUntag(clt *core.Client, openIdList []string, tagId int64) (err error) 
 
 	var request = struct {
 		OpenIdList []string `json:"openid_list,omitempty"`
-		TagId  int64    `json:"tagid"`
+		TagId      int      `json:"tagid"`
 	}{
 		OpenIdList: openIdList,
 		TagId:      tagId,
