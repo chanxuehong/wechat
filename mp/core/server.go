@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/xml"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -337,9 +338,16 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			}
 
 			var mixedMsg MixedMsg
-			if err = xml.Unmarshal(msgPlaintext, &mixedMsg); err != nil {
-				errorHandler.ServeError(w, r, err)
-				return
+			if r.Header.Get("Content-Type") == "application/json" {
+				if err := json.Unmarshal(msgPlaintext, &mixedMsg); err != nil {
+					errorHandler.ServeError(w, r, err)
+					return
+				}
+			} else {
+				if err := xml.Unmarshal(msgPlaintext, &mixedMsg); err != nil {
+					errorHandler.ServeError(w, r, err)
+					return
+				}
 			}
 			if haveToUserName != mixedMsg.ToUserName {
 				err = fmt.Errorf("the message ToUserName mismatch between ciphertext and plaintext, %q != %q",
@@ -431,9 +439,16 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			callback.DebugPrintPlainRequestMessage(msgPlaintext)
 
 			var mixedMsg MixedMsg
-			if err = xml.Unmarshal(msgPlaintext, &mixedMsg); err != nil {
-				errorHandler.ServeError(w, r, err)
-				return
+			if r.Header.Get("Content-Type") == "application/json" {
+				if err := json.Unmarshal(msgPlaintext, &mixedMsg); err != nil {
+					errorHandler.ServeError(w, r, err)
+					return
+				}
+			} else {
+				if err := xml.Unmarshal(msgPlaintext, &mixedMsg); err != nil {
+					errorHandler.ServeError(w, r, err)
+					return
+				}
 			}
 
 			haveToUserName := mixedMsg.ToUserName
