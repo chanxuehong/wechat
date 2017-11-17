@@ -35,13 +35,14 @@ type Menu struct {
 }
 
 type MatchRule struct {
-	GroupId            *int64 `json:"group_id,omitempty"`
-	Sex                *int   `json:"sex,omitempty"`
+	GroupId            string `json:"group_id,omitempty"`
+	Sex                string `json:"sex,omitempty"`
 	Country            string `json:"country,omitempty"`
 	Province           string `json:"province,omitempty"`
 	City               string `json:"city,omitempty"`
-	ClientPlatformType *int   `json:"client_platform_type,omitempty"`
+	ClientPlatformType string `json:"client_platform_type,omitempty"`
 	Language           string `json:"language,omitempty"`
+	TagId              string `json:"tag_id,omitempty"`
 }
 
 type Button struct {
