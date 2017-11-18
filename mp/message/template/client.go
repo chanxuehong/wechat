@@ -1,0 +1,170 @@
+// @description wechat 是腾讯微信公众平台 api 的 golang 语言封装
+// @link        https://gopkg.in/chanxuehong/wechat.v1 for the canonical source repository
+// @license     https://github.com/chanxuehong/wechat/blob/v1/LICENSE
+// @authors     chanxuehong(chanxuehong@gmail.com)
+
+package template
+
+import (
+	"errors"
+	"net/http"
+
+	"gopkg.in/chanxuehong/wechat.v1/mp"
+)
+
+type Client mp.Client
+
+func NewClient(srv mp.AccessTokenServer, clt *http.Client) *Client {
+	return (*Client)(mp.NewClient(srv, clt))
+}
+
+// 设置所属行业.
+//  目前 industryId 的个数只能为 2.
+func (clt *Client) SetIndustry(industryId ...int64) (err error) {
+	if len(industryId) < 2 {
+		return errors.New("industryId 的个数不能小于 2")
+	}
+
+	var request = struct {
+		IndustryId1 int64 `json:"industry_id1"`
+		IndustryId2 int64 `json:"industry_id2"`
+	}{
+		IndustryId1: industryId[0],
+		IndustryId2: industryId[1],
+	}
+
+	var result mp.Error
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/template/api_set_industry?access_token="
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result
+		return
+	}
+	return
+}
+
+// 从行业模板库选择模板添加到账号后台, 并返回模板id.
+//  templateIdShort: 模板库中模板的编号, 有"TM**"和"OPENTMTM**"等形式.
+func (clt *Client) AddTemplate(templateIdShort string) (templateId string, err error) {
+	var request = struct {
+		TemplateIdShort string `json:"template_id_short"`
+	}{
+		TemplateIdShort: templateIdShort,
+	}
+
+	var result struct {
+		mp.Error
+		TemplateId string `json:"template_id"`
+	}
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/template/api_add_template?access_token="
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, &request, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	templateId = result.TemplateId
+	return
+}
+
+// 发送模板消息
+func (clt *Client) Send(msg *TemplateMessage) (msgid int64, err error) {
+	if msg == nil {
+		err = errors.New("nil TemplateMessage")
+		return
+	}
+
+	var result struct {
+		mp.Error
+		MsgId int64 `json:"msgid"`
+	}
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, msg, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	msgid = result.MsgId
+	return
+}
+
+// 获取设置的行业信息
+func (clt *Client) GetIndustry() (primaryIndustry, secondaryIndustry Industry, err error) {
+	var result struct {
+		mp.Error
+		PrimaryIndustry   Industry `json:"primary_industry"`
+		SecondaryIndustry Industry `json:"secondary_industry"`
+	}
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/template/get_industry?access_token="
+	if err = ((*mp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	primaryIndustry = result.PrimaryIndustry
+	secondaryIndustry = result.SecondaryIndustry
+	return
+}
+
+// 获取模板列表
+func (clt *Client) GetAllPrivateTemplate() (templateList []Template, err error) {
+	var result struct {
+		mp.Error
+		TemplateList []Template `json:"template_list"`
+	}
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/template/get_all_private_template?access_token="
+	if err = ((*mp.Client)(clt)).GetJSON(incompleteURL, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	templateList = result.TemplateList
+	return
+}
+
+// 删除模板
+func (clt *Client) DeletePrivateTemplate(templateID string) (err error) {
+	if templateID == "" {
+		err = errors.New("empty templateID")
+		return
+	}
+	var request = struct {
+		TemplateID string `json:"template_id"`
+	}{
+		TemplateID: templateID,
+	}
+
+	var result struct {
+		mp.Error
+	}
+
+	incompleteURL := "https://api.weixin.qq.com/cgi-bin/template/del_private_template?access_token="
+	if err = ((*mp.Client)(clt)).PostJSON(incompleteURL, request, &result); err != nil {
+		return
+	}
+
+	if result.ErrCode != mp.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	return
+}
