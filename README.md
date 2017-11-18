@@ -1,4 +1,5 @@
 # wechat SDK for golang
+https://gopkg.in/chanxuehong/wechat.v2
 
 ## 简介
 | 模块  | 描述                     |
