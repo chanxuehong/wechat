@@ -184,9 +184,11 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 		// 认证签名
 		haveSignature := msg["sign"]
 		if haveSignature == "" {
-			err = ErrNotFoundSign
-			errorHandler.ServeError(w, r, err)
-			return
+			if _, ok := msg["req_info"]; !ok { // 退款结果通知没有 sign 字段
+				err = ErrNotFoundSign
+				errorHandler.ServeError(w, r, err)
+				return
+			}
 		}
 		var wantSignature string
 		switch signType := msg["sign_type"]; signType {
