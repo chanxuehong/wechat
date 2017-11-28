@@ -182,29 +182,29 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 		}
 
 		// 认证签名
-		haveSignature := msg["sign"]
-		if haveSignature == "" {
+		if haveSignature := msg["sign"]; haveSignature != "" {
+			var wantSignature string
+			switch signType := msg["sign_type"]; signType {
+			case "", SignType_MD5:
+				wantSignature = Sign2(msg, srv.apiKey, md5.New())
+			case SignType_HMAC_SHA256:
+				wantSignature = Sign2(msg, srv.apiKey, hmac.New(sha256.New, []byte(srv.apiKey)))
+			default:
+				err = fmt.Errorf("unsupported notification sign_type: %s", signType)
+				errorHandler.ServeError(w, r, err)
+				return
+			}
+			if !security.SecureCompareString(haveSignature, wantSignature) {
+				err = fmt.Errorf("sign mismatch,\nhave: %s,\nwant: %s", haveSignature, wantSignature)
+				errorHandler.ServeError(w, r, err)
+				return
+			}
+		} else {
 			if _, ok := msg["req_info"]; !ok { // 退款结果通知没有 sign 字段
 				err = ErrNotFoundSign
 				errorHandler.ServeError(w, r, err)
 				return
 			}
-		}
-		var wantSignature string
-		switch signType := msg["sign_type"]; signType {
-		case "", SignType_MD5:
-			wantSignature = Sign2(msg, srv.apiKey, md5.New())
-		case SignType_HMAC_SHA256:
-			wantSignature = Sign2(msg, srv.apiKey, hmac.New(sha256.New, []byte(srv.apiKey)))
-		default:
-			err = fmt.Errorf("unsupported notification sign_type: %s", signType)
-			errorHandler.ServeError(w, r, err)
-			return
-		}
-		if !security.SecureCompareString(haveSignature, wantSignature) {
-			err = fmt.Errorf("sign mismatch,\nhave: %s,\nwant: %s", haveSignature, wantSignature)
-			errorHandler.ServeError(w, r, err)
-			return
 		}
 
 		ctx := &Context{
