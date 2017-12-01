@@ -84,17 +84,25 @@ func NewSubMchClient(appId, mchId, apiKey string, subAppId, subMchId string, htt
 // PostXML 是微信支付通用请求方法.
 //  err == nil 表示 (return_code == "SUCCESS" && result_code == "SUCCESS").
 func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]string, err error) {
-	if req["appid"] == "" {
-		req["appid"] = clt.appId
-	}
-	if req["mch_id"] == "" {
-		req["mch_id"] = clt.mchId
-	}
-	if clt.subAppId != "" && req["sub_appid"] == "" {
-		req["sub_appid"] = clt.subAppId
-	}
-	if clt.subMchId != "" && req["sub_mch_id"] == "" {
-		req["sub_mch_id"] = clt.subMchId
+	switch url {
+	case "https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers", "https://api2.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers", // 企业付款
+		"https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack", "https://api2.mch.weixin.qq.com/mmpaymkttransfers/sendredpack", // 发放普通红包
+		"https://api.mch.weixin.qq.com/mmpaymkttransfers/sendgroupredpack", "https://api2.mch.weixin.qq.com/mmpaymkttransfers/sendgroupredpack": // 发放裂变红包
+		// TODO(chanxuehong): 这几个接口没有标准的 appid 和 mch_id 字段，需要用户在 req 里填写全部参数
+		// TODO(chanxuehong): 通读整个支付文档, 可以的话重新考虑逻辑
+	default:
+		if req["appid"] == "" {
+			req["appid"] = clt.appId
+		}
+		if req["mch_id"] == "" {
+			req["mch_id"] = clt.mchId
+		}
+		if clt.subAppId != "" && req["sub_appid"] == "" {
+			req["sub_appid"] = clt.subAppId
+		}
+		if clt.subMchId != "" && req["sub_mch_id"] == "" {
+			req["sub_mch_id"] = clt.subMchId
+		}
 	}
 
 	// 获取请求参数的 sign_type 并检查其有效性
