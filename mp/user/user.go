@@ -1,6 +1,8 @@
 package user
 
 import (
+	"encoding/json"
+	"net/http"
 	"net/url"
 
 	"gopkg.in/chanxuehong/wechat.v2/mp/core"
@@ -61,6 +63,41 @@ func Get(clt *core.Client, openId string, lang string) (info *UserInfo, err erro
 	if err = clt.GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
+	if result.ErrCode != core.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	info = &result.UserInfo
+	return
+}
+
+func CompGetInfo(openId, accessToken, lang string) (info *UserInfo, err error) {
+	switch lang {
+	case "":
+		lang = LanguageZhCN
+	case LanguageZhCN, LanguageZhTW, LanguageEN:
+	default:
+		lang = LanguageZhCN
+	}
+
+	var url = "https://api.weixin.qq.com/cgi-bin/user/info?openid=" + url.QueryEscape(openId) +
+		"&lang=" + lang + "&access_token=" + url.QueryEscape(accessToken)
+	var result struct {
+		core.Error
+		UserInfo
+	}
+	resp, e := http.Get(url)
+	defer resp.Body.Close()
+	if e != nil {
+		err = e
+		return
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return
+	}
+
 	if result.ErrCode != core.ErrCodeOK {
 		err = &result.Error
 		return
