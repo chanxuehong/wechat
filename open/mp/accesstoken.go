@@ -1,6 +1,6 @@
 package mp
 
-import "github.com/neugls/wechat/mp/core"
+import "gopkg.in/chanxuehong/wechat.v2/mp/core"
 
 type defaultOpenAccessTokenServer struct {
 	token string

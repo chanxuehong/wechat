@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/neugls/wechat/util"
+	"gopkg.in/chanxuehong/wechat.v2/util"
 )
 
 //GetComponentAccessToken return component access token
