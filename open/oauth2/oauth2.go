@@ -13,7 +13,7 @@ import (
 //  scope:       应用授权作用域
 //  state:       重定向后会带上 state 参数, 开发者可以填写 a-zA-Z0-9 的参数值, 最多128字节
 func AuthCodeURL(appId, redirectURI, scope, state string) string {
-	return "https://open.weixin.qq.com/connect/qrconnect?appid=" + url.QueryEscape(appId) +
+	return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + url.QueryEscape(appId) +
 		"&redirect_uri=" + url.QueryEscape(redirectURI) +
 		"&response_type=code&scope=" + url.QueryEscape(scope) +
 		"&state=" + url.QueryEscape(state) +
