@@ -214,6 +214,18 @@ func (clt *Client) postXML(url string, body []byte, reqSignType string) (resp ma
 			// do nothing
 		case "https://api2.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers":
 			// do nothing
+		case "https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack":
+			// do nothing
+		case "https://api2.mch.weixin.qq.com/mmpaymkttransfers/sendredpack":
+			// do nothing
+		case "https://api.mch.weixin.qq.com/mmpaymkttransfers/sendgroupredpack":
+			// do nothing
+		case "https://api2.mch.weixin.qq.com/mmpaymkttransfers/sendgroupredpack":
+			// do nothing
+		case "https://api.mch.weixin.qq.com/mmpaymkttransfers/gethbinfo":
+			// do nothing
+		case "https://api2.mch.weixin.qq.com/mmpaymkttransfers/gethbinfo":
+			// do nothing
 		}
 	} else {
 		// 获取返回参数的 sign_type 并检查其有效性
