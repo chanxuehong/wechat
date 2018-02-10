@@ -53,7 +53,7 @@ func GetComponentAccessToken(componentAppID, componentAppSecret, componentVerify
 	if e := json.Unmarshal(bytes, &accToken); e != nil {
 		return "", e
 	}
-	if e := token.Put(accToken.ComponentAccessToken, time.Second*time.Duration(accToken.ExpiresIn)); e != nil {
+	if e := token.Put(accToken.ComponentAccessToken, time.Second*60); e != nil {
 		return "", e
 	}
 
