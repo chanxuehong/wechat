@@ -67,6 +67,7 @@ type MixedMsg struct {
 	*poi            // poi
 	*card           // card
 	*bizwifi        // bizwifi
+	*file           // MsgType is file
 
 	// shakearound
 	ChosenBeacon *struct {
@@ -140,4 +141,10 @@ type bizwifi struct {
 	VendorId    string `xml:"VendorId"    json:"VendorId"`
 	PlaceId     int64  `xml:"PlaceId"     json:"PlaceId"`
 	DeviceNo    string `xml:"DeviceNo"    json:"DeviceNo"`
+}
+
+type file struct {
+	FileKey      string `xml:"FileKey"      json:"FileKey"`
+	FileMd5      string `xml:"FileMd5"      json:"FileMd5"`
+	FileTotalLen string `xml:"FileTotalLen" json:"FileTotalLen"`
 }
