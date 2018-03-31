@@ -179,10 +179,10 @@ func (btn *Button) SetAsViewLimitedButton(name, mediaId string) {
 }
 
 // 设置 btn 指向的 Button 为 打开小程序.
-func (btn *Button) SetAsMiniProgramButton(name, mediaId string) {
+func (btn *Button) SetAsMiniProgramButton(name, appId, pagePath, url string) {
 	btn.Type = ButtonTypeMiniProgram
 	btn.Name = name
-	btn.URL = ""
-	btn.AppId = ""
-	btn.PagePath = ""
+	btn.URL = url
+	btn.AppId = appId
+	btn.PagePath = pagePath
 }
