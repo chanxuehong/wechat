@@ -5,14 +5,15 @@ import (
 )
 
 const (
-	MsgTypeText   core.MsgType = "text"   // 文本消息
-	MsgTypeImage  core.MsgType = "image"  // 图片消息
-	MsgTypeVoice  core.MsgType = "voice"  // 语音消息
-	MsgTypeVideo  core.MsgType = "video"  // 视频消息
-	MsgTypeMusic  core.MsgType = "music"  // 音乐消息
-	MsgTypeNews   core.MsgType = "news"   // 图文消息
-	MsgTypeMPNews core.MsgType = "mpnews" // 图文消息, 发送已经创建好的图文
-	MsgTypeWxCard core.MsgType = "wxcard" // 卡卷消息
+	MsgTypeText       core.MsgType = "text"   // 文本消息
+	MsgTypeImage      core.MsgType = "image"  // 图片消息
+	MsgTypeVoice      core.MsgType = "voice"  // 语音消息
+	MsgTypeVideo      core.MsgType = "video"  // 视频消息
+	MsgTypeMusic      core.MsgType = "music"  // 音乐消息
+	MsgTypeNews       core.MsgType = "news"   // 图文消息
+	MsgTypeMPNews     core.MsgType = "mpnews" // 图文消息, 发送已经创建好的图文
+	MsgTypeWxCard     core.MsgType = "wxcard" // 卡卷消息
+	MsgTypeWxMiniLink core.MsgType = "link"   // 小程序客服消息:图文链接
 )
 
 type MsgHeader struct {
@@ -265,6 +266,67 @@ func NewWxCard(toUser, cardId, cardExt, kfAccount string) (card *WxCard) {
 
 	if kfAccount != "" {
 		card.CustomService = &CustomService{
+			KfAccount: kfAccount,
+		}
+	}
+	return
+}
+
+type WxMiniLink struct {
+	MsgHeader
+	Link struct {
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		URL         string `json:"url"`
+		ThumbURL    string `json:"thumb_url"`
+	} `json:"link"`
+	CustomService *CustomService `json:"customservice,omitempty"`
+}
+
+func NewMiniLink(toUser, title, desc, url, thumbUrl, kfAccount string) (link *WxMiniLink) {
+	link = &WxMiniLink{
+		MsgHeader: MsgHeader{
+			ToUser:  toUser,
+			MsgType: MsgTypeWxMiniLink,
+		},
+	}
+
+	link.Link.Title = title
+	link.Link.Description = desc
+	link.Link.URL = url
+	link.Link.ThumbURL = thumbUrl
+
+	if kfAccount != "" {
+		link.CustomService = &CustomService{
+			KfAccount: kfAccount,
+		}
+	}
+	return
+}
+
+type WxMiniPage struct {
+	MsgHeader
+	MiniProgramPage struct {
+		Title        string `json:"title"`
+		PagePath     string `json:"pageath"`
+		ThumbMediaId string `json:"thumb_media_id"`
+	} `json:"miniprogrampage"`
+	CustomService *CustomService `json:"customservice,omitempty"`
+}
+
+func NewMiniPage(toUser, title, pagePath, thumbMediaId, kfAccount string) (page *WxMiniPage) {
+	page = &WxMiniPage{
+		MsgHeader: MsgHeader{
+			ToUser:  toUser,
+			MsgType: MsgTypeWxMiniLink,
+		},
+	}
+
+	page.MiniProgramPage.Title = title
+	page.MiniProgramPage.PagePath = pagePath
+	page.MiniProgramPage.ThumbMediaId = thumbMediaId
+	if kfAccount != "" {
+		page.CustomService = &CustomService{
 			KfAccount: kfAccount,
 		}
 	}
