@@ -289,11 +289,11 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			}
 			var token string
 			if ok, tokenStr, err := srv.checkSignature(timestampString, nonce, haveSignature); !ok {
-				token = tokenStr
 				errorHandler.ServeError(w, r, errors.New(err))
 				return
+			} else {
+				token = tokenStr
 			}
-
 			buffer := textBufferPool.Get().(*bytes.Buffer)
 			buffer.Reset()
 			defer textBufferPool.Put(buffer)
@@ -421,9 +421,10 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			}
 			var token string
 			if ok, tokenStr, err := srv.checkSignature(timestampString, nonce, haveSignature); !ok {
-				token = tokenStr
 				errorHandler.ServeError(w, r, errors.New(err))
 				return
+			} else {
+				token = tokenStr
 			}
 
 			msgPlaintext, err := ioutil.ReadAll(r.Body)
