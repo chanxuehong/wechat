@@ -207,7 +207,7 @@ func checkQueryParam(params ...string) (success bool, err string) {
 	return
 
 }
-
+// 验签
 func (srv *Server) checkSignature(timestamp, nonce, haveSignature string) (success bool, token, err string) {
 	success = false
 	currentToken, lastToken := srv.getToken()
@@ -384,7 +384,6 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			ctx := &Context{
 				ResponseWriter: w,
 				Request:        r,
-
 				QueryParams:  query,
 				EncryptType:  encryptType,
 				MsgSignature: haveMsgSignature,
@@ -452,9 +451,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			ctx := &Context{
 				ResponseWriter: w,
 				Request:        r,
-
 				QueryParams: query,
-				EncryptType: encryptType,
 				Signature:   haveSignature,
 				Timestamp:   timestamp,
 				Nonce:       nonce,

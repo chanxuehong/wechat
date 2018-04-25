@@ -38,10 +38,10 @@ type Context struct {
 	Random []byte // 当前消息加密所用的 random, 16-bytes
 	AppId  string // 当前消息加密所用的 AppId
 
-	handlers     HandlerChain
-	handlerIndex int
-
-	kvs map[string]interface{}
+	handlers        HandlerChain
+	handlerIndex    int
+	ResponseMessage interface{}
+	kvs             map[string]interface{}
 }
 
 // IsAborted 返回 true 如果 Context.Abort() 被调用了, 否则返回 false.
@@ -105,6 +105,15 @@ func (ctx *Context) MustGet(key string) interface{} {
 		return value
 	}
 	panic(`[kvs] key "` + key + `" does not exist`)
+}
+
+// 回复消息明文/密文
+func (ctx *Context) Send() {
+	if ctx.EncryptType == "aes" {
+		ctx.AESResponse(ctx.ResponseMessage, ctx.Timestamp, ctx.Nonce, ctx.Random)
+	} else {
+		ctx.RawResponse(ctx.ResponseMessage)
+	}
 }
 
 // Context:response ====================================================================================================
