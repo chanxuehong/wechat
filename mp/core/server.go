@@ -194,6 +194,71 @@ func (srv *Server) removeLastAESKey(lastAESKey []byte) {
 	return
 }
 
+// 检查query参数
+func checkQueryParam(params ...string) (success bool, err string) {
+	success = false
+	for name, val := range params {
+		if val == "" {
+			err = fmt.Sprintf("not found %s query parameter", name)
+			return
+		}
+	}
+	success = true
+	return
+
+}
+// 验签
+func (srv *Server) checkSignature(timestamp, nonce, haveSignature string) (success bool, token, err string) {
+	success = false
+	currentToken, lastToken := srv.getToken()
+	if currentToken == "" {
+		err = "token was not set for Server, see NewServer function or Server.SetToken method"
+		return
+	}
+	token = currentToken
+	wantSignature := util.Sign(token, timestamp, nonce)
+	if !security.SecureCompareString(haveSignature, wantSignature) {
+		if lastToken == "" {
+			err = fmt.Sprintf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
+			return
+		}
+		token = lastToken
+		wantSignature = util.Sign(token, timestamp, nonce)
+		if !security.SecureCompareString(haveSignature, wantSignature) {
+			err = fmt.Sprintf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
+			return
+		}
+	} else {
+		if lastToken != "" {
+			srv.removeLastToken(lastToken)
+		}
+	}
+	success = true
+	return
+}
+
+// 初始化检验token
+func (srv *Server) CheckToken(w http.ResponseWriter, r *http.Request, query url.Values) {
+	callback.DebugPrintRequest(r)
+	if query == nil {
+		query = r.URL.Query()
+	}
+	errorHandler := srv.errorHandler
+	haveSignature := query.Get("signature")
+	timestamp := query.Get("timestamp")
+	nonce := query.Get("nonce")
+	echostr := query.Get("echostr")
+	if ok, err := checkQueryParam(haveSignature, timestamp, nonce, echostr); !ok {
+		errorHandler.ServeError(w, r, errors.New(err))
+		return
+	}
+	if ok, _, err := srv.checkSignature(timestamp, nonce, haveSignature); !ok {
+		errorHandler.ServeError(w, r, errors.New(err))
+		return
+	}
+	io.WriteString(w, echostr)
+}
+
 // ServeHTTP 处理微信服务器的回调请求, query 参数可以为 nil.
 func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.Values) {
 	callback.DebugPrintRequest(r)
@@ -206,61 +271,29 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 	case "POST": // 推送消息(事件)
 		switch encryptType := query.Get("encrypt_type"); encryptType {
 		case "aes":
+
 			haveSignature := query.Get("signature")
-			if haveSignature == "" {
-				errorHandler.ServeError(w, r, errors.New("not found signature query parameter"))
-				return
-			}
 			haveMsgSignature := query.Get("msg_signature")
-			if haveMsgSignature == "" {
-				errorHandler.ServeError(w, r, errors.New("not found msg_signature query parameter"))
-				return
-			}
 			timestampString := query.Get("timestamp")
-			if timestampString == "" {
-				errorHandler.ServeError(w, r, errors.New("not found timestamp query parameter"))
+			nonce := query.Get("nonce")
+			if ok, err := checkQueryParam(haveSignature, haveMsgSignature, timestampString, nonce); !ok {
+				errorHandler.ServeError(w, r, errors.New(err))
 				return
 			}
+
 			timestamp, err := strconv.ParseInt(timestampString, 10, 64)
 			if err != nil {
 				err = fmt.Errorf("can not parse timestamp query parameter %q to int64", timestampString)
 				errorHandler.ServeError(w, r, err)
 				return
 			}
-			nonce := query.Get("nonce")
-			if nonce == "" {
-				errorHandler.ServeError(w, r, errors.New("not found nonce query parameter"))
-				return
-			}
-
 			var token string
-			currentToken, lastToken := srv.getToken()
-			if currentToken == "" {
-				err = errors.New("token was not set for Server, see NewServer function or Server.SetToken method")
-				errorHandler.ServeError(w, r, err)
+			if ok, tokenStr, err := srv.checkSignature(timestampString, nonce, haveSignature); !ok {
+				errorHandler.ServeError(w, r, errors.New(err))
 				return
-			}
-			token = currentToken
-			wantSignature := util.Sign(token, timestampString, nonce)
-			if !security.SecureCompareString(haveSignature, wantSignature) {
-				if lastToken == "" {
-					err = fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
-					errorHandler.ServeError(w, r, err)
-					return
-				}
-				token = lastToken
-				wantSignature = util.Sign(token, timestampString, nonce)
-				if !security.SecureCompareString(haveSignature, wantSignature) {
-					err = fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
-					errorHandler.ServeError(w, r, err)
-					return
-				}
 			} else {
-				if lastToken != "" {
-					srv.removeLastToken(lastToken)
-				}
+				token = tokenStr
 			}
-
 			buffer := textBufferPool.Get().(*bytes.Buffer)
 			buffer.Reset()
 			defer textBufferPool.Put(buffer)
@@ -351,7 +384,6 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			ctx := &Context{
 				ResponseWriter: w,
 				Request:        r,
-
 				QueryParams:  query,
 				EncryptType:  encryptType,
 				MsgSignature: haveMsgSignature,
@@ -374,13 +406,10 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 
 		case "", "raw":
 			haveSignature := query.Get("signature")
-			if haveSignature == "" {
-				errorHandler.ServeError(w, r, errors.New("not found signature query parameter"))
-				return
-			}
 			timestampString := query.Get("timestamp")
-			if timestampString == "" {
-				errorHandler.ServeError(w, r, errors.New("not found timestamp query parameter"))
+			nonce := query.Get("nonce")
+			if ok, err := checkQueryParam(haveSignature, timestampString, nonce); !ok {
+				errorHandler.ServeError(w, r, errors.New(err))
 				return
 			}
 			timestamp, err := strconv.ParseInt(timestampString, 10, 64)
@@ -389,38 +418,12 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 				errorHandler.ServeError(w, r, err)
 				return
 			}
-			nonce := query.Get("nonce")
-			if nonce == "" {
-				errorHandler.ServeError(w, r, errors.New("not found nonce query parameter"))
-				return
-			}
-
 			var token string
-			currentToken, lastToken := srv.getToken()
-			if currentToken == "" {
-				err = errors.New("token was not set for Server, see NewServer function or Server.SetToken method")
-				errorHandler.ServeError(w, r, err)
+			if ok, tokenStr, err := srv.checkSignature(timestampString, nonce, haveSignature); !ok {
+				errorHandler.ServeError(w, r, errors.New(err))
 				return
-			}
-			token = currentToken
-			wantSignature := util.Sign(token, timestampString, nonce)
-			if !security.SecureCompareString(haveSignature, wantSignature) {
-				if lastToken == "" {
-					err = fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
-					errorHandler.ServeError(w, r, err)
-					return
-				}
-				token = lastToken
-				wantSignature = util.Sign(token, timestampString, nonce)
-				if !security.SecureCompareString(haveSignature, wantSignature) {
-					err = fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
-					errorHandler.ServeError(w, r, err)
-					return
-				}
 			} else {
-				if lastToken != "" {
-					srv.removeLastToken(lastToken)
-				}
+				token = tokenStr
 			}
 
 			msgPlaintext, err := ioutil.ReadAll(r.Body)
@@ -448,9 +451,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			ctx := &Context{
 				ResponseWriter: w,
 				Request:        r,
-
 				QueryParams: query,
-				EncryptType: encryptType,
 				Signature:   haveSignature,
 				Timestamp:   timestamp,
 				Nonce:       nonce,
@@ -468,57 +469,6 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			errorHandler.ServeError(w, r, errors.New("unknown encrypt_type: "+encryptType))
 		}
 
-	case "GET": // 验证回调URL是否有效
-		haveSignature := query.Get("signature")
-		if haveSignature == "" {
-			errorHandler.ServeError(w, r, errors.New("not found signature query parameter"))
-			return
-		}
-		timestamp := query.Get("timestamp")
-		if timestamp == "" {
-			errorHandler.ServeError(w, r, errors.New("not found timestamp query parameter"))
-			return
-		}
-		nonce := query.Get("nonce")
-		if nonce == "" {
-			errorHandler.ServeError(w, r, errors.New("not found nonce query parameter"))
-			return
-		}
-		echostr := query.Get("echostr")
-		if echostr == "" {
-			errorHandler.ServeError(w, r, errors.New("not found echostr query parameter"))
-			return
-		}
-
-		var token string
-		currentToken, lastToken := srv.getToken()
-		if currentToken == "" {
-			err := errors.New("token was not set for Server, see NewServer function or Server.SetToken method")
-			errorHandler.ServeError(w, r, err)
-			return
-		}
-		token = currentToken
-		wantSignature := util.Sign(token, timestamp, nonce)
-		if !security.SecureCompareString(haveSignature, wantSignature) {
-			if lastToken == "" {
-				err := fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
-				errorHandler.ServeError(w, r, err)
-				return
-			}
-			token = lastToken
-			wantSignature = util.Sign(token, timestamp, nonce)
-			if !security.SecureCompareString(haveSignature, wantSignature) {
-				err := fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
-				errorHandler.ServeError(w, r, err)
-				return
-			}
-		} else {
-			if lastToken != "" {
-				srv.removeLastToken(lastToken)
-			}
-		}
-
-		io.WriteString(w, echostr)
 	}
 }
 
@@ -554,7 +504,7 @@ func xmlUnmarshal(data []byte, p *cipherRequestHttpBody) error {
 		log.Printf("[WARNING] xmlUnmarshal failed, data:\n%s\n", data)
 		return xml.Unmarshal(data, p)
 	}
-	data2 := data[len(msgStartElementLiteral) : len(data)-len(msgEndElementLiteral)]
+	data2 := data[len(msgStartElementLiteral): len(data)-len(msgEndElementLiteral)]
 
 	// ToUserName
 	ToUserNameElementBytes := data2
