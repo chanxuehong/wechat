@@ -74,11 +74,11 @@ func getSession(session *Session, url string) (err error) {
 	return
 }
 
-func GetSessionInfo(EncryptedData string, session Session, iv string) (info *SessionInfo, err error) {
+func GetSessionInfo(EncryptedData, sessionKey, iv string) (info *SessionInfo, err error) {
 
 	cipherText, err := base64.StdEncoding.DecodeString(EncryptedData)
 
-	aesKey, err := base64.StdEncoding.DecodeString(session.SessionKey)
+	aesKey, err := base64.StdEncoding.DecodeString(sessionKey)
 	aesIv, err := base64.StdEncoding.DecodeString(iv)
 
 	if err != nil {
