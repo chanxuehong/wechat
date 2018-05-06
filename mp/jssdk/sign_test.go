@@ -47,7 +47,7 @@ func TestCardSign(t *testing.T) {
 
 	haveSignature := CardSign([]string{open_id, code, timestamp, card_id, api_ticket, nonce_str})
 	if haveSignature != wantSignature {
-		t.Errorf("test CardSign failed,\nhave: %s\nwant: %s\n", haveSignature, wantSignature)
+		t.Errorf("tests CardSign failed,\nhave: %s\nwant: %s\n", haveSignature, wantSignature)
 		return
 	}
 }

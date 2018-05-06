@@ -3,6 +3,7 @@ package util
 import (
 	"bytes"
 	"encoding/base64"
+	"fmt"
 	"testing"
 )
 
@@ -19,7 +20,7 @@ func TestAESEncryptMsg(t *testing.T) {
 <FromUserName><![CDATA[okPEat9FRX96xG8JQvTxHLpzDV64]]></FromUserName>
 <CreateTime>1458889120</CreateTime>
 <MsgType><![CDATA[text]]></MsgType>
-<Content><![CDATA[test text message]]></Content>
+<Content><![CDATA[tests text message]]></Content>
 <MsgId>6265881059295447969</MsgId>
 </xml>`)
 
@@ -32,7 +33,7 @@ func TestAESEncryptMsg(t *testing.T) {
 	ciphertext := AESEncryptMsg(random, plaintext, appId, aesKey)
 	base64Ciphertext := base64.StdEncoding.EncodeToString(ciphertext)
 	if base64Ciphertext != wantBase64Ciphertext {
-		t.Errorf("test AESEncryptMsg failed,\nhave: %s\nwant: %s\n", base64Ciphertext, wantBase64Ciphertext)
+		t.Errorf("tests AESEncryptMsg failed,\nhave: %s\nwant: %s\n", base64Ciphertext, wantBase64Ciphertext)
 		return
 	}
 }
@@ -49,7 +50,7 @@ func TestAESDecryptMsg(t *testing.T) {
 <FromUserName><![CDATA[okPEat9FRX96xG8JQvTxHLpzDV64]]></FromUserName>
 <CreateTime>1458889120</CreateTime>
 <MsgType><![CDATA[text]]></MsgType>
-<Content><![CDATA[test text message]]></Content>
+<Content><![CDATA[tests text message]]></Content>
 <MsgId>6265881059295447969</MsgId>
 </xml>`)
 	wantAppId := []byte("wx45f133bf6fce646e")
@@ -71,15 +72,36 @@ func TestAESDecryptMsg(t *testing.T) {
 		return
 	}
 	if !bytes.Equal(random, wantRandom) {
-		t.Errorf("test AESDecryptMsg failed,\nhave random: %s\nwant random: %s\n", random, wantRandom)
+		t.Errorf("tests AESDecryptMsg failed,\nhave random: %s\nwant random: %s\n", random, wantRandom)
 		return
 	}
 	if !bytes.Equal(plaintext, wantPlaintext) {
-		t.Errorf("test AESDecryptMsg failed,\nhave plaintext: %s\nwant plaintext: %s\n", plaintext, wantPlaintext)
+		t.Errorf("tests AESDecryptMsg failed,\nhave plaintext: %s\nwant plaintext: %s\n", plaintext, wantPlaintext)
 		return
 	}
 	if !bytes.Equal(appId, wantAppId) {
-		t.Errorf("test AESDecryptMsg failed,\nhave appid: %s\nwant appid: %s\n", appId, wantAppId)
+		t.Errorf("tests AESDecryptMsg failed,\nhave appid: %s\nwant appid: %s\n", appId, wantAppId)
 		return
 	}
+}
+
+func TestAEESDecryptData(t *testing.T) {
+	aesKey, err := base64.StdEncoding.DecodeString("HogNecGqZeDxFIDGjBwWKw==")
+	aesIv, err := base64.StdEncoding.DecodeString("aoZqkfGDWwqj6rFgWdafyw==")
+
+	base64Ciphertext := "4B9B1aknFM6yQjAh9mFxH3iN4PZXUGfpBLB98CRAVZzNfUI4J1WUur70+NSH/5MXcCidrt44hi6dkByTtRPxrTIV1BOOTvaa2G5NWunTXZJ37/Oq0ezydbDal5v+X3bvVVeFR6MkhYI+hT9xVl2XnE/Bzon2gIq9F9Fy8Yny0VPqsQ95xUyXnN3/IuhiquR1pAgKjDK3kgCoqhUVNa0dRRQQgTNIpy1djbLfyErPXGTXe1qhAj7RvDdJtRloEfg63JgaB/QTR2BLEGT7/GfHnwROfngxa3esGDeBr9Mtav67R4PjYESVFtH2Yf2npaDWAvAMvr+8hNVd2tjy/3HgImctZWo7bh1OHa/ktH4wKYVbTgxZPg/lgTWC+zsl1Z9g07vWQyGpaA11HODDGn1Kdvh6esiY7T3JQ15nKs1rdyXigNQFb9+kicPiInKVfOiuMcGEazli5/UQHF5rnuWhkg/wy+PRbZybR18lLh5d+EW1CnK8gNcQblDJPvx6QFcFhPxr28WkEd7ys0BZQGCIkQ=="
+	ciphertext, err := base64.StdEncoding.DecodeString(base64Ciphertext)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	raw, err := AESDecryptData(ciphertext, aesKey, aesIv)
+
+	fmt.Println(string(raw), err)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
 }

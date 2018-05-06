@@ -32,3 +32,11 @@ func (p *Endpoint) RefreshTokenURL(refreshToken string) string {
 	return "https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=" + url.QueryEscape(p.AppId) +
 		"&grant_type=refresh_token&refresh_token=" + url.QueryEscape(refreshToken)
 }
+
+func (p *Endpoint) SessionCodeUrl(code string) string {
+
+	return "https://api.weixin.qq.com/sns/jscode2session?appid=" + url.QueryEscape(p.AppId) +
+		"&secret=" + url.QueryEscape(p.AppSecret) +
+		"&js_code=" + url.QueryEscape(code) +
+		"&grant_type=authorization_code"
+}
