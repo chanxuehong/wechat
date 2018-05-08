@@ -69,7 +69,7 @@ func getSession(session *Session, url string) (err error) {
 		return &result.Error
 	}
 
-	session = &result.Session
+	*session = result.Session
 
 	return
 }
