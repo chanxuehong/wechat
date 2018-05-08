@@ -32,7 +32,7 @@ type SessionInfo struct {
 	UnionId   string `json:"unionId"` // 只有在用户将公众号绑定到微信开放平台帐号后，才会出现该字段。
 }
 
-func GetSession(Endpoint *Endpoint, code string) (session *Session,err error) {
+func GetSession(Endpoint *Endpoint, code string) (session *Session, err error) {
 	session = &Session{}
 	if err = getSession(session, Endpoint.SessionCodeUrl(code)); err != nil {
 		return
