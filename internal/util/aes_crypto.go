@@ -116,7 +116,7 @@ func AESDecryptMsg(ciphertext []byte, aesKey []byte) (random, rawXMLMsg, appId [
 	return
 }
 
-func AESDecryptData(cipherText []byte, aesKey []byte, iv []byte)  (rawData []byte, err error) {
+func AESDecryptData(cipherText []byte, aesKey []byte, iv []byte) (rawData []byte, err error) {
 
 	const (
 		BLOCK_SIZE = 32             // PKCS#7

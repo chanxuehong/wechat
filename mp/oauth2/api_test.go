@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	wxAppId     = ""               // 填上自己的参数
+	wxAppId     = "" // 填上自己的参数
 	wxAppSecret = "" // 填上自己的参数
 	//oauth2RedirectURI = "http://192.168.1.129:8080/page2" // 填上自己的参数
 	//oauth2Scope       = "snsapi_userinfo"                 // 填上自己的参数
