@@ -33,7 +33,7 @@ type SessionInfo struct {
 }
 
 func GetSession(Endpoint *Endpoint, code string) (session *Session, err error) {
-
+	session = &Session{}
 	if err = getSession(session, Endpoint.SessionCodeUrl(code)); err != nil {
 		return
 	}
@@ -69,7 +69,7 @@ func getSession(session *Session, url string) (err error) {
 		return &result.Error
 	}
 
-	session = &result.Session
+	*session = result.Session
 
 	return
 }
