@@ -18,24 +18,11 @@ func NewTLSHttpClient(certFile, keyFile string) (httpClient *http.Client, err er
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{cert},
 	}
-
-	return &http.Client{
-		Transport: &http.Transport{
-			Proxy: http.ProxyFromEnvironment,
-			Dial: (&net.Dialer{
-				Timeout:   3 * time.Second,
-				KeepAlive: 30 * time.Second,
-			}).Dial,
-			TLSHandshakeTimeout:   3 * time.Second,
-			ExpectContinueTimeout: 1 * time.Second,
-			TLSClientConfig:       tlsConfig,
-		},
-		Timeout: 5 * time.Second,
-	}, nil
+	return newTLSHttpClient(tlsConfig)
 }
 
 // NewTLSHttpClient2 创建支持双向证书认证的 http.Client.
-func NewTLSHttpClient2(certPEMBlock, keyPEMBlock string) (httpClient *http.Client, err error) {
+func NewTLSHttpClient2(certPEMBlock, keyPEMBlock []byte) (httpClient *http.Client, err error) {
 	cert, err := tls.X509KeyPair(certPEMBlock, keyPEMBlock)
 	if err != nil {
 		return nil, err
@@ -43,18 +30,25 @@ func NewTLSHttpClient2(certPEMBlock, keyPEMBlock string) (httpClient *http.Clien
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{cert},
 	}
+	return newTLSHttpClient(tlsConfig)
+}
 
+func newTLSHttpClient(tlsConfig *tls.Config) (*http.Client, error) {
+	dialTLS := func(network, addr string) (net.Conn, error) {
+		return tls.DialWithDialer(&net.Dialer{
+			Timeout:   5 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}, network, addr, tlsConfig)
+	}
 	return &http.Client{
 		Transport: &http.Transport{
 			Proxy: http.ProxyFromEnvironment,
 			Dial: (&net.Dialer{
-				Timeout:   3 * time.Second,
+				Timeout:   5 * time.Second,
 				KeepAlive: 30 * time.Second,
 			}).Dial,
-			TLSHandshakeTimeout:   3 * time.Second,
+			DialTLS:               dialTLS,
 			ExpectContinueTimeout: 1 * time.Second,
-			TLSClientConfig:       tlsConfig,
 		},
-		Timeout: 5 * time.Second,
 	}, nil
 }

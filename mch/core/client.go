@@ -2,12 +2,14 @@ package core
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/md5"
 	"crypto/sha256"
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/chanxuehong/util"
 
@@ -152,7 +154,18 @@ RETRY:
 
 func (clt *Client) postXML(url string, body []byte, reqSignType string) (resp map[string]string, needRetry bool, err error) {
 	api.DebugPrintPostXMLRequest(url, body)
-	httpResp, err := clt.httpClient.Post(url, "text/xml; charset=utf-8", bytes.NewReader(body))
+
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		return nil, false, err
+	}
+	req.Header.Set("Content-Type", "text/xml; charset=utf-8")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+
+	req = req.WithContext(ctx)
+	httpResp, err := clt.httpClient.Do(req)
 	if err != nil {
 		return nil, true, err
 	}
