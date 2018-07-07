@@ -223,21 +223,15 @@ func (clt *Client) postXML(url string, body []byte, reqSignType string) (resp ma
 		switch url {
 		default:
 			return nil, false, ErrNotFoundSign
-		case "https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers":
+		case "https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers", "https://api2.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers":
 			// do nothing
-		case "https://api2.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers":
+		case "https://api.mch.weixin.qq.com/mmpaymkttransfers/gettransferinfo", "https://api2.mch.weixin.qq.com/mmpaymkttransfers/gettransferinfo":
+		// do nothing
+		case "https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack", "https://api2.mch.weixin.qq.com/mmpaymkttransfers/sendredpack":
 			// do nothing
-		case "https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack":
+		case "https://api.mch.weixin.qq.com/mmpaymkttransfers/sendgroupredpack", "https://api2.mch.weixin.qq.com/mmpaymkttransfers/sendgroupredpack":
 			// do nothing
-		case "https://api2.mch.weixin.qq.com/mmpaymkttransfers/sendredpack":
-			// do nothing
-		case "https://api.mch.weixin.qq.com/mmpaymkttransfers/sendgroupredpack":
-			// do nothing
-		case "https://api2.mch.weixin.qq.com/mmpaymkttransfers/sendgroupredpack":
-			// do nothing
-		case "https://api.mch.weixin.qq.com/mmpaymkttransfers/gethbinfo":
-			// do nothing
-		case "https://api2.mch.weixin.qq.com/mmpaymkttransfers/gethbinfo":
+		case "https://api.mch.weixin.qq.com/mmpaymkttransfers/gethbinfo", "https://api2.mch.weixin.qq.com/mmpaymkttransfers/gethbinfo":
 			// do nothing
 		}
 	} else {
