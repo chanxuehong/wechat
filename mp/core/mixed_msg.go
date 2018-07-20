@@ -39,6 +39,8 @@ type MixedMsg struct {
 	Longitude    float64 `xml:"Longitude"    json:"Longitude"`    // request
 	Precision    float64 `xml:"Precision"    json:"Precision"`    // request
 
+	CompVeriTicket string `xml:"ComponentVerifyTicket" json:"ComponentVerifyTicket"`
+
 	// menu
 	MenuId       int64 `xml:"MenuId" json:"MenuId"`
 	ScanCodeInfo *struct {
