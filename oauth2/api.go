@@ -3,7 +3,6 @@ package oauth2
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -75,7 +74,6 @@ func (clt *Client) RefreshToken(refreshToken string) (token *Token, err error) {
 
 func (clt *Client) updateToken(tk *Token, url string) (err error) {
 	api.DebugPrintGetRequest(url)
-	log.Println(url)
 	httpResp, err := clt.httpClient().Get(url)
 	if err != nil {
 		return
