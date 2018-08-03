@@ -308,7 +308,7 @@ type WxMiniPage struct {
 	MsgHeader
 	MiniProgramPage struct {
 		Title        string `json:"title"`
-		PagePath     string `json:"pageath"`
+		PagePath     string `json:"pagepath"`
 		ThumbMediaId string `json:"thumb_media_id"`
 	} `json:"miniprogrampage"`
 	CustomService *CustomService `json:"customservice,omitempty"`
