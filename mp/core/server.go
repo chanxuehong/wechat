@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -335,7 +336,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			}
 
 			var mixedMsg MixedMsg
-			if err = xml.Unmarshal(msgPlaintext, &mixedMsg); err != nil {
+			if err = unmarshalXMLMessage(msgPlaintext, &mixedMsg); err != nil {
 				errorHandler.ServeError(w, r, err)
 				return
 			}
@@ -429,7 +430,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			callback.DebugPrintPlainRequestMessage(msgPlaintext)
 
 			var mixedMsg MixedMsg
-			if err = xml.Unmarshal(msgPlaintext, &mixedMsg); err != nil {
+			if err = unmarshalXMLMessage(msgPlaintext, &mixedMsg); err != nil {
 				errorHandler.ServeError(w, r, err)
 				return
 			}
@@ -543,11 +544,20 @@ var (
 	cdataEndLiteral   = []byte("]]>")
 )
 
+func unmarshalXMLMessage(data []byte, v interface{}) error {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("recovered from xml.unmarshal with xml: %s, type: %T, err: %s\n", data, v, r)
+		}
+	}()
+	return xml.Unmarshal(data, v)
+}
+
 //<xml>
 //    <AppId><![CDATA[wxc792941638093b10]]></AppId>
 //    <ToUserName><![CDATA[gh_b1eb3f8bd6c6]]></ToUserName>
 //    <Encrypt><![CDATA[DlCGq+lWQuyjNNK+vDaO0zUltpdUW3u4V00WCzsdNzmZGEhrU7TPxG52viOKCWYPwTMbCzgbCtakZHyNxr5hjoZJ7ORAUYoIAGQy/LDWtAnYgDO+ppKLp0rDq+67Dv3yt+vatMQTh99NII6x9SEGpY3O2h8RpG99+NYevQiOLVKqiQYzan21sX/jE4Y3wZaeudsb4QVjqzRAPaCJ5nS3T31uIR9fjSRgHTDRDOzjQ1cHchge+t6faUhniN5VQVTE+wIYtmnejc55BmHYPfBnTkYah9+cTYnI3diUPJRRiyVocJyHlb+XOZN22dsx9yzKHBAyagaoDIV8Yyb/PahcUbsqGv5wziOgLJQIa6z93/VY7d2Kq2C2oBS+Qb+FI9jLhgc3RvCi+Yno2X3cWoqbsRwoovYdyg6jme/H7nMZn77PSxOGRt/dYiWx2NuBAF7fNFigmbRiive3DyOumNCMvA==]]></Encrypt>
 //</xml>
 func xmlUnmarshal(data []byte, p *cipherRequestHttpBody) error {
-	return xml.Unmarshal(data, p)
+	return unmarshalXMLMessage(data, p)
 }
