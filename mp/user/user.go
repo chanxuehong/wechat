@@ -37,6 +37,9 @@ type UserInfo struct {
 	GroupId       int64  `json:"groupid"`           // 用户所在的分组ID
 
 	TagIdList []int `json:"tagid_list"` // Tag List
+	SubscribeScene string `json:"subscribe_scene"` // 返回用户关注的渠道来源
+	QrScene int `json:"qr_scene"` // 二维码扫码场景（开发者自定义）场景值ID，临时二维码时为32位非0整型，永久二维码时最大值为100000（目前参数只支持1--100000）
+	QrSceneStr string `json:"qr_scene_str"` // 二维码扫码场景描述（开发者自定义）场景值ID（字符串形式的ID），字符串类型，长度限制为1到64
 }
 
 // Get 获取用户基本信息.
