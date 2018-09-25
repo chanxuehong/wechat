@@ -1,7 +1,9 @@
 package oauth2
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 
@@ -71,11 +73,14 @@ func GetUserInfo(accessToken, openId, lang string, httpClient *http.Client) (inf
 		return
 	}
 
+	bytes, _ := ioutil.ReadAll(httpResp.Body)
+	fmt.Println(string(bytes))
+
 	var result struct {
 		oauth2.Error
 		UserInfo
 	}
-	if err = api.DecodeJSONHttpResponse(httpResp.Body, &result); err != nil {
+	if err = json.Unmarshal(bytes, &result); err != nil {
 		return
 	}
 	if result.ErrCode != oauth2.ErrCodeOK {
