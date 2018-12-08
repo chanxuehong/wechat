@@ -1,5 +1,5 @@
 # wechat SDK for golang
-https://gopkg.in/chanxuehong/wechat.v2
+https://github.com/chanxuehong/wechat
 
 ## 简介
 | 模块  | 描述                     |
@@ -9,7 +9,7 @@ https://gopkg.in/chanxuehong/wechat.v2
 | mch  | 微信商户平台(微信支付) SDK   |
 
 ## 安装
-go get -u gopkg.in/chanxuehong/wechat.v2/...
+go get -u github.com/chanxuehong/wechat/...
 
 ## 一点简单的帮助文档, 也许对你有作用
 * [微信公众号 SDK 核心 package](/mp/core/README.md)

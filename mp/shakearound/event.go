@@ -3,7 +3,7 @@ package shakearound
 import (
 	"unsafe"
 
-	"gopkg.in/chanxuehong/wechat.v2/mp/core"
+	"github.com/chanxuehong/wechat/mp/core"
 )
 
 const (
@@ -21,7 +21,7 @@ type UserShakeEvent struct {
 	AroundBeacons []AroundBeacon `xml:"AroundBeacons>AroundBeacon,omitempty" json:"AroundBeacons,omitempty"`
 }
 
-// 和 gopkg.in/chanxuehong/wechat.v2/mp/core.MixedMsg.ChosenBeacon 一样, 同步修改
+// 和 github.com/chanxuehong/wechat/mp/core.MixedMsg.ChosenBeacon 一样, 同步修改
 type ChosenBeacon struct {
 	UUID     string  `xml:"Uuid"     json:"Uuid"`
 	Major    int     `xml:"Major"    json:"Major"`
@@ -29,7 +29,7 @@ type ChosenBeacon struct {
 	Distance float64 `xml:"Distance" json:"Distance"`
 }
 
-// 和 gopkg.in/chanxuehong/wechat.v2/mp/core.MixedMsg.AroundBeacon 一样, 同步修改
+// 和 github.com/chanxuehong/wechat/mp/core.MixedMsg.AroundBeacon 一样, 同步修改
 type AroundBeacon struct {
 	UUID     string  `xml:"Uuid"     json:"Uuid"`
 	Major    int     `xml:"Major"    json:"Major"`

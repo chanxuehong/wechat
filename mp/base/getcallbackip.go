@@ -1,7 +1,7 @@
 package base
 
 import (
-	"gopkg.in/chanxuehong/wechat.v2/mp/core"
+	"github.com/chanxuehong/wechat/mp/core"
 )
 
 // 获取微信服务器IP地址.

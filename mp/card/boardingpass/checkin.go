@@ -1,7 +1,7 @@
 package boardingpass
 
 import (
-	"gopkg.in/chanxuehong/wechat.v2/mp/core"
+	"github.com/chanxuehong/wechat/mp/core"
 )
 
 type CheckinParameters struct {

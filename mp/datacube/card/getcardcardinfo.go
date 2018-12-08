@@ -1,7 +1,7 @@
 package card
 
 import (
-	"gopkg.in/chanxuehong/wechat.v2/mp/core"
+	"github.com/chanxuehong/wechat/mp/core"
 )
 
 // 免费券数据

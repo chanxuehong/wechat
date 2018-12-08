@@ -1,7 +1,7 @@
 package poi
 
 import (
-	"gopkg.in/chanxuehong/wechat.v2/mp/core"
+	"github.com/chanxuehong/wechat/mp/core"
 )
 
 // CategoryList 获取门店类目表.

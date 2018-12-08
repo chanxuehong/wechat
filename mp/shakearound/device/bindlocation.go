@@ -1,7 +1,7 @@
 package device
 
 import (
-	"gopkg.in/chanxuehong/wechat.v2/mp/core"
+	"github.com/chanxuehong/wechat/mp/core"
 )
 
 // 配置设备与门店的关联关系

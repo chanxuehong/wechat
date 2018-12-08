@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"gopkg.in/chanxuehong/wechat.v2/util"
+	"github.com/chanxuehong/wechat/util"
 )
 
 type Client struct {

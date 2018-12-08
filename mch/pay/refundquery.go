@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"time"
 
-	"gopkg.in/chanxuehong/wechat.v2/mch/core"
-	wechatutil "gopkg.in/chanxuehong/wechat.v2/util"
+	"github.com/chanxuehong/wechat/mch/core"
+	wechatutil "github.com/chanxuehong/wechat/util"
 )
 
 // RefundQuery 查询退款.

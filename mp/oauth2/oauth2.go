@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"net/url"
 
-	"gopkg.in/chanxuehong/wechat.v2/internal/debug/api"
-	"gopkg.in/chanxuehong/wechat.v2/oauth2"
-	"gopkg.in/chanxuehong/wechat.v2/util"
+	"github.com/chanxuehong/wechat/internal/debug/api"
+	"github.com/chanxuehong/wechat/oauth2"
+	"github.com/chanxuehong/wechat/util"
 )
 
 // AuthCodeURL 生成网页授权地址.

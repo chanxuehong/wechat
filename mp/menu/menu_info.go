@@ -1,7 +1,7 @@
 package menu
 
 import (
-	"gopkg.in/chanxuehong/wechat.v2/mp/core"
+	"github.com/chanxuehong/wechat/mp/core"
 )
 
 // 获取自定义菜单配置接口.

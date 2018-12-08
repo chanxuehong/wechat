@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"gopkg.in/chanxuehong/wechat.v2/mp/core"
+	"github.com/chanxuehong/wechat/mp/core"
 )
 
 // UploadImage 上传图片到微信服务器, 返回的图片url给其他场景使用, 比如图文消息, 卡卷, POI.

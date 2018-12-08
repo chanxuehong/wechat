@@ -1,7 +1,7 @@
 package mmpaymkttransfers
 
 import (
-	"gopkg.in/chanxuehong/wechat.v2/mch/core"
+	"github.com/chanxuehong/wechat/mch/core"
 )
 
 // 红包发放.

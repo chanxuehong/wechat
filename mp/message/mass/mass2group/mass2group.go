@@ -2,8 +2,8 @@
 package mass2group
 
 import (
-	"gopkg.in/chanxuehong/wechat.v2/mp/core"
-	"gopkg.in/chanxuehong/wechat.v2/mp/message/mass"
+	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/chanxuehong/wechat/mp/message/mass"
 )
 
 // Send 发送消息, msg 是经过 encoding/json.Marshal 得到的结果符合微信消息格式的任何数据结构.

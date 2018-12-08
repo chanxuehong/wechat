@@ -1,7 +1,7 @@
 package qrcode
 
 import (
-	"gopkg.in/chanxuehong/wechat.v2/mp/core"
+	"github.com/chanxuehong/wechat/mp/core"
 )
 
 // 获取物料二维码
