@@ -1,11 +1,14 @@
 # wechat SDK for golang
 https://github.com/chanxuehong/wechat
 
+## 历史版本
+* https://gopkg.in/chanxuehong/wechat.v1
+* https://gopkg.in/chanxuehong/wechat.v2
+
 ## 简介
 | 模块  | 描述                     |
 |-----:|:-------------------------|
 | mp   | 微信公众平台 SDK           |
-| corp | 微信企业号 SDK             |
 | mch  | 微信商户平台(微信支付) SDK   |
 
 ## 安装
