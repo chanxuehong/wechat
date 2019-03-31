@@ -5,15 +5,16 @@ import (
 )
 
 const (
-	MsgTypeText       core.MsgType = "text"   // 文本消息
-	MsgTypeImage      core.MsgType = "image"  // 图片消息
-	MsgTypeVoice      core.MsgType = "voice"  // 语音消息
-	MsgTypeVideo      core.MsgType = "video"  // 视频消息
-	MsgTypeMusic      core.MsgType = "music"  // 音乐消息
-	MsgTypeNews       core.MsgType = "news"   // 图文消息
-	MsgTypeMPNews     core.MsgType = "mpnews" // 图文消息, 发送已经创建好的图文
-	MsgTypeWxCard     core.MsgType = "wxcard" // 卡卷消息
-	MsgTypeWxMiniLink core.MsgType = "link"   // 小程序客服消息:图文链接
+	MsgTypeText       core.MsgType = "text"    // 文本消息
+	MsgTypeImage      core.MsgType = "image"   // 图片消息
+	MsgTypeVoice      core.MsgType = "voice"   // 语音消息
+	MsgTypeVideo      core.MsgType = "video"   // 视频消息
+	MsgTypeMusic      core.MsgType = "music"   // 音乐消息
+	MsgTypeNews       core.MsgType = "news"    // 图文消息
+	MsgTypeMPNews     core.MsgType = "mpnews"  // 图文消息, 发送已经创建好的图文
+	MsgTypeWxCard     core.MsgType = "wxcard"  // 卡卷消息
+	MsgTypeMenu       core.MsgType = "msgmenu" // 小程序客服消息:菜单
+	MsgTypeWxMiniLink core.MsgType = "link"    // 小程序客服消息:图文链接
 )
 
 type MsgHeader struct {
@@ -327,6 +328,40 @@ func NewMiniPage(toUser, title, pagePath, thumbMediaId, kfAccount string) (page 
 	page.MiniProgramPage.ThumbMediaId = thumbMediaId
 	if kfAccount != "" {
 		page.CustomService = &CustomService{
+			KfAccount: kfAccount,
+		}
+	}
+	return
+}
+
+type Menu struct {
+	MsgHeader
+	MsgMenu struct {
+		HeadContent  string     `json:"head_content"`
+		MenuItemList []MenuItem `json:"list"`
+		TailContent  string     `json:"tail_content"`
+	} `json:"msgmenu"`
+	CustomService *CustomService `json:"customservice,omitempty"`
+}
+
+type MenuItem struct {
+	Id      string `json:"id"`
+	Content string `json:"content"`
+}
+
+func NewMenu(toUser, headContent, tailContent, kfAccount string, list []MenuItem) (menu *Menu) {
+	menu = &Menu{
+		MsgHeader: MsgHeader{
+			ToUser:  toUser,
+			MsgType: MsgTypeMenu,
+		},
+	}
+
+	menu.MsgMenu.HeadContent = headContent
+	menu.MsgMenu.TailContent = tailContent
+	menu.MsgMenu.MenuItemList = list
+	if kfAccount != "" {
+		menu.CustomService = &CustomService{
 			KfAccount: kfAccount,
 		}
 	}
