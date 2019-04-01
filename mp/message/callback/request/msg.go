@@ -21,7 +21,7 @@ type Text struct {
 	core.MsgHeader
 	MsgId        int64  `xml:"MsgId"   json:"MsgId"`             // 消息id, 64位整型
 	Content      string `xml:"Content" json:"Content"`           // 文本消息内容
-	BizMsgMenuId string `xml:"bizmsgmenuid" json:"bizmsgmenuid"` //客服消息菜单重的menuid
+	BizMsgMenuId int64  `xml:"bizmsgmenuid" json:"bizmsgmenuid"` //客服消息菜单重的menuid
 }
 
 func GetText(msg *core.MixedMsg) *Text {

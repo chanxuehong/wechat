@@ -345,7 +345,7 @@ type Menu struct {
 }
 
 type MenuItem struct {
-	Id      string `json:"id"`
+	Id      int64  `json:"id"`
 	Content string `json:"content"`
 }
 
