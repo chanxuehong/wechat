@@ -82,6 +82,8 @@ type MixedMsg struct {
 		Minor    int     `xml:"Minor"    json:"Minor"`
 		Distance float64 `xml:"Distance" json:"Distance"`
 	} `xml:"AroundBeacons>AroundBeacon,omitempty" json:"AroundBeacons,omitempty"`
+
+	UnionId string `xml:"UnionId"              json:"UnionId"` // unionId
 }
 
 type mass struct {
