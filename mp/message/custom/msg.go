@@ -5,16 +5,17 @@ import (
 )
 
 const (
-	MsgTypeText       core.MsgType = "text"    // 文本消息
-	MsgTypeImage      core.MsgType = "image"   // 图片消息
-	MsgTypeVoice      core.MsgType = "voice"   // 语音消息
-	MsgTypeVideo      core.MsgType = "video"   // 视频消息
-	MsgTypeMusic      core.MsgType = "music"   // 音乐消息
-	MsgTypeNews       core.MsgType = "news"    // 图文消息
-	MsgTypeMPNews     core.MsgType = "mpnews"  // 图文消息, 发送已经创建好的图文
-	MsgTypeWxCard     core.MsgType = "wxcard"  // 卡卷消息
+	MsgTypeText       core.MsgType = "text"   // 文本消息
+	MsgTypeImage      core.MsgType = "image"  // 图片消息
+	MsgTypeVoice      core.MsgType = "voice"  // 语音消息
+	MsgTypeVideo      core.MsgType = "video"  // 视频消息
+	MsgTypeMusic      core.MsgType = "music"  // 音乐消息
+	MsgTypeNews       core.MsgType = "news"   // 图文消息
+	MsgTypeMPNews     core.MsgType = "mpnews" // 图文消息, 发送已经创建好的图文
+	MsgTypeWxCard     core.MsgType = "wxcard" // 卡卷消息
+	MsgTypeWxMiniLink core.MsgType = "link"   // 小程序客服消息:图文链接
+	MsgTypeWxMiniPage core.MsgType = "miniprogrampage" //小程序卡片
 	MsgTypeMenu       core.MsgType = "msgmenu" // 小程序客服消息:菜单
-	MsgTypeWxMiniLink core.MsgType = "link"    // 小程序客服消息:图文链接
 )
 
 type MsgHeader struct {
@@ -309,20 +310,21 @@ type WxMiniPage struct {
 	MsgHeader
 	MiniProgramPage struct {
 		Title        string `json:"title"`
+		AppId        string `json:"appid"`
 		PagePath     string `json:"pagepath"`
 		ThumbMediaId string `json:"thumb_media_id"`
 	} `json:"miniprogrampage"`
 	CustomService *CustomService `json:"customservice,omitempty"`
 }
 
-func NewMiniPage(toUser, title, pagePath, thumbMediaId, kfAccount string) (page *WxMiniPage) {
+func NewMiniPage(toUser,appId ,title, pagePath, thumbMediaId, kfAccount string) (page *WxMiniPage) {
 	page = &WxMiniPage{
 		MsgHeader: MsgHeader{
 			ToUser:  toUser,
-			MsgType: MsgTypeWxMiniLink,
+			MsgType: MsgTypeWxMiniPage,
 		},
 	}
-
+	page.MiniProgramPage.AppId = appId
 	page.MiniProgramPage.Title = title
 	page.MiniProgramPage.PagePath = pagePath
 	page.MiniProgramPage.ThumbMediaId = thumbMediaId
