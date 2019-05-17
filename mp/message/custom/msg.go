@@ -15,6 +15,7 @@ const (
 	MsgTypeWxCard     core.MsgType = "wxcard" // 卡卷消息
 	MsgTypeWxMiniLink core.MsgType = "link"   // 小程序客服消息:图文链接
 	MsgTypeWxMiniPage core.MsgType = "miniprogrampage" //小程序卡片
+	MsgTypeMenu       core.MsgType = "msgmenu" // 小程序客服消息:菜单
 )
 
 type MsgHeader struct {
@@ -329,6 +330,40 @@ func NewMiniPage(toUser,appId ,title, pagePath, thumbMediaId, kfAccount string) 
 	page.MiniProgramPage.ThumbMediaId = thumbMediaId
 	if kfAccount != "" {
 		page.CustomService = &CustomService{
+			KfAccount: kfAccount,
+		}
+	}
+	return
+}
+
+type Menu struct {
+	MsgHeader
+	MsgMenu struct {
+		HeadContent  string     `json:"head_content"`
+		MenuItemList []MenuItem `json:"list"`
+		TailContent  string     `json:"tail_content"`
+	} `json:"msgmenu"`
+	CustomService *CustomService `json:"customservice,omitempty"`
+}
+
+type MenuItem struct {
+	Id      int64  `json:"id"`
+	Content string `json:"content"`
+}
+
+func NewMenu(toUser, headContent, tailContent, kfAccount string, list []MenuItem) (menu *Menu) {
+	menu = &Menu{
+		MsgHeader: MsgHeader{
+			ToUser:  toUser,
+			MsgType: MsgTypeMenu,
+		},
+	}
+
+	menu.MsgMenu.HeadContent = headContent
+	menu.MsgMenu.TailContent = tailContent
+	menu.MsgMenu.MenuItemList = list
+	if kfAccount != "" {
+		menu.CustomService = &CustomService{
 			KfAccount: kfAccount,
 		}
 	}
