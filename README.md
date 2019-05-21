@@ -1,6 +1,22 @@
 # wechat SDK for golang
 https://github.com/chanxuehong/wechat
 
+## <font color="FF0000">招人啦</font>
+golang 后端的坑, 趣头条集团下面的创新团队, 现在步入正常轨道了, 前景很好.
+
+要求:
+
+ * golang中高级
+ * 自驱、有责任心
+ * 沟通没有问题
+
+待遇: open, 看能力定, 具有市场竞争力!
+
+有意向的可以简历砸过来: 
+
+* qq: 15967396
+* mail: 15967396@qq.com
+
 ## 历史版本
 * https://gopkg.in/chanxuehong/wechat.v1
 * https://gopkg.in/chanxuehong/wechat.v2
