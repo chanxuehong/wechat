@@ -33,37 +33,43 @@ type Card struct {
 // 优惠券
 type GeneralCoupon struct {
 	BaseInfo      *CardBaseInfo `json:"base_info,omitempty"`
+	AdvancedInfo  *AdvancedInfo `json:"advanced_info,omitempty"`
 	DefaultDetail string        `json:"default_detail,omitempty"` // 优惠券专用, 填写优惠详情
 }
 
 // 团购券
 type Groupon struct {
-	BaseInfo   *CardBaseInfo `json:"base_info,omitempty"`
-	DealDetail string        `json:"deal_detail,omitempty"` // 团购券专用，团购详情
+	BaseInfo     *CardBaseInfo `json:"base_info,omitempty"`
+	AdvancedInfo *AdvancedInfo `json:"advanced_info,omitempty"`
+	DealDetail   string        `json:"deal_detail,omitempty"` // 团购券专用，团购详情
 }
 
 // 代金券
 type Cash struct {
-	BaseInfo   *CardBaseInfo `json:"base_info,omitempty"`
-	LeastCost  *int          `json:"least_cost,omitempty"`  // 代金券专用, 表示起用金额(单位为分)
-	ReduceCost *int          `json:"reduce_cost,omitempty"` // 代金券专用, 表示减免金额(单位为分)
+	BaseInfo     *CardBaseInfo `json:"base_info,omitempty"`
+	AdvancedInfo *AdvancedInfo `json:"advanced_info,omitempty"`
+	LeastCost    *int          `json:"least_cost,omitempty"`  // 代金券专用, 表示起用金额(单位为分)
+	ReduceCost   *int          `json:"reduce_cost,omitempty"` // 代金券专用, 表示减免金额(单位为分)
 }
 
 // 折扣券
 type Discount struct {
-	BaseInfo *CardBaseInfo `json:"base_info,omitempty"`
-	Discount *int          `json:"discount,omitempty"` // 折扣券专用, 表示打折额度(百分比). 填30 就是七折.
+	BaseInfo     *CardBaseInfo `json:"base_info,omitempty"`
+	AdvancedInfo *AdvancedInfo `json:"advanced_info,omitempty"`
+	Discount     *int          `json:"discount,omitempty"` // 折扣券专用, 表示打折额度(百分比). 填30 就是七折.
 }
 
 // 礼品券
 type Gift struct {
-	BaseInfo *CardBaseInfo `json:"base_info,omitempty"`
-	Gift     string        `json:"gift,omitempty"` // 礼品券专用, 表示礼品名字
+	BaseInfo     *CardBaseInfo `json:"base_info,omitempty"`
+	AdvancedInfo *AdvancedInfo `json:"advanced_info,omitempty"`
+	Gift         string        `json:"gift,omitempty"` // 礼品券专用, 表示礼品名字
 }
 
 // 会员卡
 type MemberCard struct {
-	BaseInfo *CardBaseInfo `json:"base_info,omitempty"`
+	BaseInfo     *CardBaseInfo `json:"base_info,omitempty"`
+	AdvancedInfo *AdvancedInfo `json:"advanced_info,omitempty"`
 
 	Prerogative       string                 `json:"prerogative,omitempty"`       // 会员卡特权说明
 	SupplyBonus       *bool                  `json:"supply_bonus,omitempty"`      // 显示积分，填写true或false，如填写true，积分相关字段均为必填
@@ -103,34 +109,37 @@ type MemberCardCustomCell struct {
 // 会议门票
 type MeetingTicket struct {
 	BaseInfo      *CardBaseInfo `json:"base_info,omitempty"`
+	AdvancedInfo  *AdvancedInfo `json:"advanced_info,omitempty"`
 	MeetingDetail string        `json:"meeting_detail,omitempty"` // 会议详情
 	MapURL        string        `json:"map_url,omitempty"`        // 会议导览图
 }
 
 // 景区门票
 type ScenicTicket struct {
-	BaseInfo    *CardBaseInfo `json:"base_info,omitempty"`
-	TicketClass string        `json:"ticket_class,omitempty"` // 票类型, 例如平日全票, 套票等
-	GuideURL    string        `json:"guide_url,omitempty"`    // 导览图url
+	BaseInfo     *CardBaseInfo `json:"base_info,omitempty"`
+	AdvancedInfo *AdvancedInfo `json:"advanced_info,omitempty"`
+	TicketClass  string        `json:"ticket_class,omitempty"` // 票类型, 例如平日全票, 套票等
+	GuideURL     string        `json:"guide_url,omitempty"`    // 导览图url
 }
 
 // 电影票
 type MovieTicket struct {
-	BaseInfo *CardBaseInfo `json:"base_info,omitempty"`
-	Detail   string        `json:"detail,omitempty"` // 电影票详情
+	BaseInfo     *CardBaseInfo `json:"base_info,omitempty"`
+	AdvancedInfo *AdvancedInfo `json:"advanced_info,omitempty"`
+	Detail       string        `json:"detail,omitempty"` // 电影票详情
 }
 
 // 飞机票
 type BoardingPass struct {
-	BaseInfo *CardBaseInfo `json:"base_info,omitempty"`
-
-	From          string `json:"from,omitempty"`           // 起点, 上限为18 个汉字
-	To            string `json:"to,omitempty"`             // 终点, 上限为18 个汉字
-	Flight        string `json:"flight,omitempty"`         // 航班
-	Gate          string `json:"gate,omitempty"`           // 登机口. 如发生登机口变更, 建议商家实时调用该接口变更
-	CheckinURL    string `json:"check_in_url,omitempty"`   // 在线值机的链接
-	AirModel      string `json:"air_model,omitempty"`      // 机型, 上限为8 个汉字
-	DepartureTime int64  `json:"departure_time,omitempty"` // 起飞时间. Unix 时间戳格式
-	LandingTime   int64  `json:"landing_time,omitempty"`   // 降落时间. Unix 时间戳格式
-	BoardingTime  string `json:"boarding_time,omitempty"`  // 登机时间, 只显示"时分"不显示日期, 按时间戳格式填写. 如发生登机时间变更, 建议商家实时调用该接口变更.
+	BaseInfo      *CardBaseInfo `json:"base_info,omitempty"`
+	AdvancedInfo  *AdvancedInfo `json:"advanced_info,omitempty"`
+	From          string        `json:"from,omitempty"`           // 起点, 上限为18 个汉字
+	To            string        `json:"to,omitempty"`             // 终点, 上限为18 个汉字
+	Flight        string        `json:"flight,omitempty"`         // 航班
+	Gate          string        `json:"gate,omitempty"`           // 登机口. 如发生登机口变更, 建议商家实时调用该接口变更
+	CheckinURL    string        `json:"check_in_url,omitempty"`   // 在线值机的链接
+	AirModel      string        `json:"air_model,omitempty"`      // 机型, 上限为8 个汉字
+	DepartureTime int64         `json:"departure_time,omitempty"` // 起飞时间. Unix 时间戳格式
+	LandingTime   int64         `json:"landing_time,omitempty"`   // 降落时间. Unix 时间戳格式
+	BoardingTime  string        `json:"boarding_time,omitempty"`  // 登机时间, 只显示"时分"不显示日期, 按时间戳格式填写. 如发生登机时间变更, 建议商家实时调用该接口变更.
 }
