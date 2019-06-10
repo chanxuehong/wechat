@@ -5,8 +5,8 @@ import "gopkg.in/chanxuehong/wechat.v2/mp/core"
 type Comment struct {
 	base
 	//查看指定文章的评论数据
-	Begin int `json:"begin,omitempty"` //必填  起始位置
-	Count int `json:"count,omitempty"` //必填  获取数目（>=50会被拒绝）
+	Begin int  `json:"begin,omitempty"` //必填  起始位置
+	Count int  `json:"count,omitempty"` //必填  获取数目（>=50会被拒绝）
 	Type  *int `json:"type,omitempty"`  //必填  type=0 普通评论&精选评论 type=1 普通评论 type=2 精选评论
 	// 论标记精选  评论取消精选  删除评论  删除回复
 	UserCommentID int `json:"user_comment_id,omitempty"` //必填  用户评论id
@@ -32,11 +32,13 @@ type ArticleCommentListResp struct {
 type CommentListResult struct {
 	UserCommentID int    `json:"user_comment_id,omitempty"`
 	OpenID        string `json:"open_id,omitempty"`
-	CreateTime    int64 `json:"create_time,omitempty"`
+	CreateTime    int64  `json:"create_time,omitempty"`
 	Content       string `json:"content,omitempty"`
 	CommentType   int    `json:"comment_type,omitempty"`
-	Reply struct {
-		Content    string `json:"content,omitempty"`
-		CreateTime int64 `json:"create_time,omitempty"`
-	} `json:"reply,omitempty"`
+	Reply         *ReplyComment `json:"reply,omitempty"`
+}
+
+type ReplyComment struct {
+	Content    string `json:"content,omitempty"`
+	CreateTime int64  `json:"create_time,omitempty"`
 }
