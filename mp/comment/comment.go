@@ -16,7 +16,7 @@ type Comment struct {
 
 type base struct {
 	// 基本参数
-	MsgDataID int `json:"msg_data_id,omitempty"` //必填   群发返回的msg_data_id
+	MsgDataID int64 `json:"msg_data_id,omitempty"` //必填   群发返回的msg_data_id
 	Index     int `json:"index,omitempty"`       //多图文时，用来指定第几篇图文，从0开始，不带默认操作该msg_data_id的第一篇图文
 }
 
