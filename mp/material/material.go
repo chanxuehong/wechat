@@ -64,7 +64,7 @@ type MaterialInfo struct {
 	Name        string   `json:"name,omitempty"`    // 文件名称
 	UpdateTime  int64    `json:"update_time"`       // 最后更新时间
 	URL         string   `json:"url,omitempty"`     // 当获取的列表是图片素材列表时, 该字段是图片的URL
-	NewsContent *Content `json:"content,omitempty"` // 图文素材
+	NewsContent *NewsContent `json:"content,omitempty"` // 图文素材
 }
 
 type NewsContent struct {
