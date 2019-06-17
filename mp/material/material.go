@@ -60,14 +60,14 @@ type BatchGetResult struct {
 }
 
 type MaterialInfo struct {
-	MediaId    string   `json:"media_id"`          // 素材id
-	Name       string   `json:"name,omitempty"`    // 文件名称
-	UpdateTime int64    `json:"update_time"`       // 最后更新时间
-	URL        string   `json:"url,omitempty"`     // 当获取的列表是图片素材列表时, 该字段是图片的URL
-	Content    *Content `json:"content,omitempty"` // 图文素材
+	MediaId     string   `json:"media_id"`          // 素材id
+	Name        string   `json:"name,omitempty"`    // 文件名称
+	UpdateTime  int64    `json:"update_time"`       // 最后更新时间
+	URL         string   `json:"url,omitempty"`     // 当获取的列表是图片素材列表时, 该字段是图片的URL
+	NewsContent *Content `json:"content,omitempty"` // 图文素材
 }
 
-type Content struct {
+type NewsContent struct {
 	NewsItem []NewsItem `json:"news_item"`
 }
 
