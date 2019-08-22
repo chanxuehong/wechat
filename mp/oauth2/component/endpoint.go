@@ -43,3 +43,13 @@ func (p *Endpoint) RefreshTokenURL(refreshToken string) string {
 		url.QueryEscape(refreshToken),
 	)
 }
+
+func (p *Endpoint) SessionCodeUrl(code string) string {
+	return fmt.Sprintf("https://api.weixin.qq.com/sns/component/jscode2session?"+
+		"appid=%s&component_appid=%s&component_access_token=%s&js_code=%s&grant_type=authorization_code",
+		url.QueryEscape(p.AppId),
+		url.QueryEscape(p.ComponentAppId),
+		url.QueryEscape(p.ComponentAccessToken),
+		url.QueryEscape(code),
+	)
+}
