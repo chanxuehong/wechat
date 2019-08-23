@@ -14,19 +14,20 @@ type AuthorizerInfo struct {
 		OpenScan  uint `json:"open_scan"`  // 是否开通微信扫商品功能
 		OpenPay   uint `json:"open_pay"`   // 是否开通微信支付功能
 		OpenCard  uint `json:"open_card"`  // 是否开通微信卡券功能
-		OpenShake uint `json:"open_shake"` // open_shake
+		OpenShake uint `json:"open_shake"` // 是否开通微信摇一摇功能
 	} `json:"business_info"` // 用以了解以下功能的开通状况（0代表未开通，1代表已开通）
 	QrcodeUrl         string           `json:"qrcode_url"`      // 二维码图片的URL，开发者最好自行也进行保存
 	MiniProgramInfo   *MiniProgramInfo `json:"MiniProgramInfo"` // 可根据这个字段判断是否为小程序类型授权
 	AuthorizationInfo *struct {
 		AuthorizationAppId string     `json:"authorization_appid"` // 授权方appid
-		FuncInfo           []FuncInfo `json:"func_info"`           // 公众号授权给开发者的权限集列表，ID为1到15时分别代表： 1.消息管理权限 2.用户管理权限 3.帐号服务权限 4.网页服务权限 5.微信小店权限 6.微信多客服权限 7.群发与通知权限 8.微信卡券权限 9.微信扫一扫权限 10.微信连WIFI权限 11.素材管理权限 12.微信摇周边权限 13.微信门店权限 14.微信支付权限 15.自定义菜单权限 请注意： 1）该字段的返回不会考虑公众号是否具备该权限集的权限（因为可能部分具备），请根据公众号的帐号类型和认证情况，来判断公众号的接口权限。
+		FuncInfo           []FuncInfo `json:"func_info"`           // 公众号授权给开发者的权限集列表，ID为1到15时分别代表： 1.消息管理权限 2.用户管理权限 3.帐号服务权限 4.网页服务权限 5.微信小店权限 6.微信多客服权限 7.群发与通知权限 8.微信卡券权限 9.微信扫一扫权限 10.微信连WIFI权限 11.素材管理权限 12.微信摇周边权限 13.微信门店权限 14.微信支付权限 15.自定义菜单权限 请注意： 1）该字段的返回不会考虑公众号是否具备该权限集的权限（因为可能部分具备），请根据公众号的帐号类型和认证情况，来判断公众号的接口权限。 小程序授权给开发者的权限集列表，ID为17到19时分别代表： 17.帐号管理权限 18.开发管理权限 19.客服消息管理权限 请注意： 1）该字段的返回不会考虑小程序是否具备该权限集的权限（因为可能部分具备）。
 	} `json:"authorization_info"` // 授权信息
 }
 
 type MiniProgramInfo struct {
-	Network  *MiniProgramNetwork `json:"network"`   // 小程序已设置的各个服务器域名
-	FuncInfo []FuncInfo          `json:"func_info"` // 小程序授权给开发者的权限集列表，ID为17到19时分别代表： 17.帐号管理权限 18.开发管理权限 19.客服消息管理权限 请注意： 1）该字段的返回不会考虑小程序是否具备该权限集的权限（因为可能部分具备）。
+	Network     *MiniProgramNetwork `json:"network"`              // 小程序已设置的各个服务器域名
+	Categories  map[string]string   `json:"categories,omitempty"` //
+	VisitStatus uint                `json:"visit_status"`
 }
 
 type MiniProgramNetwork struct {
