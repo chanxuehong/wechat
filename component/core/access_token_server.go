@@ -159,7 +159,7 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 	if err != nil {
 		atomic.StorePointer(&srv.tokenCache, nil)
 		if srv.updateTokenCallback != nil {
-			srv.updateTokenCallback("", err)
+			srv.updateTokenCallback(err)
 		}
 		return
 	}
@@ -172,7 +172,7 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 	if err != nil {
 		atomic.StorePointer(&srv.tokenCache, nil)
 		if srv.updateTokenCallback != nil {
-			srv.updateTokenCallback("", err)
+			srv.updateTokenCallback(err)
 		}
 		return
 	}
@@ -180,7 +180,7 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 	if err != nil {
 		atomic.StorePointer(&srv.tokenCache, nil)
 		if srv.updateTokenCallback != nil {
-			srv.updateTokenCallback("", err)
+			srv.updateTokenCallback(err)
 		}
 		return
 	}
@@ -204,7 +204,7 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 		atomic.StorePointer(&srv.tokenCache, nil)
 		err = &result.Error
 		if srv.updateTokenCallback != nil {
-			srv.updateTokenCallback("", err)
+			srv.updateTokenCallback(err)
 		}
 		return
 	}
@@ -233,7 +233,7 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 	atomic.StorePointer(&srv.tokenCache, unsafe.Pointer(&tokenCopy))
 	token = &tokenCopy
 	if srv.updateTokenCallback != nil {
-		srv.updateTokenCallback(token, nil)
+		srv.updateTokenCallback(nil)
 	}
 	return
 }
