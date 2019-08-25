@@ -26,7 +26,7 @@ type TicketStorage interface {
 	Put(ticket *Ticket) error
 }
 
-type TokenUpdateHandler func(err error)
+type TokenUpdateHandler func(token string, expiresIn int64, err error)
 
 // access_token 中控服务器接口.
 type AccessTokenServer interface {
@@ -159,7 +159,7 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 	if err != nil {
 		atomic.StorePointer(&srv.tokenCache, nil)
 		if srv.updateTokenCallback != nil {
-			srv.updateTokenCallback(err)
+			srv.updateTokenCallback("", 0, err)
 		}
 		return
 	}
@@ -172,7 +172,7 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 	if err != nil {
 		atomic.StorePointer(&srv.tokenCache, nil)
 		if srv.updateTokenCallback != nil {
-			srv.updateTokenCallback(err)
+			srv.updateTokenCallback("", 0, err)
 		}
 		return
 	}
@@ -180,7 +180,7 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 	if err != nil {
 		atomic.StorePointer(&srv.tokenCache, nil)
 		if srv.updateTokenCallback != nil {
-			srv.updateTokenCallback(err)
+			srv.updateTokenCallback("", 0, err)
 		}
 		return
 	}
@@ -204,11 +204,10 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 		atomic.StorePointer(&srv.tokenCache, nil)
 		err = &result.Error
 		if srv.updateTokenCallback != nil {
-			srv.updateTokenCallback(err)
+			srv.updateTokenCallback("", 0, err)
 		}
 		return
 	}
-	fmt.Println("expires in", result.ExpiresIn)
 	// 由于网络的延时, access_token 过期时间留有一个缓冲区
 	switch {
 	case result.ExpiresIn > 31556952: // 60*60*24*365.2425
@@ -233,7 +232,7 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 	atomic.StorePointer(&srv.tokenCache, unsafe.Pointer(&tokenCopy))
 	token = &tokenCopy
 	if srv.updateTokenCallback != nil {
-		srv.updateTokenCallback(nil)
+		srv.updateTokenCallback(token.Token, token.ExpiresIn, nil)
 	}
 	return
 }
