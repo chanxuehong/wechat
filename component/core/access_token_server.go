@@ -208,7 +208,7 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 		}
 		return
 	}
-
+	fmt.Println("expires in", result.ExpiresIn)
 	// 由于网络的延时, access_token 过期时间留有一个缓冲区
 	switch {
 	case result.ExpiresIn > 31556952: // 60*60*24*365.2425
