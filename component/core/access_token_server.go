@@ -31,7 +31,6 @@ type AccessTokenServer interface {
 	UpdateTicket(ticket *Ticket) error
 	Token() (token string, err error)                           // 请求中控服务器返回缓存的 access_token
 	RefreshToken(currentToken string) (token string, err error) // 请求中控服务器刷新 access_token
-	IID01332E16DF5011E5A9D5A4DB30FED8E1()                       // 接口标识, 没有实际意义
 }
 
 var _ AccessTokenServer = (*DefaultAccessTokenServer)(nil)
@@ -71,8 +70,6 @@ func NewDefaultAccessTokenServer(appId, appSecret string, ticketStorage TicketSt
 	go srv.tokenUpdateDaemon(time.Hour*1 + time.Minute*50)
 	return
 }
-
-func (srv *DefaultAccessTokenServer) IID01332E16DF5011E5A9D5A4DB30FED8E1() {}
 
 func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
 	if p := (*accessToken)(atomic.LoadPointer(&srv.tokenCache)); p != nil {
