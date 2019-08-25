@@ -18,8 +18,6 @@ import (
 
 type Ticket struct {
 	AppId                 string `xml:"AppId" json:"AppId"`                                 // 第三方平台appid
-	CreatedTime           int64  `xml:"CreateTime" json:"CreateTime"`                       // 时间戳
-	InfoType              string `xml:"InfoType" json:"InfoType"`                           // component_verify_ticket
 	ComponentVerifyTicket string `xml:"ComponentVerifyTicket" json:"ComponentVerifyTicket"` // Ticket内容
 }
 
@@ -55,7 +53,7 @@ type DefaultAccessTokenServer struct {
 }
 
 // NewDefaultAccessTokenServer 创建一个新的 DefaultAccessTokenServer, 如果 httpClient == nil 则默认使用 util.DefaultHttpClient.
-func NewDefaultAccessTokenServer(appId, appSecret string, httpClient *http.Client) (srv *DefaultAccessTokenServer) {
+func NewDefaultAccessTokenServer(appId, appSecret string, ticketStorage TicketStorage, httpClient *http.Client) (srv *DefaultAccessTokenServer) {
 	if httpClient == nil {
 		httpClient = util.DefaultHttpClient
 	}
@@ -64,6 +62,7 @@ func NewDefaultAccessTokenServer(appId, appSecret string, httpClient *http.Clien
 		appId:                    url.QueryEscape(appId),
 		appSecret:                url.QueryEscape(appSecret),
 		httpClient:               httpClient,
+		ticketStorage:            ticketStorage,
 		refreshTokenRequestChan:  make(chan string),
 		refreshTokenResponseChan: make(chan refreshTokenResult),
 	}
