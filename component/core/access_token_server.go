@@ -26,6 +26,8 @@ type TicketStorage interface {
 	Put(ticket *Ticket) error
 }
 
+type TokenUpdateHandler func(token string, err error)
+
 // access_token 中控服务器接口.
 type AccessTokenServer interface {
 	UpdateTicket(ticket *Ticket) error
@@ -51,7 +53,7 @@ type DefaultAccessTokenServer struct {
 
 	tokenCache unsafe.Pointer // *accessToken
 
-	updateTokenCallback func(token string, err error)
+	updateTokenCallback TokenUpdateHandler
 }
 
 // NewDefaultAccessTokenServer 创建一个新的 DefaultAccessTokenServer, 如果 httpClient == nil 则默认使用 util.DefaultHttpClient.
@@ -71,6 +73,10 @@ func NewDefaultAccessTokenServer(appId, appSecret string, ticketStorage TicketSt
 
 	go srv.tokenUpdateDaemon(time.Hour*1 + time.Minute*50)
 	return
+}
+
+func (srv *DefaultAccessTokenServer) SetUpdateTokenCallback(h TokenUpdateHandler) {
+	srv.updateTokenCallback = h
 }
 
 func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
