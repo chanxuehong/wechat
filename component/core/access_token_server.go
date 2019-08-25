@@ -50,6 +50,8 @@ type DefaultAccessTokenServer struct {
 	refreshTokenResponseChan chan refreshTokenResult // chan {token, err}
 
 	tokenCache unsafe.Pointer // *accessToken
+
+	updateTokenCallback func(token string, err error)
 }
 
 // NewDefaultAccessTokenServer 创建一个新的 DefaultAccessTokenServer, 如果 httpClient == nil 则默认使用 util.DefaultHttpClient.
@@ -150,6 +152,9 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 	ticket, err := srv.ticketStorage.Get()
 	if err != nil {
 		atomic.StorePointer(&srv.tokenCache, nil)
+		if srv.updateTokenCallback != nil {
+			srv.updateTokenCallback("", err)
+		}
 		return
 	}
 	tokenRequest := map[string]string{
@@ -160,11 +165,17 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 	payload, err := json.Marshal(tokenRequest)
 	if err != nil {
 		atomic.StorePointer(&srv.tokenCache, nil)
+		if srv.updateTokenCallback != nil {
+			srv.updateTokenCallback("", err)
+		}
 		return
 	}
 	httpResp, err := srv.httpClient.Post("https://api.weixin.qq.com/cgi-bin/component/api_component_token", "application/json", bytes.NewReader(payload))
 	if err != nil {
 		atomic.StorePointer(&srv.tokenCache, nil)
+		if srv.updateTokenCallback != nil {
+			srv.updateTokenCallback("", err)
+		}
 		return
 	}
 	defer httpResp.Body.Close()
@@ -186,6 +197,9 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 	if result.ErrCode != ErrCodeOK {
 		atomic.StorePointer(&srv.tokenCache, nil)
 		err = &result.Error
+		if srv.updateTokenCallback != nil {
+			srv.updateTokenCallback("", err)
+		}
 		return
 	}
 
@@ -212,5 +226,8 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 	tokenCopy := result.accessToken
 	atomic.StorePointer(&srv.tokenCache, unsafe.Pointer(&tokenCopy))
 	token = &tokenCopy
+	if srv.updateTokenCallback != nil {
+		srv.updateTokenCallback(token, nil)
+	}
 	return
 }
