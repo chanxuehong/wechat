@@ -26,7 +26,7 @@ type TicketStorage interface {
 	Put(ticket *Ticket) error
 }
 
-type TokenUpdateHandler func(token string, err error)
+type TokenUpdateHandler func(err error)
 
 // access_token 中控服务器接口.
 type AccessTokenServer interface {
