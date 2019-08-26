@@ -29,9 +29,9 @@ type AuthorizerInfo struct {
 }
 
 type MiniProgramInfo struct {
-	Network     *MiniProgramNetwork    `json:"network"`              // 小程序已设置的各个服务器域名
-	Categories  map[string]interface{} `json:"categories,omitempty"` //
-	VisitStatus uint                   `json:"visit_status"`
+	Network     *MiniProgramNetwork `json:"network"`              // 小程序已设置的各个服务器域名
+	Categories  []map[string]string `json:"categories,omitempty"` //
+	VisitStatus uint                `json:"visit_status"`
 }
 
 type MiniProgramNetwork struct {
