@@ -5,7 +5,7 @@ import (
 )
 
 // 获取体验者列表
-func GetExperiencer(clt *core.Client, wechatId string) (list []string, err error) {
+func GetExperiencer(clt *core.Client) (list []string, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/wxa/memberauth?access_token="
 	var result struct {
 		core.Error
