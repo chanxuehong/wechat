@@ -20,5 +20,5 @@ func UpdateShowWxaItem(clt *core.Client, appId string, show uint) (err error) {
 		err = &result.Error
 		return
 	}
-	return result.Total, result.BizInfoList
+	return nil
 }

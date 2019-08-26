@@ -26,5 +26,5 @@ func GetBizInfoForShow(clt *core.Client, page uint, num uint) (total uint, list 
 		err = &result.Error
 		return
 	}
-	return result.Total, result.BizInfoList
+	return result.Total, result.BizInfoList, nil
 }
