@@ -1,7 +1,7 @@
 package wxa
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/chanxuehong/wechat/component/core"
 )
 
 // 解除绑定小程序的体验者
