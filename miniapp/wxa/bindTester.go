@@ -1,7 +1,7 @@
 package wxa
 
 import (
-	"github.com/chanxuehong/wechat/component/core"
+	"github.com/chanxuehong/wechat/mp/core"
 )
 
 // 绑定微信用户为小程序体验者
