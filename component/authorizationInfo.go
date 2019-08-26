@@ -16,5 +16,5 @@ type FuncInfo struct {
 		Need   uint `json:"need_confirm"`
 		Aleady uint `json:"already_confirm"`
 		Can    uint `json:"can_confirm"`
-	} `json:"confirm_info"`
+	} `json:"confirm_info,omitempty"`
 }
