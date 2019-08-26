@@ -22,7 +22,7 @@ func GetExperiencer(clt *core.Client, wechatId string) (list []string, err error
 		return
 	}
 	for _, m := range result.Members {
-		list = append(list, m.UserStr)
+		list = append(list, m.Userstr)
 	}
 	return list, nil
 }

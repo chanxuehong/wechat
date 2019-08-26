@@ -1,7 +1,6 @@
 package wxa
 
 import (
-	"fmt"
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
