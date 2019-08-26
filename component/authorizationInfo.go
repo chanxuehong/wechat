@@ -12,4 +12,9 @@ type FuncInfo struct {
 	FuncScopeCategory *struct {
 		Id uint `json:"id"`
 	} `json:"funcscope_category"`
+	ConfirmInfo *struct {
+		Need   uint `json:"need_confirm"`
+		Aleady uint `json:"already_confirm"`
+		Can    uint `json:"can_confirm"`
+	} `json:"confirm_info"`
 }
