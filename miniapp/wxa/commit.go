@@ -6,7 +6,7 @@ import (
 
 type CommitRequest struct {
 	TemplateId  uint64 `json:"template_id"`  // 代码库中的代码模版ID
-	ExtJson     string `json:"ext_json"`     // 第三方自定义的配置
+	ExtJson     *ExtConfig `json:"ext_json"`     // 第三方自定义的配置
 	UserVersion string `json:"user_version"` // 代码版本号，开发者可自定义（长度不要超过64个字符）
 	UserDesc    string `json:"user_desc"`    // 代码描述，开发者可自定义
 }
@@ -17,7 +17,17 @@ func Commit(clt *core.Client, req *CommitRequest) (err error) {
 	var result struct {
 		core.Error
 	}
-	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
+    buf, err := json.Marshal(req.ExtJson)
+    commitReq := map[string]interface{
+        "template_id": req.TemplateId,
+        "user_version": req.UserVersion,
+        "user_desc": req.UserDesc,
+    }
+    if req.ExtJson != nil {
+        buf, _ := json.Marshal(req.ExtJson)
+        commitReq["ext_json"] = string(buf)
+    }
+	if err = clt.PostJSON(incompleteURL, commitReq, &result); err != nil {
 		return
 	}
 	if result.ErrCode != core.ErrCodeOK {
