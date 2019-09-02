@@ -9,7 +9,7 @@ func GetTemplateDraftList(clt *core.Client) (list []TemplateDraft, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/wxa/gettemplatedraftlist?access_token="
 	var result struct {
 		core.Error
-		List []TemplateDraft `json:"drafttemplate_list"`
+		List []TemplateDraft `json:"draft_list"`
 	}
 	if err = clt.GetJSON(incompleteURL, &result); err != nil {
 		return
