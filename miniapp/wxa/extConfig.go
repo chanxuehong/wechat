@@ -1,7 +1,7 @@
 package wxa
 
 type ExtConfig struct {
-	AppId                          `json:"extAppid"`
+	AppId                          string                       `json:"extAppid"`
 	Ext                            map[string]string            `json:"ext,omitempty"`
 	Pages                          []string                     `json:"pages,omitempty"`
 	ExtPages                       map[string]PageConfig        `json:"extPages,omitempty"`
@@ -67,7 +67,7 @@ type SitemapRule struct {
 	Action   SitemapAction   `json:"action,omitempty"`
 	Page     string          `json:"page"`
 	Params   []string        `json:"params"`
-	Matching SitemapMatchint `json:"matching,omitempty"`
+	Matching SitemapMatching `json:"matching,omitempty"`
 	Priority uint            `json:"priority,omitempty"`
 }
 
