@@ -1,6 +1,7 @@
 package wxa
 
 import (
+	"encoding/json"
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
