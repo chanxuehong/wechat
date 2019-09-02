@@ -111,7 +111,7 @@ type TabBarConfig struct {
 	Color           string         `json:"color,omitempty"`
 	SelectedColor   string         `json:"selectedColor,omitempty"`
 	BackgroundColor string         `json:"backgroundColor,omitempty"`
-	BorderStyle     BorderStype    `json:"borderStyle,omitempty"`
+	BorderStyle     BorderStyle    `json:"borderStyle,omitempty"`
 	List            []TabBarItem   `json:"list,omitempty"`
 	Positon         TabBarPosition `json:"position,omitempty"`
 	Custom          bool           `json:"custom,omitempty"`
