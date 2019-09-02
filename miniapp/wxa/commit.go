@@ -18,7 +18,6 @@ func Commit(clt *core.Client, req *CommitRequest) (err error) {
 	var result struct {
 		core.Error
 	}
-	buf, err := json.Marshal(req.ExtJson)
 	commitReq := map[string]interface{}{
 		"template_id":  req.TemplateId,
 		"user_version": req.UserVersion,
