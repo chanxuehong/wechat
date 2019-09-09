@@ -14,7 +14,7 @@ type WxAppCategory struct {
 }
 
 // 获取授权小程序帐号已设置的类目, 注意：该接口可获取已设置的二级类目及用于代码审核的可选三级类目。
-func GetCategory(clt *core.Client, auditId uint64) (categories []WxAppCategory, err error) {
+func GetCategory(clt *core.Client) (categories []WxAppCategory, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/wxa/get_category?access_token="
 	var result struct {
 		core.Error
