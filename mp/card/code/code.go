@@ -8,9 +8,10 @@ type CardItemIdentifier struct {
 
 // 某一张特定卡券的信息
 type CardItem struct {
-	Code   string `json:"code"`   // 卡券的Code码
-	OpenId string `json:"openid"` // 用户openid
-	Card   struct {
+	Code       string `json:"code"`        // 卡券的Code码
+	OpenId     string `json:"openid"`      // 用户openid
+	CanConsume bool   `json:"can_consume"` // 是否可核销
+	Card       struct {
 		CardId    string `json:"card_id"`    // 卡券ID
 		BeginTime int64  `json:"begin_time"` // 起始使用时间
 		EndTime   int64  `json:"end_time"`   // 结束时间
