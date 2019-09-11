@@ -33,6 +33,28 @@ func Delete(clt *core.Client, msgid int64) (err error) {
 	return
 }
 
+// Delete 删除群发的指定文章.
+func DeleteIndex(clt *core.Client, msgid, index int64) (err error) {
+	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/message/mass/delete?access_token="
+
+	var request = struct {
+		MsgId      int64 `json:"msg_id"`
+		ArticleIdx int64 `json:"article_idx"`
+	}{
+		MsgId:      msgid,
+		ArticleIdx: index,
+	}
+	var result core.Error
+	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+		return
+	}
+	if result.ErrCode != core.ErrCodeOK {
+		err = &result
+		return
+	}
+	return
+}
+
 type Status struct {
 	MsgId  int64  `json:"msg_id"`
 	Status string `json:"msg_status"` // 消息发送后的状态, SEND_SUCCESS表示发送成功
