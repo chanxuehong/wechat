@@ -8,10 +8,6 @@ type Comment struct {
 	Begin int  `json:"begin,omitempty"` //必填  起始位置
 	Count int  `json:"count,omitempty"` //必填  获取数目（>=50会被拒绝）
 	Type  *int `json:"type,omitempty"`  //必填  type=0 普通评论&精选评论 type=1 普通评论 type=2 精选评论
-	// 论标记精选  评论取消精选  删除评论  删除回复
-	UserCommentID int `json:"user_comment_id,omitempty"` //必填  用户评论id
-	//回复评论
-	Content string `json:"content,omitempty"` // 必填,   回复内容
 }
 
 type base struct {
