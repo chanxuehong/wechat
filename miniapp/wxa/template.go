@@ -17,3 +17,9 @@ type Template struct {
 	AppId       string `json:"source_miniprogram_appid"`
 	Developer   string `json:"developer"`
 }
+
+type TemplateKeyword struct {
+	Id      uint   `json:"keyword_id"`
+	Name    string `json:"name"`
+	Example string `json:"example"`
+}
