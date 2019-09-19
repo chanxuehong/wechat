@@ -9,7 +9,7 @@ func GetLibraryTemplateKeywords(clt *core.Client, id string) (keywords []Templat
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/wxopen/template/library/get?access_token="
 	var result struct {
 		core.Error
-		Id       uint64            `json:"id"`
+		Id       string            `json:"id"`
 		Title    string            `json:"title"`
 		Keywords []TemplateKeyword `json:"keyword_list"`
 	}
