@@ -13,7 +13,8 @@ func GetLibraryTemplateKeywords(clt *core.Client, id string) (keywords []Templat
 		Title    string            `json:"title"`
 		Keywords []TemplateKeyword `json:"keyword_list"`
 	}
-	if err = clt.GetJSON(incompleteURL, &result); err != nil {
+	req := map[string]string{"id": id}
+	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 	if result.ErrCode != core.ErrCodeOK {
