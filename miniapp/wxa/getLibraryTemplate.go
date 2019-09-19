@@ -1,7 +1,7 @@
 package wxa
 
 import (
-	"github.com/chanxuehong/wechat/component/core"
+	"github.com/chanxuehong/wechat/mp/core"
 )
 
 // 获取模板库某个模板标题下关键词库
