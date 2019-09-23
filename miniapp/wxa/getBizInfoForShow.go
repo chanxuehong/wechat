@@ -6,6 +6,8 @@ import (
 )
 
 type BizInfo struct {
+	CanOpen  uint   `json:"can_open,omitempty"`
+	IsOpen   uint   `json:"is_open,omimtempty"`
 	NickName string `json:"nickname"`
 	AppId    string `json:"appid"`
 	HeadImg  string `json:"headimg"`
