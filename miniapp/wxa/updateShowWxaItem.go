@@ -6,11 +6,9 @@ import (
 
 // 设置小程序隐私设置（是否可被搜索）
 func UpdateShowWxaItem(clt *core.Client, appId string, show uint) (err error) {
-	const incompleteURL = "https://api.weixin.qq.com/wxa/updateshowwxaitem?access_token=TOKEN"
+	const incompleteURL = "https://api.weixin.qq.com/wxa/updateshowwxaitem?access_token="
 	var result struct {
 		core.Error
-		Total       uint      `json:"total_num"`
-		BizInfoList []BizInfo `json:"biz_info_list"`
 	}
 	req := map[string]interface{}{"wxa_subscribe_biz_flag": show, "appid": appId}
 	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
