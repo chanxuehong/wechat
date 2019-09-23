@@ -8,7 +8,7 @@ import (
 
 // 查询最新一次提交的审核状态
 func GetLatestAuditStatus(clt *core.Client) (auditId uint64, status uint, reason string, screenshot string, err error) {
-	incompleteURL := "https://api.weixin.qq.com/wxa/get_auditstatus?access_token="
+	incompleteURL := "https://api.weixin.qq.com/wxa/get_latest_auditstatus?access_token="
 	var result struct {
 		core.Error
 		AuditId    string `json:"auditid"`    // 最新的审核ID
