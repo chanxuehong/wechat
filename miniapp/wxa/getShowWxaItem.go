@@ -5,7 +5,7 @@ import (
 )
 
 // 获取展示的公众号信息
-func GetShowWxaItem(clt *core.Client, page uint, num uint) (info BizInfo, err error) {
+func GetShowWxaItem(clt *core.Client) (info BizInfo, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/wxa/getshowwxaitem?access_token="
 	var result struct {
 		core.Error
