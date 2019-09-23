@@ -11,7 +11,7 @@ func GetLatestAuditStatus(clt *core.Client) (auditId uint64, status uint, reason
 	incompleteURL := "https://api.weixin.qq.com/wxa/get_latest_auditstatus?access_token="
 	var result struct {
 		core.Error
-		AuditId    string `json:"auditid"`    // 最新的审核ID
+		AuditId    uint64 `json:"auditid"`    // 最新的审核ID
 		Status     uint   `json:"status"`     // 审核状态，其中0为审核成功，1为审核失败，2为审核中，3已撤回
 		Reason     string `json:"reason"`     // 当status=1，审核被拒绝时，返回的拒绝原因
 		Screenshot string `json:"ScreenShot"` // 当status=1，审核被拒绝时，会返回审核失败的小程序截图示例。 xxx丨yyy丨zzz是media_id可通过获取永久素材接口 拉取截图内容）
