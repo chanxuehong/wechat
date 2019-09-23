@@ -1,7 +1,8 @@
 package wxa
 
 import (
-	"fmt"
+	"strconv"
+
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
