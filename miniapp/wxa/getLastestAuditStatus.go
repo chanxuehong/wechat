@@ -1,8 +1,6 @@
 package wxa
 
 import (
-	"strconv"
-
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
@@ -23,6 +21,5 @@ func GetLatestAuditStatus(clt *core.Client) (auditId uint64, status uint, reason
 		err = &result.Error
 		return
 	}
-	auditId, _ = strconv.ParseUint(result.AuditId, 10, 64)
-	return auditId, result.Status, result.Reason, result.Screenshot, nil
+	return result.AuditId, result.Status, result.Reason, result.Screenshot, nil
 }
