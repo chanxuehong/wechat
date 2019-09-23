@@ -1,7 +1,6 @@
 package wxa
 
 import (
-	"fmt"
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
@@ -14,7 +13,7 @@ func GetAuditStatus(clt *core.Client, auditId uint64) (status uint, reason strin
 		Reason     string `json:"reason"`     // 当status=1，审核被拒绝时，返回的拒绝原因
 		Screenshot string `json:"screenshot"` // 当status=1，审核被拒绝时，会返回审核失败的小程序截图示例。 xxx丨yyy丨zzz是media_id可通过获取永久素材接口 拉取截图内容）
 	}
-	req := map[string]uint64{"auditid", auditId}
+	req := map[string]uint64{"auditid": auditId}
 	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
