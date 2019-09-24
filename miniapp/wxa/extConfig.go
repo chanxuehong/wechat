@@ -24,6 +24,7 @@ type ExtConfig struct {
 	} `json:"permission,omitempty"`
 	SitemapLocation string `json:"sitemapLocation,omitempty"`
 	Style           string `json:"style,omitempty"`
+	Enable          bool   `json:"extEnable,omitempty"`
 }
 
 type PageConfig struct {
