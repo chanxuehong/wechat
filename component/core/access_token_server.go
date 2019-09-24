@@ -37,17 +37,18 @@ type DefaultTokenStorage struct {
 
 func (this *DefaultTokenStorage) Get() *AccessToken {
 	if p := (*AccessToken)(atomic.LoadPointer(&this.tokenCache)); p != nil {
-		return p.Token
+		return p
 	}
 	return nil
 }
 
 func (this *DefaultTokenStorage) Put(token *AccessToken) error {
 	if token == nil {
-		atomic.StorePointer(&srv.tokenCache, nil)
-		return
+		atomic.StorePointer(&this.tokenCache, nil)
+		return nil
 	}
-	atomic.StorePointer(&srv.tokenCache, unsafe.Pointer(token))
+	atomic.StorePointer(&this.tokenCache, unsafe.Pointer(token))
+	return nil
 }
 
 type TokenUpdateHandler func(token string, expiresIn int64, err error)
@@ -75,7 +76,7 @@ type DefaultAccessTokenServer struct {
 	refreshTokenRequestChan  chan string             // chan currentToken
 	refreshTokenResponseChan chan refreshTokenResult // chan {token, err}
 
-	tokenStoreage TokenStorage // *AccessToken
+	tokenStorage TokenStorage // *AccessToken
 
 	updateTokenCallback TokenUpdateHandler
 }
