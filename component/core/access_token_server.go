@@ -27,7 +27,7 @@ type TicketStorage interface {
 }
 
 type TokenStorage interface {
-	Get() (*AccessToken, error)
+	Get() *AccessToken
 	Put(token *AccessToken) error
 }
 
