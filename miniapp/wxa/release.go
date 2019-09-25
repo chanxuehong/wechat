@@ -10,7 +10,8 @@ func Release(clt *core.Client) (err error) {
 	var result struct {
 		core.Error
 	}
-	if err = clt.PostJSON(incompleteURL, nil, &result); err != nil {
+	req := map[string]interface{}{}
+	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 	if result.ErrCode != core.ErrCodeOK {
