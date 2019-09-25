@@ -10,7 +10,7 @@ func SpeedAudit(clt *core.Client, auditId uint64) (err error) {
 	var result struct {
 		core.Error
 	}
-	req := map[string]uint64{"auditid", auditId}
+	req := map[string]uint64{"auditid": auditId}
 	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
