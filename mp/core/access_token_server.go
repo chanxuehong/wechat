@@ -17,10 +17,11 @@ import (
 
 // access_token 中控服务器接口.
 type AccessTokenServer interface {
-	Token() (token string, expiresIn int64, err error)                           // 请求中控服务器返回缓存的 access_token
-	RefreshToken(currentToken string) (token string, expiresIn int64, err error) // 请求中控服务器刷新 access_token
+	Token() (token string, err error)                           // 请求中控服务器返回缓存的 access_token
+	RefreshToken(currentToken string) (token string, err error) // 请求中控服务器刷新 access_token
 	SetSecret(appId string, appSecret string)
-	IID01332E16DF5011E5A9D5A4DB30FED8E1() // 接口标识, 没有实际意义
+	RefreshTokenWithExpires(currentToken string) (token string, expiresIn int64, err error) // 请求中控服务器刷新 access_token
+	IID01332E16DF5011E5A9D5A4DB30FED8E1()                                                   // 接口标识, 没有实际意义
 }
 
 var _ AccessTokenServer = (*DefaultAccessTokenServer)(nil)
@@ -62,13 +63,12 @@ func NewDefaultAccessTokenServer(appId, appSecret string, httpClient *http.Clien
 func (srv *DefaultAccessTokenServer) IID01332E16DF5011E5A9D5A4DB30FED8E1() {}
 
 func (srv *DefaultAccessTokenServer) SetSecret(appId string, appSecret string) {
-	srv.appId = url.QueryEscape(appId)
-	srv.appSecret = url.QueryEscape(appId)
+	srv.appId = appId
+	srv.appSecret = appSecret
 }
-
-func (srv *DefaultAccessTokenServer) Token() (token string, expiresIn int64, err error) {
+func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
 	if p := (*accessToken)(atomic.LoadPointer(&srv.tokenCache)); p != nil {
-		return p.Token, p.ExpiresIn, nil
+		return p.Token, nil
 	}
 	return srv.RefreshToken("")
 }
@@ -78,10 +78,17 @@ type refreshTokenResult struct {
 	err   error
 }
 
-func (srv *DefaultAccessTokenServer) RefreshToken(currentToken string) (token string, expiresIn int64, err error) {
+func (srv *DefaultAccessTokenServer) RefreshToken(currentToken string) (token string, err error) {
 	srv.refreshTokenRequestChan <- currentToken
 	rslt := <-srv.refreshTokenResponseChan
 	return rslt.token, rslt.err
+}
+
+func (srv *DefaultAccessTokenServer) RefreshTokenWithExpires(currentToken string) (token string, expiresIn int64, err error) {
+	accessToken, _, err := srv.updateToken(currentToken)
+	token = accessToken.Token
+	expiresIn = accessToken.ExpiresIn
+	return
 }
 
 func (srv *DefaultAccessTokenServer) tokenUpdateDaemon(initTickDuration time.Duration) {
