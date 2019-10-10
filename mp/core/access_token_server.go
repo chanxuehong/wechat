@@ -17,8 +17,8 @@ import (
 
 // access_token 中控服务器接口.
 type AccessTokenServer interface {
-	Token() (token string, err error)                           // 请求中控服务器返回缓存的 access_token
-	RefreshToken(currentToken string) (token string, err error) // 请求中控服务器刷新 access_token
+	Token() (token string, expiresIn int64, err error)                           // 请求中控服务器返回缓存的 access_token
+	RefreshToken(currentToken string) (token string, expiresIn int64, err error) // 请求中控服务器刷新 access_token
 	SetSecret(appId string, appSecret string)
 	IID01332E16DF5011E5A9D5A4DB30FED8E1() // 接口标识, 没有实际意义
 }
@@ -66,9 +66,9 @@ func (srv *DefaultAccessTokenServer) SetSecret(appId string, appSecret string) {
 	srv.appSecret = url.QueryEscape(appId)
 }
 
-func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
+func (srv *DefaultAccessTokenServer) Token() (token string, expiresIn int64, err error) {
 	if p := (*accessToken)(atomic.LoadPointer(&srv.tokenCache)); p != nil {
-		return p.Token, nil
+		return p.Token, p.ExpiresIn, nil
 	}
 	return srv.RefreshToken("")
 }
@@ -78,7 +78,7 @@ type refreshTokenResult struct {
 	err   error
 }
 
-func (srv *DefaultAccessTokenServer) RefreshToken(currentToken string) (token string, err error) {
+func (srv *DefaultAccessTokenServer) RefreshToken(currentToken string) (token string, expiresIn int64, err error) {
 	srv.refreshTokenRequestChan <- currentToken
 	rslt := <-srv.refreshTokenResponseChan
 	return rslt.token, rslt.err
