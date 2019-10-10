@@ -19,7 +19,8 @@ import (
 type AccessTokenServer interface {
 	Token() (token string, err error)                           // 请求中控服务器返回缓存的 access_token
 	RefreshToken(currentToken string) (token string, err error) // 请求中控服务器刷新 access_token
-	IID01332E16DF5011E5A9D5A4DB30FED8E1()                       // 接口标识, 没有实际意义
+	SetSecret(appId string, appSecret string)
+	IID01332E16DF5011E5A9D5A4DB30FED8E1() // 接口标识, 没有实际意义
 }
 
 var _ AccessTokenServer = (*DefaultAccessTokenServer)(nil)
@@ -59,6 +60,11 @@ func NewDefaultAccessTokenServer(appId, appSecret string, httpClient *http.Clien
 }
 
 func (srv *DefaultAccessTokenServer) IID01332E16DF5011E5A9D5A4DB30FED8E1() {}
+
+func (srv *DefaultAccessTokenServer) SetSecret(appId string, appSecret string) {
+	srv.appId = url.QueryEscape(appId)
+	srv.appSecret = url.QueryEscape(appId)
+}
 
 func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
 	if p := (*accessToken)(atomic.LoadPointer(&srv.tokenCache)); p != nil {
