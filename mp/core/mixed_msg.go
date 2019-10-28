@@ -7,6 +7,8 @@ type (
 
 // 微信服务器推送过来的消息(事件)的通用消息头.
 type MsgHeader struct {
+	AppId        string  `xml:"AppId,omitempty" json:"AppId,omitempty"`
+	InfoType     string  `xml:"InfoType,omitempty" json:"InfoType,omitempty"`
 	ToUserName   string  `xml:"ToUserName"   json:"ToUserName"`
 	FromUserName string  `xml:"FromUserName" json:"FromUserName"`
 	CreateTime   int64   `xml:"CreateTime"   json:"CreateTime"`
@@ -38,6 +40,12 @@ type MixedMsg struct {
 	Latitude     float64 `xml:"Latitude"     json:"Latitude"`     // request
 	Longitude    float64 `xml:"Longitude"    json:"Longitude"`    // request
 	Precision    float64 `xml:"Precision"    json:"Precision"`    // request
+
+	ComponentVerifyTicket        string `xml:"ComponentVerifyTicket,omitempty"      json:"ComponentVerifyTicket,omitempty"`
+	AuthorizerAppid              string `xml:"AuthorizerAppid,omitempty" json:"AuthorizerAppid,omitempty"`                           // 公众号或小程序
+	AuthorizationCode            string `xml:"AuthorizationCode,omitempty" json:"AuthorizationCode,omitempty"`                       // 授权码，可用于换取公众号的接口调用凭据
+	AuthorizationCodeExpiredTime string `xml:"AuthorizationCodeExpiredTime,omitempty" json:"AuthorizationCodeExpiredTime,omitempty"` // 授权码过期时间
+	PreAuthCode                  string `xml:"PreAuthCode,omitempty" json:"PreAuthCode,omitempty"`                                   // 预授权码
 
 	// menu
 	MenuId       int64 `xml:"MenuId" json:"MenuId"`
