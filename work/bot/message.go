@@ -30,7 +30,7 @@ func (this *Message) Send(webhook string) error {
 	if err != nil {
 		return err
 	}
-	resp, err := http.DefaultClient.Post(webhook, "application/json", &buf)
+	_, err = http.DefaultClient.Post(webhook, "application/json", &buf)
 	if err != nil {
 		return err
 	}
