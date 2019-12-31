@@ -15,6 +15,7 @@ const (
 	NEWS     MessageType = "news"
 )
 
+// 通用消息结构体
 type Message struct {
 	Type     MessageType `json:"msgtype"`
 	Text     *Text       `json:"text,omitempty"`
