@@ -1,6 +1,8 @@
 package bot
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 )
 
@@ -25,7 +27,7 @@ func (this *Message) Send(webhook string) error {
 	var buf bytes.Buffer
 	err := json.NewEncoder(buf).Encode(this)
 	if err != nil {
-		return
+		return err
 	}
 	resp, err := http.DefaultClient.Post(webhook, "application/json", buf)
 	if err != nil {
