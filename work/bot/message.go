@@ -1,5 +1,9 @@
 package bot
 
+import (
+	"net/http"
+)
+
 type MessageType = string
 
 const (
@@ -17,8 +21,15 @@ type Message struct {
 	News     *News       `json:"news,omitempty"`
 }
 
-// 消息类型，此时固定为image
-type Image struct {
-	Base64 string `json:"base64"` // 图片内容的base64编码
-	Md5    string `json:"md5"`    // 图片内容（base64编码前）的md5值
+func (this *Message) Send(webhook string) error {
+	var buf bytes.Buffer
+	err := json.NewEncoder(buf).Encode(this)
+	if err != nil {
+		return
+	}
+	resp, err := http.DefaultClient.Post(webhook, "application/json", buf)
+	if err != nil {
+		return err
+	}
+	return nil
 }
