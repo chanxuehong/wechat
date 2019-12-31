@@ -1,9 +1,9 @@
 package bot
 
 import (
+	"crypto/md5"
 	"encoding/base64"
 	"encoding/hex"
-	"encoding/md5"
 	"io/ioutil"
 	"net/http"
 )
