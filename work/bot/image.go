@@ -20,7 +20,7 @@ func NewImage(data []byte) *Message {
 		Type: IMAGE,
 		Image: &Image{
 			Base64: base64.URLEncoding.EncodeToString(data),
-			hex.EncodeToString(md5.Sum(data)),
+			Md5:    hex.EncodeToString(md5.Sum(data)[:]),
 		},
 	}
 }

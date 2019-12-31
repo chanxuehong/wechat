@@ -12,7 +12,7 @@ type Article struct {
 	PicUrl string `json:"picurl,omitempty"`      // 图文消息的图片链接，支持JPG、PNG格式，较好的效果为大图 1068*455，小图150*150
 }
 
-func NewNews(articles []Article) *News {
+func NewNews(articles []Article) *Message {
 	return &Message{
 		Type: NEWS,
 		News: &News{

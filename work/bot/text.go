@@ -8,7 +8,7 @@ type Text struct {
 }
 
 func NewText(content string, mentionedList []string, mentionedMobileList []string) *Message {
-	return &Mesage{
+	return &Message{
 		Type: TEXT,
 		Text: &Text{
 			Content:             content,
