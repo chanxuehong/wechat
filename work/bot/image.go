@@ -16,11 +16,12 @@ type Image struct {
 }
 
 func NewImage(data []byte) *Message {
+	md5Data := md5.Sum(data)
 	return &Message{
 		Type: IMAGE,
 		Image: &Image{
 			Base64: base64.URLEncoding.EncodeToString(data),
-			Md5:    hex.EncodeToString(md5.Sum(data)[:]),
+			Md5:    hex.EncodeToString(md5Data[:]),
 		},
 	}
 }
