@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/hex"
+	"io"
 	"io/ioutil"
 	"net/http"
 )
@@ -16,7 +17,7 @@ type Image struct {
 
 func NewImage(data []byte) *Message {
 	return &Message{
-		Type: Image,
+		Type: IMAGE,
 		Image: &Image{
 			Base64: base64.URLEncoding.EncodeToString(data),
 			hex.EncodeToString(md5.Sum(data)),
@@ -25,7 +26,7 @@ func NewImage(data []byte) *Message {
 }
 
 func NewImageFromReader(r io.Reader) (*Message, error) {
-	data, err = ioutil.ReadAll(r)
+	data, err := ioutil.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}

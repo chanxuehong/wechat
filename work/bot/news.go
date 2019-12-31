@@ -14,7 +14,9 @@ type Article struct {
 
 func NewNews(articles []Article) *News {
 	return &Message{
-		Type:     NEWS,
-		Articles: articles,
+		Type: NEWS,
+		News: &News{
+			Articles: articles,
+		},
 	}
 }
