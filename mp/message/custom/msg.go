@@ -5,15 +5,16 @@ import (
 )
 
 const (
-	MsgTypeText       core.MsgType = "text"   // 文本消息
-	MsgTypeImage      core.MsgType = "image"  // 图片消息
-	MsgTypeVoice      core.MsgType = "voice"  // 语音消息
-	MsgTypeVideo      core.MsgType = "video"  // 视频消息
-	MsgTypeMusic      core.MsgType = "music"  // 音乐消息
-	MsgTypeNews       core.MsgType = "news"   // 图文消息
-	MsgTypeMPNews     core.MsgType = "mpnews" // 图文消息, 发送已经创建好的图文
-	MsgTypeWxCard     core.MsgType = "wxcard" // 卡卷消息
-	MsgTypeWxMiniLink core.MsgType = "link"   // 小程序客服消息:图文链接
+	MsgTypeText       core.MsgType = "text"            // 文本消息
+	MsgTypeImage      core.MsgType = "image"           // 图片消息
+	MsgTypeVoice      core.MsgType = "voice"           // 语音消息
+	MsgTypeVideo      core.MsgType = "video"           // 视频消息
+	MsgTypeMusic      core.MsgType = "music"           // 音乐消息
+	MsgTypeNews       core.MsgType = "news"            // 图文消息
+	MsgTypeMPNews     core.MsgType = "mpnews"          // 图文消息, 发送已经创建好的图文
+	MsgTypeWxCard     core.MsgType = "wxcard"          // 卡卷消息
+	MsgTypeWxMiniLink core.MsgType = "link"            // 小程序客服消息:图文链接
+	MsgTypeWxMiniPage core.MsgType = "miniprogrampage" // 小程序客服消息:图文链接
 )
 
 type MsgHeader struct {
@@ -318,7 +319,7 @@ func NewMiniPage(toUser, title, pagePath, thumbMediaId, kfAccount string) (page 
 	page = &WxMiniPage{
 		MsgHeader: MsgHeader{
 			ToUser:  toUser,
-			MsgType: MsgTypeWxMiniLink,
+			MsgType: MsgTypeWxMiniPage,
 		},
 	}
 
