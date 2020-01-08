@@ -1,2 +1,4 @@
+github.com/chanxuehong/rand v0.0.0-20180830053958-4b3aff17f488 h1:6d1ijTov542DDRWsFdnPYeGWnlRxlzbpEaJuNJtBQiU=
 github.com/chanxuehong/rand v0.0.0-20180830053958-4b3aff17f488/go.mod h1:h13adSJmQ5tsaV9bR72eTp7ePXJ2WIWyK6heLeietxA=
+github.com/chanxuehong/util v0.0.0-20181116100727-caf892acd09c h1:+bidl2o5S+JFtpiJdUPrgHYE922v3RgHKPqzojUVRyw=
 github.com/chanxuehong/util v0.0.0-20181116100727-caf892acd09c/go.mod h1:oCc2u0egGweOE68RdURGznc2LgbCrdGAAkXOQw2CuNM=
