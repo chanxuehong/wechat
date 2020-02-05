@@ -40,6 +40,7 @@ type MixedMsg struct {
 	Latitude     float64 `xml:"Latitude"     json:"Latitude"`     // request
 	Longitude    float64 `xml:"Longitude"    json:"Longitude"`    // request
 	Precision    float64 `xml:"Precision"    json:"Precision"`    // request
+	KfAccount    string  `xml:"KfAccount" json:"KfAccount"`
 
 	ComponentVerifyTicket        string `xml:"ComponentVerifyTicket,omitempty"      json:"ComponentVerifyTicket,omitempty"`
 	AuthorizerAppid              string `xml:"AuthorizerAppid,omitempty" json:"AuthorizerAppid,omitempty"`                           // 公众号或小程序
