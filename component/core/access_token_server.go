@@ -1,9 +1,10 @@
 package core
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -15,13 +16,48 @@ import (
 	"github.com/chanxuehong/wechat/util"
 )
 
+type Ticket struct {
+	AppId                 string `xml:"AppId" json:"AppId"`                                 // 第三方平台appid
+	ComponentVerifyTicket string `xml:"ComponentVerifyTicket" json:"ComponentVerifyTicket"` // Ticket内容
+}
+
+type TicketStorage interface {
+	Get() (ticket *Ticket, err error)
+	Put(ticket *Ticket) error
+}
+
+type TokenStorage interface {
+	Get() *AccessToken
+	Put(token *AccessToken) error
+}
+
+type DefaultTokenStorage struct {
+	tokenCache unsafe.Pointer // *accessToken
+}
+
+func (this *DefaultTokenStorage) Get() *AccessToken {
+	if p := (*AccessToken)(atomic.LoadPointer(&this.tokenCache)); p != nil {
+		return p
+	}
+	return nil
+}
+
+func (this *DefaultTokenStorage) Put(token *AccessToken) error {
+	if token == nil {
+		atomic.StorePointer(&this.tokenCache, nil)
+		return nil
+	}
+	atomic.StorePointer(&this.tokenCache, unsafe.Pointer(token))
+	return nil
+}
+
+type TokenUpdateHandler func(token string, expiresIn int64, err error)
+
 // access_token 中控服务器接口.
 type AccessTokenServer interface {
+	UpdateTicket(ticket *Ticket) error
 	Token() (token string, err error)                           // 请求中控服务器返回缓存的 access_token
 	RefreshToken(currentToken string) (token string, err error) // 请求中控服务器刷新 access_token
-	SetSecret(appId string, appSecret string)
-	RefreshTokenWithExpires(currentToken string) (token string, expiresIn int64, err error) // 请求中控服务器刷新 access_token
-	IID01332E16DF5011E5A9D5A4DB30FED8E1()                                                   // 接口标识, 没有实际意义
 }
 
 var _ AccessTokenServer = (*DefaultAccessTokenServer)(nil)
@@ -32,18 +68,21 @@ var _ AccessTokenServer = (*DefaultAccessTokenServer)(nil)
 //  2. 因为 DefaultAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 AccessTokenServer 接口,
 //     所以整个系统只能存在一个 DefaultAccessTokenServer 实例!
 type DefaultAccessTokenServer struct {
-	appId      string
-	appSecret  string
-	httpClient *http.Client
+	appId         string
+	appSecret     string
+	ticketStorage TicketStorage
+	httpClient    *http.Client
 
 	refreshTokenRequestChan  chan string             // chan currentToken
 	refreshTokenResponseChan chan refreshTokenResult // chan {token, err}
 
-	tokenCache unsafe.Pointer // *accessToken
+	tokenStorage TokenStorage // *AccessToken
+
+	updateTokenCallback TokenUpdateHandler
 }
 
 // NewDefaultAccessTokenServer 创建一个新的 DefaultAccessTokenServer, 如果 httpClient == nil 则默认使用 util.DefaultHttpClient.
-func NewDefaultAccessTokenServer(appId, appSecret string, httpClient *http.Client) (srv *DefaultAccessTokenServer) {
+func NewDefaultAccessTokenServer(appId, appSecret string, ticketStorage TicketStorage, tokenStorage TokenStorage, httpClient *http.Client) (srv *DefaultAccessTokenServer) {
 	if httpClient == nil {
 		httpClient = util.DefaultHttpClient
 	}
@@ -52,25 +91,29 @@ func NewDefaultAccessTokenServer(appId, appSecret string, httpClient *http.Clien
 		appId:                    url.QueryEscape(appId),
 		appSecret:                url.QueryEscape(appSecret),
 		httpClient:               httpClient,
+		ticketStorage:            ticketStorage,
+		tokenStorage:             tokenStorage,
 		refreshTokenRequestChan:  make(chan string),
 		refreshTokenResponseChan: make(chan refreshTokenResult),
 	}
 
-	go srv.tokenUpdateDaemon(time.Hour * 24 * time.Duration(100+rand.Int63n(200)))
+	go srv.tokenUpdateDaemon(time.Hour*1 + time.Minute*50)
 	return
 }
 
-func (srv *DefaultAccessTokenServer) IID01332E16DF5011E5A9D5A4DB30FED8E1() {}
-
-func (srv *DefaultAccessTokenServer) SetSecret(appId string, appSecret string) {
-	srv.appId = appId
-	srv.appSecret = appSecret
+func (srv *DefaultAccessTokenServer) SetUpdateTokenCallback(h TokenUpdateHandler) {
+	srv.updateTokenCallback = h
 }
+
 func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
-	if p := (*accessToken)(atomic.LoadPointer(&srv.tokenCache)); p != nil {
+	if p := srv.tokenStorage.Get(); p != nil {
 		return p.Token, nil
 	}
 	return srv.RefreshToken("")
+}
+
+func (srv *DefaultAccessTokenServer) UpdateTicket(ticket *Ticket) error {
+	return srv.ticketStorage.Put(ticket)
 }
 
 type refreshTokenResult struct {
@@ -82,13 +125,6 @@ func (srv *DefaultAccessTokenServer) RefreshToken(currentToken string) (token st
 	srv.refreshTokenRequestChan <- currentToken
 	rslt := <-srv.refreshTokenResponseChan
 	return rslt.token, rslt.err
-}
-
-func (srv *DefaultAccessTokenServer) RefreshTokenWithExpires(currentToken string) (token string, expiresIn int64, err error) {
-	accessToken, _, err := srv.updateToken(currentToken)
-	token = accessToken.Token
-	expiresIn = accessToken.ExpiresIn
-	return
 }
 
 func (srv *DefaultAccessTokenServer) tokenUpdateDaemon(initTickDuration time.Duration) {
@@ -133,53 +169,75 @@ func abs(x time.Duration) time.Duration {
 	return -x
 }
 
-type accessToken struct {
-	Token     string `json:"access_token"`
+type AccessToken struct {
+	Token     string `json:"component_access_token"`
 	ExpiresIn int64  `json:"expires_in"`
 }
 
 // updateToken 从微信服务器获取新的 access_token 并存入缓存, 同时返回该 access_token.
-func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *accessToken, cached bool, err error) {
+func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *AccessToken, cached bool, err error) {
 	if currentToken != "" {
-		if p := (*accessToken)(atomic.LoadPointer(&srv.tokenCache)); p != nil && currentToken != p.Token {
+		if p := srv.tokenStorage.Get(); p != nil && currentToken != p.Token {
 			return p, true, nil // 无需更改 p.ExpiresIn 参数值, cached == true 时用不到
 		}
 	}
-
-	url := "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + srv.appId +
-		"&secret=" + srv.appSecret
-	api.DebugPrintGetRequest(url)
-	httpResp, err := srv.httpClient.Get(url)
+	ticket, err := srv.ticketStorage.Get()
 	if err != nil {
-		atomic.StorePointer(&srv.tokenCache, nil)
+		srv.tokenStorage.Put(nil)
+		if srv.updateTokenCallback != nil {
+			srv.updateTokenCallback("", 0, err)
+		}
+		return
+	}
+	tokenRequest := map[string]string{
+		"component_appid":         srv.appId,
+		"component_appsecret":     srv.appSecret,
+		"component_verify_ticket": ticket.ComponentVerifyTicket,
+	}
+	payload, err := json.Marshal(tokenRequest)
+	if err != nil {
+		srv.tokenStorage.Put(nil)
+		if srv.updateTokenCallback != nil {
+			srv.updateTokenCallback("", 0, err)
+		}
+		return
+	}
+	httpResp, err := srv.httpClient.Post("https://api.weixin.qq.com/cgi-bin/component/api_component_token", "application/json", bytes.NewReader(payload))
+	if err != nil {
+		srv.tokenStorage.Put(nil)
+		if srv.updateTokenCallback != nil {
+			srv.updateTokenCallback("", 0, err)
+		}
 		return
 	}
 	defer httpResp.Body.Close()
 
 	if httpResp.StatusCode != http.StatusOK {
-		atomic.StorePointer(&srv.tokenCache, nil)
+		srv.tokenStorage.Put(nil)
 		err = fmt.Errorf("http.Status: %s", httpResp.Status)
 		return
 	}
 
 	var result struct {
 		Error
-		accessToken
+		AccessToken
 	}
 	if err = api.DecodeJSONHttpResponse(httpResp.Body, &result); err != nil {
-		atomic.StorePointer(&srv.tokenCache, nil)
+		srv.tokenStorage.Put(nil)
 		return
 	}
 	if result.ErrCode != ErrCodeOK {
-		atomic.StorePointer(&srv.tokenCache, nil)
+		srv.tokenStorage.Put(nil)
 		err = &result.Error
+		if srv.updateTokenCallback != nil {
+			srv.updateTokenCallback("", 0, err)
+		}
 		return
 	}
-
 	// 由于网络的延时, access_token 过期时间留有一个缓冲区
 	switch {
 	case result.ExpiresIn > 31556952: // 60*60*24*365.2425
-		atomic.StorePointer(&srv.tokenCache, nil)
+		srv.tokenStorage.Put(nil)
 		err = errors.New("expires_in too large: " + strconv.FormatInt(result.ExpiresIn, 10))
 		return
 	case result.ExpiresIn > 60*60:
@@ -191,13 +249,16 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 	case result.ExpiresIn > 60:
 		result.ExpiresIn -= 10
 	default:
-		atomic.StorePointer(&srv.tokenCache, nil)
+		srv.tokenStorage.Put(nil)
 		err = errors.New("expires_in too small: " + strconv.FormatInt(result.ExpiresIn, 10))
 		return
 	}
 
-	tokenCopy := result.accessToken
-	atomic.StorePointer(&srv.tokenCache, unsafe.Pointer(&tokenCopy))
+	tokenCopy := result.AccessToken
+	srv.tokenStorage.Put(&tokenCopy)
 	token = &tokenCopy
+	if srv.updateTokenCallback != nil {
+		srv.updateTokenCallback(token.Token, token.ExpiresIn, nil)
+	}
 	return
 }

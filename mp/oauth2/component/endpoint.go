@@ -43,3 +43,25 @@ func (p *Endpoint) RefreshTokenURL(refreshToken string) string {
 		url.QueryEscape(refreshToken),
 	)
 }
+
+func (p *Endpoint) SessionCodeUrl(code string) string {
+	return fmt.Sprintf("https://api.weixin.qq.com/sns/component/jscode2session?"+
+		"appid=%s&component_appid=%s&component_access_token=%s&js_code=%s&grant_type=authorization_code",
+		url.QueryEscape(p.AppId),
+		url.QueryEscape(p.ComponentAppId),
+		url.QueryEscape(p.ComponentAccessToken),
+		url.QueryEscape(code),
+	)
+}
+
+// 要授权的帐号类型， 1则商户扫码后，手机端仅展示公众号、2表示仅展示小程序，3表示公众号和小程序都展示。如果为未制定，则默认小程序和公众号都展示。第三方平台开发者可以使用本字段来控制授权的帐号类型。
+func (p *Endpoint) LoginUrl(preAuthCode string, redirectUri string, authType uint, bizAppId string) string {
+	return fmt.Sprintf("https://mp.weixin.qq.com/cgi-bin/componentloginpage?"+
+		"component_appid=%s&pre_auth_code=%s&redirect_uri=%s&auth_type=%d&biz_appid=%s",
+		url.QueryEscape(p.ComponentAppId),
+		url.QueryEscape(preAuthCode),
+		url.QueryEscape(redirectUri),
+		authType,
+		url.QueryEscape(bizAppId),
+	)
+}
