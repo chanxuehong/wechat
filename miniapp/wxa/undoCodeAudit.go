@@ -10,7 +10,7 @@ func UndoCodeAudit(clt *core.Client) (err error) {
 	var result struct {
 		core.Error
 	}
-	if err = clt.PostJSON(incompleteURL, nil, &result); err != nil {
+	if err = clt.GetJSON(incompleteURL, &result); err != nil {
 		return
 	}
 	if result.ErrCode != core.ErrCodeOK {

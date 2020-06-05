@@ -61,7 +61,7 @@ func (p *Endpoint) LoginUrl(preAuthCode string, redirectUri string, authType uin
 		url.QueryEscape(p.ComponentAppId),
 		url.QueryEscape(preAuthCode),
 		url.QueryEscape(redirectUri),
-		url.QueryEscape(authType),
+		authType,
 		url.QueryEscape(bizAppId),
 	)
 }

@@ -1,6 +1,7 @@
 package core
 
 import (
+	"github.com/chanxuehong/wechat/mp/core"
 	"net/http"
 	"net/url"
 )
@@ -17,9 +18,9 @@ type Context struct {
 	Timestamp    int64      // 回调请求 URL 的时间戳参数: timestamp
 	Nonce        string     // 回调请求 URL 的随机数参数: nonce
 
-	MsgCiphertext []byte    // 消息的密文文本
-	MsgPlaintext  []byte    // 消息的明文文本, xml格式
-	MixedMsg      *MixedMsg // 消息
+	MsgCiphertext []byte         // 消息的密文文本
+	MsgPlaintext  []byte         // 消息的明文文本, xml格式
+	MixedMsg      *core.MixedMsg // 消息
 
 	Token  string // 当前消息所属公众号的 Token
 	AESKey []byte // 当前消息加密所用的 aes-key, read-only!!!

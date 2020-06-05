@@ -17,7 +17,8 @@ func ChangeVisitStatus(clt *core.Client, status VisitStatus) (err error) {
 	var result struct {
 		core.Error
 	}
-	if err = clt.PostJSON(incompleteURL, nil, &result); err != nil {
+	req := map[string]string{"action": status}
+	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
 		return
 	}
 	if result.ErrCode != core.ErrCodeOK {

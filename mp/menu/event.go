@@ -16,6 +16,7 @@ const (
 	EventTypePicPhotoOrAlbum core.EventType = "pic_photo_or_album" // 弹出拍照或者相册发图的事件推送
 	EventTypePicWeixin       core.EventType = "pic_weixin"         // 弹出微信相册发图器的事件推送
 	EventTypeLocationSelect  core.EventType = "location_select"    // 弹出地理位置选择器的事件推送
+	EventTypeMiniProgram     core.EventType = "view_miniprogram"   // 点击菜单小程序链接的事件推送
 )
 
 // CLICK: 点击菜单拉取消息时的事件推送
@@ -190,5 +191,23 @@ func GetLocationSelectEvent(msg *core.MixedMsg) *LocationSelectEvent {
 		EventType:        msg.EventType,
 		EventKey:         msg.EventKey,
 		SendLocationInfo: msg.SendLocationInfo,
+	}
+}
+
+// view_miniprogram: 点击菜单小程序链接时的事件推送
+type MiniProgramEvent struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+	core.MsgHeader
+	EventType core.EventType `xml:"Event"            json:"Event"`            // 事件类型, VIEW
+	EventKey  string         `xml:"EventKey"         json:"EventKey"`         // 事件KEY值, 设置的跳转URL
+	MenuId    int64          `xml:"MenuId,omitempty" json:"MenuId,omitempty"` // 菜单ID，如果是个性化菜单，则可以通过这个字段，知道是哪个规则的菜单被点击了。
+}
+
+func GetMiniProgramEvent(msg *core.MixedMsg) *MiniProgramEvent {
+	return &MiniProgramEvent{
+		MsgHeader: msg.MsgHeader,
+		EventType: msg.EventType,
+		EventKey:  msg.EventKey,
+		MenuId:    msg.MenuId,
 	}
 }
