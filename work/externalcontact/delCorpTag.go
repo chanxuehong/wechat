@@ -18,14 +18,13 @@ func DelCorpTag(clt *core.Client, tagIds []string, groupIds []string) (err error
 		GroupIds: groupIds,
 	}
 
-	var result struct {
-		core.Error
-	}
+	var result core.Error
+
 	if err = clt.PostJSON(incompleteURL, request, &result); err != nil {
 		return
 	}
 	if result.ErrCode != core.ErrCodeOK {
-		err = &result.Error
+		err = &result
 		return
 	}
 	return

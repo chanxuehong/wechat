@@ -26,6 +26,14 @@ type MsgRequest struct {
 	EchoStr      string `form:"echostr" json:"echostr"`
 }
 
+type MsgResponse struct {
+	XMLName      struct{} `xml:"xml" json:"-"`
+	MsgSignature CDATA    `xml:"MsgSignature"`
+	TimeStamp    string   `xml:"TimeStamp"`
+	Nonce        CDATA    `xml:"Nonce"`
+	Encrypt      CDATA    `form:"Encrypt" json:"Encrypt"`
+}
+
 type (
 	MsgType   string
 	EventType string
