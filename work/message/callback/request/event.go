@@ -6,22 +6,24 @@ import (
 
 const (
 	// 普通事件类型
-	EventTypeSubscribe          message.EventType = "subscribe"            // 关注事件, 包括点击关注和扫描二维码(公众号二维码和公众号带参数二维码)关注
-	EventTypeUnsubscribe        message.EventType = "unsubscribe"          // 取消关注事件
-	EventTypeEnterAgent         message.EventType = "enter_agent"          // 本事件在成员进入企业微信的应用时触发
-	EventTypeLocation           message.EventType = "LOCATION"             // 上报地理位置事件
-	EventTypeBatchJobResult     message.EventType = "batch_job_result"     // 本事件是成员在使用异步任务接口时，用于接收任务执行完毕的结果通知。
-	EventTypeChangeContact      message.EventType = "change_contact"       // 新增/更新/删除/部门事件;标签成员变更事件
-	EventTypeClick              message.EventType = "click"                // 点击菜单拉取消息的事件推送
-	EventTypeView               message.EventType = "view"                 // 点击菜单跳转链接的事件推送
-	EventTypeScanCodePush       message.EventType = "scancode_push"        // 扫码推事件的事件推送
-	EventTypeScanCodeWaitMsg    message.EventType = "scancode_waitmsg"     // 扫码推事件且弹出“消息接收中”提示框的事件推送
-	EventTypePicSysPhoto        message.EventType = "pic_sysphoto"         // 弹出系统拍照发图的事件推送
-	EventTypePicPhotoOrAlbum    message.EventType = "pic_photo_or_album"   // 弹出拍照或者相册发图的事件推送
-	EventTypePicWeixin          message.EventType = "pic_weixin"           // 弹出微信相册发图器的事件推送
-	EventTypeLocationSelect     message.EventType = "location_select"      // 弹出地理位置选择器的事件推送
-	EventTypeOpenApprovalChange message.EventType = "open_approval_change" // 审批状态通知事件
-	EventTypeTaskCardClick      message.EventType = "taskcard_click"       // 任务卡片事件推送
+	EventTypeSubscribe             message.EventType = "subscribe"               // 关注事件, 包括点击关注和扫描二维码(公众号二维码和公众号带参数二维码)关注
+	EventTypeUnsubscribe           message.EventType = "unsubscribe"             // 取消关注事件
+	EventTypeEnterAgent            message.EventType = "enter_agent"             // 本事件在成员进入企业微信的应用时触发
+	EventTypeLocation              message.EventType = "LOCATION"                // 上报地理位置事件
+	EventTypeBatchJobResult        message.EventType = "batch_job_result"        // 本事件是成员在使用异步任务接口时，用于接收任务执行完毕的结果通知。
+	EventTypeChangeContact         message.EventType = "change_contact"          // 新增/更新/删除/部门事件;标签成员变更事件
+	EventTypeClick                 message.EventType = "click"                   // 点击菜单拉取消息的事件推送
+	EventTypeView                  message.EventType = "view"                    // 点击菜单跳转链接的事件推送
+	EventTypeScanCodePush          message.EventType = "scancode_push"           // 扫码推事件的事件推送
+	EventTypeScanCodeWaitMsg       message.EventType = "scancode_waitmsg"        // 扫码推事件且弹出“消息接收中”提示框的事件推送
+	EventTypePicSysPhoto           message.EventType = "pic_sysphoto"            // 弹出系统拍照发图的事件推送
+	EventTypePicPhotoOrAlbum       message.EventType = "pic_photo_or_album"      // 弹出拍照或者相册发图的事件推送
+	EventTypePicWeixin             message.EventType = "pic_weixin"              // 弹出微信相册发图器的事件推送
+	EventTypeLocationSelect        message.EventType = "location_select"         // 弹出地理位置选择器的事件推送
+	EventTypeOpenApprovalChange    message.EventType = "open_approval_change"    // 审批状态通知事件
+	EventTypeTaskCardClick         message.EventType = "taskcard_click"          // 任务卡片事件推送
+	EventTypeChangeExternalContact message.EventType = "change_external_contact" // 企业客户事件
+	EventTypeChangeExternalChat    message.EventType = "change_external_chat"    // 客户群变更事件
 )
 
 // 关注事件
@@ -367,5 +369,125 @@ func GetOpenApprovalChangeEvent(msg *message.MixedMsg) *OpenApprovalChangeEvent 
 		MsgHeader:    msg.MsgHeader,
 		EventType:    msg.EventType,
 		ApprovalInfo: msg.ApprovalInfo,
+	}
+}
+
+type AddExternalContactEvent struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+	message.MsgHeader
+	EventType      message.EventType `xml:"Event"     json:"Event"`               // change_external_contact
+	ChangeType     message.CDATA     `xml:"ChangeType"  json:"ChangeType"`        // add_external_contact
+	UserId         message.CDATA     `xml:"UserId" json:"UserId"`                 // 企业服务人员的UserID
+	ExternalUserID message.CDATA     `xml:"ExternalUserID" json:"ExternalUserID"` // 外部联系人的userid，注意不是企业成员的帐号
+	State          message.CDATA     `xml:"State" json:"State"`                   // 添加此用户的「联系我」方式配置的state参数，可用于识别添加此用户的渠道
+	WelcomeCode    message.CDATA     `xml:"WelcomeCode" json:"WelcomeCode"`       // 欢迎语code
+}
+
+func GetAddExternalContactEvent(msg *message.MixedMsg) *AddExternalContactEvent {
+	return &AddExternalContactEvent{
+		MsgHeader:      msg.MsgHeader,
+		EventType:      msg.EventType,
+		ChangeType:     msg.ChangeType,
+		UserId:         msg.UserId,
+		ExternalUserID: msg.ExternalUserID,
+		State:          msg.State,
+		WelcomeCode:    msg.WelcomeCode,
+	}
+}
+
+type EditExternalContactEvent struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+	message.MsgHeader
+	EventType      message.EventType `xml:"Event"     json:"Event"`               // change_external_contact
+	ChangeType     message.CDATA     `xml:"ChangeType"  json:"ChangeType"`        // edit_external_contact
+	UserId         message.CDATA     `xml:"UserId" json:"UserId"`                 // 企业服务人员的UserID
+	ExternalUserID message.CDATA     `xml:"ExternalUserID" json:"ExternalUserID"` // 外部联系人的userid，注意不是企业成员的帐号
+	State          message.CDATA     `xml:"State" json:"State"`                   // 添加此用户的「联系我」方式配置的state参数，可用于识别添加此用户的渠道
+}
+
+func GetEditExternalContactEvent(msg *message.MixedMsg) *EditExternalContactEvent {
+	return &EditExternalContactEvent{
+		MsgHeader:      msg.MsgHeader,
+		EventType:      msg.EventType,
+		ChangeType:     msg.ChangeType,
+		UserId:         msg.UserId,
+		ExternalUserID: msg.ExternalUserID,
+		State:          msg.State,
+	}
+}
+
+type AddHalfExternalContactEvent struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+	message.MsgHeader
+	EventType      message.EventType `xml:"Event"     json:"Event"`               // change_external_contact
+	ChangeType     message.CDATA     `xml:"ChangeType"  json:"ChangeType"`        // add_half_external_contact
+	UserId         message.CDATA     `xml:"UserId" json:"UserId"`                 // 企业服务人员的UserID
+	ExternalUserID message.CDATA     `xml:"ExternalUserID" json:"ExternalUserID"` // 外部联系人的userid，注意不是企业成员的帐号
+	State          message.CDATA     `xml:"State" json:"State"`                   // 添加此用户的「联系我」方式配置的state参数，可用于识别添加此用户的渠道
+	WelcomeCode    message.CDATA     `xml:"WelcomeCode" json:"WelcomeCode"`       // 欢迎语code
+}
+
+func GetAddHalfExternalContactEvent(msg *message.MixedMsg) *AddHalfExternalContactEvent {
+	return &AddHalfExternalContactEvent{
+		MsgHeader:      msg.MsgHeader,
+		EventType:      msg.EventType,
+		ChangeType:     msg.ChangeType,
+		UserId:         msg.UserId,
+		ExternalUserID: msg.ExternalUserID,
+		State:          msg.State,
+		WelcomeCode:    msg.WelcomeCode,
+	}
+}
+
+type DelExternalContactEvent struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+	message.MsgHeader
+	EventType      message.EventType `xml:"Event"     json:"Event"`               // change_external_contact
+	ChangeType     message.CDATA     `xml:"ChangeType"  json:"ChangeType"`        // del_external_contact
+	UserId         message.CDATA     `xml:"UserId" json:"UserId"`                 // 企业服务人员的UserID
+	ExternalUserID message.CDATA     `xml:"ExternalUserID" json:"ExternalUserID"` // 外部联系人的userid，注意不是企业成员的帐号
+}
+
+func GetDelExternalContactEvent(msg *message.MixedMsg) *DelExternalContactEvent {
+	return &DelExternalContactEvent{
+		MsgHeader:      msg.MsgHeader,
+		EventType:      msg.EventType,
+		ChangeType:     msg.ChangeType,
+		UserId:         msg.UserId,
+		ExternalUserID: msg.ExternalUserID,
+	}
+}
+
+type DelExternalContactFollowUserEvent struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+	message.MsgHeader
+	EventType      message.EventType `xml:"Event"     json:"Event"`               // change_external_contact
+	ChangeType     message.CDATA     `xml:"ChangeType"  json:"ChangeType"`        // del_follow_user
+	UserId         message.CDATA     `xml:"UserId" json:"UserId"`                 // 企业服务人员的UserID
+	ExternalUserID message.CDATA     `xml:"ExternalUserID" json:"ExternalUserID"` // 外部联系人的userid，注意不是企业成员的帐号
+}
+
+func GetDelExternalContactFollowUserEvent(msg *message.MixedMsg) *DelExternalContactFollowUserEvent {
+	return &DelExternalContactFollowUserEvent{
+		MsgHeader:      msg.MsgHeader,
+		EventType:      msg.EventType,
+		ChangeType:     msg.ChangeType,
+		UserId:         msg.UserId,
+		ExternalUserID: msg.ExternalUserID,
+	}
+}
+
+type GetChangeExternalChatEvent struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+	message.MsgHeader
+	EventType message.EventType `xml:"Event"     json:"Event"` // change_external_chat
+	ChatId    message.CDATA     `xml:"ChatId" json:"ChatId"`   // 群ID
+}
+
+func GetGetChangeExternalChatEvent(msg *message.MixedMsg) *GetChangeExternalChatEvent {
+	return &GetChangeExternalChatEvent{
+		MsgHeader: msg.MsgHeader,
+		EventType: msg.EventType,
+		ChatId:    msg.ChatId,
 	}
 }

@@ -89,6 +89,11 @@ type MixedMsg struct {
 	SendLocationInfo SendLocationInfo `xml:"SendLocationInfo" json:"SendLocationInfo"`               // 发送的位置信息
 	TaskId           CDATA            `xml:"TaskId" json:"TaskId"`                                   // 与发送任务卡片消息时指定的task_id相同
 	ApprovalInfo     ApprovalInfo     `xml:"ApprovalInfo" json:"ApprovalInfo"`                       // 审批信息
+	UserID           CDATA            `xml:"UserID" json:"UserID"`
+	ExternalUserID   CDATA            `xml:"ExternalUserID" json:"ExternalUserID"`
+	State            CDATA            `xml:"State" json:"State"`
+	WelcomeCode      CDATA            `xml:"WelcomeCode" json:"WelcomeCode"`
+	ChatId           CDATA            `xml:"ChatId" json:"ChatId"`
 }
 
 type ScanCodeInfo struct {

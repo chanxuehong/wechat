@@ -11,7 +11,6 @@ type ExternalContact struct {
 	CorpName        string           `json:"corp_name,omitempty"`        // 外部联系人所在企业的简称，仅当联系人类型是企业微信用户时有此字段
 	CorpFullName    string           `json:"corp_full_name,omitempty"`   // 外部联系人所在企业的主体名称，仅当联系人类型是企业微信用户时有此字段
 	ExternalProfile *ExternalProfile `json:"external_profile,omitempty"` // 外部联系人的自定义展示信息，可以有多个字段和多种类型，包括文本，网页和小程序，仅当联系人类型是企业微信用户时有此字段，字段详情见对外属性；
-	FollowUsers     []FollowUser     `json:"follow_user,omitempty"`      // 添加了此外部联系人的企业成员
 }
 
 type ExternalProfile struct {
