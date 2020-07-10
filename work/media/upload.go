@@ -1,6 +1,7 @@
 package media
 
 import (
+	"encoding/json"
 	"io"
 	"os"
 	"path/filepath"
@@ -16,9 +17,9 @@ const (
 )
 
 type MediaInfo struct {
-	MediaType string `json:"type"`       // 媒体文件类型，分别有图片（image）、语音（voice）、视频（video），普通文件（file）
-	MediaId   string `json:"media_id"`   // 媒体文件上传后，获取时的唯一标识
-	CreatedAt int64  `json:"created_at"` // 媒体文件上传时间戳
+	MediaType string      `json:"type"`       // 媒体文件类型，分别有图片（image）、语音（voice）、视频（video），普通文件（file）
+	MediaId   string      `json:"media_id"`   // 媒体文件上传后，获取时的唯一标识
+	CreatedAt json.Number `json:"created_at"` // 媒体文件上传时间戳
 }
 
 // UploadImage 上传多媒体图片

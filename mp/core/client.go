@@ -33,6 +33,11 @@ func NewClient(srv AccessTokenServer, clt *http.Client) *Client {
 	}
 }
 
+func NewClientWithToken(token string, clt *http.Client) *Client {
+	tokenServer := NewSimpleAccessTokenServer(token, clt)
+	return NewClient(tokenServer, clt)
+}
+
 // GetJSON HTTP GET 微信资源, 然后将微信服务器返回的 JSON 用 encoding/json 解析到 response.
 //
 //  NOTE:
