@@ -4,6 +4,17 @@ import (
 	"github.com/chanxuehong/wechat/work/core"
 )
 
+type RemarkRequest struct {
+	UserId           string   `json:"userid"`
+	ExternalUserId   string   `json:"external_userid"`
+	Remark           string   `json:"remark,omitempty"`
+	Description      string   `json:"description,omitempty"`
+	RemarkCompany    string   `json:"remark_company,omitempty"`
+	RemarkMobiles    []string `json:"remark_mobiles,omitempty"`
+	RemarkPicMediaId string   `json:"remark_pic_mediaid,omitempty"`
+	CleanFields      []string `json:"clean_fields,omitempty"`
+}
+
 // Remark 修改客户备注信息。
 // userid: 企业成员的userid
 // external_userid: 群主过滤。如果不填，表示获取全部群主的数据
@@ -12,30 +23,35 @@ import (
 // remark_company: 此用户对外部联系人备注的所属公司名称;
 // remark_mobiles: 此用户对外部联系人备注的手机号;
 // remark_pic_mediaid: 备注图片的mediaid;
-func Remark(clt *core.Client, userId string, externalUserId string, remark string, description string, remarkCompany string, remarkMobiles []string, remarkPicMediaId string) (err error) {
+func Remark(clt *core.Client, req *RemarkRequest) (err error) {
 	const incompleteURL = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/remark?access_token="
-
-	var request = struct {
-		UserId           string   `json:"userid"`
-		ExternalUserId   string   `json:"external_userid"`
-		Remark           string   `json:"remark,omitempty"`
-		Description      string   `json:"description,omitempty"`
-		RemarkCompany    string   `json:"remark_company,omitempty"`
-		RemarkMobiles    []string `json:"remark_mobiles,omitempty"`
-		RemarkPicMediaId string   `json:"remark_pic_mediaid,omitempty"`
-	}{
-		UserId:           userId,
-		ExternalUserId:   externalUserId,
-		Remark:           remark,
-		Description:      description,
-		RemarkCompany:    remarkCompany,
-		RemarkMobiles:    remarkMobiles,
-		RemarkPicMediaId: remarkPicMediaId,
+	request := map[string]interface{}{
+		"userid":          req.UserId,
+		"external_userid": req.ExternalUserId,
+	}
+	cleanFieldsMap := make(map[string]struct{}, len(req.CleanFields))
+	for _, f := range req.CleanFields {
+		cleanFieldsMap[f] = struct{}{}
+	}
+	if _, found := cleanFieldsMap["remark"]; found || req.Remark != "" {
+		request["remark"] = req.Remark
+	}
+	if _, found := cleanFieldsMap["description"]; found || req.Description != "" {
+		request["description"] = req.Description
+	}
+	if _, found := cleanFieldsMap["remark_company"]; found || req.RemarkCompany != "" {
+		request["remark_company"] = req.RemarkCompany
+	}
+	if _, found := cleanFieldsMap["remark_mobiles"]; found || len(req.RemarkMobiles) > 0 {
+		request["remark_mobiles"] = req.RemarkMobiles
+	}
+	if _, found := cleanFieldsMap["remark_pic_mediaid"]; found || req.RemarkPicMediaId != "" {
+		request["remark_pic_mediaid"] = req.RemarkPicMediaId
 	}
 	var result struct {
 		core.Error
 	}
-	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
+	if err = clt.PostJSON(incompleteURL, request, &result); err != nil {
 		return
 	}
 	if result.ErrCode != core.ErrCodeOK {
