@@ -377,7 +377,7 @@ type AddExternalContactEvent struct {
 	message.MsgHeader
 	EventType      message.EventType `xml:"Event"     json:"Event"`               // change_external_contact
 	ChangeType     message.CDATA     `xml:"ChangeType"  json:"ChangeType"`        // add_external_contact
-	UserId         message.CDATA     `xml:"UserId" json:"UserId"`                 // 企业服务人员的UserID
+	UserID         message.CDATA     `xml:"UserID" json:"UserID"`                 // 企业服务人员的UserID
 	ExternalUserID message.CDATA     `xml:"ExternalUserID" json:"ExternalUserID"` // 外部联系人的userid，注意不是企业成员的帐号
 	State          message.CDATA     `xml:"State" json:"State"`                   // 添加此用户的「联系我」方式配置的state参数，可用于识别添加此用户的渠道
 	WelcomeCode    message.CDATA     `xml:"WelcomeCode" json:"WelcomeCode"`       // 欢迎语code
@@ -388,7 +388,7 @@ func GetAddExternalContactEvent(msg *message.MixedMsg) *AddExternalContactEvent 
 		MsgHeader:      msg.MsgHeader,
 		EventType:      msg.EventType,
 		ChangeType:     msg.ChangeType,
-		UserId:         msg.UserId,
+		UserID:         msg.UserID,
 		ExternalUserID: msg.ExternalUserID,
 		State:          msg.State,
 		WelcomeCode:    msg.WelcomeCode,
@@ -400,7 +400,7 @@ type EditExternalContactEvent struct {
 	message.MsgHeader
 	EventType      message.EventType `xml:"Event"     json:"Event"`               // change_external_contact
 	ChangeType     message.CDATA     `xml:"ChangeType"  json:"ChangeType"`        // edit_external_contact
-	UserId         message.CDATA     `xml:"UserId" json:"UserId"`                 // 企业服务人员的UserID
+	UserID         message.CDATA     `xml:"UserID" json:"UserID"`                 // 企业服务人员的UserID
 	ExternalUserID message.CDATA     `xml:"ExternalUserID" json:"ExternalUserID"` // 外部联系人的userid，注意不是企业成员的帐号
 	State          message.CDATA     `xml:"State" json:"State"`                   // 添加此用户的「联系我」方式配置的state参数，可用于识别添加此用户的渠道
 }
@@ -410,7 +410,7 @@ func GetEditExternalContactEvent(msg *message.MixedMsg) *EditExternalContactEven
 		MsgHeader:      msg.MsgHeader,
 		EventType:      msg.EventType,
 		ChangeType:     msg.ChangeType,
-		UserId:         msg.UserId,
+		UserID:         msg.UserID,
 		ExternalUserID: msg.ExternalUserID,
 		State:          msg.State,
 	}
@@ -421,7 +421,7 @@ type AddHalfExternalContactEvent struct {
 	message.MsgHeader
 	EventType      message.EventType `xml:"Event"     json:"Event"`               // change_external_contact
 	ChangeType     message.CDATA     `xml:"ChangeType"  json:"ChangeType"`        // add_half_external_contact
-	UserId         message.CDATA     `xml:"UserId" json:"UserId"`                 // 企业服务人员的UserID
+	UserID         message.CDATA     `xml:"UserID" json:"UserID"`                 // 企业服务人员的UserID
 	ExternalUserID message.CDATA     `xml:"ExternalUserID" json:"ExternalUserID"` // 外部联系人的userid，注意不是企业成员的帐号
 	State          message.CDATA     `xml:"State" json:"State"`                   // 添加此用户的「联系我」方式配置的state参数，可用于识别添加此用户的渠道
 	WelcomeCode    message.CDATA     `xml:"WelcomeCode" json:"WelcomeCode"`       // 欢迎语code
@@ -432,7 +432,7 @@ func GetAddHalfExternalContactEvent(msg *message.MixedMsg) *AddHalfExternalConta
 		MsgHeader:      msg.MsgHeader,
 		EventType:      msg.EventType,
 		ChangeType:     msg.ChangeType,
-		UserId:         msg.UserId,
+		UserID:         msg.UserID,
 		ExternalUserID: msg.ExternalUserID,
 		State:          msg.State,
 		WelcomeCode:    msg.WelcomeCode,
@@ -444,7 +444,7 @@ type DelExternalContactEvent struct {
 	message.MsgHeader
 	EventType      message.EventType `xml:"Event"     json:"Event"`               // change_external_contact
 	ChangeType     message.CDATA     `xml:"ChangeType"  json:"ChangeType"`        // del_external_contact
-	UserId         message.CDATA     `xml:"UserId" json:"UserId"`                 // 企业服务人员的UserID
+	UserID         message.CDATA     `xml:"UserID" json:"UserID"`                 // 企业服务人员的UserID
 	ExternalUserID message.CDATA     `xml:"ExternalUserID" json:"ExternalUserID"` // 外部联系人的userid，注意不是企业成员的帐号
 }
 
@@ -453,7 +453,7 @@ func GetDelExternalContactEvent(msg *message.MixedMsg) *DelExternalContactEvent 
 		MsgHeader:      msg.MsgHeader,
 		EventType:      msg.EventType,
 		ChangeType:     msg.ChangeType,
-		UserId:         msg.UserId,
+		UserID:         msg.UserID,
 		ExternalUserID: msg.ExternalUserID,
 	}
 }
@@ -463,7 +463,7 @@ type DelExternalContactFollowUserEvent struct {
 	message.MsgHeader
 	EventType      message.EventType `xml:"Event"     json:"Event"`               // change_external_contact
 	ChangeType     message.CDATA     `xml:"ChangeType"  json:"ChangeType"`        // del_follow_user
-	UserId         message.CDATA     `xml:"UserId" json:"UserId"`                 // 企业服务人员的UserID
+	UserID         message.CDATA     `xml:"UserID" json:"UserID"`                 // 企业服务人员的UserID
 	ExternalUserID message.CDATA     `xml:"ExternalUserID" json:"ExternalUserID"` // 外部联系人的userid，注意不是企业成员的帐号
 }
 
@@ -472,7 +472,7 @@ func GetDelExternalContactFollowUserEvent(msg *message.MixedMsg) *DelExternalCon
 		MsgHeader:      msg.MsgHeader,
 		EventType:      msg.EventType,
 		ChangeType:     msg.ChangeType,
-		UserId:         msg.UserId,
+		UserID:         msg.UserID,
 		ExternalUserID: msg.ExternalUserID,
 	}
 }
