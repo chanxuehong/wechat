@@ -59,15 +59,13 @@ type MixedMsg struct {
 		PoiName   string  `xml:"Poiname"    json:"Poiname"`
 	} `xml:"SendLocationInfo,omitempty" json:"SendLocationInfo,omitempty"`
 
-	MsgID    int64  `xml:"MsgID"  json:"MsgID"`  // template, mass
-	Status   string `xml:"Status" json:"Status"` // template, mass
-	*mass           // mass
-	*account        // account
-	*dkf            // dkf
-	*poi            // poi
-	*card           // card
-	*bizwifi        // bizwifi
-	*file           // MsgType is file
+	mass     // mass
+	*account // account
+	*dkf     // dkf
+	*poi     // poi
+	*card    // card
+	*bizwifi // bizwifi
+	*file    // MsgType is file
 
 	// shakearound
 	ChosenBeacon *struct {
@@ -85,12 +83,37 @@ type MixedMsg struct {
 }
 
 type mass struct {
-	//MsgID       int64  `xml:"MsgID"       json:"MsgID"`
-	//Status      string `xml:"Status"      json:"Status"`
-	TotalCount  int `xml:"TotalCount"  json:"TotalCount"`
-	FilterCount int `xml:"FilterCount" json:"FilterCount"`
-	SentCount   int `xml:"SentCount"   json:"SentCount"`
-	ErrorCount  int `xml:"ErrorCount"  json:"ErrorCount"`
+	MsgID                int64  `xml:"MsgID"  json:"MsgID"`
+	Status               string `xml:"Status" json:"Status"`
+	TotalCount           int    `xml:"TotalCount"  json:"TotalCount"`
+	FilterCount          int    `xml:"FilterCount" json:"FilterCount"`
+	SentCount            int    `xml:"SentCount"   json:"SentCount"`
+	ErrorCount           int    `xml:"ErrorCount"  json:"ErrorCount"`
+	CopyrightCheckResult *struct {
+		Count      int `xml:"Count" json:"Count"`
+		ResultList struct {
+			Item []*struct {
+				ArticleIdx            int    `xml:"ArticleIdx"  json:"ArticleIdx"`
+				UserDeclareState      int    `xml:"UserDeclareState"  json:"UserDeclareState"`
+				AuditState            int    `xml:"AuditState"  json:"AuditState"`
+				OriginalArticleUrl    string `xml:"OriginalArticleUrl"  json:"OriginalArticleUrl"`
+				OriginalArticleType   int    `xml:"OriginalArticleType"  json:"OriginalArticleType"`
+				CanReprint            int    `xml:"CanReprint"  json:"CanReprint"`
+				NeedReplaceContent    int    `xml:"NeedReplaceContent"  json:"NeedReplaceContent"`
+				NeedShowReprintSource int    `xml:"NeedShowReprintSource"  json:"NeedShowReprintSource"`
+			} `xml:"item" json:"item"`
+		} `xml:"ResultList,omitempty" json:"ResultList"`
+		CheckState int `xml:"CheckState" json:"CheckState"`
+	} `xml:"CopyrightCheckResult" json:"CopyrightCheckResult,omitempty"`
+	ArticleUrlResult *struct {
+		Count      int `xml:"Count"  json:"Count"`
+		ResultList *struct {
+			Item []*struct {
+				ArticleIdx int    `xml:"ArticleIdx"  json:"ArticleIdx"`
+				ArticleUrl string `xml:"ArticleUrl"  json:"ArticleUrl"`
+			} `xml:"item" json:"item"`
+		} `xml:"ResultList"  json:"ResultList"`
+	} `xml:"ArticleUrlResult" json:"ArticleUrlResult,omitempty"`
 }
 
 type account struct {
