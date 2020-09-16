@@ -51,6 +51,7 @@ type NLUResult struct {
 	TakeOptionsOnly     bool                `json:"take_options_only,omitempty"`
 	Query               string              `json:"query,omitempty"`
 	BidStat             *BidStat            `json:"bid_stat,omitempty"`
+	MoreInfo            *MoreInfo           `json:"more_info,omitempty"`
 }
 
 type Message struct {
@@ -70,6 +71,11 @@ type Message struct {
 	SceneStatus     string `json:"scene_status,omitempty"`
 	Status          Status `json:"status,omitempty"`
 	TakeOptionsOnly bool   `json:"take_options_only,omitempty"`
+	AlbumName       string `json:"album_name,omitempty"`
+	MusicUrl        string `json:"music_url,omitempty"`
+	PicUrl          string `json:"pic_url,omitempty"`
+	SingerName      string `json:"singer_name,omitempty"`
+	SongName        string `json:"song_name,omitempty"`
 }
 
 type Slot struct {
@@ -90,4 +96,9 @@ type BidStat struct {
 	LastTime  string `json:"last_time,omitempty"`
 	LastValid bool   `json:"last_valid,omitempty"`
 	UpRet     int    `json:"up_ret,omitempty"`
+}
+
+type MoreInfo struct {
+	Music string `json:"music_ans_detail,omitempty"`
+	Fm    string `json:"fm_ans_detail,omitempty"`
 }
