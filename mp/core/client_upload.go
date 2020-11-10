@@ -74,7 +74,7 @@ func (clt *Client) PostMultipartForm(incompleteURL string, fields []MultipartFor
 	}
 	requestBodyBytes := buffer.Bytes()
 	requestBodyType := multipartWriter.FormDataContentType()
-	fmt.Println(requestBodyType)
+
 	httpClient := clt.HttpClient
 	if httpClient == nil {
 		httpClient = util.DefaultMediaHttpClient
