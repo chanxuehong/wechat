@@ -22,6 +22,10 @@ type MediaInfo struct {
 	CreatedAt int64  `json:"created_at"` // 媒体文件上传时间戳
 }
 
+type UploadImgResponse struct {
+	Url string `json:"url"` //
+}
+
 // UploadImage 上传多媒体图片
 func UploadImage(clt *core.Client, filepath string) (info *MediaInfo, err error) {
 	return upload(clt, MediaTypeImage, filepath)
@@ -53,6 +57,17 @@ func UploadVideo(clt *core.Client, filepath string) (info *MediaInfo, err error)
 //  NOTE: 参数 filename 不是文件路径, 是 multipart/form-data 里面 filename 的值.
 func UploadVideoFromReader(clt *core.Client, filename string, reader io.Reader) (info *MediaInfo, err error) {
 	return uploadFromReader(clt, MediaTypeVideo, filename, reader)
+}
+
+// UploadImg 上传图文消息内的图片获取URL
+func UploadImg(clt *core.Client, filepath string) (link string, err error) {
+	return uploadImg(clt, filepath)
+}
+
+// UploadImgFromReader 上传图文消息内的图片获取URL
+//  NOTE: 参数 filename 不是文件路径, 是 multipart/form-data 里面 filename 的值.
+func UploadImgFromReader(clt *core.Client, filename string, reader io.Reader) (link string, err error) {
+	return uploadImgFromReader(clt, filename, reader)
 }
 
 // =====================================================================================================================
@@ -90,6 +105,44 @@ func uploadFromReader(clt *core.Client, mediaType, filename string, reader io.Re
 		return
 	}
 	info = &result.MediaInfo
+	return
+}
+
+// =====================================================================================================================
+
+func uploadImg(clt *core.Client, _filepath string) (link string, err error) {
+	file, err := os.Open(_filepath)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	return uploadImgFromReader(clt, filepath.Base(_filepath), file)
+}
+
+func uploadImgFromReader(clt *core.Client, filename string, reader io.Reader) (link string, err error) {
+	var incompleteURL = "https://api.weixin.qq.com/cgi-bin/media/uploadimg?access_token="
+
+	var fields = []core.MultipartFormField{
+		{
+			IsFile:   true,
+			Name:     "media",
+			FileName: filename,
+			Value:    reader,
+		},
+	}
+	var result struct {
+		core.Error
+		UploadImgResponse
+	}
+	if err = clt.PostMultipartForm(incompleteURL, fields, &result); err != nil {
+		return
+	}
+	if result.ErrCode != core.ErrCodeOK {
+		err = &result.Error
+		return
+	}
+	link = result.UploadImgResponse.Url
 	return
 }
 
