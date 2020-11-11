@@ -5,13 +5,15 @@ import (
 )
 
 type Article struct {
-	ThumbMediaId     string `json:"thumb_media_id"`               // 必须; 图文消息缩略图的 media_id, 可以在上传多媒体文件接口中获得
-	Title            string `json:"title"`                        // 必须; 图文消息的标题
-	Author           string `json:"author,omitempty"`             // 可选; 图文消息的作者
-	Digest           string `json:"digest,omitempty"`             // 可选; 图文消息的摘要
-	Content          string `json:"content"`                      // 必须; 图文消息页面的内容, 支持HTML标签
-	ContentSourceURL string `json:"content_source_url,omitempty"` // 可选; 在图文消息页面点击"阅读原文"后的页面
-	ShowCoverPic     int    `json:"show_cover_pic"`               // 可选; 是否显示封面, 1为显示, 0为不显示, 默认为不显示
+	ThumbMediaId       string `json:"thumb_media_id"`               // 必须; 图文消息缩略图的 media_id, 可以在上传多媒体文件接口中获得
+	Title              string `json:"title"`                        // 必须; 图文消息的标题
+	Author             string `json:"author,omitempty"`             // 可选; 图文消息的作者
+	Digest             string `json:"digest,omitempty"`             // 可选; 图文消息的摘要
+	Content            string `json:"content"`                      // 必须; 图文消息页面的内容, 支持HTML标签
+	ContentSourceURL   string `json:"content_source_url,omitempty"` // 可选; 在图文消息页面点击"阅读原文"后的页面
+	ShowCoverPic       int    `json:"show_cover_pic"`               // 可选; 是否显示封面, 1为显示, 0为不显示, 默认为不显示
+	NeedOpenComment    int    `json:"need_open_comment"`            // 可选; Uint32 是否打开评论，0不打开，1打开
+	OnlyFansCanComment int    `json:"only_fans_can_comment"`        // 可选; Uint32 是否粉丝才可评论，0所有人可评论，1粉丝才可评论
 }
 
 type News struct {

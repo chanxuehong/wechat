@@ -17,7 +17,8 @@ type MsgHeader struct {
 	Filter struct {
 		IsToAll bool `json:"is_to_all"`
 	} `json:"filter"`
-	MsgType core.MsgType `json:"msgtype"`
+	MsgType           core.MsgType `json:"msgtype"`
+	SendIgnoreReprint int          `json:"send_ignore_reprint"` //  参数设置为1时，文章被判定为转载时，且原创文允许转载时，将继续进行群发操作, 参数设置为0时，文章被判定为转载时，将停止群发操作
 }
 
 type Text struct {
@@ -68,17 +69,23 @@ func NewVoice(mediaId string) *Voice {
 type Video struct {
 	MsgHeader
 	Video struct {
-		MediaId string `json:"media_id"`
+		MediaId      string `json:"media_id"`
+		Title        string `json:"title,omitempty"`
+		Description  string `json:"description,omitempty"`
+		ThumbMediaId string `json:"thumb_media_id,omitempty"`
 	} `json:"mpvideo"`
 }
 
 // 新建视频消息
 //  NOTE: 对于临时素材, mediaId 应该通过 media.UploadVideo2 得到
-func NewVideo(mediaId string) *Video {
+func NewVideo(mediaId string, title string, description string, thumbMediaId string) *Video {
 	var msg Video
 	msg.MsgType = MsgTypeVideo
 	msg.Filter.IsToAll = true
 	msg.Video.MediaId = mediaId
+	msg.Video.Title = title
+	msg.Video.Description = description
+	msg.Video.ThumbMediaId = thumbMediaId
 	return &msg
 }
 

@@ -14,9 +14,10 @@ const (
 )
 
 type MsgHeader struct {
-	ToWxName string       `json:"towxname,omitempty"`
-	ToUser   string       `json:"touser,omitempty"`
-	MsgType  core.MsgType `json:"msgtype"`
+	ToWxName          string       `json:"towxname,omitempty"`
+	ToUser            string       `json:"touser,omitempty"`
+	MsgType           core.MsgType `json:"msgtype"`
+	SendIgnoreReprint int          `json:"send_ignore_reprint"` //  参数设置为1时，文章被判定为转载时，且原创文允许转载时，将继续进行群发操作, 参数设置为0时，文章被判定为转载时，将停止群发操作
 }
 
 type Text struct {
