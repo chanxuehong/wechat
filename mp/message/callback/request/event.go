@@ -9,10 +9,11 @@ import (
 
 const (
 	// 普通事件类型
-	EventTypeSubscribe   core.EventType = "subscribe"   // 关注事件, 包括点击关注和扫描二维码(公众号二维码和公众号带参数二维码)关注
-	EventTypeUnsubscribe core.EventType = "unsubscribe" // 取消关注事件
-	EventTypeScan        core.EventType = "SCAN"        // 已经关注的用户扫描带参数二维码事件
-	EventTypeLocation    core.EventType = "LOCATION"    // 上报地理位置事件
+	EventTypeSubscribe            core.EventType = "subscribe"         // 关注事件, 包括点击关注和扫描二维码(公众号二维码和公众号带参数二维码)关注
+	EventTypeUnsubscribe          core.EventType = "unsubscribe"       // 取消关注事件
+	EventTypeScan                 core.EventType = "SCAN"              // 已经关注的用户扫描带参数二维码事件
+	EventTypeLocation             core.EventType = "LOCATION"          // 上报地理位置事件
+	EventTypeMessageSendJobFinish core.EventType = "MASSSENDJOBFINISH" // 事件推送群发结果
 )
 
 // 关注事件
@@ -97,5 +98,33 @@ func GetLocationEvent(msg *core.MixedMsg) *LocationEvent {
 		Latitude:  msg.Latitude,
 		Longitude: msg.Longitude,
 		Precision: msg.Precision,
+	}
+}
+
+// 事件推送群发结果
+type MessageSendJobFinishEvent struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+	core.MsgHeader
+	EventType        core.EventType         `xml:"Event" json:"Event"`       // MASSSENDJOBFINISH
+	MsgId            int64                  `xml:"MsgId"       json:"MsgId"` // 消息id, 64位整型
+	Status           string                 `xml:"Status" json:"Status"`     // 群发的结果，为“send success”或“send fail”或“err(num)”。但send success时，也有可能因用户拒收公众号的消息、系统错误等原因造成少量用户接收失败。err(num)是审核失败的具体原因，可能的情况如下：err(10001):涉嫌广告, err(20001):涉嫌政治, err(20004):涉嫌社会, err(20002):涉嫌色情, err(20006):涉嫌违法犯罪, err(20008):涉嫌欺诈, err(20013):涉嫌版权, err(22000):涉嫌互推(互相宣传), err(21000):涉嫌其他, err(30001):原创校验出现系统错误且用户选择了被判为转载就不群发, err(30002): 原创校验被判定为不能群发, err(30003): 原创校验被判定为转载文且用户选择了被判为转载就不群发, err(40001)：管理员拒绝, err(40002)：管理员30分钟内无响应，超时
+	TotalCount       int                    `xml:"TotalCount"  json:"TotalCount"`
+	FilterCount      int                    `xml:"FilterCount" json:"FilterCount"`
+	SentCount        int                    `xml:"SentCount"   json:"SentCount"`
+	ErrorCount       int                    `xml:"ErrorCount"  json:"ErrorCount"`
+	ArticleUrlResult *core.ArticleUrlResult `xml:"ArticleUrlResult" json:"ArticleUrlResult"`
+}
+
+func GetMessageSendJobFinishEvent(msg *core.MixedMsg) *MessageSendJobFinishEvent {
+	return &MessageSendJobFinishEvent{
+		MsgHeader:        msg.MsgHeader,
+		EventType:        msg.EventType,
+		MsgId:            msg.MsgId,
+		Status:           msg.Status,
+		TotalCount:       msg.TotalCount,
+		FilterCount:      msg.FilterCount,
+		SentCount:        msg.SentCount,
+		ErrorCount:       msg.ErrorCount,
+		ArticleUrlResult: msg.ArticleUrlResult,
 	}
 }

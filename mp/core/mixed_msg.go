@@ -91,6 +91,7 @@ type MixedMsg struct {
 		Minor    int     `xml:"Minor"    json:"Minor"`
 		Distance float64 `xml:"Distance" json:"Distance"`
 	} `xml:"AroundBeacons>AroundBeacon,omitempty" json:"AroundBeacons,omitempty"`
+	ArticleUrlResult *ArticleUrlResult `xml:"ArticleUrlResult,omitempty" json:"ArticleUrlResult,omitempty"`
 }
 
 type mass struct {
@@ -156,4 +157,12 @@ type file struct {
 	FileKey      string `xml:"FileKey"      json:"FileKey"`
 	FileMd5      string `xml:"FileMd5"      json:"FileMd5"`
 	FileTotalLen string `xml:"FileTotalLen" json:"FileTotalLen"`
+}
+
+type ArticleUrlResult struct {
+	Count      int `xml:"Count" json:"Count"`
+	ResultList []struct {
+		ArticleIdx uint   `xml:"ArticleIdx" json:"ArticleIdx"`
+		ArticleUrl string `xml:"ArticleUrl" json:"ArticleUrl"`
+	} `xml:"ResultList>item,omitempty" json:"ResultList>item,omitempty"`
 }
