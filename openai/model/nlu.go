@@ -33,7 +33,7 @@ type NLUResult struct {
 	AnswerOpen          int                 `json:"answer_open,omitempty"`
 	AnswerType          AnswerType          `json:"answer_type,omitempty"`
 	Article             string              `json:"article,omitempty"`
-	Confidence          int                 `json:"confidence,omitempty"`
+	Confidence          float64             `json:"confidence,omitempty"`
 	CreateTime          json.Number         `json:"create_time,omitempty"`
 	DialogSessionStatus string              `json:"dialog_session_status,omitempty"`
 	DialogStatus        string              `json:"dialog_status,omitempty"`
@@ -55,27 +55,27 @@ type NLUResult struct {
 }
 
 type Message struct {
-	RequestID       uint64 `json:"request_id,omitempty"`
-	AnsNodeID       uint64 `json:"ans_node_id,omitempty"`
-	AnsNodeName     string `json:"ans_node_name,omitempty"`
-	Article         string `json:"article,omitempty"`
-	Confidence      int    `json:"confidence,omitempty"`
-	Content         string `json:"content,omitempty"`
-	DebugInfo       string `json:"debug_info,omitempty"`
-	Event           string `json:"event,omitempty"`
-	ListOptions     bool   `json:"list_options,omitempty"`
-	Opening         string `json:"opening,omitempty"`
-	MsgType         string `json:"msg_type,omitempty"`
-	RespTitle       string `json:"resp_title,omitempty"`
-	SessionID       string `json:"session_id,omitempty"`
-	SceneStatus     string `json:"scene_status,omitempty"`
-	Status          Status `json:"status,omitempty"`
-	TakeOptionsOnly bool   `json:"take_options_only,omitempty"`
-	AlbumName       string `json:"album_name,omitempty"`
-	MusicUrl        string `json:"music_url,omitempty"`
-	PicUrl          string `json:"pic_url,omitempty"`
-	SingerName      string `json:"singer_name,omitempty"`
-	SongName        string `json:"song_name,omitempty"`
+	RequestID       uint64  `json:"request_id,omitempty"`
+	AnsNodeID       uint64  `json:"ans_node_id,omitempty"`
+	AnsNodeName     string  `json:"ans_node_name,omitempty"`
+	Article         string  `json:"article,omitempty"`
+	Confidence      float64 `json:"confidence,omitempty"`
+	Content         string  `json:"content,omitempty"`
+	DebugInfo       string  `json:"debug_info,omitempty"`
+	Event           string  `json:"event,omitempty"`
+	ListOptions     bool    `json:"list_options,omitempty"`
+	Opening         string  `json:"opening,omitempty"`
+	MsgType         string  `json:"msg_type,omitempty"`
+	RespTitle       string  `json:"resp_title,omitempty"`
+	SessionID       string  `json:"session_id,omitempty"`
+	SceneStatus     string  `json:"scene_status,omitempty"`
+	Status          Status  `json:"status,omitempty"`
+	TakeOptionsOnly bool    `json:"take_options_only,omitempty"`
+	AlbumName       string  `json:"album_name,omitempty"`
+	MusicUrl        string  `json:"music_url,omitempty"`
+	PicUrl          string  `json:"pic_url,omitempty"`
+	SingerName      string  `json:"singer_name,omitempty"`
+	SongName        string  `json:"song_name,omitempty"`
 }
 
 type Slot struct {
