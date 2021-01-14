@@ -10,7 +10,7 @@ type SendRequest struct {
 	ToTag                  string    `json:"totag,omitempty"`
 	MsgType                string    `json:"msgtype,omitempty"`
 	AgentId                uint64    `json:"agentid,omitempty"`
-	Content                string    `json:"content,omitempty"`
+	Text                   *Message  `json:"text,omitempty"`
 	Image                  *Message  `json:"image,omitempty"`
 	Voice                  *Message  `json:"voice,omitempty"`
 	Video                  *Message  `json:"video,omitempty"`
