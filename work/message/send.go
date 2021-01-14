@@ -37,6 +37,7 @@ type Markdown struct {
 type Message struct {
 	Title             string        `json:"title,omitempty"`
 	Description       string        `json:"description,omitempty"`
+	Content           string        `json:"content,omitempty"`
 	MediaId           string        `json:"media_id,omitempty"`
 	Url               string        `json:"url,omitempty"`
 	BtnText           string        `json:"btntext,omitempty"`
