@@ -6,10 +6,24 @@ type Product struct {
 	ProductID string `json:"productId,omitempty"`
 	// AppID 商品所在小商店的AppID
 	AppID string `json:"appId,omitempty"`
-	// CustomizeInfo 自定义参数，最多包含80个字符
-	CustomizeInfo string `json:"customizeInfo,omitempty"`
-	// Info 商品具体信息
-	Info *ProductInfo `json:"info,omitempty"`
+	// Product 商品具体信息
+	Product *ProductInfo `json:"product,omitempty"`
+	// LeagueExInfo 联盟佣金相关数据
+	LeagueExInfo *LeagueExInfo `json:"leagueExInfo,omitempty"`
+	// ShopInfo 商品所属小商店数据
+	ShopInfo *ShopInfo `json:"shopInfo,omitempty"`
+	// CouponInfo 联盟优惠券数据
+	CouponInfo *CouponInfo `json:"couponInfo,omitempty"`
+}
+
+// LeagueExInfo 联盟佣金相关数据
+type LeagueExInfo struct {
+	// HasCommission 是否有佣金，1/0
+	HasCommission int `json:"hasCommission,omitempty"`
+	// CommissionRatio 佣金比例，万分之一
+	CommissionRatio int64 `json:"commissionRatio,omitempty"`
+	// CommissionValue 	佣金金额，单位分
+	CommissionValue int64 `json:"commissionValue,omitempty"`
 }
 
 // ProductInfo 商品具体信息
@@ -56,6 +70,20 @@ type ProductDetail struct {
 	DetailImg []string `json:"detailImg,omitempty"`
 	// Param 商品参数
 	Param []interface{} `json:"param,omitempty"`
+}
+
+// ShareProduct 商品
+type ShareProduct struct {
+	// ProductID 商品SPU ID
+	ProductID string `json:"productId,omitempty"`
+	// AppID 商品所在小商店的AppID
+	AppID string `json:"appId,omitempty"`
+	// CustomizeInfo 自定义参数，最多包含80个字符
+	CustomizeInfo string `json:"customizeInfo,omitempty"`
+	// ProductInfo 商品具体信息
+	ProductInfo *ProductInfo `json:"productInfo,omitempty"`
+	// ShareInfo 推广相关信息
+	ShareInfo *ShareInfo `json:"shareInfo,omitempty"`
 }
 
 // ShareInfo 推广相关信息
