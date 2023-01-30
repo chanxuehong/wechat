@@ -66,4 +66,18 @@ type ShareInfo struct {
 	AppID string `json:"appId,omitempty"`
 	// Path 推广商品的小程序Path
 	Path string `json:"path,omitempty"`
+	// CouponPath 推广商品的带券小程序Path
+	CouponPath string `json:"couponPath,omitempty"`
+	// PromotionURL 推广商品短链
+	PromotionURL string `json:"promotionUrl,omitempty"`
+	// CouponPromotionURL 推广商品带券短链
+	CouponPromotionURL string `json:"couponPromotionUrl,omitempty"`
+	// PromotionWording 推广商品文案
+	PromotionWording string `json:"promotionWording,omitempty"`
+	// CouponPromotionWording 推广商品带券文案
+	CouponPromotionWording string `json:"couponPromotionWording,omitempty"`
+	// PromotionTag 推广商品tag
+	PromotionTag string `json:"promotionTag,omitempty"`
+	// CouponPromotionTag 推广商品带券tag
+	CouponPromotionTag string `json:"couponPromotionTag,omitempty"`
 }
