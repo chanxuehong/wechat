@@ -1,8 +1,10 @@
 package core
 
 import (
-	"fmt"
 	"reflect"
+	"strconv"
+
+	"github.com/chanxuehong/wechat/util"
 )
 
 const (
@@ -27,5 +29,5 @@ type Error struct {
 }
 
 func (err *Error) Error() string {
-	return fmt.Sprintf("errcode: %d, errmsg: %s", err.ErrCode, err.ErrMsg)
+	return util.StringsJoin("errcode:", strconv.FormatInt(err.ErrCode, 10), ", errmsg:", err.ErrMsg)
 }

@@ -3,7 +3,8 @@ package core
 import (
 	"encoding/xml"
 	"errors"
-	"fmt"
+
+	"github.com/chanxuehong/wechat/util"
 )
 
 var (
@@ -24,7 +25,7 @@ type Error struct {
 func (e *Error) Error() string {
 	bs, err := xml.Marshal(e)
 	if err != nil {
-		return fmt.Sprintf("return_code: %q, return_msg: %q", e.ReturnCode, e.ReturnMsg)
+		return util.StringsJoin("return_code:", e.ReturnCode, ", return_msg:", e.ReturnMsg)
 	}
 	return string(bs)
 }
@@ -42,7 +43,7 @@ type BizError struct {
 func (e *BizError) Error() string {
 	bs, err := xml.Marshal(e)
 	if err != nil {
-		return fmt.Sprintf("result_code: %q, err_code: %q, err_code_des: %q", e.ResultCode, e.ErrCode, e.ErrCodeDesc)
+		return util.StringsJoin("result_code:", e.ResultCode, ", err_code:", e.ErrCode, ", err_code_des:", e.ErrCodeDesc)
 	}
 	return string(bs)
 }

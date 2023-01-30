@@ -63,7 +63,8 @@ type RefundItem struct {
 }
 
 // RefundQuery2 查询退款.
-//  NOTE: 该函数不支持 代金券 功能, 如果有 代金券 功能请使用 RefundQuery 函数.
+//
+//	NOTE: 该函数不支持 代金券 功能, 如果有 代金券 功能请使用 RefundQuery 函数.
 func RefundQuery2(clt *core.Client, req *RefundQueryRequest) (resp *RefundQueryResponse, err error) {
 	m1 := make(map[string]string, 16)
 	if req.TransactionId != "" {
@@ -128,7 +129,7 @@ func RefundQuery2(clt *core.Client, req *RefundQueryRequest) (resp *RefundQueryR
 			err = fmt.Errorf("parse settlement_total_fee:%q to int64 failed: %s", str, err.Error())
 			return nil, err
 		} else {
-			resp.SettlementTotalFee = wechatutil.Int64(n)
+			resp.SettlementTotalFee = wechatutil.Int64Ptr(n)
 		}
 	}
 
@@ -154,7 +155,7 @@ func RefundQuery2(clt *core.Client, req *RefundQueryRequest) (resp *RefundQueryR
 				err = fmt.Errorf("parse settlement_refund_fee_%d:%q to int64 failed: %s", i, str, err.Error())
 				return nil, err
 			} else {
-				resp.RefundList[i].SettlementRefundFee = wechatutil.Int64(n)
+				resp.RefundList[i].SettlementRefundFee = wechatutil.Int64Ptr(n)
 			}
 		}
 		if str := m2["refund_success_time_"+strconv.Itoa(i)]; str != "" {

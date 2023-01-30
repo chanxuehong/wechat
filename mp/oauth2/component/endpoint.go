@@ -1,10 +1,10 @@
 package component
 
 import (
-	"fmt"
-	"net/url"
+	"strconv"
 
 	"github.com/chanxuehong/wechat/oauth2"
+	"github.com/chanxuehong/wechat/util"
 )
 
 var _ oauth2.Endpoint = (*Endpoint)(nil)
@@ -25,43 +25,50 @@ func NewEndpoint(appId, componentAppId, componentAccessToken string) *Endpoint {
 }
 
 func (p *Endpoint) ExchangeTokenURL(code string) string {
-	return fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/component/access_token?"+
-		"appid=%s&component_appid=%s&component_access_token=%s&code=%s&grant_type=authorization_code",
-		url.QueryEscape(p.AppId),
-		url.QueryEscape(p.ComponentAppId),
-		url.QueryEscape(p.ComponentAccessToken),
-		url.QueryEscape(code),
-	)
+	values := util.GetUrlValues()
+	values.Set("appid", p.AppId)
+	values.Set("component_appid", p.ComponentAppId)
+	values.Set("component_access_token", p.ComponentAccessToken)
+	values.Set("code", code)
+	values.Set("grand_type", "authorization_code")
+	query := values.Encode()
+	util.PutUrlValues(values)
+	return util.StringsJoin("https://api.weixin.qq.com/sns/oauth2/component/access_token?", query)
 }
 
 func (p *Endpoint) RefreshTokenURL(refreshToken string) string {
-	return fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/component/refresh_token?"+
-		"appid=%s&component_appid=%s&component_access_token=%s&refresh_token=%s&grant_type=refresh_token",
-		url.QueryEscape(p.AppId),
-		url.QueryEscape(p.ComponentAppId),
-		url.QueryEscape(p.ComponentAccessToken),
-		url.QueryEscape(refreshToken),
-	)
+	values := util.GetUrlValues()
+	values.Set("appid", p.AppId)
+	values.Set("component_appid", p.ComponentAppId)
+	values.Set("component_access_token", p.ComponentAccessToken)
+	values.Set("refresh_token", refreshToken)
+	values.Set("grand_type", "refresh_token")
+	query := values.Encode()
+	util.PutUrlValues(values)
+	return util.StringsJoin("https://api.weixin.qq.com/sns/oauth2/component/refresh_token?", query)
 }
 
 func (p *Endpoint) SessionCodeUrl(code string) string {
-	return fmt.Sprintf("https://api.weixin.qq.com/sns/component/jscode2session?"+
-		"appid=%s&component_appid=%s&component_access_token=%s&js_code=%s&grant_type=authorization_code",
-		url.QueryEscape(p.AppId),
-		url.QueryEscape(p.ComponentAppId),
-		url.QueryEscape(p.ComponentAccessToken),
-		url.QueryEscape(code),
-	)
+	values := util.GetUrlValues()
+	values.Set("appid", p.AppId)
+	values.Set("component_appid", p.ComponentAppId)
+	values.Set("component_access_token", p.ComponentAccessToken)
+	values.Set("js_code", code)
+	values.Set("grand_type", "authorization_code")
+	query := values.Encode()
+	util.PutUrlValues(values)
+	return util.StringsJoin("https://api.weixin.qq.com/sns/component/jscode2session?", query)
 }
 
 // 要授权的帐号类型， 1则商户扫码后，手机端仅展示公众号、2表示仅展示小程序，3表示公众号和小程序都展示。如果为未制定，则默认小程序和公众号都展示。第三方平台开发者可以使用本字段来控制授权的帐号类型。
 func (p *Endpoint) LoginUrl(preAuthCode string, redirectUri string, authType uint, bizAppId string) string {
-	return fmt.Sprintf("https://mp.weixin.qq.com/cgi-bin/componentloginpage?"+
-		"component_appid=%s&pre_auth_code=%s&redirect_uri=%s&auth_type=%d&biz_appid=%s",
-		url.QueryEscape(p.ComponentAppId),
-		url.QueryEscape(preAuthCode),
-		url.QueryEscape(redirectUri),
-		authType,
-		url.QueryEscape(bizAppId),
-	)
+	values := util.GetUrlValues()
+	values.Set("component_appid", p.ComponentAppId)
+	values.Set("pre_auth_code", preAuthCode)
+	values.Set("redirect_uri", redirectUri)
+	values.Set("auth_type", strconv.Itoa(int(authType)))
+	values.Set("biz_appid", bizAppId)
+	query := values.Encode()
+	util.PutUrlValues(values)
+	return util.StringsJoin("https://mp.weixin.qq.com/cgi-bin/componentloginpage?", query)
 }

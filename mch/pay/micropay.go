@@ -151,9 +151,9 @@ func MicroPay2(clt *core.Client, req *MicroPayRequest) (resp *MicroPayResponse, 
 
 	if str := m2["sub_is_subscribe"]; str != "" {
 		if str == "Y" || str == "y" {
-			resp.SubIsSubscribe = util.Bool(true)
+			resp.SubIsSubscribe = util.BoolPtr(true)
 		} else {
-			resp.SubIsSubscribe = util.Bool(false)
+			resp.SubIsSubscribe = util.BoolPtr(false)
 		}
 	}
 	if str := m2["settlement_total_fee"]; str != "" {
@@ -161,7 +161,7 @@ func MicroPay2(clt *core.Client, req *MicroPayRequest) (resp *MicroPayResponse, 
 			err = fmt.Errorf("parse settlement_total_fee:%q to int64 failed: %s", str, err.Error())
 			return nil, err
 		} else {
-			resp.SettlementTotalFee = util.Int64(n)
+			resp.SettlementTotalFee = util.Int64Ptr(n)
 		}
 	}
 	if str := m2["coupon_fee"]; str != "" {
@@ -169,7 +169,7 @@ func MicroPay2(clt *core.Client, req *MicroPayRequest) (resp *MicroPayResponse, 
 			err = fmt.Errorf("parse coupon_fee:%q to int64 failed: %s", str, err.Error())
 			return nil, err
 		} else {
-			resp.CouponFee = util.Int64(n)
+			resp.CouponFee = util.Int64Ptr(n)
 		}
 	}
 

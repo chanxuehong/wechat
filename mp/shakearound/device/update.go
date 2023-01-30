@@ -18,24 +18,24 @@ type DeviceIdentifier struct {
 
 func NewDeviceIdentifier1(deviceId int64) *DeviceIdentifier {
 	return &DeviceIdentifier{
-		DeviceId: util.Int64(deviceId),
+		DeviceId: util.Int64Ptr(deviceId),
 	}
 }
 
 func NewDeviceIdentifier2(uuid string, major, minor int) *DeviceIdentifier {
 	return &DeviceIdentifier{
 		UUID:  uuid,
-		Major: util.Int(major),
-		Minor: util.Int(minor),
+		Major: util.IntPtr(major),
+		Minor: util.IntPtr(minor),
 	}
 }
 
 func NewDeviceIdentifier3(deviceId int64, uuid string, major, minor int) *DeviceIdentifier {
 	return &DeviceIdentifier{
-		DeviceId: util.Int64(deviceId),
+		DeviceId: util.Int64Ptr(deviceId),
 		UUID:     uuid,
-		Major:    util.Int(major),
-		Minor:    util.Int(minor),
+		Major:    util.IntPtr(major),
+		Minor:    util.IntPtr(minor),
 	}
 }
 

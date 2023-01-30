@@ -9,7 +9,8 @@ import (
 )
 
 // Refund 申请退款.
-//  NOTE: 请求需要双向证书.
+//
+//	NOTE: 请求需要双向证书.
 func Refund(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
 	return clt.PostXML(core.APIBaseURL()+"/secapi/pay/refund", req)
 }
@@ -53,9 +54,10 @@ type RefundResponse struct {
 }
 
 // Refund2 申请退款.
-//  NOTE:
-//  1. 请求需要双向证书.
-//  2. 该函数不支持 代金券 功能, 如果有 代金券 功能请使用 Refund 函数.
+//
+//	NOTE:
+//	1. 请求需要双向证书.
+//	2. 该函数不支持 代金券 功能, 如果有 代金券 功能请使用 Refund 函数.
 func Refund2(clt *core.Client, req *RefundRequest) (resp *RefundResponse, err error) {
 	m1 := make(map[string]string, 16)
 	if req.TransactionId != "" {
@@ -129,7 +131,7 @@ func Refund2(clt *core.Client, req *RefundRequest) (resp *RefundResponse, err er
 			err = fmt.Errorf("parse settlement_refund_fee:%q to int64 failed: %s", str, err.Error())
 			return nil, err
 		} else {
-			resp.SettlementRefundFee = wechatutil.Int64(n)
+			resp.SettlementRefundFee = wechatutil.Int64Ptr(n)
 		}
 	}
 	if str := m2["settlement_total_fee"]; str != "" {
@@ -137,7 +139,7 @@ func Refund2(clt *core.Client, req *RefundRequest) (resp *RefundResponse, err er
 			err = fmt.Errorf("parse settlement_total_fee:%q to int64 failed: %s", str, err.Error())
 			return nil, err
 		} else {
-			resp.SettlementTotalFee = wechatutil.Int64(n)
+			resp.SettlementTotalFee = wechatutil.Int64Ptr(n)
 		}
 	}
 	if str := m2["cash_refund_fee"]; str != "" {
@@ -145,7 +147,7 @@ func Refund2(clt *core.Client, req *RefundRequest) (resp *RefundResponse, err er
 			err = fmt.Errorf("parse cash_refund_fee:%q to int64 failed: %s", str, err.Error())
 			return nil, err
 		} else {
-			resp.CashRefundFee = wechatutil.Int64(n)
+			resp.CashRefundFee = wechatutil.Int64Ptr(n)
 		}
 	}
 

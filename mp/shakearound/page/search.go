@@ -24,8 +24,8 @@ func NewSearchQuery1(pageIds []int64) *SearchQuery {
 func NewSearchQuery2(begin, count int) *SearchQuery {
 	return &SearchQuery{
 		Type:  2,
-		Begin: util.Int(begin),
-		Count: util.Int(count),
+		Begin: util.IntPtr(begin),
+		Count: util.IntPtr(count),
 	}
 }
 
@@ -68,18 +68,18 @@ func Search(clt *core.Client, query *SearchQuery) (rslt *SearchResult, err error
 
 // PageIterator
 //
-//  iter, err := NewPageIterator(*core.Client, *SearchQuery)
-//  if err != nil {
-//      // TODO: 增加你的代码
-//  }
+//	iter, err := NewPageIterator(*core.Client, *SearchQuery)
+//	if err != nil {
+//	    // TODO: 增加你的代码
+//	}
 //
-//  for iter.HasNext() {
-//      items, err := iter.NextPage()
-//      if err != nil {
-//          // TODO: 增加你的代码
-//      }
-//      // TODO: 增加你的代码
-//  }
+//	for iter.HasNext() {
+//	    items, err := iter.NextPage()
+//	    if err != nil {
+//	        // TODO: 增加你的代码
+//	    }
+//	    // TODO: 增加你的代码
+//	}
 type PageIterator struct {
 	clt *core.Client
 

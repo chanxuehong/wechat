@@ -1,8 +1,8 @@
 package mall
 
 import (
-	"fmt"
 	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/chanxuehong/wechat/util"
 )
 
 type QueryType = string
@@ -27,7 +27,7 @@ type QueryShoppingListResponse struct {
 // 查询用户收藏信息
 // 开发者可以查询用户在好物圈中指定商家的收藏物品
 func QueryShoppingList(clt *core.Client, req *QueryShoppingListRequest, queryType QueryType) (resp QueryShoppingListResponse, err error) {
-	incompleteURL := fmt.Sprintf("https://api.weixin.qq.com/mall/queryshoppinglist?type=%s&access_token=", queryType)
+	incompleteURL := util.StringsJoin("https://api.weixin.qq.com/mall/queryshoppinglist?type=", queryType, "&access_token=")
 	if err = clt.PostJSON(incompleteURL, req, &resp); err != nil {
 		return
 	}

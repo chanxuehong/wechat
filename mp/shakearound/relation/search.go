@@ -27,17 +27,17 @@ func NewSearchQuery1X(deviceIdentifier *device.DeviceIdentifier, begin, count in
 	return &SearchQuery{
 		Type:             1,
 		DeviceIdentifier: deviceIdentifier,
-		Begin:            util.Int(begin),
-		Count:            util.Int(count),
+		Begin:            util.IntPtr(begin),
+		Count:            util.IntPtr(count),
 	}
 }
 
 func NewSearchQuery2(pageId int64, begin, count int) *SearchQuery {
 	return &SearchQuery{
 		Type:   2,
-		PageId: util.Int64(pageId),
-		Begin:  util.Int(begin),
-		Count:  util.Int(count),
+		PageId: util.Int64Ptr(pageId),
+		Begin:  util.IntPtr(begin),
+		Count:  util.IntPtr(count),
 	}
 }
 
@@ -76,18 +76,18 @@ func Search(clt *core.Client, query *SearchQuery) (rslt *SearchResult, err error
 
 // RelationIterator
 //
-//  iter, err := NewRelationIterator(*core.Client, *SearchQuery)
-//  if err != nil {
-//      // TODO: 增加你的代码
-//  }
+//	iter, err := NewRelationIterator(*core.Client, *SearchQuery)
+//	if err != nil {
+//	    // TODO: 增加你的代码
+//	}
 //
-//  for iter.HasNext() {
-//      items, err := iter.NextPage()
-//      if err != nil {
-//          // TODO: 增加你的代码
-//      }
-//      // TODO: 增加你的代码
-//  }
+//	for iter.HasNext() {
+//	    items, err := iter.NextPage()
+//	    if err != nil {
+//	        // TODO: 增加你的代码
+//	    }
+//	    // TODO: 增加你的代码
+//	}
 type RelationIterator struct {
 	clt *core.Client
 

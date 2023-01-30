@@ -21,11 +21,13 @@ import (
 
 	"github.com/chanxuehong/wechat/internal/debug/callback"
 	"github.com/chanxuehong/wechat/internal/util"
+	sUtil "github.com/chanxuehong/wechat/util"
 )
 
 // Server 用于处理微信服务器的回调请求, 并发安全!
-//  通常情况下一个 Server 实例用于处理一个公众号的消息(事件), 此时建议指定 oriId(原始ID) 和 appId(明文模式下无需指定) 用于约束消息(事件);
-//  特殊情况下也可以一个 Server 实例用于处理多个公众号的消息(事件), 此时要求这些公众号的 token 是一样的, 并且 oriId 和 appId 必须设置为 "".
+//
+//	通常情况下一个 Server 实例用于处理一个公众号的消息(事件), 此时建议指定 oriId(原始ID) 和 appId(明文模式下无需指定) 用于约束消息(事件);
+//	特殊情况下也可以一个 Server 实例用于处理多个公众号的消息(事件), 此时要求这些公众号的 token 是一样的, 并且 oriId 和 appId 必须设置为 "".
 type Server struct {
 	oriId string
 	appId string
@@ -58,12 +60,13 @@ type aesKeyBucket struct {
 }
 
 // NewServer 创建一个新的 Server.
-//  oriId:        可选; 公众号的原始ID(微信公众号管理后台查看), 如果设置了值则该Server只能处理 ToUserName 为该值的公众号的消息(事件);
-//  appId:        可选; 公众号的AppId, 如果设置了值则安全模式时该Server只能处理 AppId 为该值的公众号的消息(事件);
-//  token:        必须; 公众号用于验证签名的token;
-//  base64AESKey: 可选; aes加密解密key, 43字节长(base64编码, 去掉了尾部的'='), 安全模式必须设置;
-//  handler:      必须; 处理微信服务器推送过来的消息(事件)的Handler;
-//  errorHandler: 可选; 用于处理Server在处理消息(事件)过程中产生的错误, 如果没有设置则默认使用 DefaultErrorHandler.
+//
+//	oriId:        可选; 公众号的原始ID(微信公众号管理后台查看), 如果设置了值则该Server只能处理 ToUserName 为该值的公众号的消息(事件);
+//	appId:        可选; 公众号的AppId, 如果设置了值则安全模式时该Server只能处理 AppId 为该值的公众号的消息(事件);
+//	token:        必须; 公众号用于验证签名的token;
+//	base64AESKey: 可选; aes加密解密key, 43字节长(base64编码, 去掉了尾部的'='), 安全模式必须设置;
+//	handler:      必须; 处理微信服务器推送过来的消息(事件)的Handler;
+//	errorHandler: 可选; 用于处理Server在处理消息(事件)过程中产生的错误, 如果没有设置则默认使用 DefaultErrorHandler.
 func NewServer(oriId, appId, token, base64AESKey string, handler Handler, errorHandler ErrorHandler) (srv *Server) {
 	if token == "" {
 		panic("empty token")
@@ -85,7 +88,7 @@ func NewServer(oriId, appId, token, base64AESKey string, handler Handler, errorH
 		}
 		aesKey, err = base64.StdEncoding.DecodeString(base64AESKey + "=")
 		if err != nil {
-			panic(fmt.Sprintf("Decode base64AESKey:%s failed", base64AESKey))
+			panic(sUtil.StringsJoin("Decode base64AESKey:", base64AESKey, " failed"))
 		}
 	}
 
@@ -152,7 +155,8 @@ func (srv *Server) getAESKey() (currentAESKey, lastAESKey []byte) {
 }
 
 // SetAESKey 设置aes加密解密key.
-//  base64AESKey: aes加密解密key, 43字节长(base64编码, 去掉了尾部的'=').
+//
+//	base64AESKey: aes加密解密key, 43字节长(base64编码, 去掉了尾部的'=').
 func (srv *Server) SetAESKey(base64AESKey string) (err error) {
 	if len(base64AESKey) != 43 {
 		return errors.New("the length of base64AESKey must equal to 43")
@@ -544,10 +548,12 @@ var (
 	cdataEndLiteral   = []byte("]]>")
 )
 
-//<xml>
-//    <ToUserName><![CDATA[gh_b1eb3f8bd6c6]]></ToUserName>
-//    <Encrypt><![CDATA[DlCGq+lWQuyjNNK+vDaO0zUltpdUW3u4V00WCzsdNzmZGEhrU7TPxG52viOKCWYPwTMbCzgbCtakZHyNxr5hjoZJ7ORAUYoIAGQy/LDWtAnYgDO+ppKLp0rDq+67Dv3yt+vatMQTh99NII6x9SEGpY3O2h8RpG99+NYevQiOLVKqiQYzan21sX/jE4Y3wZaeudsb4QVjqzRAPaCJ5nS3T31uIR9fjSRgHTDRDOzjQ1cHchge+t6faUhniN5VQVTE+wIYtmnejc55BmHYPfBnTkYah9+cTYnI3diUPJRRiyVocJyHlb+XOZN22dsx9yzKHBAyagaoDIV8Yyb/PahcUbsqGv5wziOgLJQIa6z93/VY7d2Kq2C2oBS+Qb+FI9jLhgc3RvCi+Yno2X3cWoqbsRwoovYdyg6jme/H7nMZn77PSxOGRt/dYiWx2NuBAF7fNFigmbRiive3DyOumNCMvA==]]></Encrypt>
-//</xml>
+// <xml>
+//
+//	<ToUserName><![CDATA[gh_b1eb3f8bd6c6]]></ToUserName>
+//	<Encrypt><![CDATA[DlCGq+lWQuyjNNK+vDaO0zUltpdUW3u4V00WCzsdNzmZGEhrU7TPxG52viOKCWYPwTMbCzgbCtakZHyNxr5hjoZJ7ORAUYoIAGQy/LDWtAnYgDO+ppKLp0rDq+67Dv3yt+vatMQTh99NII6x9SEGpY3O2h8RpG99+NYevQiOLVKqiQYzan21sX/jE4Y3wZaeudsb4QVjqzRAPaCJ5nS3T31uIR9fjSRgHTDRDOzjQ1cHchge+t6faUhniN5VQVTE+wIYtmnejc55BmHYPfBnTkYah9+cTYnI3diUPJRRiyVocJyHlb+XOZN22dsx9yzKHBAyagaoDIV8Yyb/PahcUbsqGv5wziOgLJQIa6z93/VY7d2Kq2C2oBS+Qb+FI9jLhgc3RvCi+Yno2X3cWoqbsRwoovYdyg6jme/H7nMZn77PSxOGRt/dYiWx2NuBAF7fNFigmbRiive3DyOumNCMvA==]]></Encrypt>
+//
+// </xml>
 func xmlUnmarshal(data []byte, p *cipherRequestHttpBody) error {
 	data = bytes.TrimSpace(data)
 	if !bytes.HasPrefix(data, msgStartElementLiteral) || !bytes.HasSuffix(data, msgEndElementLiteral) {

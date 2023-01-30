@@ -1,12 +1,12 @@
 package core
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
 
 	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/chanxuehong/wechat/util"
 )
 
 type Client struct {
@@ -16,7 +16,8 @@ type Client struct {
 }
 
 // NewClient 创建一个新的 Client.
-//  如果 clt == nil 则默认用 util.DefaultHttpClient
+//
+//	如果 clt == nil 则默认用 util.DefaultHttpClient
 func NewClient(srv core.AccessTokenServer, clt *http.Client) *Client {
 	return &Client{
 		Client: core.NewClient(srv, clt),
@@ -57,9 +58,9 @@ func (clt *Client) unifyURL(incompleteURL string) (string, error) {
 	requestUrl := parsedUrl.String()
 	if needAccessToken {
 		if queryCount > 0 {
-			requestUrl = fmt.Sprintf("%s&access_token=", requestUrl)
+			requestUrl = util.StringsJoin(requestUrl, "&access_token=")
 		} else {
-			requestUrl = fmt.Sprintf("%s?access_token=", requestUrl)
+			requestUrl = util.StringsJoin(requestUrl, "?access_token=")
 		}
 	}
 	return requestUrl, nil

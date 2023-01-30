@@ -1,16 +1,16 @@
 package externalcontact
 
 import (
-	"fmt"
 	"net/url"
 
+	"github.com/chanxuehong/wechat/util"
 	"github.com/chanxuehong/wechat/work/core"
 )
 
 // List 获取客户列表.
 // userid: 企业成员的userid
 func List(clt *core.Client, userId string) (list []string, err error) {
-	incompleteURL := fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list?userid=%s&access_token=", url.QueryEscape(userId))
+	incompleteURL := util.StringsJoin("https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list?userid=", url.QueryEscape(userId), "&access_token=")
 
 	var result struct {
 		core.Error

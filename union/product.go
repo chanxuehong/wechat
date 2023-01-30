@@ -1,0 +1,69 @@
+package union
+
+// Product 商品
+type Product struct {
+	// ProductID 商品SPU ID
+	ProductID string `json:"productId,omitempty"`
+	// AppID 商品所在小商店的AppID
+	AppID string `json:"appId,omitempty"`
+	// CustomizeInfo 自定义参数，最多包含80个字符
+	CustomizeInfo string `json:"customizeInfo,omitempty"`
+	// Info 商品具体信息
+	Info *ProductInfo `json:"info,omitempty"`
+	// ShareInfo 推广相关信息
+	ShareInfo *ShareInfo `json:"shareInfo,omitempty"`
+}
+
+// ProductInfo 商品具体信息
+type ProductInfo struct {
+	// Title 商品标题
+	Title string `json:"title,omitempty"`
+	// SubTitle 商品子标题
+	SubTitle string `json:"subTitle,omitempty"`
+	// HeadImg 商品主图
+	HeadImg []string `json:"headImg,omitempty"`
+	// Category 商品类目
+	Category []string `json:"category,omitempty"`
+	// ShopName 商店名称
+	ShopName string `json:"shopName,omitempty"`
+	// Brand 品牌名称
+	Brand string `json:"brand,omitempty"`
+	// BrandID 品牌ID
+	BrandID string `json:"brandId,omitempty"`
+	// Model 	型号
+	Model string `json:"model,omitempty"`
+	// Detail 商品详细数据
+	Detail *ProductDetail `json:"detail,omitempty"`
+	// MinPrice 商品最低价格，单位分
+	MinPrice int64 `json:"minPrice,omitempty"`
+	// Discount 商品优惠金额，单位分
+	Discount int64 `json:"discount,omitempty"`
+	// DiscountPrice 	商品券后价
+	DiscountPrice int `json:"discountPrice,omitempty"`
+	// TotalStockNum 	总库存
+	TotalStock int64 `json:"totalStock,omitempty"`
+	// TotalSoldNum 累计销量
+	TotalSoldNum int64 `json:"totalSoldNum,omitempty"`
+	// TotalOrderNum 	累计订单量
+	TotalOrderNum int64 `json:"totalOrderNum,omitempty"`
+	// Skus 商品SKU
+	Skus []Sku `json:"skus,omitempty"`
+	// PluginResult 是否引用小商店组件（未引用组件的商品不可推广），0：否，1：是
+	PluginResult int `json:"pluginResult,omitempty"`
+}
+
+// ProductDetail 商品详细数据
+type ProductDetail struct {
+	// DetailImg 商品详情图片
+	DetailImg []string `json:"detailImg,omitempty"`
+	// Param 商品参数
+	Param []interface{} `json:"param,omitempty"`
+}
+
+// ShareInfo 推广相关信息
+type ShareInfo struct {
+	// AppID 推广商品的小程序AppID
+	AppID string `json:"appId,omitempty"`
+	// Path 推广商品的小程序Path
+	Path string `json:"path,omitempty"`
+}

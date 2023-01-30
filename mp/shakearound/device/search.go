@@ -25,17 +25,17 @@ func NewSearchQuery1(deviceIdentifiers []*DeviceIdentifier) *SearchQuery {
 func NewSearchQuery2(begin, count int) *SearchQuery {
 	return &SearchQuery{
 		Type:  2,
-		Begin: util.Int(begin),
-		Count: util.Int(count),
+		Begin: util.IntPtr(begin),
+		Count: util.IntPtr(count),
 	}
 }
 
 func NewSearchQuery3(applyId int64, begin, count int) *SearchQuery {
 	return &SearchQuery{
 		Type:    3,
-		ApplyId: util.Int64(applyId),
-		Begin:   util.Int(begin),
-		Count:   util.Int(count),
+		ApplyId: util.Int64Ptr(applyId),
+		Begin:   util.IntPtr(begin),
+		Count:   util.IntPtr(count),
 	}
 }
 
@@ -84,18 +84,18 @@ func Search(clt *core.Client, query *SearchQuery) (rslt *SearchResult, err error
 
 // DeviceIterator
 //
-//  iter, err := NewDeviceIterator(*core.Client, *SearchQuery)
-//  if err != nil {
-//      // TODO: 增加你的代码
-//  }
+//	iter, err := NewDeviceIterator(*core.Client, *SearchQuery)
+//	if err != nil {
+//	    // TODO: 增加你的代码
+//	}
 //
-//  for iter.HasNext() {
-//      items, err := iter.NextPage()
-//      if err != nil {
-//          // TODO: 增加你的代码
-//      }
-//      // TODO: 增加你的代码
-//  }
+//	for iter.HasNext() {
+//	    items, err := iter.NextPage()
+//	    if err != nil {
+//	        // TODO: 增加你的代码
+//	    }
+//	    // TODO: 增加你的代码
+//	}
 type DeviceIterator struct {
 	clt *core.Client
 

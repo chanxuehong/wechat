@@ -54,7 +54,8 @@ type OrderQueryResponse struct {
 }
 
 // OrderQuery2 查询订单.
-//  NOTE: 该函数不支持 代金券 功能, 如果有 代金券 功能请使用 OrderQuery 函数.
+//
+//	NOTE: 该函数不支持 代金券 功能, 如果有 代金券 功能请使用 OrderQuery 函数.
 func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResponse, err error) {
 	m1 := make(map[string]string, 8)
 	if req.TransactionId != "" {
@@ -142,16 +143,16 @@ func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResp
 
 	if str := m2["is_subscribe"]; str != "" {
 		if str == "Y" || str == "y" {
-			resp.IsSubscribe = wechatutil.Bool(true)
+			resp.IsSubscribe = wechatutil.BoolPtr(true)
 		} else {
-			resp.IsSubscribe = wechatutil.Bool(false)
+			resp.IsSubscribe = wechatutil.BoolPtr(false)
 		}
 	}
 	if str := m2["sub_is_subscribe"]; str != "" {
 		if str == "Y" || str == "y" {
-			resp.SubIsSubscribe = wechatutil.Bool(true)
+			resp.SubIsSubscribe = wechatutil.BoolPtr(true)
 		} else {
-			resp.SubIsSubscribe = wechatutil.Bool(false)
+			resp.SubIsSubscribe = wechatutil.BoolPtr(false)
 		}
 	}
 	if str := m2["settlement_total_fee"]; str != "" {
@@ -159,7 +160,7 @@ func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResp
 			err = fmt.Errorf("parse settlement_total_fee:%q to int64 failed: %s", str, err.Error())
 			return nil, err
 		} else {
-			resp.SettlementTotalFee = wechatutil.Int64(n)
+			resp.SettlementTotalFee = wechatutil.Int64Ptr(n)
 		}
 	}
 	return resp, nil

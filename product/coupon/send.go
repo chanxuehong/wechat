@@ -12,8 +12,8 @@ func Send(clt *core.Client, openId string, couponId uint64) (err error) {
 		Id     uint64 `json:"coupon_id"`
 		OpenId string `json:"openid"`
 	}{
-		CouponId: couponId,
-		OpenId:   openId,
+		Id:     couponId,
+		OpenId: openId,
 	}
 
 	var result core.Error

@@ -1,8 +1,10 @@
 package wxa
 
 import (
-	"fmt"
+	"strconv"
+
 	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/chanxuehong/wechat/util"
 )
 
 type BizInfo struct {
@@ -15,7 +17,7 @@ type BizInfo struct {
 
 // 获取可以用来设置的公众号列表
 func GetBizInfoForShow(clt *core.Client, page uint, num uint) (total uint, list []BizInfo, err error) {
-	incompleteURL := fmt.Sprintf("https://api.weixin.qq.com/wxa/getwxamplinkforshow?page=%d&num=%d&access_token=", page, num)
+	incompleteURL := util.StringsJoin("https://api.weixin.qq.com/wxa/getwxamplinkforshow?page=", strconv.Itoa(int(page)), "&num=", strconv.Itoa(int(num)), "&access_token=")
 	var result struct {
 		core.Error
 		Total       uint      `json:"total_num"`

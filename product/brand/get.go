@@ -6,7 +6,7 @@ import (
 )
 
 // Get 获取品牌列表
-func Get(clt *core.Client) (brands []modelBrand, err error) {
+func Get(clt *core.Client) (brands []model.Brand, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/product/brand/get?access_token="
 
 	var result struct {
