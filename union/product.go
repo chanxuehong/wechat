@@ -10,8 +10,6 @@ type Product struct {
 	CustomizeInfo string `json:"customizeInfo,omitempty"`
 	// Info 商品具体信息
 	Info *ProductInfo `json:"info,omitempty"`
-	// ShareInfo 推广相关信息
-	ShareInfo *ShareInfo `json:"shareInfo,omitempty"`
 }
 
 // ProductInfo 商品具体信息
