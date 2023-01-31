@@ -15,6 +15,15 @@ type Client struct {
 	Token        *Token // Client 自动将最新的 Token 更新到此字段, 不管 Token 字段一开始是否被指定!!!
 
 	HttpClient *http.Client // 如果 HttpClient == nil 则默认用 util.DefaultHttpClient
+	debug      bool
+}
+
+func (clt *Client) Debug() bool {
+	return clt.debug
+}
+
+func (clt *Client) SetDebug(debug bool) {
+	clt.debug = debug
 }
 
 func (clt *Client) httpClient() *http.Client {

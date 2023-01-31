@@ -17,7 +17,8 @@ import (
 )
 
 // Download 下载多媒体到文件.
-//  对于视频素材, 先通过 GetVideo 得到 Video 信息, 然后通过 Video.DownloadURL 来下载
+//
+//	对于视频素材, 先通过 GetVideo 得到 Video 信息, 然后通过 Video.DownloadURL 来下载
 func Download(clt *core.Client, mediaId, filepath string) (written int64, err error) {
 	file, err := os.Create(filepath)
 	if err != nil {
@@ -34,7 +35,8 @@ func Download(clt *core.Client, mediaId, filepath string) (written int64, err er
 }
 
 // DownloadToWriter 下载多媒体到 io.Writer.
-//  对于视频素材, 先通过 GetVideo 得到 Video 信息, 然后通过 Video.DownloadURL 来下载
+//
+//	对于视频素材, 先通过 GetVideo 得到 Video 信息, 然后通过 Video.DownloadURL 来下载
 func DownloadToWriter(clt *core.Client, mediaId string, writer io.Writer) (written int64, err error) {
 	httpClient := clt.HttpClient
 	if httpClient == nil {
@@ -69,7 +71,7 @@ func DownloadToWriter(clt *core.Client, mediaId string, writer io.Writer) (writt
 	hasRetried := false
 RETRY:
 	finalURL := "https://api.weixin.qq.com/cgi-bin/material/get_material?access_token=" + url.QueryEscape(token)
-	written, err = httpDownloadToWriter(httpClient, finalURL, requestBodyBytes, buf, writer, &errorResult)
+	written, err = httpDownloadToWriter(httpClient, finalURL, requestBodyBytes, buf, writer, &errorResult, clt.Debug())
 	if err != nil {
 		return
 	}
@@ -81,17 +83,17 @@ RETRY:
 	case core.ErrCodeOK:
 		return // 基本不会出现
 	case core.ErrCodeInvalidCredential, core.ErrCodeAccessTokenExpired:
-		retry.DebugPrintError(errorResult.ErrCode, errorResult.ErrMsg, token)
+		retry.DebugPrintError(errorResult.ErrCode, errorResult.ErrMsg, token, clt.Debug())
 		if !hasRetried {
 			hasRetried = true
 			errorResult = core.Error{}
 			if token, err = clt.RefreshToken(token); err != nil {
 				return
 			}
-			retry.DebugPrintNewToken(token)
+			retry.DebugPrintNewToken(token, clt.Debug())
 			goto RETRY
 		}
-		retry.DebugPrintFallthrough(token)
+		retry.DebugPrintFallthrough(token, clt.Debug())
 		fallthrough
 	default:
 		err = &errorResult
@@ -105,8 +107,8 @@ var (
 	errRespBeginWithMsg  = []byte(`{"errmsg":"`)
 )
 
-func httpDownloadToWriter(clt *http.Client, url string, body []byte, buf []byte, writer io.Writer, errorResult *core.Error) (written int64, err error) {
-	api.DebugPrintPostJSONRequest(url, body)
+func httpDownloadToWriter(clt *http.Client, url string, body []byte, buf []byte, writer io.Writer, errorResult *core.Error, debug bool) (written int64, err error) {
+	api.DebugPrintPostJSONRequest(url, body, debug)
 	httpResp, err := clt.Post(url, "application/json; charset=utf-8", bytes.NewReader(body))
 	if err != nil {
 		return 0, err
@@ -140,7 +142,7 @@ func httpDownloadToWriter(clt *http.Client, url string, body []byte, buf []byte,
 	buf3 := trimLeft(buf2)
 	if bytes.HasPrefix(buf3, errRespBeginWithCode) || bytes.HasPrefix(buf3, errRespBeginWithMsg) {
 		// 返回的是错误信息
-		return 0, api.DecodeJSONHttpResponse(httpRespBody, errorResult)
+		return 0, api.DecodeJSONHttpResponse(httpRespBody, errorResult, debug)
 	} else {
 		// 返回的是媒体流
 		return io.Copy(writer, httpRespBody)

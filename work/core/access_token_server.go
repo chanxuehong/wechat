@@ -17,7 +17,9 @@ import (
 
 // access_token 中控服务器接口.
 type AccessTokenServer interface {
-	Token() (token string, err error)                           // 请求中控服务器返回缓存的 access_token
+	Token() (token string, err error) // 请求中控服务器返回缓存的 access_token
+	SetDebug(bool)
+	Debug() bool
 	RefreshToken(currentToken string) (token string, err error) // 请求中控服务器刷新 access_token
 	SetSecret(corpId string, corpSecret string)
 	RefreshTokenWithExpires(currentToken string) (token string, expiresIn int64, err error) // 请求中控服务器刷新 access_token
@@ -27,10 +29,11 @@ type AccessTokenServer interface {
 var _ AccessTokenServer = (*DefaultAccessTokenServer)(nil)
 
 // DefaultAccessTokenServer 实现了 AccessTokenServer 接口.
-//  NOTE:
-//  1. 用于单进程环境.
-//  2. 因为 DefaultAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 AccessTokenServer 接口,
-//     所以整个系统只能存在一个 DefaultAccessTokenServer 实例!
+//
+//	NOTE:
+//	1. 用于单进程环境.
+//	2. 因为 DefaultAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 AccessTokenServer 接口,
+//	   所以整个系统只能存在一个 DefaultAccessTokenServer 实例!
 type DefaultAccessTokenServer struct {
 	corpId     string
 	corpSecret string
@@ -40,6 +43,7 @@ type DefaultAccessTokenServer struct {
 	refreshTokenResponseChan chan refreshTokenResult // chan {token, err}
 
 	tokenCache unsafe.Pointer // *accessToken
+	debug      bool
 }
 
 // NewDefaultAccessTokenServer 创建一个新的 DefaultAccessTokenServer, 如果 httpClient == nil 则默认使用 util.DefaultHttpClient.
@@ -61,6 +65,14 @@ func NewDefaultAccessTokenServer(corpId, corpSecret string, httpClient *http.Cli
 }
 
 func (srv *DefaultAccessTokenServer) IID01332E16DF5011E5A9D5A4DB30FED8E1() {}
+
+func (srv *DefaultAccessTokenServer) SetDebug(debug bool) {
+	srv.debug = debug
+}
+
+func (srv *DefaultAccessTokenServer) Debug() bool {
+	return srv.debug
+}
 
 func (srv *DefaultAccessTokenServer) SetSecret(corpId string, corpSecret string) {
 	srv.corpId = corpId
@@ -148,7 +160,7 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 
 	url := "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=" + srv.corpId +
 		"&corpsecret=" + srv.corpSecret
-	api.DebugPrintGetRequest(url)
+	api.DebugPrintGetRequest(url, srv.debug)
 	httpResp, err := srv.httpClient.Get(url)
 	if err != nil {
 		atomic.StorePointer(&srv.tokenCache, nil)
@@ -166,7 +178,7 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *ac
 		Error
 		accessToken
 	}
-	if err = api.DecodeJSONHttpResponse(httpResp.Body, &result); err != nil {
+	if err = api.DecodeJSONHttpResponse(httpResp.Body, &result, srv.debug); err != nil {
 		atomic.StorePointer(&srv.tokenCache, nil)
 		return
 	}

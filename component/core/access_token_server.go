@@ -56,17 +56,20 @@ type TokenUpdateHandler func(token string, expiresIn int64, err error)
 // access_token 中控服务器接口.
 type AccessTokenServer interface {
 	UpdateTicket(ticket *Ticket) error
-	Token() (token string, err error)                           // 请求中控服务器返回缓存的 access_token
+	Token() (token string, err error) // 请求中控服务器返回缓存的 access_token
+	Debug() bool
+	SetDebug(bool)
 	RefreshToken(currentToken string) (token string, err error) // 请求中控服务器刷新 access_token
 }
 
 var _ AccessTokenServer = (*DefaultAccessTokenServer)(nil)
 
 // DefaultAccessTokenServer 实现了 AccessTokenServer 接口.
-//  NOTE:
-//  1. 用于单进程环境.
-//  2. 因为 DefaultAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 AccessTokenServer 接口,
-//     所以整个系统只能存在一个 DefaultAccessTokenServer 实例!
+//
+//	NOTE:
+//	1. 用于单进程环境.
+//	2. 因为 DefaultAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 AccessTokenServer 接口,
+//	   所以整个系统只能存在一个 DefaultAccessTokenServer 实例!
 type DefaultAccessTokenServer struct {
 	appId         string
 	appSecret     string
@@ -79,6 +82,8 @@ type DefaultAccessTokenServer struct {
 	tokenStorage TokenStorage // *AccessToken
 
 	updateTokenCallback TokenUpdateHandler
+
+	debug bool
 }
 
 // NewDefaultAccessTokenServer 创建一个新的 DefaultAccessTokenServer, 如果 httpClient == nil 则默认使用 util.DefaultHttpClient.
@@ -103,6 +108,14 @@ func NewDefaultAccessTokenServer(appId, appSecret string, ticketStorage TicketSt
 
 func (srv *DefaultAccessTokenServer) SetUpdateTokenCallback(h TokenUpdateHandler) {
 	srv.updateTokenCallback = h
+}
+
+func (srv *DefaultAccessTokenServer) Debug() bool {
+	return srv.debug
+}
+
+func (srv *DefaultAccessTokenServer) SetDebug(debug bool) {
+	srv.debug = debug
 }
 
 func (srv *DefaultAccessTokenServer) Token() (token string, err error) {
@@ -222,7 +235,7 @@ func (srv *DefaultAccessTokenServer) updateToken(currentToken string) (token *Ac
 		Error
 		AccessToken
 	}
-	if err = api.DecodeJSONHttpResponse(httpResp.Body, &result); err != nil {
+	if err = api.DecodeJSONHttpResponse(httpResp.Body, &result, srv.debug); err != nil {
 		srv.tokenStorage.Put(nil)
 		return
 	}

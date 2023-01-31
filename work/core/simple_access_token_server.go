@@ -17,6 +17,7 @@ type SimpleAccessTokenServer struct {
 	token      string
 	corpId     string
 	corpSecret string
+	debug      bool
 }
 
 func NewSimpleAccessTokenServer(token string, httpClient *http.Client) (srv *SimpleAccessTokenServer) {
@@ -32,6 +33,14 @@ func NewSimpleAccessTokenServer(token string, httpClient *http.Client) (srv *Sim
 }
 
 func (srv *SimpleAccessTokenServer) IID01332E16DF5011E5A9D5A4DB30FED8E1() {}
+
+func (srv *SimpleAccessTokenServer) SetDebug(debug bool) {
+	srv.debug = debug
+}
+
+func (srv *SimpleAccessTokenServer) Debug() bool {
+	return srv.debug
+}
 
 func (srv *SimpleAccessTokenServer) SetSecret(corpId string, corpSecret string) {
 	srv.corpId = url.QueryEscape(corpId)
@@ -61,7 +70,7 @@ func (srv *SimpleAccessTokenServer) RefreshTokenWithExpires(currentToken string)
 func (srv *SimpleAccessTokenServer) updateToken() (token string, expiresIn int64, err error) {
 	url := "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=" + srv.corpId +
 		"&corpsecret=" + srv.corpSecret
-	api.DebugPrintGetRequest(url)
+	api.DebugPrintGetRequest(url, srv.debug)
 	httpResp, err := srv.httpClient.Get(url)
 	if err != nil {
 		return

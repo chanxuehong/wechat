@@ -15,7 +15,8 @@ import (
 )
 
 // Download 下载多媒体到文件.
-//  请注意, 视频文件不支持下载
+//
+//	请注意, 视频文件不支持下载
 func Download(clt *core.Client, mediaId, filepath string) (written int64, err error) {
 	file, err := os.Create(filepath)
 	if err != nil {
@@ -32,7 +33,8 @@ func Download(clt *core.Client, mediaId, filepath string) (written int64, err er
 }
 
 // DownloadToWriter 下载多媒体到 io.Writer.
-//  请注意, 视频文件不支持下载
+//
+//	请注意, 视频文件不支持下载
 func DownloadToWriter(clt *core.Client, mediaId string, writer io.Writer) (written int64, err error) {
 	httpClient := clt.HttpClient
 	if httpClient == nil {
@@ -50,7 +52,7 @@ func DownloadToWriter(clt *core.Client, mediaId string, writer io.Writer) (writt
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
-	written, err = httpDownloadToWriter(httpClient, finalURL, writer, &errorResult)
+	written, err = httpDownloadToWriter(httpClient, finalURL, writer, &errorResult, clt.Debug())
 	if err != nil {
 		return
 	}
@@ -62,17 +64,17 @@ RETRY:
 	case core.ErrCodeOK:
 		return // 基本不会出现
 	case core.ErrCodeInvalidCredential, core.ErrCodeAccessTokenExpired:
-		retry.DebugPrintError(errorResult.ErrCode, errorResult.ErrMsg, token)
+		retry.DebugPrintError(errorResult.ErrCode, errorResult.ErrMsg, token, clt.Debug())
 		if !hasRetried {
 			hasRetried = true
 			errorResult = core.Error{}
 			if token, err = clt.RefreshToken(token); err != nil {
 				return
 			}
-			retry.DebugPrintNewToken(token)
+			retry.DebugPrintNewToken(token, clt.Debug())
 			goto RETRY
 		}
-		retry.DebugPrintFallthrough(token)
+		retry.DebugPrintFallthrough(token, clt.Debug())
 		fallthrough
 	default:
 		err = &errorResult
@@ -80,8 +82,8 @@ RETRY:
 	}
 }
 
-func httpDownloadToWriter(clt *http.Client, url string, writer io.Writer, errorResult *core.Error) (written int64, err error) {
-	api.DebugPrintGetRequest(url)
+func httpDownloadToWriter(clt *http.Client, url string, writer io.Writer, errorResult *core.Error, debug bool) (written int64, err error) {
+	api.DebugPrintGetRequest(url, debug)
 	httpResp, err := clt.Get(url)
 	if err != nil {
 		return 0, err
@@ -99,6 +101,6 @@ func httpDownloadToWriter(clt *http.Client, url string, writer io.Writer, errorR
 		return io.Copy(writer, httpResp.Body)
 	} else {
 		// 返回的是错误信息
-		return 0, api.DecodeJSONHttpResponse(httpResp.Body, errorResult)
+		return 0, api.DecodeJSONHttpResponse(httpResp.Body, errorResult, debug)
 	}
 }

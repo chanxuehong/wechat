@@ -39,10 +39,11 @@ type UserInfo struct {
 }
 
 // GetUserInfo 获取用户信息.
-//  accessToken: 网页授权接口调用凭证
-//  openId:      用户的唯一标识
-//  lang:        返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语, 如果留空 "" 则默认为 zh_CN
-//  httpClient:  如果不指定则默认为 util.DefaultHttpClient
+//
+//	accessToken: 网页授权接口调用凭证
+//	openId:      用户的唯一标识
+//	lang:        返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语, 如果留空 "" 则默认为 zh_CN
+//	httpClient:  如果不指定则默认为 util.DefaultHttpClient
 func GetUserInfo(accessToken, openId, lang string, httpClient *http.Client) (info *UserInfo, err error) {
 	switch lang {
 	case "":
@@ -59,7 +60,7 @@ func GetUserInfo(accessToken, openId, lang string, httpClient *http.Client) (inf
 	_url := "https://api.weixin.qq.com/sns/userinfo?access_token=" + url.QueryEscape(accessToken) +
 		"&openid=" + url.QueryEscape(openId) +
 		"&lang=" + lang
-	api.DebugPrintGetRequest(_url)
+	api.DebugPrintGetRequest(_url, false)
 	httpResp, err := httpClient.Get(_url)
 	if err != nil {
 		return
@@ -75,7 +76,7 @@ func GetUserInfo(accessToken, openId, lang string, httpClient *http.Client) (inf
 		oauth2.Error
 		UserInfo
 	}
-	if err = api.DecodeJSONHttpResponse(httpResp.Body, &result); err != nil {
+	if err = api.DecodeJSONHttpResponse(httpResp.Body, &result, false); err != nil {
 		return
 	}
 	if result.ErrCode != oauth2.ErrCodeOK {

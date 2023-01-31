@@ -11,7 +11,8 @@ import (
 )
 
 // ExchangeToken 通过 code 换取网页授权 access_token.
-//  NOTE: 返回的 token == clt.Token
+//
+//	NOTE: 返回的 token == clt.Token
 func (clt *Client) ExchangeToken(code string) (token *Token, err error) {
 	if clt.Endpoint == nil {
 		err = errors.New("nil Client.Endpoint")
@@ -43,9 +44,10 @@ func (clt *Client) ExchangeToken(code string) (token *Token, err error) {
 }
 
 // RefreshToken 刷新 access_token.
-//  NOTE:
-//  1. refreshToken 可以为空.
-//  2. 返回的 token == clt.Token
+//
+//	NOTE:
+//	1. refreshToken 可以为空.
+//	2. 返回的 token == clt.Token
 func (clt *Client) RefreshToken(refreshToken string) (token *Token, err error) {
 	if clt.Endpoint == nil {
 		err = errors.New("nil Client.Endpoint")
@@ -73,7 +75,7 @@ func (clt *Client) RefreshToken(refreshToken string) (token *Token, err error) {
 }
 
 func (clt *Client) updateToken(tk *Token, url string) (err error) {
-	api.DebugPrintGetRequest(url)
+	api.DebugPrintGetRequest(url, clt.Debug())
 	httpResp, err := clt.httpClient().Get(url)
 	if err != nil {
 		return
@@ -88,7 +90,7 @@ func (clt *Client) updateToken(tk *Token, url string) (err error) {
 		Error
 		Token
 	}
-	if err = api.DecodeJSONHttpResponse(httpResp.Body, &result); err != nil {
+	if err = api.DecodeJSONHttpResponse(httpResp.Body, &result, clt.Debug()); err != nil {
 		return
 	}
 	if result.ErrCode != ErrCodeOK {

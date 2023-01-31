@@ -22,26 +22,26 @@ type MultipartFormField struct {
 
 // PostMultipartForm 通用上传接口.
 //
-//  --BOUNDARY
-//  Content-Disposition: form-data; name="FIELDNAME"; filename="FILENAME"
-//  Content-Type: application/octet-stream
+//	--BOUNDARY
+//	Content-Disposition: form-data; name="FIELDNAME"; filename="FILENAME"
+//	Content-Type: application/octet-stream
 //
-//  FILE-CONTENT
-//  --BOUNDARY
-//  Content-Disposition: form-data; name="FIELDNAME"
+//	FILE-CONTENT
+//	--BOUNDARY
+//	Content-Disposition: form-data; name="FIELDNAME"
 //
-//  JSON-DESCRIPTION
-//  --BOUNDARY--
+//	JSON-DESCRIPTION
+//	--BOUNDARY--
 //
 //
-//  NOTE:
-//  1. 一般不需要调用这个方法, 请直接调用高层次的封装函数;
-//  2. 最终的 URL == incompleteURL + access_token;
-//  3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
-//      struct {
-//          Error
-//          ...
-//      }
+//	NOTE:
+//	1. 一般不需要调用这个方法, 请直接调用高层次的封装函数;
+//	2. 最终的 URL == incompleteURL + access_token;
+//	3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
+//	    struct {
+//	        Error
+//	        ...
+//	    }
 func (clt *Client) PostMultipartForm(incompleteURL string, fields []MultipartFormField, response interface{}) (err error) {
 	ErrorStructValue, ErrorErrCodeValue := checkResponse(response)
 
@@ -88,7 +88,7 @@ func (clt *Client) PostMultipartForm(incompleteURL string, fields []MultipartFor
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
-	if err = httpPostMultipartForm(httpClient, finalURL, requestBodyType, requestBodyBytes, response); err != nil {
+	if err = httpPostMultipartForm(httpClient, finalURL, requestBodyType, requestBodyBytes, response, clt.Debug()); err != nil {
 		return
 	}
 
@@ -97,25 +97,25 @@ RETRY:
 		return
 	case ErrCodeInvalidCredential, ErrCodeAccessTokenExpired:
 		errMsg := ErrorStructValue.Field(errorErrMsgIndex).String()
-		retry.DebugPrintError(errCode, errMsg, token)
+		retry.DebugPrintError(errCode, errMsg, token, clt.Debug())
 		if !hasRetried {
 			hasRetried = true
 			ErrorStructValue.Set(errorZeroValue)
 			if token, err = clt.RefreshToken(token); err != nil {
 				return
 			}
-			retry.DebugPrintNewToken(token)
+			retry.DebugPrintNewToken(token, clt.Debug())
 			goto RETRY
 		}
-		retry.DebugPrintFallthrough(token)
+		retry.DebugPrintFallthrough(token, clt.Debug())
 		fallthrough
 	default:
 		return
 	}
 }
 
-func httpPostMultipartForm(clt *http.Client, url, bodyType string, body []byte, response interface{}) error {
-	api.DebugPrintPostMultipartRequest(url, body)
+func httpPostMultipartForm(clt *http.Client, url, bodyType string, body []byte, response interface{}, debug bool) error {
+	api.DebugPrintPostMultipartRequest(url, body, debug)
 	httpResp, err := clt.Post(url, bodyType, bytes.NewReader(body))
 	if err != nil {
 		return err
@@ -125,5 +125,5 @@ func httpPostMultipartForm(clt *http.Client, url, bodyType string, body []byte, 
 	if httpResp.StatusCode != http.StatusOK {
 		return fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
-	return api.DecodeJSONHttpResponse(httpResp.Body, response)
+	return api.DecodeJSONHttpResponse(httpResp.Body, response, debug)
 }
