@@ -47,7 +47,7 @@ func (f64 *MoneyFloat) UnmarshalJSON(b []byte) (err error) {
 	if b[0] == '"' && b[len(b)-1] == '"' {
 		b = b[1 : len(b)-1]
 	}
-	str := strings.TrimPrefix(string(b), "￥")
+	str := strings.TrimPrefix(string(b), "¥")
 	i, _ := strconv.ParseFloat(str, 64)
 	*f64 = MoneyFloat(i)
 	return
