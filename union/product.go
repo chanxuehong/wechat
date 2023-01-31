@@ -7,7 +7,14 @@ type Product struct {
 	// AppID 商品所在小商店的AppID
 	AppID string `json:"appId,omitempty"`
 	// Product 商品具体信息
-	Product *ProductInfo `json:"product,omitempty"`
+	Product struct {
+		// ProductID 商品SPU ID
+		ProductID string `json:"productId,omitempty"`
+		// Info 商品具体信息
+		Info *ProductInfo `json:"info,omitempty"`
+		// Skus 商品SKU
+		Skus []Sku `json:"skus,omitempty"`
+	} `json:"product,omitempty"`
 	// LeagueExInfo 联盟佣金相关数据
 	LeagueExInfo *LeagueExInfo `json:"leagueExInfo,omitempty"`
 	// ShopInfo 商品所属小商店数据
@@ -58,8 +65,6 @@ type ProductInfo struct {
 	TotalSoldNum int64 `json:"totalSoldNum,omitempty"`
 	// TotalOrderNum 	累计订单量
 	TotalOrderNum int64 `json:"totalOrderNum,omitempty"`
-	// Skus 商品SKU
-	Skus []Sku `json:"skus,omitempty"`
 	// PluginResult 是否引用小商店组件（未引用组件的商品不可推广），0：否，1：是
 	PluginResult int `json:"pluginResult,omitempty"`
 }
