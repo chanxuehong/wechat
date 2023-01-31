@@ -42,7 +42,7 @@ type ProductInfo struct {
 	// HeadImg 商品主图
 	HeadImg []string `json:"headImg,omitempty"`
 	// Category 商品类目
-	Category []string `json:"category,omitempty"`
+	Category []Category `json:"category,omitempty"`
 	// ShopName 商店名称
 	ShopName string `json:"shopName,omitempty"`
 	// Brand 品牌名称
