@@ -4,11 +4,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/chanxuehong/wechat/internal/debug/api"
 	util2 "github.com/chanxuehong/wechat/internal/util"
 	"github.com/chanxuehong/wechat/oauth2"
 	"github.com/chanxuehong/wechat/util"
-	"net/http"
 )
 
 type Session struct {
@@ -56,7 +57,7 @@ func getSession(session *Session, url string, httpClient *http.Client) (err erro
 		httpClient = util.DefaultHttpClient
 	}
 
-	api.DebugPrintGetRequest(url)
+	api.DebugPrintGetRequest(url, false)
 
 	httpResp, err := httpClient.Get(url)
 	if err != nil {
@@ -73,7 +74,7 @@ func getSession(session *Session, url string, httpClient *http.Client) (err erro
 		Session
 	}
 
-	if err = api.DecodeJSONHttpResponse(httpResp.Body, &result); err != nil {
+	if err = api.DecodeJSONHttpResponse(httpResp.Body, &result, false); err != nil {
 		return
 	}
 

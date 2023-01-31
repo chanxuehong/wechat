@@ -17,7 +17,8 @@ func QrcodePicURL(ticket string) string {
 }
 
 // Download 通过ticket换取二维码, 写入到 filepath 路径的文件.
-//  如果 clt == nil 则默认用 util.DefaultHttpClient.
+//
+//	如果 clt == nil 则默认用 util.DefaultHttpClient.
 func Download(ticket, filepath string, clt *http.Client) (written int64, err error) {
 	file, err := os.Create(filepath)
 	if err != nil {
@@ -34,14 +35,15 @@ func Download(ticket, filepath string, clt *http.Client) (written int64, err err
 }
 
 // DownloadToWriter 通过ticket换取二维码, 写入到 writer.
-//  如果 clt == nil 则默认用 util.DefaultHttpClient.
+//
+//	如果 clt == nil 则默认用 util.DefaultHttpClient.
 func DownloadToWriter(ticket string, writer io.Writer, clt *http.Client) (written int64, err error) {
 	if clt == nil {
 		clt = util.DefaultHttpClient
 	}
 
 	url := QrcodePicURL(ticket)
-	api.DebugPrintGetRequest(url)
+	api.DebugPrintGetRequest(url, false)
 	httpResp, err := clt.Get(url)
 	if err != nil {
 		return

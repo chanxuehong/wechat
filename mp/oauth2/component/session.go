@@ -2,11 +2,12 @@ package component
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/chanxuehong/wechat/internal/debug/api"
 	mpoauth2 "github.com/chanxuehong/wechat/mp/oauth2"
 	"github.com/chanxuehong/wechat/oauth2"
 	"github.com/chanxuehong/wechat/util"
-	"net/http"
 )
 
 // GetSession 获取小程序会话
@@ -33,7 +34,7 @@ func getSession(session *mpoauth2.Session, url string, httpClient *http.Client) 
 		httpClient = util.DefaultHttpClient
 	}
 
-	api.DebugPrintGetRequest(url)
+	api.DebugPrintGetRequest(url, false)
 
 	httpResp, err := httpClient.Get(url)
 	if err != nil {
@@ -50,7 +51,7 @@ func getSession(session *mpoauth2.Session, url string, httpClient *http.Client) 
 		mpoauth2.Session
 	}
 
-	if err = api.DecodeJSONHttpResponse(httpResp.Body, &result); err != nil {
+	if err = api.DecodeJSONHttpResponse(httpResp.Body, &result, false); err != nil {
 		return
 	}
 

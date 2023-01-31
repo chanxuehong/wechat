@@ -19,7 +19,8 @@ type Client struct {
 }
 
 // NewClient 创建一个新的 Client.
-//  如果 clt == nil 则默认用 util.DefaultHttpClient
+//
+//	如果 clt == nil 则默认用 util.DefaultHttpClient
 func NewClient(srv AccessTokenServer, clt *http.Client) *Client {
 	if srv == nil {
 		panic("nil AccessTokenServer")
@@ -40,14 +41,14 @@ func NewClientWithToken(token string, clt *http.Client) *Client {
 
 // GetJSON HTTP GET 微信资源, 然后将微信服务器返回的 JSON 用 encoding/json 解析到 response.
 //
-//  NOTE:
-//  1. 一般不需要调用这个方法, 请直接调用高层次的封装函数;
-//  2. 最终的 URL == incompleteURL + access_token;
-//  3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
-//      struct {
-//          Error
-//          ...
-//      }
+//	NOTE:
+//	1. 一般不需要调用这个方法, 请直接调用高层次的封装函数;
+//	2. 最终的 URL == incompleteURL + access_token;
+//	3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
+//	    struct {
+//	        Error
+//	        ...
+//	    }
 func (clt *Client) GetJSON(incompleteURL string, response interface{}) (err error) {
 	ErrorStructValue, ErrorErrCodeValue := checkResponse(response)
 
@@ -64,7 +65,7 @@ func (clt *Client) GetJSON(incompleteURL string, response interface{}) (err erro
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
-	if err = httpGetJSON(httpClient, finalURL, response); err != nil {
+	if err = httpGetJSON(httpClient, finalURL, response, clt.Debug()); err != nil {
 		return
 	}
 
@@ -73,25 +74,25 @@ RETRY:
 		return
 	case ErrCodeInvalidCredential, ErrCodeAccessTokenExpired:
 		errMsg := ErrorStructValue.Field(errorErrMsgIndex).String()
-		retry.DebugPrintError(errCode, errMsg, token)
+		retry.DebugPrintError(errCode, errMsg, token, clt.Debug())
 		if !hasRetried {
 			hasRetried = true
 			ErrorStructValue.Set(errorZeroValue)
 			if token, err = clt.RefreshToken(token); err != nil {
 				return
 			}
-			retry.DebugPrintNewToken(token)
+			retry.DebugPrintNewToken(token, clt.Debug())
 			goto RETRY
 		}
-		retry.DebugPrintFallthrough(token)
+		retry.DebugPrintFallthrough(token, clt.Debug())
 		fallthrough
 	default:
 		return
 	}
 }
 
-func httpGetJSON(clt *http.Client, url string, response interface{}) error {
-	api.DebugPrintGetRequest(url)
+func httpGetJSON(clt *http.Client, url string, response interface{}, debug bool) error {
+	api.DebugPrintGetRequest(url, debug)
 	httpResp, err := clt.Get(url)
 	if err != nil {
 		return err
@@ -101,20 +102,20 @@ func httpGetJSON(clt *http.Client, url string, response interface{}) error {
 	if httpResp.StatusCode != http.StatusOK {
 		return fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
-	return api.DecodeJSONHttpResponse(httpResp.Body, response)
+	return api.DecodeJSONHttpResponse(httpResp.Body, response, debug)
 }
 
 // PostJSON 用 encoding/json 把 request marshal 为 JSON, HTTP POST 到微信服务器,
 // 然后将微信服务器返回的 JSON 用 encoding/json 解析到 response.
 //
-//  NOTE:
-//  1. 一般不需要调用这个方法, 请直接调用高层次的封装函数;
-//  2. 最终的 URL == incompleteURL + access_token;
-//  3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
-//      struct {
-//          Error
-//          ...
-//      }
+//	NOTE:
+//	1. 一般不需要调用这个方法, 请直接调用高层次的封装函数;
+//	2. 最终的 URL == incompleteURL + access_token;
+//	3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
+//	    struct {
+//	        Error
+//	        ...
+//	    }
 func (clt *Client) PostJSON(incompleteURL string, request interface{}, response interface{}) (err error) {
 	ErrorStructValue, ErrorErrCodeValue := checkResponse(response)
 
@@ -145,7 +146,7 @@ func (clt *Client) PostJSON(incompleteURL string, request interface{}, response 
 	hasRetried := false
 RETRY:
 	finalURL := incompleteURL + url.QueryEscape(token)
-	if err = httpPostJSON(httpClient, finalURL, requestBodyBytes, response); err != nil {
+	if err = httpPostJSON(httpClient, finalURL, requestBodyBytes, response, clt.Debug()); err != nil {
 		return
 	}
 
@@ -154,25 +155,25 @@ RETRY:
 		return
 	case ErrCodeInvalidCredential, ErrCodeAccessTokenExpired:
 		errMsg := ErrorStructValue.Field(errorErrMsgIndex).String()
-		retry.DebugPrintError(errCode, errMsg, token)
+		retry.DebugPrintError(errCode, errMsg, token, clt.Debug())
 		if !hasRetried {
 			hasRetried = true
 			ErrorStructValue.Set(errorZeroValue)
 			if token, err = clt.RefreshToken(token); err != nil {
 				return
 			}
-			retry.DebugPrintNewToken(token)
+			retry.DebugPrintNewToken(token, clt.Debug())
 			goto RETRY
 		}
-		retry.DebugPrintFallthrough(token)
+		retry.DebugPrintFallthrough(token, clt.Debug())
 		fallthrough
 	default:
 		return
 	}
 }
 
-func httpPostJSON(clt *http.Client, url string, body []byte, response interface{}) error {
-	api.DebugPrintPostJSONRequest(url, body)
+func httpPostJSON(clt *http.Client, url string, body []byte, response interface{}, debug bool) error {
+	api.DebugPrintPostJSONRequest(url, body, debug)
 	httpResp, err := clt.Post(url, "application/json; charset=utf-8", bytes.NewReader(body))
 	if err != nil {
 		return err
@@ -182,7 +183,7 @@ func httpPostJSON(clt *http.Client, url string, body []byte, response interface{
 	if httpResp.StatusCode != http.StatusOK {
 		return fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
-	return api.DecodeJSONHttpResponse(httpResp.Body, response)
+	return api.DecodeJSONHttpResponse(httpResp.Body, response, debug)
 }
 
 // checkResponse 检查 response 参数是否满足特定的结构要求, 如果不满足要求则会 panic, 否则返回相应的 reflect.Value.
