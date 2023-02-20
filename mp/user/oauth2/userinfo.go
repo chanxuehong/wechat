@@ -43,6 +43,10 @@ type UserInfo struct {
 
 	// 用户统一标识. 针对一个微信开放平台帐号下的应用, 同一用户的unionid是唯一的.
 	UnionId string `json:"unionid"`
+	// 用户关注时间, 为时间戳. 如果用户曾多次关注, 则取最后关注时间
+	SubscribeTime int64 `json:"subscribe_time"`
+	IsSubscriber  int   `json:"subscribe"` // 用户是否订阅该公众号标识, 值为0时, 代表此用户没有关注该公众号, 拉取不到其余信息
+
 }
 
 var ErrNoHeadImage = errors.New("没有头像")
