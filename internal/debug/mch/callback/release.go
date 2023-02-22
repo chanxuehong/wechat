@@ -1,3 +1,4 @@
+//go:build !wechat_debug
 // +build !wechat_debug
 
 package callback

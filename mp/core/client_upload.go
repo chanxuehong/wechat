@@ -22,26 +22,26 @@ type MultipartFormField struct {
 
 // PostMultipartForm 通用上传接口.
 //
-//  --BOUNDARY
-//  Content-Disposition: form-data; name="FIELDNAME"; filename="FILENAME"
-//  Content-Type: application/octet-stream
+//	--BOUNDARY
+//	Content-Disposition: form-data; name="FIELDNAME"; filename="FILENAME"
+//	Content-Type: application/octet-stream
 //
-//  FILE-CONTENT
-//  --BOUNDARY
-//  Content-Disposition: form-data; name="FIELDNAME"
+//	FILE-CONTENT
+//	--BOUNDARY
+//	Content-Disposition: form-data; name="FIELDNAME"
 //
-//  JSON-DESCRIPTION
-//  --BOUNDARY--
+//	JSON-DESCRIPTION
+//	--BOUNDARY--
 //
 //
-//  NOTE:
-//  1. 一般不需要调用这个方法, 请直接调用高层次的封装函数;
-//  2. 最终的 URL == incompleteURL + access_token;
-//  3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
-//      struct {
-//          Error
-//          ...
-//      }
+//	NOTE:
+//	1. 一般不需要调用这个方法, 请直接调用高层次的封装函数;
+//	2. 最终的 URL == incompleteURL + access_token;
+//	3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
+//	    struct {
+//	        Error
+//	        ...
+//	    }
 func (clt *Client) PostMultipartForm(incompleteURL string, fields []MultipartFormField, response interface{}) (err error) {
 	ErrorStructValue, ErrorErrCodeValue := checkResponse(response)
 

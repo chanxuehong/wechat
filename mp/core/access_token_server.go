@@ -25,10 +25,11 @@ type AccessTokenServer interface {
 var _ AccessTokenServer = (*DefaultAccessTokenServer)(nil)
 
 // DefaultAccessTokenServer 实现了 AccessTokenServer 接口.
-//  NOTE:
-//  1. 用于单进程环境.
-//  2. 因为 DefaultAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 AccessTokenServer 接口,
-//     所以整个系统只能存在一个 DefaultAccessTokenServer 实例!
+//
+//	NOTE:
+//	1. 用于单进程环境.
+//	2. 因为 DefaultAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 AccessTokenServer 接口,
+//	   所以整个系统只能存在一个 DefaultAccessTokenServer 实例!
 type DefaultAccessTokenServer struct {
 	appId      string
 	appSecret  string

@@ -36,7 +36,8 @@ type Text struct {
 }
 
 // 新建文本消息.
-//  如果不指定客服则 kfAccount 留空.
+//
+//	如果不指定客服则 kfAccount 留空.
 func NewText(toUser, content, kfAccount string) (text *Text) {
 	text = &Text{
 		MsgHeader: MsgHeader{
@@ -64,7 +65,8 @@ type Image struct {
 }
 
 // 新建图片消息.
-//  如果不指定客服则 kfAccount 留空.
+//
+//	如果不指定客服则 kfAccount 留空.
 func NewImage(toUser, mediaId, kfAccount string) (image *Image) {
 	image = &Image{
 		MsgHeader: MsgHeader{
@@ -92,7 +94,8 @@ type Voice struct {
 }
 
 // 新建语音消息.
-//  如果不指定客服则 kfAccount 留空.
+//
+//	如果不指定客服则 kfAccount 留空.
 func NewVoice(toUser, mediaId, kfAccount string) (voice *Voice) {
 	voice = &Voice{
 		MsgHeader: MsgHeader{
@@ -123,7 +126,8 @@ type Video struct {
 }
 
 // 新建视频消息.
-//  如果不指定客服则 kfAccount 留空.
+//
+//	如果不指定客服则 kfAccount 留空.
 func NewVideo(toUser, mediaId, thumbMediaId, title, description, kfAccount string) (video *Video) {
 	video = &Video{
 		MsgHeader: MsgHeader{
@@ -158,7 +162,8 @@ type Music struct {
 }
 
 // 新建音乐消息.
-//  如果不指定客服则 kfAccount 留空.
+//
+//	如果不指定客服则 kfAccount 留空.
 func NewMusic(toUser, thumbMediaId, musicURL, HQMusicURL, title, description, kfAccount string) (music *Music) {
 	music = &Music{
 		MsgHeader: MsgHeader{
@@ -198,7 +203,8 @@ type News struct {
 }
 
 // 新建图文消息.
-//  如果不指定客服则 kfAccount 留空.
+//
+//	如果不指定客服则 kfAccount 留空.
 func NewNews(toUser string, articles []Article, kfAccount string) (news *News) {
 	news = &News{
 		MsgHeader: MsgHeader{
@@ -225,7 +231,8 @@ type MPNews struct {
 }
 
 // 新建图文消息.
-//  如果不指定客服则 kfAccount 留空.
+//
+//	如果不指定客服则 kfAccount 留空.
 func NewMPNews(toUser, mediaId, kfAccount string) (mpnews *MPNews) {
 	mpnews = &MPNews{
 		MsgHeader: MsgHeader{
@@ -254,7 +261,8 @@ type WxCard struct {
 }
 
 // 新建卡券消息.
-//  如果不指定客服则 kfAccount 留空.
+//
+//	如果不指定客服则 kfAccount 留空.
 func NewWxCard(toUser, cardId, cardExt, kfAccount string) (card *WxCard) {
 	card = &WxCard{
 		MsgHeader: MsgHeader{

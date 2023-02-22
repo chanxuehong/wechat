@@ -66,18 +66,18 @@ func List(clt *core.Client, query *SearchQuery) (rslt *ListResult, err error) {
 
 // DeviceIterator
 //
-//  iter, err := NewDeviceIterator(*core.Client, *SearchQuery)
-//  if err != nil {
-//      // TODO: 增加你的代码
-//  }
+//	iter, err := NewDeviceIterator(*core.Client, *SearchQuery)
+//	if err != nil {
+//	    // TODO: 增加你的代码
+//	}
 //
-//  for iter.HasNext() {
-//      items, err := iter.NextPage()
-//      if err != nil {
-//          // TODO: 增加你的代码
-//      }
-//      // TODO: 增加你的代码
-//  }
+//	for iter.HasNext() {
+//	    items, err := iter.NextPage()
+//	    if err != nil {
+//	        // TODO: 增加你的代码
+//	    }
+//	    // TODO: 增加你的代码
+//	}
 type DeviceIterator struct {
 	clt *core.Client
 

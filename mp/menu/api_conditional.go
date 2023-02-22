@@ -44,7 +44,8 @@ func DeleteConditionalMenu(clt *core.Client, menuId int64) (err error) {
 }
 
 // 测试个性化菜单匹配结果.
-//  userId 可以是粉丝的 OpenID, 也可以是粉丝的微信号
+//
+//	userId 可以是粉丝的 OpenID, 也可以是粉丝的微信号
 func TryMatch(clt *core.Client, userId string) (menu *Menu, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/menu/trymatch?access_token="
 

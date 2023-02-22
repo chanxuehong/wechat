@@ -19,8 +19,9 @@ type Shakeinfo struct {
 }
 
 // 获取摇周边的设备及用户信息
-//  ticket:  摇周边业务的ticket，可在摇到的URL中得到，ticket生效时间为30分钟，每一次摇都会重新生成新的ticket
-//  needPoi: 是否需要返回门店poi_id
+//
+//	ticket:  摇周边业务的ticket，可在摇到的URL中得到，ticket生效时间为30分钟，每一次摇都会重新生成新的ticket
+//	needPoi: 是否需要返回门店poi_id
 func GetShakeInfo(clt *core.Client, ticket string, needPoi bool) (info *Shakeinfo, err error) {
 	request := struct {
 		Ticket  string `json:"ticket"`

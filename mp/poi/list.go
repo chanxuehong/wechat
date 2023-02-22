@@ -13,8 +13,9 @@ type ListResult struct {
 }
 
 // List 查询门店列表.
-//  begin: 开始位置，0 即为从第一条开始查询
-//  limit: 返回数据条数，最大允许50，默认为20
+//
+//	begin: 开始位置，0 即为从第一条开始查询
+//	limit: 返回数据条数，最大允许50，默认为20
 func List(clt *core.Client, begin, limit int) (rslt *ListResult, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/poi/getpoilist?access_token="
 
@@ -54,18 +55,18 @@ func List(clt *core.Client, begin, limit int) (rslt *ListResult, err error) {
 
 // PoiIterator
 //
-//  iter, err := NewPoiIterator(clt, 0, 10)
-//  if err != nil {
-//      // TODO: 增加你的代码
-//  }
+//	iter, err := NewPoiIterator(clt, 0, 10)
+//	if err != nil {
+//	    // TODO: 增加你的代码
+//	}
 //
-//  for iter.HasNext() {
-//      items, err := iter.NextPage()
-//      if err != nil {
-//          // TODO: 增加你的代码
-//      }
-//      // TODO: 增加你的代码
-//  }
+//	for iter.HasNext() {
+//	    items, err := iter.NextPage()
+//	    if err != nil {
+//	        // TODO: 增加你的代码
+//	    }
+//	    // TODO: 增加你的代码
+//	}
 type PoiIterator struct {
 	clt *core.Client
 

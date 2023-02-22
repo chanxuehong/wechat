@@ -20,7 +20,8 @@ type ListResult struct {
 }
 
 // List 获取用户列表.
-//  NOTE: 每次最多能获取 10000 个用户, 可以多次指定 nextOpenId 来获取以满足需求, 如果 nextOpenId == "" 则表示从头获取
+//
+//	NOTE: 每次最多能获取 10000 个用户, 可以多次指定 nextOpenId 来获取以满足需求, 如果 nextOpenId == "" 则表示从头获取
 func List(clt *core.Client, nextOpenId string) (rslt *ListResult, err error) {
 	var incompleteURL string
 	if nextOpenId == "" {
@@ -48,18 +49,18 @@ func List(clt *core.Client, nextOpenId string) (rslt *ListResult, err error) {
 
 // UserIterator
 //
-//  iter, err := NewUserIterator(clt, "NextOpenId")
-//  if err != nil {
-//      // TODO: 增加你的代码
-//  }
+//	iter, err := NewUserIterator(clt, "NextOpenId")
+//	if err != nil {
+//	    // TODO: 增加你的代码
+//	}
 //
-//  for iter.HasNext() {
-//      openids, err := iter.NextPage()
-//      if err != nil {
-//          // TODO: 增加你的代码
-//      }
-//      // TODO: 增加你的代码
-//  }
+//	for iter.HasNext() {
+//	    openids, err := iter.NextPage()
+//	    if err != nil {
+//	        // TODO: 增加你的代码
+//	    }
+//	    // TODO: 增加你的代码
+//	}
 type UserIterator struct {
 	clt *core.Client
 

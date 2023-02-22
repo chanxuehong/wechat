@@ -30,11 +30,12 @@ type Server struct {
 }
 
 // NewServer 创建一个新的 Server.
-//  appId:        可选; 公众号的 appid, 如果设置了值则该 Server 只能处理 appid 为该值的消息(事件)
-//  mchId:        可选; 商户号 mch_id, 如果设置了值则该 Server 只能处理 mch_id 为该值的消息(事件)
-//  apiKey:       必选; 商户的签名 key
-//  handler:      必选; 处理微信服务器推送过来的消息(事件)的 Handler
-//  errorHandler: 可选; 用于处理 Server 在处理消息(事件)过程中产生的错误, 如果没有设置则默认使用 DefaultErrorHandler
+//
+//	appId:        可选; 公众号的 appid, 如果设置了值则该 Server 只能处理 appid 为该值的消息(事件)
+//	mchId:        可选; 商户号 mch_id, 如果设置了值则该 Server 只能处理 mch_id 为该值的消息(事件)
+//	apiKey:       必选; 商户的签名 key
+//	handler:      必选; 处理微信服务器推送过来的消息(事件)的 Handler
+//	errorHandler: 可选; 用于处理 Server 在处理消息(事件)过程中产生的错误, 如果没有设置则默认使用 DefaultErrorHandler
 func NewServer(appId, mchId, apiKey string, handler Handler, errorHandler ErrorHandler) *Server {
 	if apiKey == "" {
 		panic("empty apiKey")
@@ -56,13 +57,14 @@ func NewServer(appId, mchId, apiKey string, handler Handler, errorHandler ErrorH
 }
 
 // NewSubMchServer 创建一个新的 Server.
-//  appId:        可选; 公众号的 appid, 如果设置了值则该 Server 只能处理 appid 为该值的消息(事件)
-//  mchId:        可选; 商户号 mch_id, 如果设置了值则该 Server 只能处理 mch_id 为该值的消息(事件)
-//  apiKey:       必选; 商户的签名 key
-//  subAppId:     可选; 公众号的 sub_appid, 如果设置了值则该 Server 只能处理 sub_appid 为该值的消息(事件)
-//  subMchId:     可选; 商户号 sub_mch_id, 如果设置了值则该 Server 只能处理 sub_mch_id 为该值的消息(事件)
-//  handler:      必选; 处理微信服务器推送过来的消息(事件)的 Handler
-//  errorHandler: 可选; 用于处理 Server 在处理消息(事件)过程中产生的错误, 如果没有设置则默认使用 DefaultErrorHandler
+//
+//	appId:        可选; 公众号的 appid, 如果设置了值则该 Server 只能处理 appid 为该值的消息(事件)
+//	mchId:        可选; 商户号 mch_id, 如果设置了值则该 Server 只能处理 mch_id 为该值的消息(事件)
+//	apiKey:       必选; 商户的签名 key
+//	subAppId:     可选; 公众号的 sub_appid, 如果设置了值则该 Server 只能处理 sub_appid 为该值的消息(事件)
+//	subMchId:     可选; 商户号 sub_mch_id, 如果设置了值则该 Server 只能处理 sub_mch_id 为该值的消息(事件)
+//	handler:      必选; 处理微信服务器推送过来的消息(事件)的 Handler
+//	errorHandler: 可选; 用于处理 Server 在处理消息(事件)过程中产生的错误, 如果没有设置则默认使用 DefaultErrorHandler
 func NewSubMchServer(appId, mchId, apiKey string, subAppId, subMchId string, handler Handler, errorHandler ErrorHandler) *Server {
 	if apiKey == "" {
 		panic("empty apiKey")

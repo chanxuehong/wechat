@@ -9,7 +9,8 @@ import (
 )
 
 // Refund 申请退款.
-//  NOTE: 请求需要双向证书.
+//
+//	NOTE: 请求需要双向证书.
 func Refund(clt *core.Client, req map[string]string) (resp map[string]string, err error) {
 	return clt.PostXML(core.APIBaseURL()+"/secapi/pay/refund", req)
 }
@@ -54,9 +55,10 @@ type RefundResponse struct {
 }
 
 // Refund2 申请退款.
-//  NOTE:
-//  1. 请求需要双向证书.
-//  2. 该函数不支持 代金券 功能, 如果有 代金券 功能请使用 Refund 函数.
+//
+//	NOTE:
+//	1. 请求需要双向证书.
+//	2. 该函数不支持 代金券 功能, 如果有 代金券 功能请使用 Refund 函数.
 func Refund2(clt *core.Client, req *RefundRequest) (resp *RefundResponse, err error) {
 	m1 := make(map[string]string, 16)
 	if req.TransactionId != "" {

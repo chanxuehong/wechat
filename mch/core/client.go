@@ -46,10 +46,11 @@ func (clt *Client) SubMchId() string {
 }
 
 // NewClient 创建一个新的 Client.
-//  appId:      必选; 公众号的 appid
-//  mchId:      必选; 商户号 mch_id
-//  apiKey:     必选; 商户的签名 key
-//  httpClient: 可选; 默认使用 util.DefaultHttpClient
+//
+//	appId:      必选; 公众号的 appid
+//	mchId:      必选; 商户号 mch_id
+//	apiKey:     必选; 商户的签名 key
+//	httpClient: 可选; 默认使用 util.DefaultHttpClient
 func NewClient(appId, mchId, apiKey string, httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = wechatutil.DefaultHttpClient
@@ -63,12 +64,13 @@ func NewClient(appId, mchId, apiKey string, httpClient *http.Client) *Client {
 }
 
 // NewSubMchClient 创建一个新的 Client.
-//  appId:      必选; 公众号的 appid
-//  mchId:      必选; 商户号 mch_id
-//  apiKey:     必选; 商户的签名 key
-//  subAppId:   可选; 公众号的 sub_appid
-//  subMchId:   必选; 商户号 sub_mch_id
-//  httpClient: 可选; 默认使用 util.DefaultHttpClient
+//
+//	appId:      必选; 公众号的 appid
+//	mchId:      必选; 商户号 mch_id
+//	apiKey:     必选; 商户的签名 key
+//	subAppId:   可选; 公众号的 sub_appid
+//	subMchId:   必选; 商户号 sub_mch_id
+//	httpClient: 可选; 默认使用 util.DefaultHttpClient
 func NewSubMchClient(appId, mchId, apiKey string, subAppId, subMchId string, httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = wechatutil.DefaultHttpClient
@@ -84,7 +86,8 @@ func NewSubMchClient(appId, mchId, apiKey string, subAppId, subMchId string, htt
 }
 
 // PostXML 是微信支付通用请求方法.
-//  err == nil 表示 (return_code == "SUCCESS" && result_code == "SUCCESS").
+//
+//	err == nil 表示 (return_code == "SUCCESS" && result_code == "SUCCESS").
 func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]string, err error) {
 	switch url {
 	case "https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers", "https://api2.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers", // 企业付款

@@ -17,7 +17,8 @@ import (
 )
 
 // Download 下载多媒体到文件.
-//  对于视频素材, 先通过 GetVideo 得到 Video 信息, 然后通过 Video.DownloadURL 来下载
+//
+//	对于视频素材, 先通过 GetVideo 得到 Video 信息, 然后通过 Video.DownloadURL 来下载
 func Download(clt *core.Client, mediaId, filepath string) (written int64, err error) {
 	file, err := os.Create(filepath)
 	if err != nil {
@@ -34,7 +35,8 @@ func Download(clt *core.Client, mediaId, filepath string) (written int64, err er
 }
 
 // DownloadToWriter 下载多媒体到 io.Writer.
-//  对于视频素材, 先通过 GetVideo 得到 Video 信息, 然后通过 Video.DownloadURL 来下载
+//
+//	对于视频素材, 先通过 GetVideo 得到 Video 信息, 然后通过 Video.DownloadURL 来下载
 func DownloadToWriter(clt *core.Client, mediaId string, writer io.Writer) (written int64, err error) {
 	httpClient := clt.HttpClient
 	if httpClient == nil {
