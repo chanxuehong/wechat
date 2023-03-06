@@ -19,7 +19,7 @@ type ExtConfig struct {
 	Resizable                      bool                         `json:"resizable,omitempty"`
 	NavigateToMiniProgramAppIdList []string                     `json:"navigateToMiniProgramAppIdList,omitempty"`
 	UsingComponents                map[string]string            `json:"usingComponents,omitempty"`
-	permission                     map[string]struct {
+	Permission                     map[string]struct {
 		Desc string `json:"desc"`
 	} `json:"permission,omitempty"`
 	SitemapLocation string `json:"sitemapLocation,omitempty"`
