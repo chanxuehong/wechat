@@ -1,21 +1,25 @@
 package wxacode
 
 import (
-	"encoding/json"
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
-func Get(clt *core.Client, request Request) (data []byte, err error) {
+func Get(clt *core.Client, request *QrcodeRequest) (data []byte, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/wxa/getwxacode?access_token="
-	data, err = PostJSON(clt, incompleteURL, &request)
-	if err != nil {
+	var result struct {
+		core.Error
+		// Buffer 图片 Buffer
+		Buffer []byte `json:"buffer,omitempty"`
+		// ContentType content-type
+		ContentType string `json:"content_type,omitempty"`
+	}
+	if err = clt.PostJSON(incompleteURL, &request, &result); err != nil {
 		return
 	}
-	var result core.Error
-	json.Unmarshal(data, &result)
 	if result.ErrCode != core.ErrCodeOK {
-		err = &result
+		err = &result.Error
 		return
 	}
+	data = result.Buffer
 	return
 }
