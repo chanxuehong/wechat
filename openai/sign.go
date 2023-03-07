@@ -3,7 +3,7 @@ package openai
 import (
 	"errors"
 
-	"gopkg.in/dgrijalva/jwt-go.v3"
+	"github.com/golang-jwt/jwt/v5"
 
 	mpCore "github.com/chanxuehong/wechat/mp/core"
 	"github.com/chanxuehong/wechat/openai/core"
@@ -31,18 +31,18 @@ func Sign(clt *core.Client, req *model.User) (signature string, expiresIn int64,
 }
 
 func LocalSign(clt *core.Client, req *model.User) (signature string, err error) {
-	token := jwt.New(jwt.GetSigningMethod("HS256"))
-	claims := token.Claims.(jwt.MapClaims)
-	claims["userid"] = req.ID
-	claims["username"] = req.Name
-	claims["avatar"] = req.Avatar
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userid":   req.ID,
+		"username": req.Name,
+		"avatar":   req.Avatar,
+	})
 	signature, err = token.SignedString([]byte(clt.EncodingAESKey))
 	return
 }
 
 func ParseSign(clt *core.Client, signature string) (token *jwt.Token, err error) {
 	token, err = jwt.Parse(signature, func(t *jwt.Token) (interface{}, error) {
-		if jwt.GetSigningMethod("HS256") != t.Method {
+		if jwt.SigningMethodHS256 != t.Method {
 			return nil, errors.New("invalid signing algorithm")
 		}
 		return []byte(clt.EncodingAESKey), nil
