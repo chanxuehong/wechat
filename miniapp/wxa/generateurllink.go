@@ -42,7 +42,7 @@ func GenerateURLLink(clt *core.Client, req *GenerateURLLinkRequest) (urllink str
 	const incompleteURL = "https://api.weixin.qq.com/wxa/generate_urllink?access_token="
 	var result struct {
 		core.Error
-		URLLink string `json:"urllink"`
+		URLLink string `json:"url_link"`
 	}
 	if err = clt.PostJSON(incompleteURL, req, &result); err != nil {
 		return
