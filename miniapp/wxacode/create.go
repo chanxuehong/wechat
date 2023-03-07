@@ -1,25 +1,22 @@
 package wxacode
 
 import (
+	"encoding/json"
+
 	"github.com/chanxuehong/wechat/mp/core"
 )
 
 func Create(clt *core.Client, request *QrcodeRequest) (data []byte, err error) {
-	var result struct {
-		core.Error
-		// Buffer 图片 Buffer
-		Buffer []byte `json:"buffer,omitempty"`
-		// ContentType content-type
-		ContentType string `json:"content_type,omitempty"`
-	}
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/wxaapp/createwxaqrcode?access_token="
-	if err = clt.PostJSON(incompleteURL, request, &result); err != nil {
+	data, err = PostJSON(clt, incompleteURL, &request)
+	if err != nil {
 		return
 	}
+	var result core.Error
+	json.Unmarshal(data, &result)
 	if result.ErrCode != core.ErrCodeOK {
-		err = &result.Error
+		err = &result
 		return
 	}
-	data = result.Buffer
 	return
 }
