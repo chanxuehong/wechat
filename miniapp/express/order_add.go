@@ -122,7 +122,7 @@ type InsureInfo struct {
 // ServiceType 服务类型
 type ServiceType struct {
 	// ServiceType 服务类型ID
-	ServiceType int `json:"service_type,omitempty"`
+	ServiceType int `json:"service_type"`
 	// ServiceName 服务名称
 	ServiceName string `json:"service_name,omitempty"`
 }
