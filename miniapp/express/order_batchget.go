@@ -1,7 +1,7 @@
 package express
 
 import (
-	"github.com/bububa/wechat/component/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // OrderBatchGet 批量获取运单数据

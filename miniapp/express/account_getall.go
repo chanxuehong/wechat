@@ -1,7 +1,7 @@
 package express
 
 import (
-	"github.com/bububa/wechat/component/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // Account 账号
