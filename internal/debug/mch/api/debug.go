@@ -1,3 +1,4 @@
+//go:build wechat_debug
 // +build wechat_debug
 
 package api
@@ -8,7 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/chanxuehong/util"
+	"github.com/bububa/wechat/util"
 )
 
 func DebugPrintGetRequest(url string) {

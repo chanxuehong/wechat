@@ -1,7 +1,7 @@
 package mall
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // 删除用户的所有收藏

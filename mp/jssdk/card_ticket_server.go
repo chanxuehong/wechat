@@ -8,7 +8,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // 卡劵 api_ticket 中控服务器接口.
@@ -21,10 +21,11 @@ type CardTicketServer interface {
 var _ CardTicketServer = (*DefaultCardTicketServer)(nil)
 
 // DefaultCardTicketServer 实现了 CardTicketServer 接口.
-//  NOTE:
-//  1. 用于单进程环境.
-//  2. 因为 DefaultCardTicketServer 同时也是一个简单的中控服务器, 而不是仅仅实现 CardTicketServer 接口,
-//     所以整个系统只能存在一个 DefaultCardTicketServer 实例!
+//
+//	NOTE:
+//	1. 用于单进程环境.
+//	2. 因为 DefaultCardTicketServer 同时也是一个简单的中控服务器, 而不是仅仅实现 CardTicketServer 接口,
+//	   所以整个系统只能存在一个 DefaultCardTicketServer 实例!
 type DefaultCardTicketServer struct {
 	coreClient *core.Client
 

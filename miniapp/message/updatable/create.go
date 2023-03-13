@@ -1,7 +1,7 @@
 package updatable
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 type Activity struct {

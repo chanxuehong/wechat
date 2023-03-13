@@ -1,3 +1,4 @@
+//go:build !wechat_debug
 // +build !wechat_debug
 
 package api
@@ -5,7 +6,7 @@ package api
 import (
 	"io"
 
-	"github.com/chanxuehong/util"
+	"github.com/bububa/wechat/util"
 )
 
 func DebugPrintGetRequest(url string) {}

@@ -3,7 +3,7 @@ package material
 import (
 	"fmt"
 
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // 删除永久素材.
@@ -67,9 +67,10 @@ type MaterialInfo struct {
 }
 
 // 获取素材列表.
-//  materialType: 素材的类型, 图片(image), 视频(video), 语音 (voice)
-//  offset:       从全部素材的该偏移位置开始返回, 0表示从第一个素材
-//  count:        返回素材的数量, 取值在1到20之间
+//
+//	materialType: 素材的类型, 图片(image), 视频(video), 语音 (voice)
+//	offset:       从全部素材的该偏移位置开始返回, 0表示从第一个素材
+//	count:        返回素材的数量, 取值在1到20之间
 func BatchGet(clt *core.Client, materialType string, offset, count int) (rslt *BatchGetResult, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token="
 
@@ -117,18 +118,18 @@ func BatchGet(clt *core.Client, materialType string, offset, count int) (rslt *B
 
 // MaterialIterator
 //
-//  iter, err := NewMaterialIterator(clt, MaterialTypeImage, 0, 10)
-//  if err != nil {
-//      // TODO: 增加你的代码
-//  }
+//	iter, err := NewMaterialIterator(clt, MaterialTypeImage, 0, 10)
+//	if err != nil {
+//	    // TODO: 增加你的代码
+//	}
 //
-//  for iter.HasNext() {
-//      items, err := iter.NextPage()
-//      if err != nil {
-//          // TODO: 增加你的代码
-//      }
-//      // TODO: 增加你的代码
-//  }
+//	for iter.HasNext() {
+//	    items, err := iter.NextPage()
+//	    if err != nil {
+//	        // TODO: 增加你的代码
+//	    }
+//	    // TODO: 增加你的代码
+//	}
 type MaterialIterator struct {
 	clt *core.Client
 

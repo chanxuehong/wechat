@@ -2,7 +2,7 @@
 package response
 
 import (
-	"github.com/chanxuehong/wechat/work/message"
+	"github.com/bububa/wechat/work/message"
 )
 
 const (

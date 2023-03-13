@@ -3,7 +3,7 @@ package core
 import (
 	"time"
 
-	"github.com/chanxuehong/wechat/util"
+	"github.com/bububa/wechat/util"
 )
 
 // FormatTime 将参数 t 格式化成北京时间 yyyyMMddHHmmss.

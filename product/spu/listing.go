@@ -1,7 +1,7 @@
 package spu
 
 import (
-	"github.com/chanxuehong/wechat/product/core"
+	"github.com/bububa/wechat/product/core"
 )
 
 // Listing 上架商品

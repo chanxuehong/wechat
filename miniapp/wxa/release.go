@@ -1,7 +1,7 @@
 package wxa
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // 发布已通过审核的小程序（仅供第三方代小程序调用）

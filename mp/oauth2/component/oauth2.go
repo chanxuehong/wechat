@@ -1,7 +1,7 @@
 package component
 
 import (
-	"github.com/chanxuehong/wechat/util"
+	"github.com/bububa/wechat/util"
 )
 
 // AuthCodeURL 生成网页授权地址.

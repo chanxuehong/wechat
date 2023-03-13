@@ -1,7 +1,7 @@
 package externalcontact
 
 import (
-	"github.com/chanxuehong/wechat/work/core"
+	"github.com/bububa/wechat/work/core"
 )
 
 // AddCorpTag 添加企业客户标签

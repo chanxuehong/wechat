@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/chanxuehong/wechat/work/core"
+	"github.com/bububa/wechat/work/core"
 )
 
 // UploadImg 上传多媒体图片
@@ -14,7 +14,8 @@ func UploadImg(clt *core.Client, filepath string) (link string, err error) {
 }
 
 // UploadImgFromReader 上传多媒体图片
-//  NOTE: 参数 filename 不是文件路径, 是 multipart/form-data 里面 filename 的值.
+//
+//	NOTE: 参数 filename 不是文件路径, 是 multipart/form-data 里面 filename 的值.
 func UploadImgFromReader(clt *core.Client, filename string, reader io.Reader) (link string, err error) {
 	return uploadImgFromReader(clt, filename, reader)
 }

@@ -1,7 +1,7 @@
 package wxa
 
 import (
-	"github.com/chanxuehong/wechat/component/core"
+	"github.com/bububa/wechat/component/core"
 )
 
 // 获取代码模版库中的所有小程序代码模版

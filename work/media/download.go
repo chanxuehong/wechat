@@ -8,10 +8,10 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/chanxuehong/wechat/internal/debug/api"
-	"github.com/chanxuehong/wechat/internal/debug/api/retry"
-	"github.com/chanxuehong/wechat/util"
-	"github.com/chanxuehong/wechat/work/core"
+	"github.com/bububa/wechat/internal/debug/api"
+	"github.com/bububa/wechat/internal/debug/api/retry"
+	"github.com/bububa/wechat/util"
+	"github.com/bububa/wechat/work/core"
 )
 
 // Get 获取临时素材.

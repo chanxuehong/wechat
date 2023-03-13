@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/chanxuehong/wechat/miniapp/wxa/serviceMarket"
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/miniapp/wxa/serviceMarket"
+	"github.com/bububa/wechat/mp/core"
 )
 
 type GoodInfoResult struct {

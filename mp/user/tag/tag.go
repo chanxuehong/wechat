@@ -1,7 +1,7 @@
 package tag
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 type Tag struct {
@@ -90,7 +90,8 @@ func Update(clt *core.Client, tagId int, name string) (err error) {
 }
 
 // TagGet 根据TagId获取用户列表.
-//  NOTE: 每次最多能获取 10000 个用户, 可以多次指定 nextOpenId 来获取以满足需求, 如果 nextOpenId == "" 则表示从头获取
+//
+//	NOTE: 每次最多能获取 10000 个用户, 可以多次指定 nextOpenId 来获取以满足需求, 如果 nextOpenId == "" 则表示从头获取
 func TagGet(clt *core.Client, tagId int, nextOpenId string) (rslt *GetResult, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/user/tag/get?access_token="
 

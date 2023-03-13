@@ -1,7 +1,7 @@
 package wxa
 
 import (
-	"github.com/chanxuehong/wechat/component/core"
+	"github.com/bububa/wechat/component/core"
 )
 
 // 将草稿箱的草稿选为小程序代码模版

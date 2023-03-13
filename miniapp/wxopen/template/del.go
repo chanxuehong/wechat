@@ -1,7 +1,7 @@
 package template
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // 删除帐号下的某个模板

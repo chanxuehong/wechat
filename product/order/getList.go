@@ -1,8 +1,8 @@
 package order
 
 import (
-	"github.com/chanxuehong/wechat/product/core"
-	"github.com/chanxuehong/wechat/product/model"
+	"github.com/bububa/wechat/product/core"
+	"github.com/bububa/wechat/product/model"
 )
 
 type GetListRequest struct {

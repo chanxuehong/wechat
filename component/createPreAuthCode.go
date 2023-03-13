@@ -1,7 +1,7 @@
 package component
 
 import (
-	"github.com/chanxuehong/wechat/component/core"
+	"github.com/bububa/wechat/component/core"
 )
 
 // 该API用于获取预授权码。预授权码用于公众号或小程序授权时的第三方平台方安全验证.

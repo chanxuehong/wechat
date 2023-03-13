@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 	"net/http"
 	"net/url"
 )

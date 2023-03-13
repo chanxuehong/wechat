@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/chanxuehong/wechat/internal/debug/callback"
-	"github.com/chanxuehong/wechat/internal/util"
+	"github.com/bububa/wechat/internal/debug/callback"
+	"github.com/bububa/wechat/internal/util"
 )
 
 const (
@@ -67,7 +67,8 @@ func (ctx *Context) Next() {
 }
 
 // SetHandlers 设置 handlers 给 Context.Next() 调用, 务必在 Context.Next() 调用之前设置, 否则会 panic.
-//  NOTE: 此方法一般用不到, 除非你自己实现一个 Handler 给 Server 使用, 参考 ServeMux.
+//
+//	NOTE: 此方法一般用不到, 除非你自己实现一个 Handler 给 Server 使用, 参考 ServeMux.
 func (ctx *Context) SetHandlers(handlers HandlerChain) {
 	if len(handlers) > maxHandlerChainSize {
 		panic("too many handlers")
@@ -116,7 +117,8 @@ func (ctx *Context) NoneResponse() (err error) {
 }
 
 // RawResponse 回复明文消息给微信服务器.
-//  msg: 经过 encoding/xml.Marshal 得到的结果符合微信消息格式的任何数据结构
+//
+//	msg: 经过 encoding/xml.Marshal 得到的结果符合微信消息格式的任何数据结构
 func (ctx *Context) RawResponse(msg interface{}) (err error) {
 	return callback.XmlEncodeResponseMessage(ctx.ResponseWriter, msg)
 }
@@ -127,10 +129,11 @@ type stringWriter interface {
 }
 
 // AESResponse 回复aes加密的消息给微信服务器.
-//  msg:       经过 encoding/xml.Marshal 得到的结果符合微信消息格式的任何数据结构
-//  timestamp: 时间戳, 如果为 0 则默认使用 Context.Timestamp
-//  nonce:     随机数, 如果为 "" 则默认使用 Context.Nonce
-//  random:    16字节的随机字符串, 如果为 nil 则默认使用 Context.Random
+//
+//	msg:       经过 encoding/xml.Marshal 得到的结果符合微信消息格式的任何数据结构
+//	timestamp: 时间戳, 如果为 0 则默认使用 Context.Timestamp
+//	nonce:     随机数, 如果为 "" 则默认使用 Context.Nonce
+//	random:    16字节的随机字符串, 如果为 nil 则默认使用 Context.Random
 func (ctx *Context) AESResponse(msg interface{}, timestamp int64, nonce string, random []byte) (err error) {
 	if timestamp == 0 {
 		timestamp = ctx.Timestamp

@@ -1,7 +1,7 @@
 package spu
 
 import (
-	"github.com/chanxuehong/wechat/product/core"
+	"github.com/bububa/wechat/product/core"
 )
 
 // Delisting 下架商品

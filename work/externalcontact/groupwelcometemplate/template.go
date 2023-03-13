@@ -1,7 +1,7 @@
 package groupwelcometemplate
 
 import (
-	"github.com/chanxuehong/wechat/work/externalcontact"
+	"github.com/bububa/wechat/work/externalcontact"
 )
 
 type Template struct {

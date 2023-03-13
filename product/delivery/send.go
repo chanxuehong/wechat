@@ -1,8 +1,8 @@
 package delivery
 
 import (
-	"github.com/chanxuehong/wechat/product/core"
-	"github.com/chanxuehong/wechat/product/model"
+	"github.com/bububa/wechat/product/core"
+	"github.com/bububa/wechat/product/model"
 )
 
 // Send 订单发货

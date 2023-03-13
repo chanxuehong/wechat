@@ -1,7 +1,7 @@
 package liberary
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // 获取小程序模板库标题列表

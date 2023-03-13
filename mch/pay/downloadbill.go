@@ -13,10 +13,8 @@ import (
 	"os"
 	"unicode"
 
-	"github.com/chanxuehong/util"
-
-	"github.com/chanxuehong/wechat/mch/core"
-	wechatutil "github.com/chanxuehong/wechat/util"
+	"github.com/bububa/wechat/mch/core"
+	"github.com/bububa/wechat/util"
 )
 
 type DownloadBillRequest struct {
@@ -75,7 +73,7 @@ var (
 // 下载对账单到 io.Writer.
 func downloadBillToWriter(clt *core.Client, writer io.Writer, req *DownloadBillRequest, httpClient *http.Client) (written int64, err error) {
 	if httpClient == nil {
-		httpClient = wechatutil.DefaultMediaHttpClient
+		httpClient = util.DefaultMediaHttpClient
 	}
 
 	m1 := make(map[string]string, 8)
@@ -97,7 +95,7 @@ func downloadBillToWriter(clt *core.Client, writer io.Writer, req *DownloadBillR
 	if req.NonceStr != "" {
 		m1["nonce_str"] = req.NonceStr
 	} else {
-		m1["nonce_str"] = wechatutil.NonceStr()
+		m1["nonce_str"] = util.NonceStr()
 	}
 	if req.TarType != "" {
 		m1["tar_type"] = req.TarType

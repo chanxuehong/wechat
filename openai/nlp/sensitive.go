@@ -1,8 +1,8 @@
 package nlp
 
 import (
-	mpCore "github.com/chanxuehong/wechat/mp/core"
-	"github.com/chanxuehong/wechat/openai/core"
+	mpCore "github.com/bububa/wechat/mp/core"
+	"github.com/bububa/wechat/openai/core"
 )
 
 type SensitiveMode = string

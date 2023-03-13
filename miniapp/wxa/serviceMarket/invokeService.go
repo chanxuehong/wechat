@@ -1,8 +1,8 @@
 package serviceMarket
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
-	"github.com/chanxuehong/wechat/util"
+	"github.com/bububa/wechat/mp/core"
+	"github.com/bububa/wechat/util"
 )
 
 type InvokeServiceRequest struct {

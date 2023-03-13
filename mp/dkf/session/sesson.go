@@ -4,13 +4,14 @@ package session
 import (
 	"net/url"
 
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // Create 创建会话.
-//  openId:    必须, 客户openid
-//  kfAccount: 必须, 完整客服账号，格式为：账号前缀@公众号微信号
-//  text:      可选, 附加信息，文本会展示在客服人员的多客服客户端
+//
+//	openId:    必须, 客户openid
+//	kfAccount: 必须, 完整客服账号，格式为：账号前缀@公众号微信号
+//	text:      可选, 附加信息，文本会展示在客服人员的多客服客户端
 func Create(clt *core.Client, openId, kfAccount, text string) (err error) {
 	const incompleteURL = "https://api.weixin.qq.com/customservice/kfsession/create?access_token="
 
@@ -35,9 +36,10 @@ func Create(clt *core.Client, openId, kfAccount, text string) (err error) {
 }
 
 // Close 关闭会话.
-//  openId:    必须, 客户openid
-//  kfAccount: 必须, 完整客服账号，格式为：账号前缀@公众号微信号
-//  text:      可选, 附加信息，文本会展示在客服人员的多客服客户端
+//
+//	openId:    必须, 客户openid
+//	kfAccount: 必须, 完整客服账号，格式为：账号前缀@公众号微信号
+//	text:      可选, 附加信息，文本会展示在客服人员的多客服客户端
 func Close(clt *core.Client, openId, kfAccount, text string) (err error) {
 	const incompleteURL = "https://api.weixin.qq.com/customservice/kfsession/close?access_token="
 

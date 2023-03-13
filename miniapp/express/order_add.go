@@ -1,7 +1,7 @@
 package express
 
 import (
-	"github.com/chanxuehong/wechat/component/core"
+	"github.com/bububa/wechat/component/core"
 )
 
 type OrderAddRequest struct {

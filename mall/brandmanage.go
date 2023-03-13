@@ -1,7 +1,7 @@
 package mall
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // 小程序的物品是否可被搜索

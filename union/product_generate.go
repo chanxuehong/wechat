@@ -1,6 +1,6 @@
 package union
 
-import "github.com/chanxuehong/wechat/mp/core"
+import "github.com/bububa/wechat/mp/core"
 
 // ProductGenerateRequest 获取商品推广素材
 type ProductGenerateRequest struct {

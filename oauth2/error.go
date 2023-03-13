@@ -3,7 +3,7 @@ package oauth2
 import (
 	"strconv"
 
-	"github.com/chanxuehong/wechat/util"
+	"github.com/bububa/wechat/util"
 )
 
 const (
