@@ -3,7 +3,7 @@ package groupchat
 import (
 	"fmt"
 
-	"github.com/chanxuehong/wechat/work/core"
+	"github.com/bububa/wechat/work/core"
 )
 
 type OwnerFilter struct {

@@ -3,8 +3,8 @@ package component
 import (
 	"strconv"
 
-	"github.com/chanxuehong/wechat/oauth2"
-	"github.com/chanxuehong/wechat/util"
+	"github.com/bububa/wechat/oauth2"
+	"github.com/bububa/wechat/util"
 )
 
 var _ oauth2.Endpoint = (*Endpoint)(nil)

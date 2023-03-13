@@ -3,7 +3,7 @@ package wxacode
 import (
 	"encoding/json"
 
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 func Get(clt *core.Client, request *QrcodeRequest) (data []byte, err error) {

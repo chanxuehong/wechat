@@ -1,9 +1,9 @@
 package nlp
 
 import (
-	mpCore "github.com/chanxuehong/wechat/mp/core"
-	"github.com/chanxuehong/wechat/openai/core"
-	"github.com/chanxuehong/wechat/openai/model"
+	mpCore "github.com/bububa/wechat/mp/core"
+	"github.com/bububa/wechat/openai/core"
+	"github.com/bububa/wechat/openai/model"
 )
 
 // Rank 句子相似度计算以及排序

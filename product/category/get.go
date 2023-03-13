@@ -1,8 +1,8 @@
 package category
 
 import (
-	"github.com/chanxuehong/wechat/product/core"
-	"github.com/chanxuehong/wechat/product/model"
+	"github.com/bububa/wechat/product/core"
+	"github.com/bububa/wechat/product/model"
 )
 
 // Get 获取类目详情

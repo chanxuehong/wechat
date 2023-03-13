@@ -1,7 +1,7 @@
 package groupwelcometemplate
 
 import (
-	"github.com/chanxuehong/wechat/work/core"
+	"github.com/bububa/wechat/work/core"
 )
 
 type EditRequest struct {

@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/chanxuehong/wechat/internal/debug/api"
-	util2 "github.com/chanxuehong/wechat/internal/util"
-	"github.com/chanxuehong/wechat/oauth2"
-	"github.com/chanxuehong/wechat/util"
+	"github.com/bububa/wechat/internal/debug/api"
+	util2 "github.com/bububa/wechat/internal/util"
+	"github.com/bububa/wechat/oauth2"
+	"github.com/bububa/wechat/util"
 )
 
 type Session struct {

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/chanxuehong/wechat/internal/debug/api"
-	mpoauth2 "github.com/chanxuehong/wechat/mp/oauth2"
-	"github.com/chanxuehong/wechat/oauth2"
-	"github.com/chanxuehong/wechat/util"
+	"github.com/bububa/wechat/internal/debug/api"
+	mpoauth2 "github.com/bububa/wechat/mp/oauth2"
+	"github.com/bububa/wechat/oauth2"
+	"github.com/bububa/wechat/util"
 )
 
 // GetSession 获取小程序会话

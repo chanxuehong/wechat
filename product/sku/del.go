@@ -1,8 +1,8 @@
 package sku
 
 import (
-	"github.com/chanxuehong/wechat/product/core"
-	"github.com/chanxuehong/wechat/product/model"
+	"github.com/bububa/wechat/product/core"
+	"github.com/bububa/wechat/product/model"
 )
 
 // Del 删除SKU

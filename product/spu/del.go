@@ -1,7 +1,7 @@
 package spu
 
 import (
-	"github.com/chanxuehong/wechat/product/core"
+	"github.com/bububa/wechat/product/core"
 )
 
 // Del 删除商品

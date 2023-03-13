@@ -1,3 +1,4 @@
+//go:build !wechat_debug
 // +build !wechat_debug
 
 package callback
@@ -6,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/chanxuehong/util"
+	"github.com/bububa/wechat/util"
 )
 
 func DebugPrintRequest(r *http.Request) {}

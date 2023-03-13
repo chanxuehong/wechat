@@ -3,8 +3,8 @@ package wxcae50ba710ca29d3
 import (
 	"encoding/json"
 
-	"github.com/chanxuehong/wechat/miniapp/wxa/serviceMarket"
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/miniapp/wxa/serviceMarket"
+	"github.com/bububa/wechat/mp/core"
 )
 
 type ThumbupBotResponse struct {

@@ -1,6 +1,6 @@
 package union
 
-import "github.com/chanxuehong/wechat/util"
+import "github.com/bububa/wechat/util"
 
 // Order 订单
 type Order struct {

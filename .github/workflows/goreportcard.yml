@@ -1,0 +1,9 @@
+name: GoReportCard
+on: [push, pull_request]
+jobs:
+  build:
+    name: GoReportCard
+    runs-on: ubuntu-latest
+    steps:
+    - name: GoReportCard
+      uses: creekorful/goreportcard-action@v1.0

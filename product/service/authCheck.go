@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/chanxuehong/wechat/component/core"
+	"github.com/bububa/wechat/component/core"
 )
 
 // AuthCheck 登录验证

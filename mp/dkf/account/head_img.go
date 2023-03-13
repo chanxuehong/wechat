@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // UploadHeadImage 上传客服头像.
@@ -20,7 +20,8 @@ func UploadHeadImage(clt *core.Client, kfAccount, imageFilePath string) (err err
 }
 
 // UploadHeadImageFromReader 上传客服头像.
-//  NOTE: 参数 filename 不是文件路径, 是 multipart/form-data 里面 filename 的值.
+//
+//	NOTE: 参数 filename 不是文件路径, 是 multipart/form-data 里面 filename 的值.
 func UploadHeadImageFromReader(clt *core.Client, kfAccount, filename string, reader io.Reader) (err error) {
 	// TODO
 	//	incompleteURL := "https://api.weixin.qq.com/customservice/kfaccount/uploadheadimg?kf_account=" +

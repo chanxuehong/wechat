@@ -1,7 +1,7 @@
 package statistics
 
 import (
-	"github.com/chanxuehong/wechat/mp/shakearound/device"
+	"github.com/bububa/wechat/mp/shakearound/device"
 )
 
 type StatisticsBase struct {

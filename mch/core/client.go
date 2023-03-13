@@ -11,10 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chanxuehong/util"
-
-	"github.com/chanxuehong/wechat/internal/debug/mch/api"
-	wechatutil "github.com/chanxuehong/wechat/util"
+	"github.com/bububa/wechat/internal/debug/mch/api"
+	"github.com/bububa/wechat/util"
 )
 
 type Client struct {
@@ -46,13 +44,14 @@ func (clt *Client) SubMchId() string {
 }
 
 // NewClient 创建一个新的 Client.
-//  appId:      必选; 公众号的 appid
-//  mchId:      必选; 商户号 mch_id
-//  apiKey:     必选; 商户的签名 key
-//  httpClient: 可选; 默认使用 util.DefaultHttpClient
+//
+//	appId:      必选; 公众号的 appid
+//	mchId:      必选; 商户号 mch_id
+//	apiKey:     必选; 商户的签名 key
+//	httpClient: 可选; 默认使用 util.DefaultHttpClient
 func NewClient(appId, mchId, apiKey string, httpClient *http.Client) *Client {
 	if httpClient == nil {
-		httpClient = wechatutil.DefaultHttpClient
+		httpClient = util.DefaultHttpClient
 	}
 	return &Client{
 		appId:      appId,
@@ -63,15 +62,16 @@ func NewClient(appId, mchId, apiKey string, httpClient *http.Client) *Client {
 }
 
 // NewSubMchClient 创建一个新的 Client.
-//  appId:      必选; 公众号的 appid
-//  mchId:      必选; 商户号 mch_id
-//  apiKey:     必选; 商户的签名 key
-//  subAppId:   可选; 公众号的 sub_appid
-//  subMchId:   必选; 商户号 sub_mch_id
-//  httpClient: 可选; 默认使用 util.DefaultHttpClient
+//
+//	appId:      必选; 公众号的 appid
+//	mchId:      必选; 商户号 mch_id
+//	apiKey:     必选; 商户的签名 key
+//	subAppId:   可选; 公众号的 sub_appid
+//	subMchId:   必选; 商户号 sub_mch_id
+//	httpClient: 可选; 默认使用 util.DefaultHttpClient
 func NewSubMchClient(appId, mchId, apiKey string, subAppId, subMchId string, httpClient *http.Client) *Client {
 	if httpClient == nil {
-		httpClient = wechatutil.DefaultHttpClient
+		httpClient = util.DefaultHttpClient
 	}
 	return &Client{
 		appId:      appId,
@@ -84,14 +84,13 @@ func NewSubMchClient(appId, mchId, apiKey string, subAppId, subMchId string, htt
 }
 
 // PostXML 是微信支付通用请求方法.
-//  err == nil 表示 (return_code == "SUCCESS" && result_code == "SUCCESS").
+//
+//	err == nil 表示 (return_code == "SUCCESS" && result_code == "SUCCESS").
 func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]string, err error) {
 	switch url {
 	case "https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers", "https://api2.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers", // 企业付款
 		"https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack", "https://api2.mch.weixin.qq.com/mmpaymkttransfers/sendredpack", // 发放普通红包
 		"https://api.mch.weixin.qq.com/mmpaymkttransfers/sendgroupredpack", "https://api2.mch.weixin.qq.com/mmpaymkttransfers/sendgroupredpack": // 发放裂变红包
-		// TODO(chanxuehong): 这几个接口没有标准的 appid 和 mch_id 字段，需要用户在 req 里填写全部参数
-		// TODO(chanxuehong): 通读整个支付文档, 可以的话重新考虑逻辑
 	default:
 		if req["appid"] == "" {
 			req["appid"] = clt.appId
@@ -142,7 +141,6 @@ RETRY:
 	resp, needRetry, err := clt.postXML(url, body, reqSignType)
 	if err != nil {
 		if needRetry && !hasRetried {
-			// TODO(chanxuehong): 打印错误日志
 			hasRetried = true
 			url = switchRequestURL(url)
 			goto RETRY
@@ -219,7 +217,6 @@ func (clt *Client) postXML(url string, body []byte, reqSignType string) (resp ma
 	// 验证签名
 	signatureHave := resp["sign"]
 	if signatureHave == "" {
-		// TODO(chanxuehong): 在适当的时候更新下面的 case
 		switch url {
 		default:
 			return nil, false, ErrNotFoundSign

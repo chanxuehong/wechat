@@ -3,7 +3,7 @@ package user
 import (
 	"net/url"
 
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 const (
@@ -43,9 +43,10 @@ type UserInfo struct {
 }
 
 // Get 获取用户基本信息.
-//  注意:
-//  1. 需要判断返回的 UserInfo.IsSubscriber 是等于 1 还是 0
-//  2. lang 指定返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语, 默认为 zh_CN
+//
+//	注意:
+//	1. 需要判断返回的 UserInfo.IsSubscriber 是等于 1 还是 0
+//	2. lang 指定返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语, 默认为 zh_CN
 func Get(clt *core.Client, openId string, lang string) (info *UserInfo, err error) {
 	switch lang {
 	case "":
@@ -78,7 +79,8 @@ type batchGetRequestItem struct {
 }
 
 // 批量获取用户基本信息
-//  注意: 需要对返回的 UserInfoList 的每个 UserInfo.IsSubscriber 做判断
+//
+//	注意: 需要对返回的 UserInfoList 的每个 UserInfo.IsSubscriber 做判断
 func BatchGet(clt *core.Client, openIdList []string, lang string) (list []UserInfo, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/user/info/batchget?access_token="
 

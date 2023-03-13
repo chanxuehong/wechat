@@ -3,8 +3,8 @@ package wxc1c68623b7bdea7b
 import (
 	"encoding/json"
 
-	"github.com/chanxuehong/wechat/miniapp/wxa/serviceMarket"
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/miniapp/wxa/serviceMarket"
+	"github.com/bububa/wechat/mp/core"
 )
 
 type RGeoCRequest struct {

@@ -1,7 +1,7 @@
 package externalcontact
 
 import (
-	"github.com/chanxuehong/wechat/work/core"
+	"github.com/bububa/wechat/work/core"
 )
 
 // GetFollowUserList 获取客户列表.

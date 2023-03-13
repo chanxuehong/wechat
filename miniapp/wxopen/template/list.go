@@ -1,7 +1,7 @@
 package template
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // 获取帐号下已存在的模板列表

@@ -3,7 +3,7 @@ package qrcode
 import (
 	"net/url"
 
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 func QrcodePicURL(ticket string) string {

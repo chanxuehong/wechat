@@ -1,7 +1,7 @@
 package coupon
 
 import (
-	"github.com/chanxuehong/wechat/product/core"
+	"github.com/bububa/wechat/product/core"
 )
 
 // Send 发放优惠券

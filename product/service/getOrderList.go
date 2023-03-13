@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/chanxuehong/wechat/product/core"
+	"github.com/bububa/wechat/product/core"
 )
 
 type GetOrderListRequest struct {

@@ -3,8 +3,8 @@ package externalcontact
 import (
 	"net/url"
 
-	"github.com/chanxuehong/wechat/util"
-	"github.com/chanxuehong/wechat/work/core"
+	"github.com/bububa/wechat/util"
+	"github.com/bububa/wechat/work/core"
 )
 
 // List 获取客户列表.

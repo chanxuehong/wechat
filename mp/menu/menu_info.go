@@ -1,7 +1,7 @@
 package menu
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // 获取自定义菜单配置接口.

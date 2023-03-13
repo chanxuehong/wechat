@@ -1,7 +1,7 @@
 package uniform
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // 下发小程序和公众号统一的服务消息

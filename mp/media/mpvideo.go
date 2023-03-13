@@ -1,13 +1,14 @@
 package media
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // UploadVideo2 创建视频素材, 返回的素材一般用于群发消息.
-//  mediaId:     通过 UploadVideo 上传视频文件得到
-//  title:       标题, 可以为空
-//  description: 描述, 可以为空
+//
+//	mediaId:     通过 UploadVideo 上传视频文件得到
+//	title:       标题, 可以为空
+//	description: 描述, 可以为空
 func UploadVideo2(clt *core.Client, mediaId, title, description string) (info *MediaInfo, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token="
 

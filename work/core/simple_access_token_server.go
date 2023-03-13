@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/chanxuehong/wechat/internal/debug/api"
-	"github.com/chanxuehong/wechat/util"
+	"github.com/bububa/wechat/internal/debug/api"
+	"github.com/bububa/wechat/util"
 )
 
 type SimpleAccessTokenServer struct {

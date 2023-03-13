@@ -1,7 +1,7 @@
 package subscribe
 
 import (
-	"github.com/chanxuehong/wechat/mp/message/template"
+	"github.com/bububa/wechat/mp/message/template"
 )
 
 type Message struct {

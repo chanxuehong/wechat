@@ -1,7 +1,7 @@
 package groupwelcometemplate
 
 import (
-	"github.com/chanxuehong/wechat/work/core"
+	"github.com/bububa/wechat/work/core"
 )
 
 // Del 删除群欢迎语素材

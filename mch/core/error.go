@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 	"errors"
 
-	"github.com/chanxuehong/wechat/util"
+	"github.com/bububa/wechat/util"
 )
 
 var (

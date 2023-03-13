@@ -1,7 +1,7 @@
 package card
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // 免费券数据

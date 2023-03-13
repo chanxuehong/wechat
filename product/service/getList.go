@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/chanxuehong/wechat/product/core"
+	"github.com/bububa/wechat/product/core"
 )
 
 // GetList 获取用户购买的在有效期内的服务列表

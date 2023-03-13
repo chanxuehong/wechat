@@ -3,7 +3,7 @@ package material
 import (
 	"fmt"
 
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 type Article struct {
@@ -105,8 +105,9 @@ type NewsInfo struct {
 }
 
 // 获取图文素材列表.
-//  offset: 从全部素材的该偏移位置开始返回, 0表示从第一个素材
-//  count:  返回素材的数量, 取值在1到20之间
+//
+//	offset: 从全部素材的该偏移位置开始返回, 0表示从第一个素材
+//	count:  返回素材的数量, 取值在1到20之间
 func BatchGetNews(clt *core.Client, offset, count int) (rslt *BatchGetNewsResult, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token="
 
@@ -147,18 +148,18 @@ func BatchGetNews(clt *core.Client, offset, count int) (rslt *BatchGetNewsResult
 
 // NewsIterator
 //
-//  iter, err := NewNewsIterator(clt, 0, 10)
-//  if err != nil {
-//      // TODO: 增加你的代码
-//  }
+//	iter, err := NewNewsIterator(clt, 0, 10)
+//	if err != nil {
+//	    // TODO: 增加你的代码
+//	}
 //
-//  for iter.HasNext() {
-//      items, err := iter.NextPage()
-//      if err != nil {
-//          // TODO: 增加你的代码
-//      }
-//      // TODO: 增加你的代码
-//  }
+//	for iter.HasNext() {
+//	    items, err := iter.NextPage()
+//	    if err != nil {
+//	        // TODO: 增加你的代码
+//	    }
+//	    // TODO: 增加你的代码
+//	}
 type NewsIterator struct {
 	clt *core.Client
 

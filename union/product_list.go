@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/chanxuehong/wechat/mp/core"
-	"github.com/chanxuehong/wechat/util"
+	"github.com/bububa/wechat/mp/core"
+	"github.com/bububa/wechat/util"
 )
 
 // ProductListRequest 查询全量商品 API Request

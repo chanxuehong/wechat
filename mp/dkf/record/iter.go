@@ -1,23 +1,23 @@
 package record
 
 import (
-	"github.com/chanxuehong/wechat/mp/core"
+	"github.com/bububa/wechat/mp/core"
 )
 
 // RecordIterator
 //
-//  iter, err := NewRecordIterator(clt, request)
-//  if err != nil {
-//      // TODO: 增加你的代码
-//  }
+//	iter, err := NewRecordIterator(clt, request)
+//	if err != nil {
+//	    // TODO: 增加你的代码
+//	}
 //
-//  for iter.HasNext() {
-//      records, err := iter.NextPage()
-//      if err != nil {
-//          // TODO: 增加你的代码
-//      }
-//      // TODO: 增加你的代码
-//  }
+//	for iter.HasNext() {
+//	    records, err := iter.NextPage()
+//	    if err != nil {
+//	        // TODO: 增加你的代码
+//	    }
+//	    // TODO: 增加你的代码
+//	}
 type RecordIterator struct {
 	clt *core.Client
 
