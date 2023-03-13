@@ -10,6 +10,8 @@ type Account struct {
 	BizID string `json:"biz_id,omitempty"`
 	// DeliveryID 快递公司ID
 	DeliveryID string `json:"delivery_id,omitempty"`
+	// DeliveryName 快递公司名
+	DeliveryName string `json:"delivery_name,omitempty"`
 	// CreateTime 账号绑定时间
 	CreateTime int64 `json:"create_time,omitempty"`
 	// UpdateTime 账号更新时间
