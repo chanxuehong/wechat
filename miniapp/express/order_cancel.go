@@ -34,6 +34,9 @@ func OrderCancel(clt *core.Client, req *OrderCancelRequest) (res *OrderCancelRes
 		return
 	}
 	if result.ErrCode != core.ErrCodeOK {
+		if result.DeliveryResultCode != 0 && result.DeliveryResultMsg != "" {
+			result.Error.ErrMsg = result.DeliveryResultMsg
+		}
 		err = &result.Error
 		return
 	}

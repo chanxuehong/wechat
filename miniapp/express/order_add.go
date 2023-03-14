@@ -164,6 +164,9 @@ func OrderAdd(clt *core.Client, req *OrderAddRequest) (order *Order, err error) 
 		return
 	}
 	if result.ErrCode != core.ErrCodeOK {
+		if result.DeliveryResultCode != 0 && result.DeliveryResultMsg != "" {
+			result.Error.ErrMsg = result.DeliveryResultMsg
+		}
 		err = &result.Error
 		return
 	}
