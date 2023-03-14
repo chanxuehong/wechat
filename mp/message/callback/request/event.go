@@ -9,11 +9,13 @@ import (
 
 const (
 	// 普通事件类型
-	EventTypeSubscribe            core.EventType = "subscribe"         // 关注事件, 包括点击关注和扫描二维码(公众号二维码和公众号带参数二维码)关注
-	EventTypeUnsubscribe          core.EventType = "unsubscribe"       // 取消关注事件
-	EventTypeScan                 core.EventType = "SCAN"              // 已经关注的用户扫描带参数二维码事件
-	EventTypeLocation             core.EventType = "LOCATION"          // 上报地理位置事件
-	EventTypeMessageSendJobFinish core.EventType = "MASSSENDJOBFINISH" // 事件推送群发结果
+	EventTypeSubscribe              core.EventType = "subscribe"                 // 关注事件, 包括点击关注和扫描二维码(公众号二维码和公众号带参数二维码)关注
+	EventTypeUnsubscribe            core.EventType = "unsubscribe"               // 取消关注事件
+	EventTypeScan                   core.EventType = "SCAN"                      // 已经关注的用户扫描带参数二维码事件
+	EventTypeLocation               core.EventType = "LOCATION"                  // 上报地理位置事件
+	EventTypeMessageSendJobFinish   core.EventType = "MASSSENDJOBFINISH"         // 事件推送群发结果
+	EventTypeAddExpressPath         core.EventType = "add_express_path"          // 运单轨迹更新事件
+	EventTypeSubscribeMsgPopupEvent core.EventType = "subscribe_msg_popup_event" // 小程序订阅消息事件
 )
 
 // 关注事件
@@ -126,5 +128,49 @@ func GetMessageSendJobFinishEvent(msg *core.MixedMsg) *MessageSendJobFinishEvent
 		SentCount:        msg.SentCount,
 		ErrorCount:       msg.ErrorCount,
 		ArticleUrlResult: msg.ArticleUrlResult,
+	}
+}
+
+// 运单轨迹更新事件
+type AddExpressPathEvent struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+	core.MsgHeader
+	EventType  core.EventType              `xml:"Event" json:"Event"`           // add_express_path
+	MsgId      int64                       `xml:"MsgId"       json:"MsgId"`     // 消息id, 64位整型
+	DeliveryID string                      `xml:"DeliveryID" json:"DeliveryID"` // 快递公司ID
+	WaybillID  string                      `xml:"WayBillId" json:"WayBillId"`   // 运单ID
+	OrderID    string                      `xml:"OrderId" json:"OrderId"`       // 订单ID
+	Version    int                         `xml:"Version" json:"Version"`       // 轨迹版本号（整型）
+	Count      int                         `xml:"Count" json:"Count"`           // 轨迹节点数（整型）
+	Actions    []core.AddExpressPathAction `xml:"Actions" json:"Actions"`       // 轨迹列表
+}
+
+func GetAddExpressPathEvent(msg *core.MixedMsg) *AddExpressPathEvent {
+	return &AddExpressPathEvent{
+		MsgHeader:  msg.MsgHeader,
+		EventType:  msg.EventType,
+		MsgId:      msg.MsgId,
+		DeliveryID: msg.DeliveryID,
+		WaybillID:  msg.WaybillID,
+		OrderID:    msg.OrderId,
+		Version:    msg.Version,
+		Count:      msg.Count,
+		Actions:    msg.Actions,
+	}
+}
+
+// 小程序订阅消息事件
+type SubscribeMsgPopupEvent struct {
+	XMLName struct{} `xml:"xml" json:"-"`
+	core.MsgHeader
+	EventType              core.EventType `xml:"Event" json:"Event"` // subscribe_msg_popup_event
+	SubscribeMsgPopupEvent *core.SubscribeMsgPopupEvent
+}
+
+func GetSubscribeMsgPopupEvent(msg *core.MixedMsg) *SubscribeMsgPopupEvent {
+	return &SubscribeMsgPopupEvent{
+		MsgHeader:              msg.MsgHeader,
+		EventType:              msg.EventType,
+		SubscribeMsgPopupEvent: msg.SubscribeMsgPopupEvent,
 	}
 }

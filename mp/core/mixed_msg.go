@@ -136,6 +136,16 @@ type MixedMsg struct {
 		Distance float64 `xml:"Distance" json:"Distance"`
 	} `xml:"AroundBeacons>AroundBeacon,omitempty" json:"AroundBeacons,omitempty"`
 	ArticleUrlResult *ArticleUrlResult `xml:"ArticleUrlResult,omitempty" json:"ArticleUrlResult,omitempty"`
+
+	// add express path
+	DeliveryID string                 `xml:"DeliveryID,omitempty" json:"DeliveryID,omitempty"` // 快递公司ID
+	WaybillID  string                 `xml:"WayBillId,omitempty" json:"WayBillId,omitempty"`   // 运单ID
+	Version    int                    `xml:"Version,omitempty" json:"Version,omitempty"`       // 轨迹版本号（整型）
+	Count      int                    `xml:"Count,omitempty" json:"Count,omitempty"`           // 轨迹节点数（整型）
+	Actions    []AddExpressPathAction `xml:"Actions,omitempty" json:"Actions,omitempty"`       // 轨迹列表
+
+	// 小程序订阅消息
+	SubscribeMsgPopupEvent *SubscribeMsgPopupEvent `xml:"SubscribeMsgPopupEvent,omitempty" json:"SubscribeMsgPopupEvent,omitempty"`
 }
 
 type ArticleUrlResult struct {
@@ -144,4 +154,25 @@ type ArticleUrlResult struct {
 		ArticleIdx uint   `xml:"ArticleIdx" json:"ArticleIdx"`
 		ArticleUrl string `xml:"ArticleUrl" json:"ArticleUrl"`
 	} `xml:"ResultList>item,omitempty" json:"ResultList>item,omitempty"`
+}
+
+// AddExpressPathAction 轨迹列表
+type AddExpressPathAction struct {
+	// ActionTime 轨迹节点 Unix 时间戳
+	ActionTime int64 `xml:"ActionTime" json:"ActionTime"`
+	// ActionType 轨迹节点类型
+	ActionType int `xml:"ActionType" json:"ActionType"`
+	// ActionMsg 轨迹节点详情
+	ActionMsg string `xml:"ActionMsg" json:"ActionMsg"`
+}
+
+// 小程序订阅消息事件
+type SubscribeMsgPopupEvent struct {
+	List []SubscribeMsgPopupEventItem `xml:"List" json:"List"`
+}
+
+type SubscribeMsgPopupEventItem struct {
+	TemplateID            string `xml:"TemplateId" json:"TemplateId"`
+	SubscribeStatusString string `xml:"SubscribeStatusString" json:"SubscribeStatusString"`
+	PopupScene            string `xml:"PopupScene" json:"PopupScene"`
 }
