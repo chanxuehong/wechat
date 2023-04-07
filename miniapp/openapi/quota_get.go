@@ -19,7 +19,7 @@ func QuotaGet(clt *core.Client, cgiPath string) (quota *Quota, err error) {
 	request := map[string]string{"cgi_path": cgiPath}
 	var result struct {
 		core.Error
-		Quota
+		Quota *Quota `json:"quota,omitempty"`
 	}
 	if err = clt.PostJSON(incompleteURL, request, &result); err != nil {
 		return
@@ -28,6 +28,6 @@ func QuotaGet(clt *core.Client, cgiPath string) (quota *Quota, err error) {
 		err = &result.Error
 		return nil, err
 	}
-	quota = &result.Quota
+	quota = result.Quota
 	return
 }
