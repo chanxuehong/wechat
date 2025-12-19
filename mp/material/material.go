@@ -77,16 +77,16 @@ func BatchGet(clt *core.Client, materialType string, offset, count int) (rslt *B
 	switch materialType {
 	case MaterialTypeImage, MaterialTypeVideo, MaterialTypeVoice, MaterialTypeNews:
 	default:
-		err = fmt.Errorf("Incorrect materialType: %s", materialType)
+		err = fmt.Errorf("incorrect materialType: %s", materialType)
 		return
 	}
 
 	if offset < 0 {
-		err = fmt.Errorf("Incorrect offset: %d", offset)
+		err = fmt.Errorf("incorrect offset: %d", offset)
 		return
 	}
 	if count <= 0 {
-		err = fmt.Errorf("Incorrect count: %d", count)
+		err = fmt.Errorf("incorrect count: %d", count)
 		return
 	}
 

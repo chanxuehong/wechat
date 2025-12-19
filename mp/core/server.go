@@ -143,7 +143,6 @@ func (srv *Server) removeLastToken(lastToken string) {
 		currentToken: currentToken2,
 	}
 	atomic.StorePointer(&srv.tokenBucketPtr, unsafe.Pointer(&bucket))
-	return
 }
 
 func (srv *Server) getAESKey() (currentAESKey, lastAESKey []byte) {
@@ -194,7 +193,6 @@ func (srv *Server) removeLastAESKey(lastAESKey []byte) {
 		currentAESKey: currentAESKey2,
 	}
 	atomic.StorePointer(&srv.aesKeyBucketPtr, unsafe.Pointer(&bucket))
-	return
 }
 
 // ServeHTTP 处理微信服务器的回调请求, query 参数可以为 nil.

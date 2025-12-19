@@ -122,10 +122,8 @@ func httpDownloadToWriter(clt *http.Client, url string, body []byte, buf []byte,
 	buf2 := buf // 保存预先读取的少量头部信息
 	switch n, err := io.ReadFull(httpResp.Body, buf2); err {
 	case nil:
-		break
 	case io.ErrUnexpectedEOF:
 		buf2 = buf2[:n]
-		break
 	case io.EOF: // 基本不会出现
 		return 0, nil
 	default:
