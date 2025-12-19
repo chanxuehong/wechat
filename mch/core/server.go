@@ -11,10 +11,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/chanxuehong/util"
-	"github.com/chanxuehong/util/security"
-
 	"github.com/chanxuehong/wechat/internal/debug/mch/callback"
+	"github.com/chanxuehong/wechat/internal/util"
 )
 
 type Server struct {
@@ -148,7 +146,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 		if srv.appId != "" {
 			wantAppId := srv.appId
 			haveAppId := msg["appid"]
-			if haveAppId != "" && !security.SecureCompareString(haveAppId, wantAppId) {
+			if haveAppId != "" && !util.SecureCompareString(haveAppId, wantAppId) {
 				err = fmt.Errorf("appid mismatch, have: %s, want: %s", haveAppId, wantAppId)
 				errorHandler.ServeError(w, r, err)
 				return
@@ -157,7 +155,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 		if srv.mchId != "" {
 			wantMchId := srv.mchId
 			haveMchId := msg["mch_id"]
-			if haveMchId != "" && !security.SecureCompareString(haveMchId, wantMchId) {
+			if haveMchId != "" && !util.SecureCompareString(haveMchId, wantMchId) {
 				err = fmt.Errorf("mch_id mismatch, have: %s, want: %s", haveMchId, wantMchId)
 				errorHandler.ServeError(w, r, err)
 				return
@@ -167,7 +165,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 		if srv.subAppId != "" {
 			wantSubAppId := srv.subAppId
 			haveSubAppId := msg["sub_appid"]
-			if haveSubAppId != "" && !security.SecureCompareString(haveSubAppId, wantSubAppId) {
+			if haveSubAppId != "" && !util.SecureCompareString(haveSubAppId, wantSubAppId) {
 				err = fmt.Errorf("sub_appid mismatch, have: %s, want: %s", haveSubAppId, wantSubAppId)
 				errorHandler.ServeError(w, r, err)
 				return
@@ -176,7 +174,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 		if srv.subMchId != "" {
 			wantSubMchId := srv.subMchId
 			haveSubMchId := msg["sub_mch_id"]
-			if haveSubMchId != "" && !security.SecureCompareString(haveSubMchId, wantSubMchId) {
+			if haveSubMchId != "" && !util.SecureCompareString(haveSubMchId, wantSubMchId) {
 				err = fmt.Errorf("sub_mch_id mismatch, have: %s, want: %s", haveSubMchId, wantSubMchId)
 				errorHandler.ServeError(w, r, err)
 				return
@@ -196,7 +194,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 				errorHandler.ServeError(w, r, err)
 				return
 			}
-			if !security.SecureCompareString(haveSignature, wantSignature) {
+			if !util.SecureCompareString(haveSignature, wantSignature) {
 				err = fmt.Errorf("sign mismatch,\nhave: %s,\nwant: %s", haveSignature, wantSignature)
 				errorHandler.ServeError(w, r, err)
 				return

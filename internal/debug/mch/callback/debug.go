@@ -9,7 +9,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/chanxuehong/util"
+	"github.com/chanxuehong/wechat/internal/util"
 )
 
 func DebugPrintRequest(r *http.Request) {

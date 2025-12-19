@@ -17,8 +17,6 @@ import (
 	"unicode"
 	"unsafe"
 
-	"github.com/chanxuehong/util/security"
-
 	"github.com/chanxuehong/wechat/internal/debug/callback"
 	"github.com/chanxuehong/wechat/internal/util"
 )
@@ -243,7 +241,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			}
 			token = currentToken
 			wantSignature := util.Sign(token, timestampString, nonce)
-			if !security.SecureCompareString(haveSignature, wantSignature) {
+			if !util.SecureCompareString(haveSignature, wantSignature) {
 				if lastToken == "" {
 					err = fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
 					errorHandler.ServeError(w, r, err)
@@ -251,7 +249,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 				}
 				token = lastToken
 				wantSignature = util.Sign(token, timestampString, nonce)
-				if !security.SecureCompareString(haveSignature, wantSignature) {
+				if !util.SecureCompareString(haveSignature, wantSignature) {
 					err = fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
 					errorHandler.ServeError(w, r, err)
 					return
@@ -280,7 +278,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 
 			haveToUserName := requestHttpBody.ToUserName
 			wantToUserName := srv.oriId
-			if wantToUserName != "" && !security.SecureCompareString(haveToUserName, wantToUserName) {
+			if wantToUserName != "" && !util.SecureCompareString(haveToUserName, wantToUserName) {
 				err = fmt.Errorf("the message ToUserName mismatch, have: %s, want: %s",
 					haveToUserName, wantToUserName)
 				errorHandler.ServeError(w, r, err)
@@ -288,7 +286,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			}
 
 			wantMsgSignature := util.MsgSign(token, timestampString, nonce, string(requestHttpBody.Base64EncryptedMsg))
-			if !security.SecureCompareString(haveMsgSignature, wantMsgSignature) {
+			if !util.SecureCompareString(haveMsgSignature, wantMsgSignature) {
 				err = fmt.Errorf("check msg_signature failed, have: %s, want: %s", haveMsgSignature, wantMsgSignature)
 				errorHandler.ServeError(w, r, err)
 				return
@@ -331,7 +329,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 
 			haveAppId := string(haveAppIdBytes)
 			wantAppId := srv.appId
-			if wantAppId != "" && !security.SecureCompareString(haveAppId, wantAppId) {
+			if wantAppId != "" && !util.SecureCompareString(haveAppId, wantAppId) {
 				err = fmt.Errorf("the message AppId mismatch, have: %s, want: %s", haveAppId, wantAppId)
 				errorHandler.ServeError(w, r, err)
 				return
@@ -405,7 +403,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			}
 			token = currentToken
 			wantSignature := util.Sign(token, timestampString, nonce)
-			if !security.SecureCompareString(haveSignature, wantSignature) {
+			if !util.SecureCompareString(haveSignature, wantSignature) {
 				if lastToken == "" {
 					err = fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
 					errorHandler.ServeError(w, r, err)
@@ -413,7 +411,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 				}
 				token = lastToken
 				wantSignature = util.Sign(token, timestampString, nonce)
-				if !security.SecureCompareString(haveSignature, wantSignature) {
+				if !util.SecureCompareString(haveSignature, wantSignature) {
 					err = fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
 					errorHandler.ServeError(w, r, err)
 					return
@@ -439,7 +437,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 
 			haveToUserName := mixedMsg.ToUserName
 			wantToUserName := srv.oriId
-			if wantToUserName != "" && !security.SecureCompareString(haveToUserName, wantToUserName) {
+			if wantToUserName != "" && !util.SecureCompareString(haveToUserName, wantToUserName) {
 				err = fmt.Errorf("the message ToUserName mismatch, have: %s, want: %s",
 					haveToUserName, wantToUserName)
 				errorHandler.ServeError(w, r, err)
@@ -500,7 +498,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 		}
 		token = currentToken
 		wantSignature := util.Sign(token, timestamp, nonce)
-		if !security.SecureCompareString(haveSignature, wantSignature) {
+		if !util.SecureCompareString(haveSignature, wantSignature) {
 			if lastToken == "" {
 				err := fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
 				errorHandler.ServeError(w, r, err)
@@ -508,7 +506,7 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request, query url.V
 			}
 			token = lastToken
 			wantSignature = util.Sign(token, timestamp, nonce)
-			if !security.SecureCompareString(haveSignature, wantSignature) {
+			if !util.SecureCompareString(haveSignature, wantSignature) {
 				err := fmt.Errorf("check signature failed, have: %s, want: %s", haveSignature, wantSignature)
 				errorHandler.ServeError(w, r, err)
 				return

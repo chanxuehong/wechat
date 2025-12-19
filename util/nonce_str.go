@@ -1,7 +1,15 @@
 package util
 
-import "github.com/chanxuehong/rand"
+import (
+	"crypto/rand"
+	"encoding/hex"
+	mathrand "math/rand"
+)
 
 func NonceStr() string {
-	return string(rand.NewHex())
+	var buf [16]byte
+	if _, err := rand.Read(buf[:]); err != nil {
+		mathrand.Read(buf[:])
+	}
+	return hex.EncodeToString(buf[:])
 }
