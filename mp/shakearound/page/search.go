@@ -124,7 +124,7 @@ func (iter *PageIterator) NextPage() (pages []Page, err error) {
 
 func NewPageIterator(clt *core.Client, query *SearchQuery) (iter *PageIterator, err error) {
 	if query.Type != 2 {
-		err = errors.New("Unsupported SearchQuery.Type")
+		err = errors.New("unsupported SearchQuery.Type")
 		return
 	}
 

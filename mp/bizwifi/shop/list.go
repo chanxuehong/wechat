@@ -29,11 +29,11 @@ type ListResult struct {
 //	pageSize:  每页的个数，默认10个，最大20个
 func List(clt *core.Client, pageIndex, pageSize int) (rslt *ListResult, err error) {
 	if pageIndex < 1 {
-		err = errors.New("Incorrect pageIndex")
+		err = errors.New("incorrect pageIndex")
 		return
 	}
 	if pageSize < 1 {
-		err = errors.New("Incorrect pageSize")
+		err = errors.New("incorrect pageSize")
 		return
 	}
 

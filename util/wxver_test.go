@@ -17,7 +17,7 @@ func TestWXVersion(t *testing.T) {
 	}
 
 	userAgent = `Mozilla/5.0(iphone;CPU iphone OS 5_1_1 like Mac OS X) AppleWebKit/534.46(KHTML,like Geocko)Mobile/9B206 MicroMessenger/5.3`
-	x, y, z, w, err = WXVersion(userAgent)
+	x, y, z, _, err = WXVersion(userAgent)
 	if err != nil {
 		t.Error(err)
 		return
@@ -28,7 +28,7 @@ func TestWXVersion(t *testing.T) {
 	}
 
 	userAgent = `Mozilla/5.0(iphone;CPU iphone OS 5_1_1 like Mac OS X) AppleWebKit/534.46(KHTML,like Geocko)Mobile/9B206 MicroMessenger/5.3.1`
-	x, y, z, w, err = WXVersion(userAgent)
+	x, y, z, _, err = WXVersion(userAgent)
 	if err != nil {
 		t.Error(err)
 		return
@@ -39,7 +39,7 @@ func TestWXVersion(t *testing.T) {
 	}
 
 	userAgent = `Mozilla/5.0(iphone;CPU iphone OS 5_1_1 like Mac OS X) AppleWebKit/534.46(KHTML,like Geocko)Mobile/9B206 MicroMessenger/5.3.1.5`
-	x, y, z, w, err = WXVersion(userAgent)
+	x, y, z, _, err = WXVersion(userAgent)
 	if err != nil {
 		t.Error(err)
 		return

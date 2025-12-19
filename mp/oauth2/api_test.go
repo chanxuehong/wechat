@@ -17,12 +17,10 @@ var (
 )
 
 func TestGetSession(t *testing.T) {
-
 	GetSession(oauth2Endpoint, "013Rc7FP0lmgxb2lRIIP0VefFP0Rc7FW")
 }
 
 func TestGetUserInfoBySession(t *testing.T) {
-
 	sessionKey := ""
 
 	iv := ""

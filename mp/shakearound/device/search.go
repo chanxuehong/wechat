@@ -140,7 +140,7 @@ func (iter *DeviceIterator) NextPage() (devices []Device, err error) {
 
 func NewDeviceIterator(clt *core.Client, query *SearchQuery) (iter *DeviceIterator, err error) {
 	if query.Type != 2 {
-		err = errors.New("Unsupported SearchQuery.Type")
+		err = errors.New("unsupported SearchQuery.Type")
 		return
 	}
 

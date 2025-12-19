@@ -4,11 +4,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/chanxuehong/wechat/internal/debug/api"
 	util2 "github.com/chanxuehong/wechat/internal/util"
 	"github.com/chanxuehong/wechat/oauth2"
 	"github.com/chanxuehong/wechat/util"
-	"net/http"
 )
 
 type Session struct {
@@ -51,7 +52,6 @@ func GetSessionWithClient(Endpoint *Endpoint, code string, httpClient *http.Clie
 }
 
 func getSession(session *Session, url string, httpClient *http.Client) (err error) {
-
 	if httpClient == nil {
 		httpClient = util.DefaultHttpClient
 	}
@@ -88,12 +88,15 @@ func getSession(session *Session, url string, httpClient *http.Client) (err erro
 
 // GetSessionInfo 解密小程序会话加密信息
 func GetSessionInfo(EncryptedData, sessionKey, iv string) (info *SessionInfo, err error) {
-
 	cipherText, err := base64.StdEncoding.DecodeString(EncryptedData)
-
+	if err != nil {
+		return nil, err
+	}
 	aesKey, err := base64.StdEncoding.DecodeString(sessionKey)
+	if err != nil {
+		return nil, err
+	}
 	aesIv, err := base64.StdEncoding.DecodeString(iv)
-
 	if err != nil {
 		return
 	}

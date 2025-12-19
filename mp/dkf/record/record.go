@@ -28,11 +28,11 @@ func Get(clt *core.Client, request *GetRequest) (list []Record, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/customservice/msgrecord/getrecord?access_token="
 
 	if request.PageIndex < 1 {
-		err = fmt.Errorf("Incorrect request.PageIndex: %d", request.PageIndex)
+		err = fmt.Errorf("incorrect request.PageIndex: %d", request.PageIndex)
 		return
 	}
 	if request.PageSize <= 0 {
-		err = fmt.Errorf("Incorrect request.PageSize: %d", request.PageSize)
+		err = fmt.Errorf("incorrect request.PageSize: %d", request.PageSize)
 		return
 	}
 

@@ -34,7 +34,6 @@ func (p *Endpoint) RefreshTokenURL(refreshToken string) string {
 }
 
 func (p *Endpoint) SessionCodeUrl(code string) string {
-
 	return "https://api.weixin.qq.com/sns/jscode2session?appid=" + url.QueryEscape(p.AppId) +
 		"&secret=" + url.QueryEscape(p.AppSecret) +
 		"&js_code=" + url.QueryEscape(code) +
