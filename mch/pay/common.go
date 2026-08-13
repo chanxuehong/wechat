@@ -14,7 +14,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/chanxuehong/util"
+	"gopkg.in/chanxuehong/wechat.v1/internal/util"
 	"gopkg.in/chanxuehong/wechat.v1/mch"
 )
 

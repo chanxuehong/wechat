@@ -14,7 +14,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/chanxuehong/util"
+	"gopkg.in/chanxuehong/wechat.v1/internal/util"
 )
 
 type Proxy struct {

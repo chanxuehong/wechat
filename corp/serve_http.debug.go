@@ -18,8 +18,7 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/chanxuehong/util/security"
-
+	"gopkg.in/chanxuehong/wechat.v1/internal/security"
 	"gopkg.in/chanxuehong/wechat.v1/internal/util"
 )
 

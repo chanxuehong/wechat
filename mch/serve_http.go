@@ -13,9 +13,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/chanxuehong/util/security"
-
-	"github.com/chanxuehong/util"
+	"gopkg.in/chanxuehong/wechat.v1/internal/security"
+	"gopkg.in/chanxuehong/wechat.v1/internal/util"
 )
 
 func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, srv Server, errHandler ErrorHandler) {

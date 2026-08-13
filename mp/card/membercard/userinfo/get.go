@@ -17,7 +17,7 @@ type CustomField struct {
 
 type UserInfo struct {
 	OpenId          string        `json:"openid"`
-	NickName        string        `json:"nickname"`
+	Nickname        string        `json:"nickname"`
 	Sex             string        `json:"sex"`
 	CustomFieldList []CustomField `json:"custom_field_list"`
 }
