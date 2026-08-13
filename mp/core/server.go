@@ -17,9 +17,8 @@ import (
 	"unicode"
 	"unsafe"
 
-	"github.com/chanxuehong/util/security"
-
 	"gopkg.in/chanxuehong/wechat.v2/internal/debug/callback"
+	"gopkg.in/chanxuehong/wechat.v2/internal/security"
 	"gopkg.in/chanxuehong/wechat.v2/internal/util"
 )
 

@@ -3,7 +3,7 @@ package core
 import (
 	"net/http"
 
-	"github.com/chanxuehong/util"
+	"gopkg.in/chanxuehong/wechat.v2/internal/util"
 )
 
 const (

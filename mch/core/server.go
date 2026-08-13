@@ -11,10 +11,9 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/chanxuehong/util"
-	"github.com/chanxuehong/util/security"
-
 	"gopkg.in/chanxuehong/wechat.v2/internal/debug/mch/callback"
+	"gopkg.in/chanxuehong/wechat.v2/internal/security"
+	"gopkg.in/chanxuehong/wechat.v2/internal/util"
 )
 
 type Server struct {

@@ -13,8 +13,7 @@ import (
 	"os"
 	"unicode"
 
-	"github.com/chanxuehong/util"
-
+	"gopkg.in/chanxuehong/wechat.v2/internal/util"
 	"gopkg.in/chanxuehong/wechat.v2/mch/core"
 	wechatutil "gopkg.in/chanxuehong/wechat.v2/util"
 )

@@ -6,7 +6,7 @@ package api
 import (
 	"io"
 
-	"github.com/chanxuehong/util"
+	"gopkg.in/chanxuehong/wechat.v2/internal/util"
 )
 
 func DebugPrintGetRequest(url string) {}

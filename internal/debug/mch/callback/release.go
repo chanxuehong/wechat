@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/chanxuehong/util"
+	"gopkg.in/chanxuehong/wechat.v2/internal/util"
 )
 
 func DebugPrintRequest(r *http.Request) {}
