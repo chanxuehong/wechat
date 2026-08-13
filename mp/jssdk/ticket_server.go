@@ -21,10 +21,11 @@ type TicketServer interface {
 var _ TicketServer = (*DefaultTicketServer)(nil)
 
 // DefaultTicketServer 实现了 TicketServer 接口.
-//  NOTE:
-//  1. 用于单进程环境.
-//  2. 因为 DefaultTicketServer 同时也是一个简单的中控服务器, 而不是仅仅实现 TicketServer 接口,
-//     所以整个系统只能存在一个 DefaultTicketServer 实例!
+//
+//	NOTE:
+//	1. 用于单进程环境.
+//	2. 因为 DefaultTicketServer 同时也是一个简单的中控服务器, 而不是仅仅实现 TicketServer 接口,
+//	   所以整个系统只能存在一个 DefaultTicketServer 实例!
 type DefaultTicketServer struct {
 	coreClient *core.Client
 

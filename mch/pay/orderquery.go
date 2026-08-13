@@ -54,7 +54,8 @@ type OrderQueryResponse struct {
 }
 
 // OrderQuery2 查询订单.
-//  NOTE: 该函数不支持 代金券 功能, 如果有 代金券 功能请使用 OrderQuery 函数.
+//
+//	NOTE: 该函数不支持 代金券 功能, 如果有 代金券 功能请使用 OrderQuery 函数.
 func OrderQuery2(clt *core.Client, req *OrderQueryRequest) (resp *OrderQueryResponse, err error) {
 	m1 := make(map[string]string, 8)
 	if req.TransactionId != "" {

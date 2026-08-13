@@ -33,7 +33,8 @@ func NewSetParameters2(shopId int64, url string) interface{} {
 }
 
 // 设置商家主页
-//  要求 para 经过 encoding/json 后满足指定的格式要求
+//
+//	要求 para 经过 encoding/json 后满足指定的格式要求
 func Set(clt *core.Client, para interface{}) (err error) {
 	var result core.Error
 

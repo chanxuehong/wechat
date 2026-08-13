@@ -6,8 +6,9 @@ import (
 )
 
 // 获取用户已领取卡券接口
-//  openid: 需要查询的用户openid
-//  cardid: 卡券ID。不填写时默认查询当前appid下的卡券。
+//
+//	openid: 需要查询的用户openid
+//	cardid: 卡券ID。不填写时默认查询当前appid下的卡券。
 func GetCardList(clt *core.Client, openid, cardid string) (list []code.CardItemIdentifier, err error) {
 	request := struct {
 		OpenId string `json:"openid"`

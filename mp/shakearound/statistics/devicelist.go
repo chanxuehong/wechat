@@ -54,18 +54,18 @@ func DeviceList(clt *core.Client, date int64, pageIndex int) (rslt *DeviceListRe
 
 // DeviceStatisticsIterator
 //
-//  iter, err := NewDeviceStatisticsIterator(clt, date, pageIndex)
-//  if err != nil {
-//      // TODO: 增加你的代码
-//  }
+//	iter, err := NewDeviceStatisticsIterator(clt, date, pageIndex)
+//	if err != nil {
+//	    // TODO: 增加你的代码
+//	}
 //
-//  for iter.HasNext() {
-//      items, err := iter.NextPage()
-//      if err != nil {
-//          // TODO: 增加你的代码
-//      }
-//      // TODO: 增加你的代码
-//  }
+//	for iter.HasNext() {
+//	    items, err := iter.NextPage()
+//	    if err != nil {
+//	        // TODO: 增加你的代码
+//	    }
+//	    // TODO: 增加你的代码
+//	}
 type DeviceStatisticsIterator struct {
 	clt *core.Client
 

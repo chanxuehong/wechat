@@ -19,7 +19,8 @@ type Client struct {
 }
 
 // NewClient 创建一个新的 Client.
-//  如果 clt == nil 则默认用 util.DefaultHttpClient
+//
+//	如果 clt == nil 则默认用 util.DefaultHttpClient
 func NewClient(srv AccessTokenServer, clt *http.Client) *Client {
 	if srv == nil {
 		panic("nil AccessTokenServer")
@@ -35,14 +36,14 @@ func NewClient(srv AccessTokenServer, clt *http.Client) *Client {
 
 // GetJSON HTTP GET 微信资源, 然后将微信服务器返回的 JSON 用 encoding/json 解析到 response.
 //
-//  NOTE:
-//  1. 一般不需要调用这个方法, 请直接调用高层次的封装函数;
-//  2. 最终的 URL == incompleteURL + access_token;
-//  3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
-//      struct {
-//          Error
-//          ...
-//      }
+//	NOTE:
+//	1. 一般不需要调用这个方法, 请直接调用高层次的封装函数;
+//	2. 最终的 URL == incompleteURL + access_token;
+//	3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
+//	    struct {
+//	        Error
+//	        ...
+//	    }
 func (clt *Client) GetJSON(incompleteURL string, response interface{}) (err error) {
 	ErrorStructValue, ErrorErrCodeValue := checkResponse(response)
 
@@ -102,14 +103,14 @@ func httpGetJSON(clt *http.Client, url string, response interface{}) error {
 // PostJSON 用 encoding/json 把 request marshal 为 JSON, HTTP POST 到微信服务器,
 // 然后将微信服务器返回的 JSON 用 encoding/json 解析到 response.
 //
-//  NOTE:
-//  1. 一般不需要调用这个方法, 请直接调用高层次的封装函数;
-//  2. 最终的 URL == incompleteURL + access_token;
-//  3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
-//      struct {
-//          Error
-//          ...
-//      }
+//	NOTE:
+//	1. 一般不需要调用这个方法, 请直接调用高层次的封装函数;
+//	2. 最终的 URL == incompleteURL + access_token;
+//	3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
+//	    struct {
+//	        Error
+//	        ...
+//	    }
 func (clt *Client) PostJSON(incompleteURL string, request interface{}, response interface{}) (err error) {
 	ErrorStructValue, ErrorErrCodeValue := checkResponse(response)
 

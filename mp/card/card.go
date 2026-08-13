@@ -90,7 +90,8 @@ func BatchGet(clt *core.Client, query *BatchGetQuery) (rslt *BatchGetResult, err
 }
 
 // 更改卡券信息接口.
-//  sendCheck: 是否提交审核，false为修改后不会重新提审，true为修改字段后重新提审，该卡券的状态变为审核中。
+//
+//	sendCheck: 是否提交审核，false为修改后不会重新提审，true为修改字段后重新提审，该卡券的状态变为审核中。
 func Update(clt *core.Client, cardId string, card *Card) (sendCheck bool, err error) {
 	request := struct {
 		CardId string `json:"card_id"`

@@ -25,7 +25,8 @@ func (fn HandlerFunc) ServeMsg(ctx *Context) { fn(ctx) }
 var _ Handler = (*ServeMux)(nil)
 
 // ServeMux 是一个消息(事件)路由器, 同时也是一个 Handler 的实现.
-//  NOTE: ServeMux 非并发安全, 如果需要并发安全的 Handler, 可以参考 ServeMux 实现一个.
+//
+//	NOTE: ServeMux 非并发安全, 如果需要并发安全的 Handler, 可以参考 ServeMux 实现一个.
 type ServeMux struct {
 	startedChecker startedChecker
 

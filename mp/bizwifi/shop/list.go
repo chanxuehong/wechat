@@ -24,8 +24,9 @@ type ListResult struct {
 }
 
 // 获取WiFi门店列表.
-//  pageIndex: 分页下标，默认从1开始
-//  pageSize:  每页的个数，默认10个，最大20个
+//
+//	pageIndex: 分页下标，默认从1开始
+//	pageSize:  每页的个数，默认10个，最大20个
 func List(clt *core.Client, pageIndex, pageSize int) (rslt *ListResult, err error) {
 	if pageIndex < 1 {
 		err = errors.New("Incorrect pageIndex")
@@ -66,18 +67,18 @@ func List(clt *core.Client, pageIndex, pageSize int) (rslt *ListResult, err erro
 
 // ShopIterator
 //
-//  iter, err := NewShopIterator(clt, pageIndex, pageSize)
-//  if err != nil {
-//      // TODO: 增加你的代码
-//  }
+//	iter, err := NewShopIterator(clt, pageIndex, pageSize)
+//	if err != nil {
+//	    // TODO: 增加你的代码
+//	}
 //
-//  for iter.HasNext() {
-//      items, err := iter.NextPage()
-//      if err != nil {
-//          // TODO: 增加你的代码
-//      }
-//      // TODO: 增加你的代码
-//  }
+//	for iter.HasNext() {
+//	    items, err := iter.NextPage()
+//	    if err != nil {
+//	        // TODO: 增加你的代码
+//	    }
+//	    // TODO: 增加你的代码
+//	}
 type ShopIterator struct {
 	clt *core.Client
 

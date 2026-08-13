@@ -63,7 +63,8 @@ type RefundItem struct {
 }
 
 // RefundQuery2 查询退款.
-//  NOTE: 该函数不支持 代金券 功能, 如果有 代金券 功能请使用 RefundQuery 函数.
+//
+//	NOTE: 该函数不支持 代金券 功能, 如果有 代金券 功能请使用 RefundQuery 函数.
 func RefundQuery2(clt *core.Client, req *RefundQueryRequest) (resp *RefundQueryResponse, err error) {
 	m1 := make(map[string]string, 16)
 	if req.TransactionId != "" {

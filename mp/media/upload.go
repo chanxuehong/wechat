@@ -28,7 +28,8 @@ func UploadImage(clt *core.Client, filepath string) (info *MediaInfo, err error)
 }
 
 // UploadImageFromReader 上传多媒体图片
-//  NOTE: 参数 filename 不是文件路径, 是 multipart/form-data 里面 filename 的值.
+//
+//	NOTE: 参数 filename 不是文件路径, 是 multipart/form-data 里面 filename 的值.
 func UploadImageFromReader(clt *core.Client, filename string, reader io.Reader) (info *MediaInfo, err error) {
 	return uploadFromReader(clt, MediaTypeImage, filename, reader)
 }
@@ -39,7 +40,8 @@ func UploadVoice(clt *core.Client, filepath string) (info *MediaInfo, err error)
 }
 
 // UploadVoiceFromReader 上传多媒体语音
-//  NOTE: 参数 filename 不是文件路径, 是 multipart/form-data 里面 filename 的值.
+//
+//	NOTE: 参数 filename 不是文件路径, 是 multipart/form-data 里面 filename 的值.
 func UploadVoiceFromReader(clt *core.Client, filename string, reader io.Reader) (info *MediaInfo, err error) {
 	return uploadFromReader(clt, MediaTypeVoice, filename, reader)
 }
@@ -50,7 +52,8 @@ func UploadVideo(clt *core.Client, filepath string) (info *MediaInfo, err error)
 }
 
 // UploadVideoFromReader 上传多媒体视频
-//  NOTE: 参数 filename 不是文件路径, 是 multipart/form-data 里面 filename 的值.
+//
+//	NOTE: 参数 filename 不是文件路径, 是 multipart/form-data 里面 filename 的值.
 func UploadVideoFromReader(clt *core.Client, filename string, reader io.Reader) (info *MediaInfo, err error) {
 	return uploadFromReader(clt, MediaTypeVideo, filename, reader)
 }
@@ -107,7 +110,8 @@ func UploadThumb(clt *core.Client, _filepath string) (info *MediaInfo, err error
 }
 
 // UploadThumbFromReader 上传多媒体缩略图.
-//  NOTE: 参数 filename 不是文件路径, 是 multipart/form-data 里面 filename 的值.
+//
+//	NOTE: 参数 filename 不是文件路径, 是 multipart/form-data 里面 filename 的值.
 func UploadThumbFromReader(clt *core.Client, filename string, reader io.Reader) (info *MediaInfo, err error) {
 	const incompleteURL = "https://api.weixin.qq.com/cgi-bin/media/upload?type=thumb&access_token="
 

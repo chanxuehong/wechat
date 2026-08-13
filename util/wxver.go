@@ -8,9 +8,10 @@ import (
 )
 
 // 获取微信客户端的版本.
-//  userAgent: 微信内置浏览器的 User-Agent;
-//  x, y, z, w:   如果微信版本为 5.3.1.2 则有 x==5, y==3, z==1, w==2
-//  err:       错误信息
+//
+//	userAgent: 微信内置浏览器的 User-Agent;
+//	x, y, z, w:   如果微信版本为 5.3.1.2 则有 x==5, y==3, z==1, w==2
+//	err:       错误信息
 func WXVersion(userAgent string) (x, y, z, w int, err error) {
 	userAgent = versionRegexp.FindString(userAgent)
 	if userAgent == "" {

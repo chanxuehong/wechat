@@ -53,7 +53,8 @@ func (ctx *Context) Next() {
 }
 
 // SetHandlers 设置 handlers 给 Context.Next() 调用, 务必在 Context.Next() 调用之前设置, 否则会 panic.
-//  NOTE: 此方法一般用不到, 除非你自己实现一个 Handler 给 Server 使用, 参考 HandlerChain.
+//
+//	NOTE: 此方法一般用不到, 除非你自己实现一个 Handler 给 Server 使用, 参考 HandlerChain.
 func (ctx *Context) SetHandlers(handlers HandlerChain) {
 	if len(handlers) > maxHandlerChainSize {
 		panic("too many handlers")

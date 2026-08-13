@@ -17,7 +17,8 @@ type Request struct {
 }
 
 // NewRequest 创建一个 Request.
-//  请注意 BeginDate, EndDate 的 Location.
+//
+//	请注意 BeginDate, EndDate 的 Location.
 func NewRequest(BeginDate, EndDate time.Time) *Request {
 	return &Request{
 		BeginDate: BeginDate.Format("2006-01-02"),
