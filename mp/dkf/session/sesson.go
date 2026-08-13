@@ -12,9 +12,10 @@ import (
 )
 
 // 创建会话
-//  openId:    必须, 客户openid
-//  kfAccount: 必须, 完整客服账号，格式为：账号前缀@公众号微信号
-//  text:      可选, 附加信息，文本会展示在客服人员的多客服客户端
+//
+//	openId:    必须, 客户openid
+//	kfAccount: 必须, 完整客服账号，格式为：账号前缀@公众号微信号
+//	text:      可选, 附加信息，文本会展示在客服人员的多客服客户端
 func CreateSession(clt *mp.Client, openId, kfAccount, text string) (err error) {
 	request := struct {
 		KfAccount string `json:"kf_account"`
@@ -41,9 +42,10 @@ func CreateSession(clt *mp.Client, openId, kfAccount, text string) (err error) {
 }
 
 // 关闭会话
-//  openId:    必须, 客户openid
-//  kfAccount: 必须, 完整客服账号，格式为：账号前缀@公众号微信号
-//  text:      可选, 附加信息，文本会展示在客服人员的多客服客户端
+//
+//	openId:    必须, 客户openid
+//	kfAccount: 必须, 完整客服账号，格式为：账号前缀@公众号微信号
+//	text:      可选, 附加信息，文本会展示在客服人员的多客服客户端
 func CloseSession(clt *mp.Client, openId, kfAccount, text string) (err error) {
 	request := struct {
 		KfAccount string `json:"kf_account"`
@@ -98,7 +100,8 @@ func GetSession(clt *mp.Client, openId string) (ss *Session, err error) {
 }
 
 // 获取客服的会话列表
-//  开发者可以通过本接口获取某个客服正在接待的会话列表。
+//
+//	开发者可以通过本接口获取某个客服正在接待的会话列表。
 func GetSessionList(clt *mp.Client, kfAccount string) (list []Session, err error) {
 	var result struct {
 		mp.Error
@@ -126,7 +129,8 @@ func GetSessionList(clt *mp.Client, kfAccount string) (list []Session, err error
 }
 
 // 获取未接入会话列表
-//  开发者可以通过本接口获取当前正在等待队列中的会话列表，此接口最多返回最早进入队列的100个未接入会话。
+//
+//	开发者可以通过本接口获取当前正在等待队列中的会话列表，此接口最多返回最早进入队列的100个未接入会话。
 func GetWaitSessionList(clt *mp.Client) (list []Session, totalCount int, err error) {
 	var result struct {
 		mp.Error

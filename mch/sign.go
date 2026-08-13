@@ -15,9 +15,10 @@ import (
 )
 
 // 微信支付签名.
-//  parameters: 待签名的参数集合
-//  apiKey:     API密钥
-//  fn:         func() hash.Hash, 如果 fn == nil 则默认用 md5.New
+//
+//	parameters: 待签名的参数集合
+//	apiKey:     API密钥
+//	fn:         func() hash.Hash, 如果 fn == nil 则默认用 md5.New
 func Sign(parameters map[string]string, apiKey string, fn func() hash.Hash) string {
 	ks := make([]string, 0, len(parameters))
 	for k := range parameters {

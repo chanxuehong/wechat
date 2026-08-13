@@ -10,7 +10,8 @@ import (
 )
 
 // 发放代金券.
-//  请求需要双向证书
+//
+//	请求需要双向证书
 func SendCoupon(pxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
 	return pxy.PostXML("https://api.mch.weixin.qq.com/mmpaymkttransfers/send_coupon", req)
 }

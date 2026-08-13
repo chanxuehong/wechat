@@ -15,7 +15,8 @@ func MicroPay(pxy *mch.Proxy, req map[string]string) (resp map[string]string, er
 }
 
 // 撤销订单.
-//  NOTE: 请求需要双向证书.
+//
+//	NOTE: 请求需要双向证书.
 func Reverse(pxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
 	return pxy.PostXML("https://api.mch.weixin.qq.com/secapi/pay/reverse", req)
 }

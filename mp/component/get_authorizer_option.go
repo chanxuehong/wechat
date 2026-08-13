@@ -6,6 +6,8 @@
 package component
 
 import (
+	"strconv"
+
 	"gopkg.in/chanxuehong/wechat.v1/mp"
 )
 
@@ -35,6 +37,6 @@ func (clt *Client) GetAuthorizerOption(authorizerAppId, optionName string) (opti
 		err = &result.Error
 		return
 	}
-	optionValue = string(result.OptionValue)
+	optionValue = strconv.Itoa(result.OptionValue)
 	return
 }

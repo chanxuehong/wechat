@@ -15,16 +15,16 @@ import (
 
 // 多个 Server 的前端, http.Handler 的实现.
 //
-//  MultiServerFrontend 可以处理多个公众号的消息(事件), 但是要求在回调 URL 上加上一个
-//  查询参数(参数名与 urlServerQueryName 一致), 通过这个参数的值来索引对应的 Server.
+//	MultiServerFrontend 可以处理多个公众号的消息(事件), 但是要求在回调 URL 上加上一个
+//	查询参数(参数名与 urlServerQueryName 一致), 通过这个参数的值来索引对应的 Server.
 //
-//  例如回调 URL 为(urlServerQueryName == "wechat_server"):
-//    http://www.xxx.com/weixin?wechat_server=1234567890
-//  那么就可以在后端调用
-//   MultiServerFrontend.SetServer("1234567890", Server)
-//  来增加一个 Server 来处理 wechat_server=1234567890 的消息(事件).
+//	例如回调 URL 为(urlServerQueryName == "wechat_server"):
+//	  http://www.xxx.com/weixin?wechat_server=1234567890
+//	那么就可以在后端调用
+//	 MultiServerFrontend.SetServer("1234567890", Server)
+//	来增加一个 Server 来处理 wechat_server=1234567890 的消息(事件).
 //
-//  MultiServerFrontend 并发安全, 可以在运行中动态增加和删除 Server.
+//	MultiServerFrontend 并发安全, 可以在运行中动态增加和删除 Server.
 type MultiServerFrontend struct {
 	urlServerQueryName string
 
@@ -36,9 +36,10 @@ type MultiServerFrontend struct {
 }
 
 // NewMultiServerFrontend 创建一个新的 MultiServerFrontend.
-//  urlServerQueryName: 回调 URL 上参数名, 这个参数的值就是索引 Server 的 key
-//  errHandler:         错误处理 handler, 可以为 nil
-//  interceptor:        拦截器, 可以为 nil
+//
+//	urlServerQueryName: 回调 URL 上参数名, 这个参数的值就是索引 Server 的 key
+//	errHandler:         错误处理 handler, 可以为 nil
+//	interceptor:        拦截器, 可以为 nil
 func NewMultiServerFrontend(urlServerQueryName string, errHandler ErrorHandler, interceptor Interceptor) *MultiServerFrontend {
 	if urlServerQueryName == "" {
 		urlServerQueryName = "wechat_server"

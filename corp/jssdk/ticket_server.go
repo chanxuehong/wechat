@@ -35,10 +35,11 @@ type TicketServer interface {
 var _ TicketServer = (*DefaultTicketServer)(nil)
 
 // TicketServer 的简单实现.
-//  NOTE:
-//  1. 用于单进程环境.
-//  2. 因为 DefaultTicketServer 同时也是一个简单的中控服务器, 而不是仅仅实现 TicketServer 接口,
-//     所以整个系统只能存在一个 DefaultTicketServer 实例!
+//
+//	NOTE:
+//	1. 用于单进程环境.
+//	2. 因为 DefaultTicketServer 同时也是一个简单的中控服务器, 而不是仅仅实现 TicketServer 接口,
+//	   所以整个系统只能存在一个 DefaultTicketServer 实例!
 type DefaultTicketServer struct {
 	corpClient *corp.Client
 
@@ -129,7 +130,8 @@ type ticketInfo struct {
 }
 
 // 从微信服务器获取 jsapi_ticket.
-//  同一时刻只能一个 goroutine 进入, 防止没必要的重复获取.
+//
+//	同一时刻只能一个 goroutine 进入, 防止没必要的重复获取.
 func (srv *DefaultTicketServer) getTicket() (ticket ticketInfo, cached bool, err error) {
 	srv.ticketGet.Lock()
 	defer srv.ticketGet.Unlock()

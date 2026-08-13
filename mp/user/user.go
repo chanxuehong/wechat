@@ -87,9 +87,10 @@ func (info *UserInfo) HeadImageSize() (size int, err error) {
 }
 
 // 获取用户基本信息.
-//  注意:
-//  1. 需要判断返回的 UserInfo.IsSubscriber 是否等于 1 还是 0
-//  2. lang 可以是 zh_CN, zh_TW, en, 如果留空 "" 则默认为 zh_CN
+//
+//	注意:
+//	1. 需要判断返回的 UserInfo.IsSubscriber 是否等于 1 还是 0
+//	2. lang 可以是 zh_CN, zh_TW, en, 如果留空 "" 则默认为 zh_CN
 func (clt *Client) UserInfo(openId string, lang string) (userinfo *UserInfo, err error) {
 	if openId == "" {
 		err = errors.New("empty openId")
@@ -129,7 +130,8 @@ type UserInfoBatchGetRequestItem struct {
 }
 
 // 创建 []UserInfoBatchGetRequestItem
-//  lang 的取值可以为 "", Language_zh_CN, Language_zh_TW, Language_en
+//
+//	lang 的取值可以为 "", Language_zh_CN, Language_zh_TW, Language_en
 func NewUserInfoBatchGetRequest(openIdList []string, lang string) (ret []UserInfoBatchGetRequestItem) {
 	switch lang {
 	case "", Language_zh_CN, Language_zh_TW, Language_en:
@@ -146,7 +148,8 @@ func NewUserInfoBatchGetRequest(openIdList []string, lang string) (ret []UserInf
 }
 
 // 批量获取用户基本信息
-//  注意: 需要对返回的 UserInfoList 的每个 UserInfo.IsSubscriber 做判断
+//
+//	注意: 需要对返回的 UserInfoList 的每个 UserInfo.IsSubscriber 做判断
 func (clt *Client) UserInfoBatchGet(req []UserInfoBatchGetRequestItem) (UserInfoList []UserInfo, err error) {
 	if len(req) <= 0 {
 		err = errors.New("empty request")
@@ -215,9 +218,10 @@ type UserListResult struct {
 }
 
 // 获取关注者列表.
-//  NOTE:
-//  1. 每次最多能获取 10000 个用户, 可以多次指定 NextOpenId 来获取以满足需求, 如果 NextOpenId == "" 则表示从头获取
-//  2. 目前微信返回的数据并不包括 NextOpenId 本身, 是从 NextOpenId 下一个用户开始的, 和微信文档描述不一样!!!
+//
+//	NOTE:
+//	1. 每次最多能获取 10000 个用户, 可以多次指定 NextOpenId 来获取以满足需求, 如果 NextOpenId == "" 则表示从头获取
+//	2. 目前微信返回的数据并不包括 NextOpenId 本身, 是从 NextOpenId 下一个用户开始的, 和微信文档描述不一样!!!
 func (clt *Client) UserList(NextOpenId string) (rslt *UserListResult, err error) {
 	var result struct {
 		mp.Error

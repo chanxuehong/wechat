@@ -19,7 +19,8 @@ import (
 )
 
 // 下载多媒体到文件.
-//  请注意, 视频文件不支持下载
+//
+//	请注意, 视频文件不支持下载
 func (clt *Client) DownloadMedia(mediaId, filepath string) (written int64, err error) {
 	file, err := os.Create(filepath)
 	if err != nil {
@@ -36,7 +37,8 @@ func (clt *Client) DownloadMedia(mediaId, filepath string) (written int64, err e
 }
 
 // 下载多媒体到 io.Writer.
-//  请注意, 视频文件不支持下载
+//
+//	请注意, 视频文件不支持下载
 func (clt *Client) DownloadMediaToWriter(mediaId string, writer io.Writer) (written int64, err error) {
 	if writer == nil {
 		err = errors.New("nil writer")
@@ -141,9 +143,10 @@ func (clt *Client) CreateNews(articles []Article) (info *MediaInfo, err error) {
 }
 
 // 创建视频素材.
-//  mediaId:     通过上传视频文件得到
-//  title:       标题, 可以为空
-//  description: 描述, 可以为空
+//
+//	mediaId:     通过上传视频文件得到
+//	title:       标题, 可以为空
+//	description: 描述, 可以为空
 func (clt *Client) CreateVideo(mediaId, title, description string) (info *MediaInfo, err error) {
 	if mediaId == "" {
 		err = errors.New("empty mediaId")

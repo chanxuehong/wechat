@@ -81,7 +81,8 @@ func (info *UserInfo) HeadImageSize() (size int, err error) {
 }
 
 // 获取用户信息(需scope为 snsapi_userinfo).
-//  lang 可能的取值是 zh_CN, zh_TW, en, 如果留空 "" 则默认为 zh_CN.
+//
+//	lang 可能的取值是 zh_CN, zh_TW, en, 如果留空 "" 则默认为 zh_CN.
 func (clt *Client) UserInfo(lang string) (info *UserInfo, err error) {
 	switch lang {
 	case "":

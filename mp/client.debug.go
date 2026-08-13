@@ -3,6 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/v1/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
+//go:build wechatdebug
 // +build wechatdebug
 
 package mp
@@ -24,7 +25,8 @@ type Client struct {
 }
 
 // 创建一个新的 Client.
-//  如果 clt == nil 则默认用 http.DefaultClient
+//
+//	如果 clt == nil 则默认用 http.DefaultClient
 func NewClient(srv AccessTokenServer, clt *http.Client) *Client {
 	if srv == nil {
 		panic("nil AccessTokenServer")
@@ -42,14 +44,14 @@ func NewClient(srv AccessTokenServer, clt *http.Client) *Client {
 // 用 encoding/json 把 request marshal 为 JSON, 放入 http 请求的 body 中,
 // POST 到微信服务器, 然后将微信服务器返回的 JSON 用 encoding/json 解析到 response.
 //
-//  NOTE:
-//  1. 一般不用调用这个方法, 请直接调用高层次的封装方法;
-//  2. 最终的 URL == incompleteURL + access_token;
-//  3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
-//      struct {
-//          Error
-//          ...
-//      }
+//	NOTE:
+//	1. 一般不用调用这个方法, 请直接调用高层次的封装方法;
+//	2. 最终的 URL == incompleteURL + access_token;
+//	3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
+//	    struct {
+//	        Error
+//	        ...
+//	    }
 func (clt *Client) PostJSON(incompleteURL string, request interface{}, response interface{}) (err error) {
 	buf := textBufferPool.Get().(*bytes.Buffer)
 	buf.Reset()
@@ -130,14 +132,14 @@ RETRY:
 
 // GET 微信资源, 然后将微信服务器返回的 JSON 用 encoding/json 解析到 response.
 //
-//  NOTE:
-//  1. 一般不用调用这个方法, 请直接调用高层次的封装方法;
-//  2. 最终的 URL == incompleteURL + access_token;
-//  3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
-//      struct {
-//          Error
-//          ...
-//      }
+//	NOTE:
+//	1. 一般不用调用这个方法, 请直接调用高层次的封装方法;
+//	2. 最终的 URL == incompleteURL + access_token;
+//	3. response 格式有要求, 要么是 *Error, 要么是下面结构体的指针(注意 Error 必须是第一个 Field):
+//	    struct {
+//	        Error
+//	        ...
+//	    }
 func (clt *Client) GetJSON(incompleteURL string, response interface{}) (err error) {
 	token, err := clt.Token()
 	if err != nil {

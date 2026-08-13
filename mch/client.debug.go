@@ -3,6 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/v1/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
+//go:build wechatdebug
 // +build wechatdebug
 
 package mch
@@ -32,7 +33,8 @@ func (pxy *Proxy) MchId() string {
 }
 
 // 创建一个新的 Proxy.
-//  如果 httpClient == nil 则默认用 http.DefaultClient.
+//
+//	如果 httpClient == nil 则默认用 http.DefaultClient.
 func NewProxy(appId, mchId, apiKey string, httpClient *http.Client) *Proxy {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
@@ -47,7 +49,8 @@ func NewProxy(appId, mchId, apiKey string, httpClient *http.Client) *Proxy {
 }
 
 // 微信支付通用请求方法.
-//  注意: err == nil 表示协议状态都为 SUCCESS(return_code == SUCCESS).
+//
+//	注意: err == nil 表示协议状态都为 SUCCESS(return_code == SUCCESS).
 func (pxy *Proxy) PostXML(url string, req map[string]string) (resp map[string]string, err error) {
 	bodyBuf := textBufferPool.Get().(*bytes.Buffer)
 	bodyBuf.Reset()

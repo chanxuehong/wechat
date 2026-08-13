@@ -60,7 +60,8 @@ func (clt *Client) QRCodeDownloadToWriter(ticket string, writer io.Writer) (writ
 }
 
 // 通过ticket换取二维码, 写入到 filepath 路径的文件.
-//  如果 clt == nil 则默认用 http.DefaultClient
+//
+//	如果 clt == nil 则默认用 http.DefaultClient
 func QRCodeDownload(ticket, filepath string, clt *http.Client) (written int64, err error) {
 	if ticket == "" {
 		err = errors.New("empty ticket")
@@ -85,7 +86,8 @@ func QRCodeDownload(ticket, filepath string, clt *http.Client) (written int64, e
 }
 
 // 通过ticket换取二维码, 写入到 writer.
-//  如果 clt == nil 则默认用 http.DefaultClient.
+//
+//	如果 clt == nil 则默认用 http.DefaultClient.
 func QRCodeDownloadToWriter(ticket string, writer io.Writer, clt *http.Client) (written int64, err error) {
 	if ticket == "" {
 		err = errors.New("empty ticket")

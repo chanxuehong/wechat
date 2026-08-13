@@ -16,8 +16,9 @@ import (
 )
 
 // 明文模式下回复消息给微信服务器.
-//  要求 msg 是有效的消息数据结构(经过 encoding/xml marshal 后符合微信消息格式);
-//  如果有必要可以修改 Request 里面的某些值, 比如 Timestamp, Nonce, Random.
+//
+//	要求 msg 是有效的消息数据结构(经过 encoding/xml marshal 后符合微信消息格式);
+//	如果有必要可以修改 Request 里面的某些值, 比如 Timestamp, Nonce, Random.
 func WriteRawResponse(w http.ResponseWriter, r *Request, msg interface{}) (err error) {
 	if w == nil {
 		return errors.New("nil http.ResponseWriter")
@@ -39,8 +40,9 @@ type ResponseHttpBody struct {
 }
 
 // 安全模式下回复消息给微信服务器.
-//  要求 msg 是有效的消息数据结构(经过 encoding/xml marshal 后符合微信消息格式);
-//  如果有必要可以修改 Request 里面的某些值, 比如 Timestamp, Nonce, Random.
+//
+//	要求 msg 是有效的消息数据结构(经过 encoding/xml marshal 后符合微信消息格式);
+//	如果有必要可以修改 Request 里面的某些值, 比如 Timestamp, Nonce, Random.
 func WriteAESResponse(w http.ResponseWriter, r *Request, msg interface{}) (err error) {
 	if w == nil {
 		return errors.New("nil http.ResponseWriter")

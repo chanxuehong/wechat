@@ -10,7 +10,8 @@ import (
 )
 
 // 查询企业付款.
-//  NOTE: 请求需要双向证书
+//
+//	NOTE: 请求需要双向证书
 func GetTransferInfo(pxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
 	return pxy.PostXML("https://api.mch.weixin.qq.com/mmpaymkttransfers/gettransferinfo", req)
 }

@@ -47,7 +47,8 @@ func (clt *Client) uploadMaterial(materialType, _filepath string) (mediaId, _url
 }
 
 // 上传多媒体图片
-//  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
+//
+//	NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
 func (clt *Client) UploadImageFromReader(filename string, reader io.Reader) (mediaId, _url string, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
@@ -61,7 +62,8 @@ func (clt *Client) UploadImageFromReader(filename string, reader io.Reader) (med
 }
 
 // 上传多媒体缩略图
-//  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
+//
+//	NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
 func (clt *Client) UploadThumbFromReader(filename string, reader io.Reader) (mediaId, _url string, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
@@ -116,7 +118,8 @@ func (clt *Client) UploadVoice(_filepath string) (mediaId string, err error) {
 }
 
 // 上传多媒体语音
-//  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
+//
+//	NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
 func (clt *Client) UploadVoiceFromReader(filename string, reader io.Reader) (mediaId string, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")
@@ -168,7 +171,8 @@ func (clt *Client) UploadVideo(_filepath string, title, introduction string) (me
 }
 
 // 上传多媒体缩视频
-//  NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
+//
+//	NOTE: 参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
 func (clt *Client) UploadVideoFromReader(filename string, reader io.Reader, title, introduction string) (mediaId string, err error) {
 	if filename == "" {
 		err = errors.New("empty filename")

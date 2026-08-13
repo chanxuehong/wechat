@@ -206,7 +206,8 @@ func GetLocationSelectEvent(msg *corp.MixedMessage) *LocationSelectEvent {
 }
 
 // enter_agent: 用户进入应用的事件推送
-//  本事件只有在应用的回调模式中打开上报开关时上报
+//
+//	本事件只有在应用的回调模式中打开上报开关时上报
 type EnterAgentEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	corp.MessageHeader

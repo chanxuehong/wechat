@@ -38,7 +38,8 @@ type DefaultServer struct {
 }
 
 // NewDefaultServer 创建一个新的 DefaultServer.
-//  如果是明文模式, 则 appId 可以为 "", aesKey 可以为 nil.
+//
+//	如果是明文模式, 则 appId 可以为 "", aesKey 可以为 nil.
 func NewDefaultServer(oriId, token, appId string, aesKey []byte, handler MessageHandler) (srv *DefaultServer) {
 	if aesKey != nil && len(aesKey) != 32 {
 		panic("the length of aesKey must equal to 32")

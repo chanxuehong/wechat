@@ -17,7 +17,8 @@ const (
 )
 
 // 关注事件
-//  特别的, 默认企业小助手可以用于获取整个企业号的关注状况.
+//
+//	特别的, 默认企业小助手可以用于获取整个企业号的关注状况.
 type SubscribeEvent struct {
 	XMLName struct{} `xml:"xml" json:"-"`
 	corp.MessageHeader

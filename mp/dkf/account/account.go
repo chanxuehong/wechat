@@ -17,10 +17,11 @@ import (
 )
 
 // 添加客服账号.
-//  account:    完整客服账号, 格式为: 账号前缀@公众号微信号, 账号前缀最多10个字符, 必须是英文或者数字字符.
-//  nickname:   客服昵称, 最长6个汉字或12个英文字符
-//  password:   客服账号登录密码
-//  isPwdPlain: 标识 password 是否为明文格式, true 表示是明文密码, false 表示是密文密码.
+//
+//	account:    完整客服账号, 格式为: 账号前缀@公众号微信号, 账号前缀最多10个字符, 必须是英文或者数字字符.
+//	nickname:   客服昵称, 最长6个汉字或12个英文字符
+//	password:   客服账号登录密码
+//	isPwdPlain: 标识 password 是否为明文格式, true 表示是明文密码, false 表示是密文密码.
 func AddKfAccount(clt *mp.Client, account, nickname, password string, isPwdPlain bool) (err error) {
 	if password == "" {
 		return errors.New("empty password")
@@ -55,10 +56,11 @@ func AddKfAccount(clt *mp.Client, account, nickname, password string, isPwdPlain
 }
 
 // 设置客服信息(增量更新, 不更新的可以留空).
-//  account:    完整客服账号, 格式为: 账号前缀@公众号微信号, 账号前缀最多10个字符, 必须是英文或者数字字符.
-//  nickname:   客服昵称, 最长6个汉字或12个英文字符
-//  password:   客服账号登录密码
-//  isPwdPlain: 标识 password 是否为明文格式, true 表示是明文密码, false 表示是密文密码.
+//
+//	account:    完整客服账号, 格式为: 账号前缀@公众号微信号, 账号前缀最多10个字符, 必须是英文或者数字字符.
+//	nickname:   客服昵称, 最长6个汉字或12个英文字符
+//	password:   客服账号登录密码
+//	isPwdPlain: 标识 password 是否为明文格式, true 表示是明文密码, false 表示是密文密码.
 func SetKfAccount(clt *mp.Client, account, nickname, password string, isPwdPlain bool) (err error) {
 	if isPwdPlain && password != "" {
 		md5Sum := md5.Sum([]byte(password))
@@ -90,7 +92,8 @@ func SetKfAccount(clt *mp.Client, account, nickname, password string, isPwdPlain
 }
 
 // 上传客服头像.
-//  开发者可调用本接口来上传图片作为客服人员的头像, 头像图片文件必须是jpg格式, 推荐使用640*640大小的图片以达到最佳效果.
+//
+//	开发者可调用本接口来上传图片作为客服人员的头像, 头像图片文件必须是jpg格式, 推荐使用640*640大小的图片以达到最佳效果.
 func UploadKfHeadImage(clt *mp.Client, kfAccount, imagePath string) (err error) {
 	if kfAccount == "" {
 		return errors.New("empty kfAccount")
@@ -105,8 +108,9 @@ func UploadKfHeadImage(clt *mp.Client, kfAccount, imagePath string) (err error) 
 }
 
 // 上传客服头像.
-//  开发者可调用本接口来上传图片作为客服人员的头像, 头像图片文件必须是jpg格式, 推荐使用640*640大小的图片以达到最佳效果.
-//  注意参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
+//
+//	开发者可调用本接口来上传图片作为客服人员的头像, 头像图片文件必须是jpg格式, 推荐使用640*640大小的图片以达到最佳效果.
+//	注意参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
 func UploadKfHeadImageFromReader(clt *mp.Client, kfAccount, filename string, reader io.Reader) (err error) {
 	if kfAccount == "" {
 		return errors.New("empty kfAccount")
@@ -122,7 +126,8 @@ func UploadKfHeadImageFromReader(clt *mp.Client, kfAccount, filename string, rea
 }
 
 // 上传客服头像.
-//  注意参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
+//
+//	注意参数 filename 不是文件路径, 是指定 multipart/form-data 里面文件名称
 func uploadKfHeadImageFromReader(clt *mp.Client, kfAccount, filename string, reader io.Reader) (err error) {
 	var result mp.Error
 

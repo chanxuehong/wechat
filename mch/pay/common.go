@@ -34,7 +34,8 @@ func CloseOrder(pxy *mch.Proxy, req map[string]string) (resp map[string]string, 
 }
 
 // 申请退款.
-//  NOTE: 请求需要双向证书.
+//
+//	NOTE: 请求需要双向证书.
 func Refund(pxy *mch.Proxy, req map[string]string) (resp map[string]string, err error) {
 	return pxy.PostXML("https://api.mch.weixin.qq.com/secapi/pay/refund", req)
 }

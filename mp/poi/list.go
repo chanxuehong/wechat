@@ -18,8 +18,9 @@ type PoiListResult struct {
 }
 
 // 查询门店列表.
-//  begin: 开始位置, 0 即为从第一条开始查询
-//  limit: 返回数据条数, 最大允许50, 默认为20
+//
+//	begin: 开始位置, 0 即为从第一条开始查询
+//	limit: 返回数据条数, 最大允许50, 默认为20
 func (clt *Client) PoiList(begin, limit int) (rslt *PoiListResult, err error) {
 	if begin < 0 {
 		err = fmt.Errorf("invalid begin: %d", begin)
@@ -60,18 +61,18 @@ func (clt *Client) PoiList(begin, limit int) (rslt *PoiListResult, err error) {
 
 // PoiIterator
 //
-//  iter, err := Client.PoiIterator(0, 10)
-//  if err != nil {
-//      // TODO: 增加你的代码
-//  }
+//	iter, err := Client.PoiIterator(0, 10)
+//	if err != nil {
+//	    // TODO: 增加你的代码
+//	}
 //
-//  for iter.HasNext() {
-//      items, err := iter.NextPage()
-//      if err != nil {
-//          // TODO: 增加你的代码
-//      }
-//      // TODO: 增加你的代码
-//  }
+//	for iter.HasNext() {
+//	    items, err := iter.NextPage()
+//	    if err != nil {
+//	        // TODO: 增加你的代码
+//	    }
+//	    // TODO: 增加你的代码
+//	}
 type PoiIterator struct {
 	clt *Client // 关联的微信 Client
 

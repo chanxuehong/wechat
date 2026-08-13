@@ -180,10 +180,11 @@ type UserBaseInfo struct {
 }
 
 // 获取部门成员(基本)
-//  departmentId: 获取的部门id
-//  fetchChild:   是否递归获取子部门下面的成员
-//  status:       0 获取全部员工, 1 获取已关注成员列表, 2 获取禁用成员列表, 4 获取未关注成员列表.
-//                status可叠加(可用逻辑运算符 | 来叠加, 一般都是后面 3 个叠加).
+//
+//	departmentId: 获取的部门id
+//	fetchChild:   是否递归获取子部门下面的成员
+//	status:       0 获取全部员工, 1 获取已关注成员列表, 2 获取禁用成员列表, 4 获取未关注成员列表.
+//	              status可叠加(可用逻辑运算符 | 来叠加, 一般都是后面 3 个叠加).
 func (clt *Client) UserSimpleList(departmentId int64,
 	fetchChild bool, status int) (UserList []UserBaseInfo, err error) {
 
@@ -217,10 +218,11 @@ func (clt *Client) UserSimpleList(departmentId int64,
 }
 
 // 获取部门成员(详情)
-//  departmentId: 获取的部门id
-//  fetchChild:   是否递归获取子部门下面的成员
-//  status:       0 获取全部员工, 1 获取已关注成员列表, 2 获取禁用成员列表, 4 获取未关注成员列表.
-//                status可叠加(可用逻辑运算符 | 来叠加, 一般都是后面 3 个叠加).
+//
+//	departmentId: 获取的部门id
+//	fetchChild:   是否递归获取子部门下面的成员
+//	status:       0 获取全部员工, 1 获取已关注成员列表, 2 获取禁用成员列表, 4 获取未关注成员列表.
+//	              status可叠加(可用逻辑运算符 | 来叠加, 一般都是后面 3 个叠加).
 func (clt *Client) UserList(departmentId int64,
 	fetchChild bool, status int) (UserList []UserInfo, err error) {
 

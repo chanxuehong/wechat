@@ -26,8 +26,9 @@ type ResponseHttpBody struct {
 }
 
 // 回复消息给微信服务器.
-//  要求 msg 是有效的消息数据结构(经过 encoding/xml marshal 后符合消息的格式);
-//  如果有必要可以修改 Request 里面的某些值, 比如 Timestamp.
+//
+//	要求 msg 是有效的消息数据结构(经过 encoding/xml marshal 后符合消息的格式);
+//	如果有必要可以修改 Request 里面的某些值, 比如 Timestamp.
 func WriteResponse(w http.ResponseWriter, r *Request, msg interface{}) (err error) {
 	if w == nil {
 		return errors.New("nil http.ResponseWriter")

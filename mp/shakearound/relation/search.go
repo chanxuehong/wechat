@@ -81,18 +81,18 @@ func Search(clt *mp.Client, query *SearchQuery) (rslt *SearchResult, err error) 
 
 // RelationIterator
 //
-//  iter, err := NewRelationIterator(*mp.Client, *SearchQuery)
-//  if err != nil {
-//      // TODO: 增加你的代码
-//  }
+//	iter, err := NewRelationIterator(*mp.Client, *SearchQuery)
+//	if err != nil {
+//	    // TODO: 增加你的代码
+//	}
 //
-//  for iter.HasNext() {
-//      items, err := iter.NextPage()
-//      if err != nil {
-//          // TODO: 增加你的代码
-//      }
-//      // TODO: 增加你的代码
-//  }
+//	for iter.HasNext() {
+//	    items, err := iter.NextPage()
+//	    if err != nil {
+//	        // TODO: 增加你的代码
+//	    }
+//	    // TODO: 增加你的代码
+//	}
 type RelationIterator struct {
 	clt *mp.Client
 

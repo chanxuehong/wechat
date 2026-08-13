@@ -15,16 +15,16 @@ import (
 
 // 多个 AgentServer 的前端, http.Handler 的实现.
 //
-//  MultiAgentServerFrontend 可以处理多个企业号应用的消息(事件), 但是要求在回调 URL 上加上一个
-//  查询参数(参数名与 urlAgentServerQueryName 一致), 通过这个参数的值来索引对应的 AgentServer.
+//	MultiAgentServerFrontend 可以处理多个企业号应用的消息(事件), 但是要求在回调 URL 上加上一个
+//	查询参数(参数名与 urlAgentServerQueryName 一致), 通过这个参数的值来索引对应的 AgentServer.
 //
-//  例如回调 URL 为(urlAgentServerQueryName == "agent_server"):
-//    http://www.xxx.com/weixin?agent_server=1234567890
-//  那么就可以在后端调用
-//   MultiAgentServerFrontend.SetAgentServer("1234567890", AgentServer)
-//  来增加一个 AgentServer 来处理 agent_server=1234567890 的消息(事件).
+//	例如回调 URL 为(urlAgentServerQueryName == "agent_server"):
+//	  http://www.xxx.com/weixin?agent_server=1234567890
+//	那么就可以在后端调用
+//	 MultiAgentServerFrontend.SetAgentServer("1234567890", AgentServer)
+//	来增加一个 AgentServer 来处理 agent_server=1234567890 的消息(事件).
 //
-//  MultiAgentServerFrontend 并发安全, 可以在运行中动态增加和删除 AgentServer.
+//	MultiAgentServerFrontend 并发安全, 可以在运行中动态增加和删除 AgentServer.
 type MultiAgentServerFrontend struct {
 	urlAgentServerQueryName string
 
@@ -36,9 +36,10 @@ type MultiAgentServerFrontend struct {
 }
 
 // NewMultiAgentServerFrontend 创建一个新的 MultiAgentServerFrontend.
-//  urlAgentServerQueryName: 回调 URL 上参数名, 这个参数的值就是索引 AgentServer 的 key
-//  errHandler:              错误处理 handler, 可以为 nil
-//  interceptor:             拦截器, 可以为 nil
+//
+//	urlAgentServerQueryName: 回调 URL 上参数名, 这个参数的值就是索引 AgentServer 的 key
+//	errHandler:              错误处理 handler, 可以为 nil
+//	interceptor:             拦截器, 可以为 nil
 func NewMultiAgentServerFrontend(urlAgentServerQueryName string, errHandler ErrorHandler, interceptor Interceptor) *MultiAgentServerFrontend {
 	if urlAgentServerQueryName == "" {
 		urlAgentServerQueryName = "agent_server"

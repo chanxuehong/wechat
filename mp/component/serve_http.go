@@ -3,6 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/v1/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
+//go:build !wechatdebug
 // +build !wechatdebug
 
 package component
@@ -32,7 +33,8 @@ type RequestHttpBody struct {
 }
 
 // ServeHTTP 处理 http 消息请求
-//  NOTE: 调用者保证所有参数有效
+//
+//	NOTE: 调用者保证所有参数有效
 func ServeHTTP(w http.ResponseWriter, r *http.Request, queryValues url.Values, srv Server, errHandler mp.ErrorHandler) {
 	switch r.Method {
 	case "POST": // 消息处理

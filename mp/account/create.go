@@ -33,8 +33,9 @@ type TemporaryQRCode struct {
 }
 
 // 创建临时二维码
-//  SceneId:       场景值ID, 为32位非0整型
-//  ExpireSeconds: 二维码有效时间, 以秒为单位.  最大不超过 604800.
+//
+//	SceneId:       场景值ID, 为32位非0整型
+//	ExpireSeconds: 二维码有效时间, 以秒为单位.  最大不超过 604800.
 func (clt *Client) CreateTemporaryQRCode(SceneId uint32, ExpireSeconds int) (qrcode *TemporaryQRCode, err error) {
 	if SceneId == 0 {
 		err = errors.New("SceneId should be greater than 0")
@@ -77,7 +78,8 @@ func (clt *Client) CreateTemporaryQRCode(SceneId uint32, ExpireSeconds int) (qrc
 }
 
 // 创建永久二维码
-//  SceneId: 场景值ID, 目前参数只支持1--100000
+//
+//	SceneId: 场景值ID, 目前参数只支持1--100000
 func (clt *Client) CreatePermanentQRCode(SceneId uint32) (qrcode *PermanentQRCode, err error) {
 	if SceneId == 0 {
 		err = errors.New("SceneId should be greater than 0")
@@ -114,7 +116,8 @@ func (clt *Client) CreatePermanentQRCode(SceneId uint32) (qrcode *PermanentQRCod
 }
 
 // 创建永久二维码
-//  SceneString: 场景值ID(字符串形式的ID), 字符串类型, 长度限制为1到64
+//
+//	SceneString: 场景值ID(字符串形式的ID), 字符串类型, 长度限制为1到64
 func (clt *Client) CreatePermanentQRCodeWithSceneString(SceneString string) (qrcode *PermanentQRCode, err error) {
 	if SceneString == "" {
 		err = errors.New("SceneString should not be empty")

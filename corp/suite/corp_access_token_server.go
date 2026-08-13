@@ -17,10 +17,11 @@ import (
 var _ corp.AccessTokenServer = (*CorpAccessTokenServer)(nil)
 
 // corp.AccessTokenServer 的简单实现.
-//  NOTE:
-//  1. 用于单进程环境.
-//  2. 因为 CorpAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 corp.AccessTokenServer 接口,
-//     所以整个系统只能存在一个 CorpAccessTokenServer 实例!
+//
+//	NOTE:
+//	1. 用于单进程环境.
+//	2. 因为 CorpAccessTokenServer 同时也是一个简单的中控服务器, 而不是仅仅实现 corp.AccessTokenServer 接口,
+//	   所以整个系统只能存在一个 CorpAccessTokenServer 实例!
 type CorpAccessTokenServer struct {
 	client        *Client
 	authCorpId    string
@@ -115,7 +116,8 @@ type CorpAccessTokenInfo struct {
 }
 
 // 从微信服务器获取 corp_access_token.
-//  同一时刻只能一个 goroutine 进入, 防止没必要的重复获取.
+//
+//	同一时刻只能一个 goroutine 进入, 防止没必要的重复获取.
 func (srv *CorpAccessTokenServer) getToken() (token CorpAccessTokenInfo, cached bool, err error) {
 	srv.tokenGet.Lock()
 	defer srv.tokenGet.Unlock()

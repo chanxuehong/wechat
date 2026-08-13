@@ -3,6 +3,7 @@
 // @license     https://github.com/chanxuehong/wechat/blob/v1/LICENSE
 // @authors     chanxuehong(chanxuehong@gmail.com)
 
+//go:build wechatdebug
 // +build wechatdebug
 
 package oauth2

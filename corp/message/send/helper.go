@@ -37,7 +37,8 @@ func SplitString(str string) []string {
 }
 
 // 用 '|' 分离 str, 然后将分离后的字符串都转换为整数
-//  NOTE: 要求 str 都是整数合并的, 否则会出错
+//
+//	NOTE: 要求 str 都是整数合并的, 否则会出错
 func SplitInt64(str string) (dst []int64, err error) {
 	strs := strings.Split(str, "|")
 

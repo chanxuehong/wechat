@@ -31,7 +31,8 @@ func (token *Token) AccessTokenExpired() bool {
 }
 
 // 通过code换取网页授权access_token.
-//  返回的 token == clt.Token
+//
+//	返回的 token == clt.Token
 func (clt *Client) Exchange(code string) (token *Token, err error) {
 	if clt.Config == nil {
 		err = errors.New("nil Config")
@@ -64,7 +65,8 @@ func (clt *Client) Exchange(code string) (token *Token, err error) {
 }
 
 // 刷新access_token(如果需要).
-//  返回的 token == clt.Token
+//
+//	返回的 token == clt.Token
 func (clt *Client) TokenRefresh() (token *Token, err error) {
 	if clt.Config == nil {
 		err = errors.New("nil Config")

@@ -76,9 +76,9 @@ type BatchGetMaterialResult struct {
 
 // 获取素材列表.
 //
-//  MaterialType: 素材的类型, 图片(image), 视频(video), 语音 (voice)
-//  offset:       从全部素材的该偏移位置开始返回, 0表示从第一个素材
-//  count:        返回素材的数量, 取值在1到20之间
+//	MaterialType: 素材的类型, 图片(image), 视频(video), 语音 (voice)
+//	offset:       从全部素材的该偏移位置开始返回, 0表示从第一个素材
+//	count:        返回素材的数量, 取值在1到20之间
 func (clt *Client) BatchGetMaterial(MaterialType string, offset, count int) (rslt *BatchGetMaterialResult, err error) {
 	switch MaterialType {
 	case MaterialTypeImage, MaterialTypeVideo, MaterialTypeVoice:
@@ -127,18 +127,18 @@ func (clt *Client) BatchGetMaterial(MaterialType string, offset, count int) (rsl
 
 // MaterialIterator
 //
-//  iter, err := Client.MaterialIterator(MaterialTypeImage, 0, 10)
-//  if err != nil {
-//      // TODO: 增加你的代码
-//  }
+//	iter, err := Client.MaterialIterator(MaterialTypeImage, 0, 10)
+//	if err != nil {
+//	    // TODO: 增加你的代码
+//	}
 //
-//  for iter.HasNext() {
-//      items, err := iter.NextPage()
-//      if err != nil {
-//          // TODO: 增加你的代码
-//      }
-//      // TODO: 增加你的代码
-//  }
+//	for iter.HasNext() {
+//	    items, err := iter.NextPage()
+//	    if err != nil {
+//	        // TODO: 增加你的代码
+//	    }
+//	    // TODO: 增加你的代码
+//	}
 type MaterialIterator struct {
 	clt *Client // 关联的微信 Client
 

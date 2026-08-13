@@ -20,7 +20,8 @@ type Group struct {
 }
 
 // 创建分组.
-//  name: 分组名字(30个字符以内)
+//
+//	name: 分组名字(30个字符以内)
 func (clt *Client) GroupCreate(name string) (group *Group, err error) {
 	if name == "" {
 		err = errors.New("empty name")
@@ -54,7 +55,8 @@ func (clt *Client) GroupCreate(name string) (group *Group, err error) {
 }
 
 // 删除分组.
-//  注意本接口是删除一个用户分组, 删除分组后, 所有该分组内的用户自动进入默认分组
+//
+//	注意本接口是删除一个用户分组, 删除分组后, 所有该分组内的用户自动进入默认分组
 func (clt *Client) GroupDelete(groupId int64) (err error) {
 	var request struct {
 		Group struct {
@@ -78,7 +80,8 @@ func (clt *Client) GroupDelete(groupId int64) (err error) {
 }
 
 // 修改分组名.
-//  name: 分组名字(30个字符以内).
+//
+//	name: 分组名字(30个字符以内).
 func (clt *Client) GroupUpdate(groupId int64, newName string) (err error) {
 	if newName == "" {
 		err = errors.New("empty newName")

@@ -15,7 +15,8 @@ import (
 )
 
 // 获取用户信息.
-//  lang 可以为空值.
+//
+//	lang 可以为空值.
 func (clt *Client) GetUserInfo(userinfo interface{}, lang string) (err error) {
 	if clt.Config == nil {
 		err = errors.New("nil Config")
