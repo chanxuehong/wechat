@@ -20,7 +20,7 @@ func TestAESEncryptMsg(t *testing.T) {
 <FromUserName><![CDATA[okPEat9FRX96xG8JQvTxHLpzDV64]]></FromUserName>
 <CreateTime>1458889120</CreateTime>
 <MsgType><![CDATA[text]]></MsgType>
-<Content><![CDATA[tests text message]]></Content>
+<Content><![CDATA[test text message]]></Content>
 <MsgId>6265881059295447969</MsgId>
 </xml>`)
 
@@ -50,7 +50,7 @@ func TestAESDecryptMsg(t *testing.T) {
 <FromUserName><![CDATA[okPEat9FRX96xG8JQvTxHLpzDV64]]></FromUserName>
 <CreateTime>1458889120</CreateTime>
 <MsgType><![CDATA[text]]></MsgType>
-<Content><![CDATA[tests text message]]></Content>
+<Content><![CDATA[test text message]]></Content>
 <MsgId>6265881059295447969</MsgId>
 </xml>`)
 	wantAppId := []byte("wx45f133bf6fce646e")
